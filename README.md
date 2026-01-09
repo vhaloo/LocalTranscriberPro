@@ -5,27 +5,39 @@
 [![OS - macOS](https://img.shields.io/badge/OS-macOS-lightgrey?logo=apple&logoColor=white)](#-mac-setup)
 ![Python](https://img.shields.io/badge/python-3.12-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![GPU](https://img.shields.io/badge/GPU-NVIDIA_CUDA-green)
+![GPU](https://img.shields.io/badge/GPU-NVIDIA_%7C_Apple_Silicon-green)
 
 ![App Preview](./app_preview.png)
 
-**Secure, offline, GPU-accelerated speech-to-text.**
-No cloud APIs. No subscriptions. No data leaks. Runs entirely on your machine using OpenAI's Whisper.
+**Secure, offline, speech-to-text for everyone.**
+Runs entirely on your machine. No cloud. No fees. No data leaks.
 
 ---
 
 ## ✨ Features
 
-*   **📁 File Transcription:** (New in v0.8) Drag & drop audio/video files to transcribe them automatically.
-*   **🚀 GPU Powered:** Automatically detects NVIDIA GPUs (CUDA) and Apple Silicon (MPS) for 10x faster transcription.
-*   **🌍 Multi-Language:** Supports **99 languages** (English, Spanish, French, Chinese, etc.).
-*   **🧠 Smart Models:**
-    *   **Tiny:** Instant speed (good for dictation).
-    *   **Small/Medium:** High accuracy (good for meetings).
-    *   **Large:** Professional precision (requires 8GB+ RAM).
-*   **📝 Dynamic Formatting:** Toggle between **Block** (paragraph) and **Stream** (continuous) text styles.
-*   **⏱️ Timestamps:** Toggle `[HH:MM:SS]` timestamps on/off instantly.
-*   **💾 Auto-Recovery:** Crashed? Your session is auto-saved.
+*   **🌍 Universal Compatibility:** Runs on everything from high-end Gaming PCs to modest Laptops and MacBooks.
+*   **🚀 GPU Acceleration:** 
+    *   **Windows/Linux:** Supports NVIDIA CUDA for blazing speeds.
+    *   **Mac:** Supports **Apple Metal (MPS)** on M1/M2/M3 chips.
+*   **🐢 CPU Mode:** Works on standard computers without dedicated graphics cards (using optimized "Tiny" or "Base" models).
+*   **📁 File Transcription:** Drag & drop audio/video files to transcribe meetings, podcasts, or lectures.
+*   **🌍 99 Languages:** Auto-detects and transcribes nearly any language.
+*   **📝 Dynamic Layout:** Toggle between Block (paragraph) and Stream (continuous) text styles.
+*   **💾 Auto-Recovery:** Never lose work. Sessions are auto-saved.
+
+---
+
+## 💻 System Requirements
+
+| | **Minimum (CPU Only)** | **Recommended (GPU)** |
+| :--- | :--- | :--- |
+| **Windows** | Intel i5 / AMD Ryzen 5<br>8GB RAM | NVIDIA GTX 1060 or higher<br>16GB RAM |
+| **Mac** | Intel MacBook (2018+)<br>8GB RAM | Apple M1 / M2 / M3<br>8GB RAM |
+| **Linux** | Modern Quad-Core CPU<br>8GB RAM | NVIDIA GPU (CUDA 12)<br>16GB RAM |
+
+*   **CPU Mode:** Slower (1x-2x real-time), best for "Tiny" or "Base" models.
+*   **GPU Mode:** Extremely fast (10x-50x real-time), enables "Small", "Medium", and "Large" models.
 
 ---
 
@@ -88,8 +100,8 @@ python local_transcriber.py
 
 | Issue | Solution |
 | :--- | :--- |
-| **App crashes on start** | Ensure you have installed [NVIDIA Drivers](https://www.nvidia.com/Download/index.aspx). |
-| **"CUDA Not Available"** | Reinstall using **Option 1** (Web Builder) to force GPU libraries. |
+| **App crashes on start** | Ensure you have installed [NVIDIA Drivers](https://www.nvidia.com/Download/index.aspx) (Windows/Linux). |
+| **"CUDA Not Available"** | Reinstall using **Option 1** to force GPU libraries. If you don't have an NVIDIA card, this is normal; the app will use CPU. |
 | **Mac M1/M2 Slow?** | Ensure you are on macOS 12.3+ for Metal acceleration. |
 
 ---
