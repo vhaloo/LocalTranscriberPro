@@ -54,6 +54,13 @@ It breaks the chains of cloud dependency, bringing state-of-the-art AI directly 
 **Important for GPU Users:**
 👉 **[Download NVIDIA CUDA Toolkit Here](https://developer.nvidia.com/cuda-downloads)**
 
+### 💾 Storage & Internet
+*   **Base App Size:** ~3GB (Includes AI Engine & Dependencies).
+*   **One-Time Download:**
+    *   The AI models (Tiny, Base, Small, Medium, Large) are downloaded **automatically on first use**.
+    *   **Tiny:** ~75 MB | **Small:** ~460 MB | **Large:** ~3 GB
+*   **100% Offline:** Once a model has been used once, it is stored locally. You can disconnect from the internet forever and the app will continue to function perfectly.
+
 ---
 
 ## 📥 Installation (Choose One)
