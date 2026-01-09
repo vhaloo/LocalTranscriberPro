@@ -61,8 +61,8 @@ It breaks the chains of cloud dependency, bringing state-of-the-art AI directly 
 **Prerequisite:** [Download Python 3.12](https://www.python.org/downloads/release/python-3128/) (Check "Add to PATH" during install).
 
 #### Windows
-1.  **Download** `Web_Builder.cmd` from the **[Releases Page](../../releases/latest)**.
-2.  Double-click the file.
+1.  **[Click here to download `Web_Builder.cmd`](https://github.com/vhaloo/LocalTranscriberPro/releases/latest/download/Web_Builder.cmd)**
+2.  Double-click the downloaded file.
 3.  Wait for the script to finish (~3GB download).
 4.  The app will appear on your **Desktop**.
 
