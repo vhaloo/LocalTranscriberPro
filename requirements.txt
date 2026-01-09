@@ -1,0 +1,6 @@
+customtkinter
+sounddevice
+numpy
+scipy
+openai-whisper
+pynput

@@ -1,0 +1,21 @@
+# Build artifacts
+build/
+dist/
+*.spec
+*.exe
+*.zip
+
+# Virtual Environments
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Logs and Temp files
+*.log
+.unsaved_session.*
+installer_debug.log
+app_base64.txt
+
+# User data
+Transcript_*.txt
