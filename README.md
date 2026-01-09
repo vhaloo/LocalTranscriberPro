@@ -52,7 +52,7 @@ It breaks the chains of cloud dependency, bringing state-of-the-art AI directly 
 | **Linux** | Modern Quad-Core CPU<br>8GB RAM | NVIDIA GPU (CUDA 12)<br>16GB RAM |
 
 **Important for GPU Users:**
-👉 **[Download Latest NVIDIA CUDA Drivers Here](https://www.nvidia.com/Download/index.aspx)**
+👉 **[Download NVIDIA CUDA Toolkit Here](https://developer.nvidia.com/cuda-downloads)**
 
 ---
 
