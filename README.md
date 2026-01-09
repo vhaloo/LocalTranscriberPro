@@ -12,10 +12,20 @@ No cloud APIs. No subscriptions. No data leaks. Runs entirely on your machine us
 
 ---
 
-## 📥 Choose Your Installation Method
+## 📥 Installation (Choose One)
 
-### Option A: Instant Run (Recommended)
-*Best for users who want to run the app immediately without installing Python.*
+### Option 1: Automatic Web Installer (Recommended) 🏆
+*The easiest way. It downloads and builds the app for you automatically.*
+
+1.  **Download** `Web_Builder.cmd` from the **[Releases Page](../../releases/latest)**.
+2.  Double-click the file.
+3.  Wait for the script to finish (it downloads ~3GB of AI engines).
+4.  The app will appear on your **Desktop**.
+
+*(Note: Requires Python 3.12 installed. If missing, the script will guide you.)*
+
+### Option 2: Direct Download (Split Files)
+*If you prefer downloading the exe directly.*
 
 1.  Go to the **[Releases Page](../../releases/latest)**.
 2.  Download these **3 files**:
@@ -24,57 +34,28 @@ No cloud APIs. No subscriptions. No data leaks. Runs entirely on your machine us
     *   `LocalTranscriberPro_v0.7.1.exe.002`
 3.  Place them in the **same folder** (e.g., Downloads).
 4.  Double-click **`Merge_Installer.cmd`**.
-5.  The app will launch automatically!
+5.  Launch the resulting `LocalTranscriberPro.exe`.
 
-*(Why split files? GitHub limits file sizes to 2GB, and the AI engine is 3GB. The merger script combines them back into one app.)*
-
----
-
-### Option B: Web Builder (Tiny Download)
-*Best if you have a fast internet connection but don't want to download split files manually.*
-
-1.  Download **`Web_Builder.cmd`** from the [Releases Page](../../releases/latest).
-2.  Double-click it.
-3.  The script will:
-    *   Download the source code.
-    *   Download the AI engine (3GB).
-    *   Compile the `.exe` for you.
-    *   Place the finished app on your **Desktop**.
-
-*Note: Requires Python 3.12 installed on your system. If missing, the script will tell you.*
-
----
-
-### Option C: Run from Source (Developers/Linux/Mac)
-*Best for developers or non-Windows users.*
+### Option 3: Run from Source (Linux/Mac/Devs)
+*For developers or non-Windows users.*
 
 #### Windows
 ```bash
-# 1. Clone
 git clone https://github.com/vhaloo/LocalTranscriberPro.git
 cd LocalTranscriberPro
-
-# 2. Setup (One-Click)
 create_installer.bat
 ```
 
 #### Linux / macOS
-Prerequisites: `python3.12`, `ffmpeg`.
+Prerequisites: `python3.12`, `ffmpeg` (install via package manager).
 
 ```bash
-# 1. Clone
 git clone https://github.com/vhaloo/LocalTranscriberPro.git
 cd LocalTranscriberPro
-
-# 2. Setup Env
 python3 -m venv venv
 source venv/bin/activate
-
-# 3. Install GPU Libraries
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
 pip install -r requirements.txt
-
-# 4. Run
 python local_transcriber.py
 ```
 
@@ -82,13 +63,17 @@ python local_transcriber.py
 
 ## ✨ Features
 
-*   **🚀 GPU Acceleration:** Automatically detects NVIDIA GPUs (CUDA) for 10x faster transcription.
+*   **🚀 GPU Powered:** Automatically detects NVIDIA GPUs (CUDA) for 10x faster transcription.
+*   **🧠 Smart Models:**
+    *   **Tiny:** Instant speed (good for dictation).
+    *   **Small/Medium:** High accuracy (good for meetings).
+    *   **Large:** Professional precision (requires 8GB+ VRAM).
 *   **📝 Dynamic Formatting:**
-    *   **Block Mode:** Standard paragraphs.
+    *   **Block Mode:** Standard paragraph layout.
     *   **Stream Mode:** Continuous text stream (like a book).
-*   **⏱️ Timestamps:** Toggle `[HH:MM:SS]` timestamps on/off in real-time.
+*   **⏱️ Timestamps:** Toggle `[HH:MM:SS]` timestamps on/off instantly.
 *   **💾 Auto-Recovery:** Crashed? No problem. Your session is auto-saved.
-*   **📂 Auto-Open:** File opens instantly in Notepad when you stop recording.
+*   **📂 Auto-Open:** Transcript opens in Notepad immediately after saving.
 
 ---
 
@@ -97,8 +82,8 @@ python local_transcriber.py
 | Issue | Solution |
 | :--- | :--- |
 | **App crashes on start** | Ensure you have installed [NVIDIA Drivers](https://www.nvidia.com/Download/index.aspx). |
-| **"CUDA Not Available"** | You might be using the CPU version. Reinstall using the "Option B" web builder to force GPU libraries. |
-| **FFmpeg Error** | Ensure `ffmpeg` is installed and added to your PATH (Linux/Mac only). |
+| **"CUDA Not Available"** | You might be using the CPU version. Reinstall using **Option 1** (Web Builder) to force GPU libraries. |
+| **"Permission Denied"** | Close any running instances of the app or Python before updating/building. |
 
 ---
 
