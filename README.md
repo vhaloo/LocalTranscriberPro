@@ -17,12 +17,17 @@ No cloud APIs. No subscriptions. No data leaks. Runs entirely on your machine us
 ### Option 1: Automatic Web Installer (Recommended) 🏆
 *The easiest way. It downloads and builds the app for you automatically.*
 
+#### Windows
 1.  **Download** `Web_Builder.cmd` from the **[Releases Page](../../releases/latest)**.
 2.  Double-click the file.
-3.  Wait for the script to finish (it downloads ~3GB of AI engines).
-4.  The app will appear on your **Desktop**.
+3.  Wait for the script to finish. The app will appear on your **Desktop**.
 
-*(Note: Requires Python 3.12 installed. If missing, the script will guide you.)*
+#### Linux / Raspberry Pi
+1.  Run this one-line command in your terminal:
+    ```bash
+    curl -sL https://github.com/vhaloo/LocalTranscriberPro/releases/latest/download/web_builder.sh | bash
+    ```
+    *(This script auto-detects your OS and installs everything).*
 
 ### Option 2: Direct Download (Split Files)
 *If you prefer downloading the exe directly.*
