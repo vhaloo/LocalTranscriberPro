@@ -9,35 +9,47 @@
 
 ![App Preview](./app_preview.png)
 
-**Secure, offline, speech-to-text for everyone.**
-Runs entirely on your machine. No cloud. No fees. No data leaks.
+### **Reclaim Your Data. Restore Your Privacy.**
+
+**Local Transcriber Pro is a tool for Digital Sovereignty.**
+It breaks the chains of cloud dependency, bringing state-of-the-art AI directly to your own hardware. In an era of mass surveillance, data brokerage, and subscription fatigue, this application offers a sanctuary of absolute privacy.
+
+**No Cloud. No Fees. No Internet required.**
 
 ---
 
-## ✨ Features
+## ✊ Core Philosophy & Features
 
-*   **🌍 Universal Compatibility:** Runs on everything from high-end Gaming PCs to modest Laptops and MacBooks.
-*   **🚀 GPU Acceleration:** 
-    *   **Windows/Linux:** Supports NVIDIA CUDA for blazing speeds.
-    *   **Mac:** Supports **Apple Metal (MPS)** on M1/M2/M3 chips.
-*   **🐢 CPU Mode:** Works on standard computers without dedicated graphics cards (using optimized "Tiny" or "Base" models).
-*   **📁 File Transcription:** Drag & drop audio/video files to transcribe meetings, podcasts, or lectures.
-*   **🌍 99 Languages:** Auto-detects and transcribes nearly any language.
-*   **📝 Dynamic Layout:** Toggle between Block (paragraph) and Stream (continuous) text styles.
-*   **💾 Auto-Recovery:** Never lose work. Sessions are auto-saved.
+*   **🛡️ Absolute Data Governance:** Your audio **never** leaves your physical machine. Whether you are a journalist protecting a source, a doctor handling patient data, or simply a private citizen, your data remains exclusively yours.
+*   **🌱 Digital Ecology & Anti-Obsolescence:**
+    *   **Sustainable Computing:** By utilizing the idle power of the hardware you *already own*, we reject the reliance on energy-hungry, always-on massive server farms.
+    *   **Low-End Friendly:** Optimized to run on modest CPUs and older laptops (Intel/AMD), extending the lifespan of your devices and reducing electronic waste.
+*   **🌍 Global Understanding (99 Languages):**
+    *   The underlying AI (OpenAI Whisper) has been trained on **680,000 hours** of multilingual data.
+    *   It fluently understands and transcribes **99 languages**, preserving dialects, accents, and technical jargon often ignored by commercial APIs.
+*   **⚡ Zero-Latency Independence:** Once installed, unplug your ethernet cable. It works perfectly **offline**, ensuring your workflow is resilient to internet outages and bandwidth caps.
+
+---
+
+## 🛠️ Technical Capabilities
+
+*   **🚀 Hardware Acceleration:**
+    *   **NVIDIA CUDA:** Blazing fast transcription on Windows/Linux.
+    *   **Apple Metal (MPS):** Native silicon support for M1/M2/M3 Macs.
+*   **📂 File Transcription:** Drag & drop huge audio/video files (hours long) and let your machine process them in the background.
+*   **🧠 Smart Optimization:** Automatically selects the best model ("Large" for accuracy, "Tiny" for speed) based on your hardware's capabilities.
+*   **📝 Dynamic Formatting:** Switch between traditional timestamps, block paragraphs, or continuous stream text.
 
 ---
 
 ## 💻 System Requirements
 
-| | **Minimum (CPU Only)** | **Recommended (GPU)** |
+| | **Minimum (CPU Mode)** | **Recommended (GPU Mode)** |
 | :--- | :--- | :--- |
-| **Windows** | Intel i5 / AMD Ryzen 5<br>8GB RAM | NVIDIA GTX 1060 or higher<br>16GB RAM |
+| **Philosophy** | *Accessibility & Longevity* | *Performance & Speed* |
+| **Windows** | Intel i5 / AMD Ryzen 5<br>8GB RAM | NVIDIA GTX 1060+<br>16GB RAM |
 | **Mac** | Intel MacBook (2018+)<br>8GB RAM | Apple M1 / M2 / M3<br>8GB RAM |
 | **Linux** | Modern Quad-Core CPU<br>8GB RAM | NVIDIA GPU (CUDA 12)<br>16GB RAM |
-
-*   **CPU Mode:** Slower (1x-2x real-time), best for "Tiny" or "Base" models.
-*   **GPU Mode:** Extremely fast (10x-50x real-time), enables "Small", "Medium", and "Large" models.
 
 ---
 
@@ -93,16 +105,6 @@ pip install torch torchvision torchaudio
 pip install -r requirements.txt
 python local_transcriber.py
 ```
-
----
-
-## ❓ Troubleshooting
-
-| Issue | Solution |
-| :--- | :--- |
-| **App crashes on start** | Ensure you have installed [NVIDIA Drivers](https://www.nvidia.com/Download/index.aspx) (Windows/Linux). |
-| **"CUDA Not Available"** | Reinstall using **Option 1** to force GPU libraries. If you don't have an NVIDIA card, this is normal; the app will use CPU. |
-| **Mac M1/M2 Slow?** | Ensure you are on macOS 12.3+ for Metal acceleration. |
 
 ---
 
