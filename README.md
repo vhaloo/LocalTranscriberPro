@@ -51,6 +51,9 @@ It breaks the chains of cloud dependency, bringing state-of-the-art AI directly 
 | **Mac** | Intel MacBook (2018+)<br>8GB RAM | Apple M1 / M2 / M3<br>8GB RAM |
 | **Linux** | Modern Quad-Core CPU<br>8GB RAM | NVIDIA GPU (CUDA 12)<br>16GB RAM |
 
+**Important for GPU Users:**
+👉 **[Download Latest NVIDIA CUDA Drivers Here](https://www.nvidia.com/Download/index.aspx)**
+
 ---
 
 ## 📥 Installation (Choose One)
@@ -105,6 +108,16 @@ pip install torch torchvision torchaudio
 pip install -r requirements.txt
 python local_transcriber.py
 ```
+
+---
+
+## ❓ Troubleshooting
+
+| Issue | Solution |
+| :--- | :--- |
+| **App crashes on start** | Ensure you have installed [NVIDIA Drivers](https://www.nvidia.com/Download/index.aspx) (Windows/Linux). |
+| **"CUDA Not Available"** | Reinstall using **Option 1** to force GPU libraries. If you don't have an NVIDIA card, this is normal; the app will use CPU. |
+| **Mac M1/M2 Slow?** | Ensure you are on macOS 12.3+ for Metal acceleration. |
 
 ---
 
