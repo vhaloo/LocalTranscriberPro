@@ -7,6 +7,8 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![GPU](https://img.shields.io/badge/GPU-NVIDIA_CUDA-green)
 
+![App Preview](app_preview.png)
+
 **Secure, offline, GPU-accelerated speech-to-text.**
 No cloud APIs. No subscriptions. No data leaks. Runs entirely on your machine using OpenAI's Whisper.
 
