@@ -15,11 +15,17 @@ Local Transcriber Pro allows you to transcribe audio in real-time using OpenAI's
 
 ## ⚡ Quick Start (Windows)
 
-1.  **Download** the latest `LocalTranscriberPro_Setup.exe` from the **[Releases Page](../../releases)**.
-2.  **Run** the installer.
-    *   It will automatically detect your hardware.
-    *   It will download the necessary AI engines (approx. 2-3GB) on the first run.
-3.  **Transcribe!**
+Due to GitHub's file size limits (2GB), the standalone executable is split into two parts.
+
+1.  **Download** both files from the **[Releases Page](../../releases)**:
+    *   `LocalTranscriberPro_v0.7.1.exe.001`
+    *   `LocalTranscriberPro_v0.7.1.exe.002`
+2.  **Merge them:**
+    *   Open your Downloads folder.
+    *   Right-click empty space -> "Open in Terminal" (or CMD).
+    *   Run: `copy /b LocalTranscriberPro_v0.7.1.exe.001 + LocalTranscriberPro_v0.7.1.exe.002 LocalTranscriberPro.exe`
+3.  **Run:** Launch the new `LocalTranscriberPro.exe`.
+    *   *Note: First launch may take up to 60s to unpack the AI engine.*
 
 ---
 
@@ -109,23 +115,29 @@ Prerequisites: `python3`, `ffmpeg` (install via Homebrew).
 
 ---
 
-## 🛠️ Building the EXE (Windows Only)
+## 🛠️ For Developers: Building the EXE
 
-If you want to modify the code and build your own executable:
+If you want to modify the code and build your own standalone executable:
 
-1.  Ensure you have the development environment set up (see "Run from Source").
-2.  Run the build script:
-    ```cmd
-    build_standalone.bat
+1.  **Install Python 3.12** (Important: 3.13+ is not fully supported yet).
+2.  **Install Requirements:**
+    ```bash
+    # In a venv
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+    pip install -r requirements.txt
+    pip install pyinstaller
     ```
-3.  The new executable will appear in the `dist/` folder.
+3.  **Run the Build Script:**
+    Double-click `build_standalone.bat`.
+    
+    *This script uses `pyinstaller` with specific flags to bundle the NVIDIA CUDA libraries and Whisper models correctly.*
 
 ---
 
 ## ❓ Troubleshooting
 
 **Q: The app crashes immediately on start.**
-*   **A:** Ensure you have installed the correct GPU drivers for your card. If you are on Windows, try running the `installer_debug.log` to see if Python failed to initialize.
+*   **A:** Ensure you have installed the correct GPU drivers for your card.
 
 **Q: It says "CUDA Not Available" even though I have an NVIDIA card.**
 *   **A:** You may have installed the CPU version of PyTorch. Run this command in your venv to fix it:
