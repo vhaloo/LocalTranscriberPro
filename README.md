@@ -115,22 +115,20 @@ Prerequisites: `python3`, `ffmpeg` (install via Homebrew).
 
 ---
 
-## 🛠️ For Developers: Building the EXE
+## 🛠️ Building the EXE (Windows Only)
 
-If you want to modify the code and build your own standalone executable:
+We have included a **One-Click Builder** script to make this easy.
 
-1.  **Install Python 3.12** (Important: 3.13+ is not fully supported yet).
-2.  **Install Requirements:**
-    ```bash
-    # In a venv
-    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
-    pip install -r requirements.txt
-    pip install pyinstaller
-    ```
-3.  **Run the Build Script:**
-    Double-click `build_standalone.bat`.
-    
-    *This script uses `pyinstaller` with specific flags to bundle the NVIDIA CUDA libraries and Whisper models correctly.*
+1.  **Install Python 3.12** from [python.org](https://www.python.org/downloads/).
+2.  **Clone this repository** (or download as ZIP and extract).
+3.  Double-click **`create_installer.bat`**.
+
+The script will automatically:
+*   Set up a private virtual environment.
+*   Download all necessary AI engines (approx. 3GB).
+*   Compile the standalone `LocalTranscriberPro.exe`.
+
+You will find the finished app in the `dist/` folder.
 
 ---
 
