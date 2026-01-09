@@ -9,6 +9,8 @@
 
 ![App Preview](./app_preview.png)
 
+**Local Transcriber Pro** is a high-performance, private, and offline transcription tool. It converts spoken audio from your microphone or existing files into text with extreme accuracy, utilizing state-of-the-art AI models that run entirely on your own device.
+
 ### **Reclaim Your Data. Restore Your Privacy.**
 
 **Local Transcriber Pro is a tool for Digital Sovereignty.**
