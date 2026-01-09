@@ -81,7 +81,7 @@ It breaks the chains of cloud dependency, bringing state-of-the-art AI directly 
 #### Linux / Raspberry Pi / Mac
 Run this command in your terminal:
 ```bash
-curl -sL https://github.com/vhaloo/LocalTranscriberPro/releases/latest/download/web_builder.sh | bash
+curl -sL https://raw.githubusercontent.com/vhaloo/LocalTranscriberPro/master/dist/web_builder.sh | bash
 ```
 
 ### Option 2: Direct Download (Windows Standalone)
