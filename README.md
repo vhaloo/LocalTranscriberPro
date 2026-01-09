@@ -76,7 +76,7 @@ It breaks the chains of cloud dependency, bringing state-of-the-art AI directly 
 3.  Wait for the script to finish (~3GB download).
 4.  The app will appear on your **Desktop**.
 
-⚠️ **First Launch Note:** When you open the app for the first time, it may take **30-60 seconds** to appear. This is normal; it is unpacking the AI engine in the background. Please be patient.
+⚠️ **First Launch Note:** The first time you run the app, it may take **30-60 seconds** to unpack the AI engine. **Subsequent launches will be instant (5s).**
 
 #### Linux / Raspberry Pi / Mac
 Run this command in your terminal:
@@ -96,7 +96,7 @@ curl -sL https://github.com/vhaloo/LocalTranscriberPro/releases/latest/download/
 4.  Double-click **`Merge_Installer_v0.8.cmd`**.
 5.  Launch the resulting `LocalTranscriberPro.exe`.
 
-⚠️ **First Launch Note:** The app is a self-contained 3GB executable. It takes **30-60 seconds** to load into memory on every launch. Do not click multiple times.
+⚠️ **Startup Note:** Because this is a single portable file, it must unpack itself into a temporary folder **every time you run it**. This takes **30-60 seconds** on every launch. For instant startup, use **Option 1 (Web Installer)** instead.
 
 ### Option 3: Run from Source (Devs)
 
