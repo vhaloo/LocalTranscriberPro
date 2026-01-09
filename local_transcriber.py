@@ -22,8 +22,9 @@ logging.basicConfig(filename='app_debug.log', level=logging.DEBUG,
 # Configuration
 SAMPLE_RATE = 16000
 CHANNELS = 1
-APP_VERSION = "v0.7.1"
+APP_VERSION = "v0.8"
 
+# Model sizes map
 MODEL_SIZES = {
     "tiny": "tiny (~75 MB)",
     "base": "base (~145 MB)",
@@ -33,6 +34,7 @@ MODEL_SIZES = {
 }
 REVERSE_MODEL_MAP = {v: k for k, v in MODEL_SIZES.items()}
 
+# Chunk options (Label -> Seconds)
 CHUNK_OPTIONS = {
     "5s (Fastest)": 5,
     "10s (Balanced)": 10,
@@ -40,8 +42,10 @@ CHUNK_OPTIONS = {
     "20s": 20,
     "30s (Best Context)": 30
 }
+REVERSE_CHUNK_MAP = {v: k for k, v in CHUNK_OPTIONS.items()}
 
 class StdErrRedirector:
+    """Captures stderr (tqdm progress bars) to update the GUI."""
     def __init__(self, callback):
         self.callback = callback
         self.original_stderr = sys.stderr
@@ -87,40 +91,62 @@ class AudioRecorder:
         self.paused = False
         try:
             self.stream = sd.InputStream(
-                device=self.device_index, channels=CHANNELS, samplerate=SAMPLE_RATE,
-                callback=self.audio_callback, blocksize=4096 
+                device=self.device_index,
+                channels=CHANNELS,
+                samplerate=SAMPLE_RATE,
+                callback=self.audio_callback,
+                blocksize=4096 
             )
             self.stream.start()
+            logging.info("Stream started successfully")
         except Exception as e:
             logging.error(f"Error starting stream: {e}")
             raise
 
     def audio_callback(self, indata, frames, time, status):
-        if status: logging.warning(f"Audio status: {status}")
+        if status:
+            logging.warning(f"Audio callback status: {status}")
         if self.recording and not self.paused:
             with self.lock:
                 self.audio_buffer.append(indata.copy())
                 self.buffer_sample_count += frames
+                
+                # Check if we have enough data for a full chunk
                 if self.buffer_sample_count >= self.chunk_duration_samples:
+                    # Combine buffered blocks
                     full_data = np.concatenate(self.audio_buffer)
+                    
+                    # Extract chunk and remainder
                     chunk = full_data[:self.chunk_duration_samples]
                     remainder = full_data[self.chunk_duration_samples:]
+                    
+                    # Send the full chunk
                     self.audio_queue.put(chunk)
+                    
+                    # Reset buffer with remainder
                     self.audio_buffer = [remainder] if len(remainder) > 0 else []
                     self.buffer_sample_count = len(remainder)
 
-    def pause(self): self.paused = True
-    def resume(self): self.paused = False
+    def pause(self):
+        self.paused = True
+
+    def resume(self):
+        self.paused = False
+
     def stop(self):
         self.recording = False
         if self.stream:
             self.stream.stop()
             self.stream.close()
             self.stream = None
+        
+        # Flush any remaining audio in the buffer
         with self.lock:
             if self.audio_buffer:
                 remaining_data = np.concatenate(self.audio_buffer)
+                # Only transcribe if there is significant audio left (>0.1s)
                 if len(remaining_data) > int(SAMPLE_RATE * 0.1):
+                    logging.info(f"Flushing final buffer: {len(remaining_data)} samples")
                     self.audio_queue.put(remaining_data)
                 self.audio_buffer = []
                 self.buffer_sample_count = 0
@@ -128,6 +154,7 @@ class AudioRecorder:
 class TranscriberApp(ctk.CTk):
     def __init__(self):
         super().__init__()
+        
         self.title(f"Local Transcriber Pro {APP_VERSION}")
         self.geometry("1000x850")
         ctk.set_appearance_mode("Dark")
@@ -159,7 +186,6 @@ class TranscriberApp(ctk.CTk):
         except: self.has_nvidia_gpu = False
         self.torch_cuda_available = torch.cuda.is_available()
         self.cuda_missing = self.has_nvidia_gpu and not self.torch_cuda_available
-        # Check for Apple Silicon (MPS)
         self.mps_available = hasattr(torch.backends, "mps") and torch.backends.mps.is_available()
 
     def setup_ui(self):
@@ -208,6 +234,11 @@ class TranscriberApp(ctk.CTk):
         self.proc_combo.set("Auto")
         self.proc_combo.pack(side="left", padx=5)
 
+        if self.cuda_missing:
+            self.fix_cuda_btn = ctk.CTkButton(r1, text="⚠️ GPU", fg_color="#e67e22", hover_color="#d35400", 
+                                          command=self.open_cuda_help, width=60)
+            self.fix_cuda_btn.pack(side="right", padx=10)
+
         # Row 2: Formatting Options (New)
         r2 = ctk.CTkFrame(self.settings_frame, fg_color="transparent")
         r2.pack(fill="x", padx=10, pady=5)
@@ -217,7 +248,7 @@ class TranscriberApp(ctk.CTk):
         # Time Format
         self.time_fmt_var = ctk.StringVar(value="[HH:MM:SS]")
         self.time_fmt_menu = ctk.CTkOptionMenu(r2, values=["[HH:MM:SS]", "[MM:SS]", "None"], 
-                                             variable=self.time_fmt_var, command=self.refresh_display, width=120)
+                                               variable=self.time_fmt_var, command=self.refresh_display, width=120)
         self.time_fmt_menu.pack(side="left", padx=5)
 
         # Layout Format
@@ -250,6 +281,10 @@ class TranscriberApp(ctk.CTk):
         self.controls_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.controls_frame.grid(row=5, column=0, sticky="ew", padx=20, pady=20)
         
+        self.hotkey_label = ctk.CTkLabel(self.controls_frame, text="Hotkeys: [F1] Record  |  [F2] Pause  |  [F3] Stop", 
+                                         font=("Consolas", 11), text_color="gray")
+        self.hotkey_label.pack(side="top", pady=(0, 5))
+
         self.btn_inner = ctk.CTkFrame(self.controls_frame, fg_color="transparent")
         self.btn_inner.pack()
 
@@ -261,6 +296,10 @@ class TranscriberApp(ctk.CTk):
 
         self.stop_btn = ctk.CTkButton(self.btn_inner, text="■ Stop", fg_color="#636e72", hover_color="#b2bec3", width=140, height=40, font=("Roboto", 16, "bold"), state="disabled", command=self.stop_recording)
         self.stop_btn.pack(side="left", padx=15)
+        
+        # Transcribe File Button
+        self.file_btn = ctk.CTkButton(self.btn_inner, text="📁 Transcribe File", fg_color="#0984e3", hover_color="#74b9ff", width=160, height=40, font=("Roboto", 16, "bold"), command=self.transcribe_file)
+        self.file_btn.pack(side="left", padx=15)
 
         # Save Mode
         self.save_mode_var = ctk.StringVar(value="Save: Desktop")
@@ -326,8 +365,12 @@ class TranscriberApp(ctk.CTk):
         self.textbox.see("end")
         self.textbox.configure(state="disabled")
 
-    def add_segment(self, text):
-        now = datetime.datetime.now()
+    def add_segment(self, text, custom_time=None):
+        if custom_time:
+            now = custom_time
+        else:
+            now = datetime.datetime.now()
+            
         segment = {'time': now, 'text': text}
         self.transcript_data.append(segment)
         self.save_backup()
@@ -374,6 +417,108 @@ class TranscriberApp(ctk.CTk):
             if os.path.exists(self.backup_file): os.remove(self.backup_file)
         except: pass
 
+    # --- File Transcription ---
+    def transcribe_file(self):
+        if self.is_loading_model: return
+        
+        filepath = filedialog.askopenfilename(
+            title="Select Audio/Video File",
+            filetypes=[("Audio/Video Files", "*.wav *.mp3 *.m4a *.mp4 *.flac *.ogg *.mkv *.mov"), ("All Files", "*.*")]
+        )
+        
+        if not filepath: return
+
+        # Smart Optimization Check
+        current_model_display = self.model_combo.get()
+        current_model = REVERSE_MODEL_MAP.get(current_model_display, "small")
+        current_chunk_label = self.chunk_combo.get()
+        
+        # Suggest upgrade if not already maximizing quality
+        # We only suggest "Large" if the user isn't already using it.
+        if current_model != "large" or current_chunk_label != "30s (Best Context)":
+            if messagebox.askyesno("Quality Optimization", "For long files, best results are usually achieved with the 'Large' model and '30s' context.\n\nSwitch to these settings automatically?"):
+                self.model_combo.set(MODEL_SIZES["large"])
+                self.chunk_combo.set("30s (Best Context)")
+        
+        self.load_frame.grid()
+        self.progress_bar.set(0)
+        self.loading_label.configure(text="Preparing file...")
+        
+        # Lock UI
+        self.record_btn.configure(state="disabled")
+        self.file_btn.configure(state="disabled")
+        self.device_combo.configure(state="disabled")
+        self.model_combo.configure(state="disabled")
+        
+        proc_mode = self.proc_combo.get()
+        
+        threading.Thread(target=self.process_file, args=(filepath, proc_mode), daemon=True).start()
+
+    def process_file(self, filepath, proc_mode):
+        self.is_loading_model = True
+        self.redirector = StdErrRedirector(self.update_progress)
+        self.redirector.start()
+        
+        try:
+            # 1. Load Model (Same logic as init_and_record)
+            model_display_name = self.model_combo.get()
+            model_name = REVERSE_MODEL_MAP.get(model_display_name, "small")
+            
+            device = "cpu"
+            if proc_mode == "GPU (CUDA)": 
+                device = "cuda"
+            elif proc_mode == "GPU (MPS)": 
+                device = "mps"
+            elif proc_mode == "Auto": 
+                if torch.cuda.is_available():
+                    device = "cuda"
+                elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+                    device = "mps"
+                else:
+                    device = "cpu"
+            
+            if self.model is None or self.model_name != model_name:
+                self.after(0, lambda: self.loading_label.configure(text=f"Loading {model_name} on {device.upper()}..."))
+                self.log_sys(f"Loading model '{model_name}' on {device.upper()}...")
+                self.model = whisper.load_model(model_name, device=device)
+                self.model_name = model_name
+                self.log_sys("Model loaded.")
+
+            # 2. Transcribe
+            filename = os.path.basename(filepath)
+            self.after(0, lambda: self.loading_label.configure(text=f"Transcribing {filename}..."))
+            self.log_sys(f"Started processing file: {filename}")
+            
+            self.session_start_time = datetime.datetime.now()
+            
+            # Whisper's transcribe method handles long files by splitting them internally.
+            # verbose=False prevents it from spamming stdout, but we lose the progress bar for the file itself.
+            # We can capture the result segments.
+            result = self.model.transcribe(filepath, verbose=False)
+            
+            # 3. Output Results
+            if result and "segments" in result:
+                # We append to current view.
+                
+                for segment in result["segments"]:
+                    text = segment["text"].strip()
+                    # Calculate segment start time relative to now
+                    seg_time = self.session_start_time + datetime.timedelta(seconds=segment['start'])
+                    
+                    self.after(0, lambda t=text, time=seg_time: self.add_segment(t, custom_time=time))
+            
+            self.after(0, lambda: self.log_sys(f"Finished processing {filename}."))
+            self.after(0, self.perform_save)
+
+        except Exception as e:
+            self.log_sys(f"File Error: {e}")
+            messagebox.showerror("Error", f"Failed to process file:\n{e}")
+        finally:
+            self.redirector.stop()
+            self.is_loading_model = False
+            self.after(0, lambda: self.load_frame.grid_remove())
+            self.after(0, self.reset_ui)
+
     # --- Core Logic ---
     def start_recording(self):
         if self.is_loading_model: return
@@ -388,6 +533,7 @@ class TranscriberApp(ctk.CTk):
         
         # Disable UI
         self.record_btn.configure(state="disabled")
+        self.file_btn.configure(state="disabled")
         self.device_combo.configure(state="disabled")
         self.model_combo.configure(state="disabled")
         
@@ -413,13 +559,12 @@ class TranscriberApp(ctk.CTk):
             
             if self.model is None or self.model_name != model:
                 self.after(0, lambda: self.loading_label.configure(text=f"Loading {model} on {device}..."))
+                self.log_sys(f"Loading model '{model}' on {device.upper()}...")
                 self.model = whisper.load_model(model, device=device)
                 self.model_name = model
+                self.log_sys("Model loaded.")
 
             self.session_start_time = datetime.datetime.now()
-            # New session implies clearing data if it was previously saved, 
-            # BUT for safety we append if user didn't clear. 
-            # (Simple approach: append to existing) 
             
             self.recorder.start(dev, chunk)
             self.after(0, self.on_rec_start)
@@ -528,6 +673,7 @@ class TranscriberApp(ctk.CTk):
 
     def reset_ui(self):
         self.record_btn.configure(state="normal")
+        self.file_btn.configure(state="normal")
         self.pause_btn.configure(state="disabled", text="❚❚ Pause")
         self.stop_btn.configure(state="disabled")
         self.device_combo.configure(state="normal")

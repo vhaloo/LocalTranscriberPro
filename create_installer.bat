@@ -3,7 +3,7 @@ setlocal
 cd /d "%~dp0"
 
 echo ========================================================
-echo   Local Transcriber Pro - EXE Builder
+echo   Local Transcriber Pro v0.8 - EXE Builder
 echo ========================================================
 echo.
 echo This script will:
