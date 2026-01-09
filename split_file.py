@@ -1,10 +1,14 @@
 import os
 
-CHUNK_SIZE = 1.9 * 1024 * 1024 * 1024 # 1.9 GB (just under the limit)
-INPUT_FILE = r"C:\Users\Vhaloo\Desktop\LocalTranscriber\dist\LocalTranscriberPro_v0.7.1.exe"
+CHUNK_SIZE = 1.9 * 1024 * 1024 * 1024 # 1.9 GB
+INPUT_FILE = r"C:\Users\Vhaloo\Desktop\LocalTranscriber\dist\LocalTranscriberPro_v0.8.exe"
 OUTPUT_BASE = INPUT_FILE
 
 def split_file():
+    if not os.path.exists(INPUT_FILE):
+        print(f"Error: {INPUT_FILE} not found.")
+        return
+
     with open(INPUT_FILE, 'rb') as f:
         part_num = 1
         while True:

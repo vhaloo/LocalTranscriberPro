@@ -2,29 +2,26 @@
 
 ## Session: January 8, 2026
 
-### **Status: Major Release v0.7.1**
-Both Desktop and Mobile versions have achieved feature parity. The project is fully documented and deployed to GitHub with professional release assets.
+### **Status: Major Release v0.8**
+Added File Transcription capability with smart optimization prompts.
 
 ### **Current Application State**
-*   **Desktop App:** Local Transcriber Pro v0.7.1
-*   **Mobile App:** Local Transcriber Mobile v0.2 (Prototype)
+*   **Desktop App:** Local Transcriber Pro v0.8
+*   **Mobile App:** Local Transcriber Mobile v0.2
 *   **Repo:** https://github.com/vhaloo/LocalTranscriberPro
 
 ### **Version Changelog**
+*   **v0.8 (Desktop):**
+    *   **File Transcription:** Added "Transcribe File" button to process existing audio/video files.
+    *   **Smart Optimization:** Automatically suggests upgrading to "Large" model + "30s" context when processing files for maximum accuracy.
+    *   **Format:** Supports .wav, .mp3, .m4a, .mp4, .flac, .ogg, .mkv, .mov.
 *   **v0.7.1 (Desktop):**
-    *   **Dynamic Formatting:** Added real-time toggle for Block/Stream layout and Timestamps.
-    *   **UX:** Added "Open File" checkbox to auto-launch notepad after recording.
-    *   **Build:** Created `Web_Builder.cmd` for one-click compilation on client machines.
-    *   **Docs:** Comprehensive README with Linux/Mac support.
+    *   Dynamic Formatting (Block/Stream, Timestamps).
+    *   Auto-Open file option.
+    *   One-Click Builder.
 *   **v0.2 (Mobile):**
-    *   Ported dynamic formatting logic (Timestamps, Layouts).
-    *   Added Auto-Save to Downloads.
-    *   Added "Open File" button.
-    *   Updated UI to match Desktop style.
+    *   Feature parity with Desktop v0.7.
 
 ### **Technical Notes**
-*   **Desktop:** Uses PyTorch 2.6.0+cu124 (NVIDIA GPU).
-*   **Mobile:** Uses KivyMD + PyTorch CPU (Optimized for Android).
-*   **Distribution:** 
-    *   Desktop: Split EXE (due to GitHub limits) + Web Installer.
-    *   Mobile: Source code ready for Buildozer/Colab compilation.
+*   **File Processing:** Uses `model.transcribe(path)` directly, bypassing the real-time audio queue for efficiency on long files.
+*   **Threading:** File transcription runs in a background thread to keep UI responsive.
