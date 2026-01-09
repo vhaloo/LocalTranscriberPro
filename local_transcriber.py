@@ -159,6 +159,8 @@ class TranscriberApp(ctk.CTk):
         except: self.has_nvidia_gpu = False
         self.torch_cuda_available = torch.cuda.is_available()
         self.cuda_missing = self.has_nvidia_gpu and not self.torch_cuda_available
+        # Check for Apple Silicon (MPS)
+        self.mps_available = hasattr(torch.backends, "mps") and torch.backends.mps.is_available()
 
     def setup_ui(self):
         self.grid_columnconfigure(0, weight=1)
@@ -194,7 +196,15 @@ class TranscriberApp(ctk.CTk):
         self.chunk_combo.pack(side="left", padx=5)
 
         ctk.CTkLabel(r1, text="Device:", font=("Roboto", 14)).pack(side="left", padx=(15, 5))
-        self.proc_combo = ctk.CTkComboBox(r1, values=["Auto", "GPU (CUDA)", "CPU"], width=100, command=self.on_device_change)
+        
+        # Dynamic Device List
+        proc_values = ["Auto", "CPU"]
+        if self.torch_cuda_available:
+            proc_values.insert(1, "GPU (CUDA)")
+        if self.mps_available:
+            proc_values.insert(1, "GPU (MPS)")
+            
+        self.proc_combo = ctk.CTkComboBox(r1, values=proc_values, width=120, command=self.on_device_change)
         self.proc_combo.set("Auto")
         self.proc_combo.pack(side="left", padx=5)
 
@@ -389,8 +399,17 @@ class TranscriberApp(ctk.CTk):
         self.redirector.start()
         try:
             device = "cpu"
-            if proc == "GPU (CUDA)": device = "cuda"
-            elif proc == "Auto": device = "cuda" if torch.cuda.is_available() else "cpu"
+            if proc == "GPU (CUDA)": 
+                device = "cuda"
+            elif proc == "GPU (MPS)": 
+                device = "mps"
+            elif proc == "Auto": 
+                if torch.cuda.is_available():
+                    device = "cuda"
+                elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+                    device = "mps"
+                else:
+                    device = "cpu"
             
             if self.model is None or self.model_name != model:
                 self.after(0, lambda: self.loading_label.configure(text=f"Loading {model} on {device}..."))

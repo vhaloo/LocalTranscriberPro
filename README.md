@@ -51,18 +51,41 @@ cd LocalTranscriberPro
 create_installer.bat
 ```
 
-#### Linux / macOS
-Prerequisites: `python3.12`, `ffmpeg` (install via package manager).
+## 🍎 Mac Setup (M1/M2/M3 & Intel)
 
-```bash
-git clone https://github.com/vhaloo/LocalTranscriberPro.git
-cd LocalTranscriberPro
-python3 -m venv venv
-source venv/bin/activate
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
-pip install -r requirements.txt
-python local_transcriber.py
-```
+Prerequisites: `python3.10` or `python3.12`, `ffmpeg`.
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/vhaloo/LocalTranscriberPro.git
+    cd LocalTranscriberPro
+    ```
+
+2.  **Install Homebrew Dependencies:**
+    ```bash
+    brew install python@3.12 ffmpeg portaudio
+    ```
+
+3.  **Setup Environment:**
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate
+    ```
+
+4.  **Install Libraries:**
+    *   **Apple Silicon (M1/M2/M3):** PyTorch automatically supports Metal (MPS) acceleration on Mac.
+    *   **Intel Mac:** Will run in CPU mode.
+    
+    ```bash
+    pip install torch torchvision torchaudio
+    pip install -r requirements.txt
+    ```
+
+5.  **Run:**
+    ```bash
+    python local_transcriber.py
+    ```
+    *The app will automatically detect "GPU (MPS)" on Apple Silicon Macs.*
 
 ---
 
