@@ -7,68 +7,91 @@
 
 **Local Transcriber Pro** is a high-performance, private, and offline transcription tool developed by **Vhaloo**. It converts spoken audio from your microphone or existing files into text with extreme accuracy using OpenAI's Whisper models, running entirely on your own device.
 
-![App Preview](app_preview.png)
+![Local Transcriber Pro Preview](app_preview.png)
 
 ---
 
-## 🚀 Key Features
+## 🌟 Why Local Transcriber Pro?
 
-### 🎬 Universal Subtitle Creator (New!)
-*   **Any Source:** Create subtitles for **ANY** video or audio file you have—movies, TV shows, podcasts, lectures, or raw camera footage.
-*   **Export as .SRT:** Automatically generate subtitles with precise timestamps compatible with YouTube, VLC, and Premiere Pro.
-*   **Batch Process:** Drag and drop an entire season of a show or a folder of clips to subtitle them all overnight.
+### 🔒 **Uncompromised Privacy**
+*   **100% Offline:** No data ever leaves your computer. No cloud APIs, no subscriptions, no tracking.
+*   **Secure:** Perfect for confidential meetings, legal/medical dictation, or personal journals.
 
-### 🔒 Privacy First
-*   **100% Offline:** No data ever leaves your computer.
-*   **Secure:** Ideal for confidential meetings, medical dictation, or personal journals.
+### 🎬 **Universal Subtitle Creator**
+*   **Any Source:** Create subtitles for **ANY** video or audio file (Movies, TV Shows, Podcasts, Lectures).
+*   **Export as .SRT:** Automatically generate time-synced subtitles for YouTube, VLC, or Premiere Pro.
+*   **Batch Process:** Drag and drop an entire season of a show to subtitle it overnight.
 
-### ⚡ High Performance
-*   **GPU Acceleration:** Utilizes NVIDIA CUDA for blazing fast transcription (Auto-switches to CPU if unavailable).
+### ⚡ **High Performance**
+*   **GPU Acceleration:** Automatically detects NVIDIA GPUs (CUDA) for blazing fast transcription (up to 10x faster than CPU).
 *   **Smart Queue:** Process unlimited files in the background without freezing your PC.
 
-### 🛠️ Advanced Tools
-*   **Translation:** Instantly translate foreign audio into English text.
-*   **Auto-Cleanup:** Smart AI filtering removes repetitive "hallucinations" and loops.
-*   **Waveform Visualizer:** See your audio input in real-time.
-*   **Model Manager:** View and delete models to save disk space.
+---
+
+## 🛠️ Features at a Glance
+
+| Feature | Description |
+| :--- | :--- |
+| **Live Recording** | Record meetings or ideas with a real-time waveform visualizer. |
+| **Translation** | Instantly translate foreign audio into English text. |
+| **Auto-Cleanup** | Smart AI filtering removes repetitive "hallucinations" and loops. |
+| **Model Manager** | Easily manage disk space by deleting unused AI models. |
+| **Formats** | Supports `.mp3`, `.wav`, `.mp4`, `.mkv`, `.mov`, `.flac`, and more. |
 
 ---
 
 ## 📥 Installation
 
-1.  **Download:** Get the latest `LocalTranscriberPro.exe` from the [Releases](https://github.com/vhaloo/LocalTranscriberPro/releases) page.
-2.  **Run:** Double-click to launch. No installation required.
-3.  **Drivers (Optional):** For GPU acceleration, ensure you have [NVIDIA CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) installed.
+1.  **Download:** Go to the [**Releases Page**](https://github.com/vhaloo/LocalTranscriberPro/releases) and download the latest executable (e.g., `LocalTranscriberPro_v0.9.6.exe`).
+2.  **Run:** Double-click the file to launch. No installation wizard required—it's a portable app!
+3.  **GPU Setup (Optional):** For maximum speed, ensure you have an NVIDIA GPU and the latest [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) installed. If not, the app runs perfectly on CPU (just slower).
 
 ---
 
 ## 📖 User Guide
 
 ### 🎙️ Live Recording
-1.  Select your **Microphone** and **Model Size** (Small is recommended).
+1.  Select your **Microphone** and **Model Size** ("Small" is a good balance of speed/accuracy).
 2.  Click **Record** (or press `F1`).
 3.  Speak! Text will appear in real-time blocks.
-4.  Click **Stop** (`F3`) to finalize and save.
+4.  Click **Stop** (`F3`) to finalize. The transcript is automatically saved to your Desktop.
 
-### 📁 File Transcription / Subtitles
+### 📁 File Transcription & Subtitles
 1.  Click **Batch Files**.
-2.  Select one or more audio/video files (Shift+Click). Supports .mp4, .mkv, .mp3, .wav, .mov, and more.
+2.  Select one or more audio/video files (Shift+Click).
 3.  The app will process them one by one.
 4.  **Export:** Use the "Export..." menu to save as `.srt` (Subtitles) or `.txt` (Text).
 
-### ⚙️ Tools Menu
-*   **Model Manager:** View downloaded models and delete them to free up disk space.
-*   **Translation:** Toggle this to translate non-English audio to English.
+---
 
-### ❓ Help
-*   Click the **Help** button in the app header for a quick-start guide.
+## ❓ Troubleshooting
+
+### **"CUDA is not available / Running in CPU mode"**
+*   **Cause:** The app cannot find an NVIDIA GPU or the correct drivers.
+*   **Fix:** 
+    1.  Ensure you have an NVIDIA GPU.
+    2.  Update your GPU drivers via GeForce Experience.
+    3.  Download and install the **[NVIDIA CUDA Toolkit 12.x](https://developer.nvidia.com/cuda-downloads)**.
+    4.  Restart your computer.
+
+### **"Antivirus flagged the file"**
+*   **Cause:** This app is built with PyInstaller. Some antivirus software (like Windows Defender) generates "False Positives" for unsigned Python executables.
+*   **Fix:** Add an exclusion for the folder where you keep the app, or click "Run Anyway" -> "More Info" if Windows SmartScreen blocks it. Since this is open source, you can verify the code yourself!
+
+### **"Transcription is slow"**
+*   **Cause:** You are likely running on CPU with a large model.
+*   **Fix:** Switch to the **"Tiny"** or **"Base"** model for faster CPU performance, or upgrade your hardware.
+
+### **"The app crashes immediately"**
+*   **Fix:** Ensure you have **Visual C++ Redistributable** installed (standard on most Windows PCs). Try running the app as Administrator.
 
 ---
 
 ## 💻 Requirements
-*   **OS:** Windows 10/11 (64-bit)
+*   **OS:** Windows 10 or Windows 11 (64-bit).
+*   **Processor:** Intel Core i5 / AMD Ryzen 5 or better.
 *   **RAM:** 8GB recommended (4GB minimum).
-*   **Storage:** ~500MB - 3GB depending on models used.
+*   **Storage:** ~500MB initial space + space for downloaded models (1GB-3GB).
 
 ---
 
@@ -79,4 +102,4 @@
 ---
 
 ## 📄 License
-MIT License. Free to use and modify.
+MIT License. Free to use, modify, and distribute.
