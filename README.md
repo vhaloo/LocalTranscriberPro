@@ -3,7 +3,7 @@
 [![OS - Windows](https://img.shields.io/badge/OS-Windows-blue?logo=windows&logoColor=white)](https://github.com/vhaloo/LocalTranscriberPro/releases)
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Status](https://img.shields.io/badge/status-Release%20v0.9.3-brightgreen)
+![Status](https://img.shields.io/badge/status-Release%20v0.9.4-brightgreen)
 
 **Local Transcriber Pro** is a high-performance, private, and offline transcription tool developed by **Vhaloo**. It converts spoken audio from your microphone or existing files into text with extreme accuracy using OpenAI's Whisper models, running entirely on your own device.
 
@@ -24,6 +24,7 @@
 *   **Translation:** Instantly translate foreign audio into English text.
 *   **Auto-Cleanup:** Smart AI filtering removes repetitive "hallucinations" and loops.
 *   **Waveform Visualizer:** See your audio input in real-time.
+*   **Model Manager:** View and delete models to save disk space.
 
 ---
 
@@ -51,6 +52,9 @@
 ### ⚙️ Tools Menu
 *   **Model Manager:** View downloaded models and delete them to free up disk space.
 *   **Translation:** Toggle this to translate non-English audio to English.
+
+### ❓ Help
+*   Click the **Help** button in the app header for a quick-start guide.
 
 ---
 

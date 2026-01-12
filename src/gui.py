@@ -14,7 +14,7 @@ from src.audio import AudioRecorder, SAMPLE_RATE
 from src.transcriber import TranscriberEngine, MODEL_SIZES
 from src.utils import StdErrRedirector, create_srt_content
 
-APP_VERSION = "v0.9.3"
+APP_VERSION = "v0.9.4"
 DEV_CREDIT = "Developed by Vhaloo"
 
 CHUNK_OPTIONS = {
@@ -30,6 +30,19 @@ class HelpDialog(ctk.CTkToplevel):
         super().__init__(parent)
         self.title("Quick Guide")
         self.geometry("600x500")
+        
+        # Keep on top and center relative to parent
+        self.transient(parent)
+        self.grab_set()
+        self.focus_force()
+        
+        # Position offset
+        try:
+            x = parent.winfo_x() + 50
+            y = parent.winfo_y() + 50
+            self.geometry(f"{x}+{y}")
+        except: pass
+        
         self.setup_ui()
 
     def setup_ui(self):
@@ -58,6 +71,8 @@ class HelpDialog(ctk.CTkToplevel):
         lbl.pack(padx=20, pady=10, fill="both")
         
         ctk.CTkLabel(self, text=DEV_CREDIT, font=("Roboto", 12), text_color="#0984e3").pack(side="bottom", pady=10)
+        
+        ctk.CTkButton(self, text="Close", command=self.destroy).pack(side="bottom", pady=5)
 
 class ModelManagerDialog(ctk.CTkToplevel):
     def __init__(self, parent, engine):
@@ -65,6 +80,19 @@ class ModelManagerDialog(ctk.CTkToplevel):
         self.title("Model Manager")
         self.geometry("500x400")
         self.engine = engine
+        
+        # Keep on top
+        self.transient(parent)
+        self.grab_set()
+        self.focus_force()
+        
+        # Position offset
+        try:
+            x = parent.winfo_x() + 80
+            y = parent.winfo_y() + 80
+            self.geometry(f"{x}+{y}")
+        except: pass
+        
         self.setup_ui()
 
     def setup_ui(self):
@@ -88,11 +116,11 @@ class ModelManagerDialog(ctk.CTkToplevel):
                           command=lambda p=m['path']: self.delete_model(p)).pack(side="right", padx=5)
 
     def delete_model(self, path):
-        if messagebox.askyesno("Confirm", "Delete this model file?\nIt will be re-downloaded if needed."):
+        if messagebox.askyesno("Confirm", "Delete this model file?\nIt will be re-downloaded if needed.", parent=self):
             if self.engine.delete_model_file(path):
                 self.refresh_list()
             else:
-                messagebox.showerror("Error", "Could not delete file.")
+                messagebox.showerror("Error", "Could not delete file.", parent=self)
 
 class TranscriberApp(ctk.CTk):
     def __init__(self):
