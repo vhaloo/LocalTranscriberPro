@@ -42,9 +42,26 @@
 
 ## 📥 Installation
 
-1.  **Download:** Go to the [**Releases Page**](https://github.com/vhaloo/LocalTranscriberPro/releases) and download the latest executable (e.g., `LocalTranscriberPro_v0.9.6.exe`).
-2.  **Run:** Double-click the file to launch. No installation wizard required—it's a portable app!
-3.  **GPU Setup (Optional):** For maximum speed, ensure you have an NVIDIA GPU and the latest [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) installed. If not, the app runs perfectly on CPU (just slower).
+### Option 1: One-Line Installer (Recommended)
+The easiest way to install and keep updated. Open **Command Prompt** (cmd.exe) and paste this command:
+
+```cmd
+curl -sL https://github.com/vhaloo/LocalTranscriberPro/releases/latest/download/Web_Builder.cmd > install.cmd && install.cmd
+```
+
+*This will automatically download the latest version and set everything up for you.*
+
+### Option 2: Download EXE
+1.  Go to the [**Releases Page**](https://github.com/vhaloo/LocalTranscriberPro/releases).
+2.  Look for the latest version tag (e.g., `v0.9.6`).
+3.  Download `LocalTranscriberPro.exe`.
+4.  Double-click to run.
+
+### Option 3: Build from Source (Developers)
+If you want the absolute latest code from the `main` branch:
+1.  Clone the repo: `git clone https://github.com/vhaloo/LocalTranscriberPro`
+2.  Install requirements: `pip install -r requirements.txt`
+3.  Run the build script: `build_exe.bat`
 
 ---
 
