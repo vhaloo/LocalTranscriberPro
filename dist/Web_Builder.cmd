@@ -100,7 +100,7 @@ if %errorlevel% equ 0 (
 ) else (
     color 6F
     echo [WARNING] NVIDIA GPU not detected. Running in CPU MODE.
-    echo ... Installing lighter CPU-only version (Saves Space) ...
+    echo ... Installing lighter CPU-only version - Saves Space ...
     set "TORCH_URL=https://download.pytorch.org/whl/cpu"
     timeout /t 3
     color 1F
