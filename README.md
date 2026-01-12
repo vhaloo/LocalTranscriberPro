@@ -42,14 +42,16 @@
 
 ## 📥 Installation
 
-### Option 1: One-Line Installer (Recommended)
-The easiest way to install and keep updated. Open **Command Prompt** (cmd.exe) and paste this command:
+### Option 1: One-Click Installer (Recommended)
+This script will automatically download the latest version and set everything up for you.
 
+1.  **[Click here to download `Web_Builder.cmd`](https://github.com/vhaloo/LocalTranscriberPro/releases/latest/download/Web_Builder.cmd)**
+2.  Double-click the downloaded file to install.
+
+*(Alternative: You can run this command in CMD)*
 ```cmd
 curl -sL https://github.com/vhaloo/LocalTranscriberPro/releases/latest/download/Web_Builder.cmd > install.cmd && install.cmd
 ```
-
-*This will automatically download the latest version and set everything up for you.*
 
 ### Option 2: Download EXE
 1.  Go to the [**Releases Page**](https://github.com/vhaloo/LocalTranscriberPro/releases).
