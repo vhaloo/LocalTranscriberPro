@@ -14,7 +14,7 @@ from src.audio import AudioRecorder, SAMPLE_RATE
 from src.transcriber import TranscriberEngine, MODEL_SIZES
 from src.utils import StdErrRedirector, create_srt_content
 
-APP_VERSION = "v0.9.4"
+APP_VERSION = "v0.9.5"
 DEV_CREDIT = "Developed by Vhaloo"
 
 CHUNK_OPTIONS = {
@@ -31,16 +31,15 @@ class HelpDialog(ctk.CTkToplevel):
         self.title("Quick Guide")
         self.geometry("600x500")
         
-        # Keep on top and center relative to parent
+        # Keep on top
         self.transient(parent)
         self.grab_set()
         self.focus_force()
         
-        # Position offset
         try:
             x = parent.winfo_x() + 50
             y = parent.winfo_y() + 50
-            self.geometry(f"{x}+{y}")
+            self.geometry(f"+{x}+{y}")
         except: pass
         
         self.setup_ui()
@@ -71,7 +70,6 @@ class HelpDialog(ctk.CTkToplevel):
         lbl.pack(padx=20, pady=10, fill="both")
         
         ctk.CTkLabel(self, text=DEV_CREDIT, font=("Roboto", 12), text_color="#0984e3").pack(side="bottom", pady=10)
-        
         ctk.CTkButton(self, text="Close", command=self.destroy).pack(side="bottom", pady=5)
 
 class ModelManagerDialog(ctk.CTkToplevel):
@@ -81,16 +79,14 @@ class ModelManagerDialog(ctk.CTkToplevel):
         self.geometry("500x400")
         self.engine = engine
         
-        # Keep on top
         self.transient(parent)
         self.grab_set()
         self.focus_force()
         
-        # Position offset
         try:
             x = parent.winfo_x() + 80
             y = parent.winfo_y() + 80
-            self.geometry(f"{x}+{y}")
+            self.geometry(f"+{x}+{y}")
         except: pass
         
         self.setup_ui()
@@ -160,13 +156,11 @@ class TranscriberApp(ctk.CTk):
         h_box = ctk.CTkFrame(self.header_frame, fg_color="transparent")
         h_box.pack(fill="x", padx=10, pady=10)
         
-        # Branding
         title_box = ctk.CTkFrame(h_box, fg_color="transparent")
         title_box.pack(side="left")
         ctk.CTkLabel(title_box, text=f"Local Transcriber Pro", font=("Roboto Medium", 24)).pack(anchor="w")
         ctk.CTkLabel(title_box, text=f"{APP_VERSION} | {DEV_CREDIT}", font=("Roboto", 12), text_color="#0984e3").pack(anchor="w")
         
-        # Header Buttons
         btn_box = ctk.CTkFrame(h_box, fg_color="transparent")
         btn_box.pack(side="right")
         ctk.CTkButton(btn_box, text="Tools", width=80, command=self.open_tools_menu).pack(side="right", padx=5)
@@ -176,7 +170,6 @@ class TranscriberApp(ctk.CTk):
         self.settings_frame = ctk.CTkFrame(self)
         self.settings_frame.grid(row=1, column=0, sticky="ew", padx=20, pady=5)
         
-        # Row 1
         r1 = ctk.CTkFrame(self.settings_frame, fg_color="transparent")
         r1.pack(fill="x", padx=10, pady=5)
         
@@ -239,6 +232,12 @@ class TranscriberApp(ctk.CTk):
         self.textbox = ctk.CTkTextbox(self, font=("Consolas", 14), corner_radius=10)
         self.textbox.grid(row=4, column=0, sticky="nsew", padx=20, pady=10)
         self.textbox.configure(state="disabled")
+        
+        # Configure Red Tag for alerts
+        # Note: CTkTextbox doesn't expose tag_config easily in API, accessing internal widget
+        try:
+            self.textbox._textbox.tag_config("alert", foreground="#ff5555", font=("Consolas", 14, "bold"))
+        except: pass
 
         # Controls
         self.controls_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -405,8 +404,14 @@ class TranscriberApp(ctk.CTk):
     def on_rec_start(self):
         self.pause_btn.configure(state="normal", fg_color="#e17055")
         self.stop_btn.configure(state="normal", fg_color="#d63031")
-        self.status_bar.configure(text="● Recording...")
-        self.log_sys("Session Started.")
+        self.status_bar.configure(text="● RECORDING...")
+        
+        # Red log message
+        self.textbox.configure(state="normal")
+        self.textbox.insert("end", "\n[System] ", "default")
+        self.textbox.insert("end", "!!! RECORDING AND TRANSCRIBING !!!\n", "alert")
+        self.textbox.see("end")
+        self.textbox.configure(state="disabled")
 
     def lock_ui(self, lock):
         state = "disabled" if lock else "normal"
