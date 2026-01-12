@@ -125,6 +125,12 @@ if not exist "source.zip" (
     goto :ERROR
 )
 
+:: Verify file size > 1KB
+for %%I in (source.zip) do if %%~zI LSS 1000 (
+    echo [ERROR] Downloaded zip is invalid (too small).
+    goto :ERROR
+)
+
 echo ... Extracting...
 powershell -Command "Expand-Archive -Path 'source.zip' -DestinationPath '.' -Force"
 cd LocalTranscriberPro-main
@@ -134,11 +140,23 @@ echo.
 echo [STEP 5/7] Installing AI Engine...
 py -m venv venv
 if %errorlevel% neq 0 python -m venv venv
+if not exist "venv\Scripts\activate.bat" (
+    echo [ERROR] Virtual Environment creation failed.
+    goto :ERROR
+)
+
 call venv\Scripts\activate
 
 python -m pip install --upgrade pip
+if %errorlevel% neq 0 (
+    echo [ERROR] PIP upgrade failed. Check internet connection.
+    goto :ERROR
+)
+
 echo ... Downloading PyTorch (approx 2.5GB)...
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+if %errorlevel% neq 0 goto :ERROR
+
 pip install -r requirements.txt
 pip install pyinstaller
 
@@ -146,7 +164,10 @@ pip install pyinstaller
 echo.
 echo [STEP 6/7] Building Executable...
 call build_exe.bat
-if %errorlevel% neq 0 goto :ERROR
+if %errorlevel% neq 0 (
+    echo [ERROR] Build script returned error code.
+    goto :ERROR
+)
 
 :: --- STEP 7: FINALIZE ---
 if exist "dist\LocalTranscriberPro_v0.9.6.exe" (
@@ -158,6 +179,11 @@ if exist "dist\LocalTranscriberPro_v0.9.6.exe" (
     echo.
     echo [SUCCESS] Moving app to Desktop...
     copy /Y "dist\LocalTranscriberPro_v0.9.6.exe" "%USERPROFILE%\Desktop\LocalTranscriberPro.exe"
+    
+    echo.
+    echo [INFO] Cleanup...
+    cd ..\..
+    :: rmdir /s /q "LT_Build"
     
     echo.
     echo [LAUNCH] Starting Local Transcriber Pro...
