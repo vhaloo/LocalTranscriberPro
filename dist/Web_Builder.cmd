@@ -11,49 +11,104 @@ echo   (Developed by Vhaloo)
 echo ===============================================================================
 echo.
 echo   This script will:
-echo   1. Check/Install System Requirements (FFmpeg, Visual C++)
-echo   2. Download the latest source code
-echo   3. Install AI Engine (PyTorch + CUDA)
-echo   4. Compile a high-performance EXE for YOUR PC
-echo   5. Launch the app
-echo.
-echo   NOTE: This process ensures the app runs 100% offline and secure on your hardware.
+echo   1. Check & Auto-Install Prerequisites (Python, FFmpeg, VCRedist)
+echo   2. Detect NVIDIA GPU (CUDA)
+echo   3. Download & Build the Application
+echo   4. Launch it!
 echo.
 pause
 cls
 
 :: --- STEP 1: PREREQUISITES ---
-echo [STEP 1/6] Checking System Prerequisites...
+echo [STEP 1/7] Checking System Prerequisites...
+set "NEEDS_RESTART=0"
 
-:: Check FFmpeg
+:: 1.1 Visual C++ Redistributable (Required for PyTorch)
+echo.
+echo ... Checking Visual C++ Redistributable...
+reg query "HKLM\SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [MISSING] Visual C++ Redistributable. Installing via Winget...
+    winget install --id "Microsoft.VCRedist.2015+.x64" --accept-source-agreements --accept-package-agreements
+    if %errorlevel% neq 0 goto :ERROR
+    set "NEEDS_RESTART=1"
+) else (
+    echo [OK] Visual C++ Redistributable found.
+)
+
+:: 1.2 FFmpeg (Required for Audio Processing)
+echo.
+echo ... Checking FFmpeg...
 where ffmpeg >nul 2>&1
 if %errorlevel% neq 0 (
     echo [MISSING] FFmpeg not found. Installing via Winget...
     winget install --id "Gyan.FFmpeg" --accept-source-agreements --accept-package-agreements
-    echo [INFO] FFmpeg installed. Refreshing environment...
-    call refreshenv 2>nul
+    if %errorlevel% neq 0 goto :ERROR
+    set "NEEDS_RESTART=1"
 ) else (
-    echo [OK] FFmpeg is installed.
+    echo [OK] FFmpeg found.
 )
 
-:: Check Python
+:: 1.3 Python (Required for Building)
+echo.
+echo ... Checking Python...
 py --version >nul 2>&1
 if %errorlevel% neq 0 (
-    color 4F
+    python --version >nul 2>&1
+    if %errorlevel% neq 0 (
+        echo [MISSING] Python not found. Auto-Installing...
+        echo ... Downloading Python 3.12.8...
+        powershell -Command "Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.12.8/python-3.12.8-amd64.exe' -OutFile 'python_installer.exe'"
+        
+        echo ... Installing Python (Please accept Admin prompt if asked)...
+        start /wait python_installer.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0
+        
+        del python_installer.exe
+        set "NEEDS_RESTART=1"
+    ) else (
+        echo [OK] Python found (via PATH).
+    )
+) else (
+    echo [OK] Python found (via Launcher).
+)
+
+:: --- RESTART CHECK ---
+if "%NEEDS_RESTART%"=="1" (
+    color 6F
     echo.
-    echo [CRITICAL ERROR] Python is missing!
+    echo ===============================================================================
+    echo   PREREQUISITES INSTALLED!
+    echo ===============================================================================
     echo.
-    echo Please install Python 3.11 or 3.12 from the Microsoft Store or python.org.
-    echo Make sure to check "Add Python to PATH" during installation.
+    echo   Windows needs to reload your environment variables (PATH).
+    echo   Please CLOSE this window and RUN THIS SCRIPT AGAIN.
+    echo.
+    echo   (If you don't restart, the build will fail.)
     echo.
     pause
-    exit /b
+    exit
 )
-echo [OK] Python found.
 
-:: --- STEP 2: WORKSPACE ---
+:: --- STEP 2: GPU CHECK & CONFIGURATION ---
 echo.
-echo [STEP 2/6] Preparing Workspace...
+echo [STEP 2/7] Checking for NVIDIA GPU...
+nvidia-smi >nul 2>&1
+if %errorlevel% equ 0 (
+    color 2F
+    echo [SUCCESS] NVIDIA GPU Detected! High-Performance Mode enabled.
+    set "TORCH_URL=https://download.pytorch.org/whl/cu124"
+) else (
+    color 6F
+    echo [WARNING] NVIDIA GPU not detected. Running in CPU MODE.
+    echo ... Installing lighter CPU-only version (Saves Space) ...
+    set "TORCH_URL=https://download.pytorch.org/whl/cpu"
+    timeout /t 3
+    color 1F
+)
+
+:: --- STEP 3: WORKSPACE ---
+echo.
+echo [STEP 3/7] Preparing Workspace...
 if exist "LT_Build" (
     echo ... Cleaning old build files...
     rmdir /s /q "LT_Build"
@@ -61,53 +116,61 @@ if exist "LT_Build" (
 mkdir "LT_Build"
 cd LT_Build
 
-:: --- STEP 3: DOWNLOAD ---
+:: --- STEP 4: DOWNLOAD ---
 echo.
-echo [STEP 3/6] Downloading Latest Source Code...
-echo ... Fetching from GitHub (main branch)...
+echo [STEP 4/7] Downloading Source Code...
 powershell -Command "Invoke-WebRequest -Uri 'https://github.com/vhaloo/LocalTranscriberPro/archive/refs/heads/main.zip' -OutFile 'source.zip'"
 
 if not exist "source.zip" (
-    color 4F
-    echo [ERROR] Download failed. Check your internet connection.
-    pause
-    exit /b
+    echo [ERROR] Download failed.
+    goto :ERROR
 )
 
-echo ... Extracting files...
+:: Verify file size > 1KB
+for %%I in (source.zip) do if %%~zI LSS 1000 (
+    echo [ERROR] Downloaded zip is invalid (too small).
+    goto :ERROR
+)
+
+echo ... Extracting...
 powershell -Command "Expand-Archive -Path 'source.zip' -DestinationPath '.' -Force"
 cd LocalTranscriberPro-main
 
-:: --- STEP 4: AI ENGINE ---
+:: --- STEP 5: AI ENGINE ---
 echo.
-echo [STEP 4/6] Installing AI Engine (This is the heavy part)...
-echo ... Creating isolated environment...
+echo [STEP 5/7] Installing AI Engine...
 py -m venv venv
+if %errorlevel% neq 0 python -m venv venv
+if not exist "venv\Scripts\activate.bat" (
+    echo [ERROR] Virtual Environment creation failed.
+    goto :ERROR
+)
+
 call venv\Scripts\activate
 
-echo ... Updating pip...
 python -m pip install --upgrade pip
+if %errorlevel% neq 0 (
+    echo [ERROR] PIP upgrade failed. Check internet connection.
+    goto :ERROR
+)
 
-echo.
-echo [INFO] Installing PyTorch with CUDA 12.4 support...
-echo        (This downloads ~2.5GB. Please be patient.)
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+echo ... Downloading PyTorch (Size depends on GPU/CPU mode)...
+pip install torch torchvision torchaudio --index-url %TORCH_URL%
+if %errorlevel% neq 0 goto :ERROR
 
-echo.
-echo [INFO] Installing Application Libraries...
 pip install -r requirements.txt
 pip install pyinstaller
 
-:: --- STEP 5: COMPILATION ---
+:: --- STEP 6: COMPILATION ---
 echo.
-echo [STEP 5/6] Compiling Optimized Executable...
-echo ... Analyzing code...
-echo ... Bundling libraries...
-
+echo [STEP 6/7] Building Executable...
 call build_exe.bat
+if %errorlevel% neq 0 (
+    echo [ERROR] Build script returned error code.
+    goto :ERROR
+)
 
-:: --- STEP 6: FINALIZE ---
-echo.
+:: --- STEP 7: FINALIZE ---
 if exist "dist\LocalTranscriberPro_v0.9.6.exe" (
     cls
     color 2F
@@ -115,25 +178,39 @@ if exist "dist\LocalTranscriberPro_v0.9.6.exe" (
     echo   INSTALLATION COMPLETE!
     echo ===============================================================================
     echo.
-    echo [SUCCESS] moving 'LocalTranscriberPro.exe' to your Desktop...
+    echo [SUCCESS] Moving app to Desktop...
     copy /Y "dist\LocalTranscriberPro_v0.9.6.exe" "%USERPROFILE%\Desktop\LocalTranscriberPro.exe"
     
     echo.
-    echo [INFO] Cleaning up build files to save space...
+    echo [INFO] Cleanup...
     cd ..\..
-    :: rmdir /s /q "LT_Build"  <-- Optional: Keep it commented if they want to rebuild fast later
+    :: rmdir /s /q "LT_Build"
     
     echo.
     echo [LAUNCH] Starting Local Transcriber Pro...
     start "" "%USERPROFILE%\Desktop\LocalTranscriberPro.exe"
     
     echo.
-    echo You can close this window. Enjoy!
+    echo You can close this window.
     timeout /t 10
     exit
 ) else (
-    color 4F
-    echo [ERROR] Build failed. The executable was not created.
-    echo Please review the error messages above.
-    pause
+    echo [ERROR] EXE not found in dist.
+    goto :ERROR
 )
+
+:ERROR
+color 4F
+echo.
+echo ===============================================================================
+echo   ERROR: INSTALLATION FAILED
+echo ===============================================================================
+echo.
+echo   Something went wrong. Please check the error messages above.
+echo   Common fixes:
+echo   1. Check internet connection.
+echo   2. Run this script as Administrator.
+echo   3. Restart your computer.
+echo.
+pause
+exit /b
