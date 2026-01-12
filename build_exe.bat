@@ -1,18 +1,21 @@
 @echo off
 cd /d "%~dp0"
-echo Starting Build Process...
-echo This may take several minutes due to the large size of PyTorch/CUDA libraries.
+echo Starting Build Process (v0.9 Modular)...
+echo This may take several minutes.
 
-"venv\Scripts\pyinstaller.exe" --noconsole --onefile ^
-    --name "LocalTranscriberPro" ^
+"venv\Scripts\pyinstaller.exe" --noconsole --onefile --clean ^
+    --name "LocalTranscriberPro_v0.9.3" ^
     --add-data "venv\Lib\site-packages\customtkinter;customtkinter" ^
+    --add-data "src;src" ^
     --collect-all "whisper" ^
     --collect-all "openai_whisper" ^
     --hidden-import "scipy.special.cython_special" ^
     --hidden-import "scipy.integrate.lsoda" ^
-    local_transcriber.py
+    --exclude-module "tensorflow" ^
+    main.py
 
 echo.
 echo Build Complete.
 echo The executable is located in the "dist" folder.
+pause
 exit

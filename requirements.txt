@@ -1,6 +1,8 @@
 customtkinter
 sounddevice
 numpy
-scipy
 openai-whisper
-pynput
+torch
+tqdm
+requests
+packaging

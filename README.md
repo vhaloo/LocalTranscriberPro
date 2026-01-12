@@ -1,136 +1,69 @@
 # Local Transcriber Pro 🎙️
 
 [![OS - Windows](https://img.shields.io/badge/OS-Windows-blue?logo=windows&logoColor=white)](https://github.com/vhaloo/LocalTranscriberPro/releases)
-[![OS - Linux](https://img.shields.io/badge/OS-Linux-orange?logo=linux&logoColor=white)](#-linux-setup)
-[![OS - macOS](https://img.shields.io/badge/OS-macOS-lightgrey?logo=apple&logoColor=white)](#-mac-setup)
-![Python](https://img.shields.io/badge/python-3.12-blue)
+[![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![GPU](https://img.shields.io/badge/GPU-NVIDIA_%7C_Apple_Silicon-green)
+![Status](https://img.shields.io/badge/status-Release%20v0.9.3-brightgreen)
 
-![App Preview](./app_preview.png)
-
-**Local Transcriber Pro** is a high-performance, private, and offline transcription tool. It converts spoken audio from your microphone or existing files into text with extreme accuracy, utilizing state-of-the-art AI models that run entirely on your own device.
-
-### **Reclaim Your Data. Restore Your Privacy.**
-
-**Local Transcriber Pro is a tool for Digital Sovereignty.**
-It breaks the chains of cloud dependency, bringing state-of-the-art AI directly to your own hardware. In an era of mass surveillance, data brokerage, and subscription fatigue, this application offers a sanctuary of absolute privacy.
-
-**No Cloud. No Fees. No Internet required.**
+**Local Transcriber Pro** is a high-performance, private, and offline transcription tool developed by **Vhaloo**. It converts spoken audio from your microphone or existing files into text with extreme accuracy using OpenAI's Whisper models, running entirely on your own device.
 
 ---
 
-## ✊ Core Philosophy & Features
+## 🚀 Key Features
 
-*   **🛡️ Absolute Data Governance:** Your audio **never** leaves your physical machine. Whether you are a journalist protecting a source, a doctor handling patient data, or simply a private citizen, your data remains exclusively yours.
-*   **🌱 Digital Ecology & Anti-Obsolescence:**
-    *   **Sustainable Computing:** By utilizing the idle power of the hardware you *already own*, we reject the reliance on energy-hungry, always-on massive server farms.
-    *   **Low-End Friendly:** Optimized to run on modest CPUs and older laptops (Intel/AMD), extending the lifespan of your devices and reducing electronic waste.
-*   **🌍 Global Understanding (99 Languages):**
-    *   The underlying AI (OpenAI Whisper) has been trained on **680,000 hours** of multilingual data.
-    *   It fluently understands and transcribes **99 languages**, preserving dialects, accents, and technical jargon often ignored by commercial APIs.
-*   **⚡ Zero-Latency Independence:** Once installed, unplug your ethernet cable. It works perfectly **offline**, ensuring your workflow is resilient to internet outages and bandwidth caps.
+### 🔒 Privacy First
+*   **100% Offline:** No data ever leaves your computer.
+*   **Secure:** Ideal for confidential meetings, medical dictation, or personal journals.
 
----
+### ⚡ High Performance
+*   **GPU Acceleration:** Utilizes NVIDIA CUDA for blazing fast transcription (Auto-switches to CPU if unavailable).
+*   **Batch Processing:** Queue up multiple audio/video files and let it work in the background.
 
-## 🛠️ Technical Capabilities
-
-*   **🚀 Hardware Acceleration:**
-    *   **NVIDIA CUDA:** Blazing fast transcription on Windows/Linux.
-    *   **Apple Metal (MPS):** Native silicon support for M1/M2/M3 Macs.
-*   **📂 File Transcription:** Drag & drop huge audio/video files (hours long) and let your machine process them in the background.
-*   **🧠 Smart Optimization:** Automatically selects the best model ("Large" for accuracy, "Tiny" for speed) based on your hardware's capabilities.
-*   **📝 Dynamic Formatting:** Switch between traditional timestamps, block paragraphs, or continuous stream text.
+### 🛠️ Advanced Tools
+*   **Subtitle Export:** Save transcripts as **.srt** files for YouTube or video players.
+*   **Translation:** Instantly translate foreign audio into English text.
+*   **Auto-Cleanup:** Smart AI filtering removes repetitive "hallucinations" and loops.
+*   **Waveform Visualizer:** See your audio input in real-time.
 
 ---
 
-## 💻 System Requirements
+## 📥 Installation
 
-| | **Minimum (CPU Mode)** | **Recommended (GPU Mode)** |
-| :--- | :--- | :--- |
-| **Philosophy** | *Accessibility & Longevity* | *Performance & Speed* |
-| **Windows** | Intel i5 / AMD Ryzen 5<br>8GB RAM | NVIDIA GTX 1060+<br>16GB RAM |
-| **Mac** | Intel MacBook (2018+)<br>8GB RAM | Apple M1 / M2 / M3<br>8GB RAM |
-| **Linux** | Modern Quad-Core CPU<br>8GB RAM | NVIDIA GPU (CUDA 12)<br>16GB RAM |
-
-**Important for GPU Users:**
-👉 **[Download NVIDIA CUDA Toolkit Here](https://developer.nvidia.com/cuda-downloads)**
-
-### 💾 Storage & Internet
-*   **Base App Size:** ~3GB (Includes AI Engine & Dependencies).
-*   **One-Time Download:**
-    *   The AI models (Tiny, Base, Small, Medium, Large) are downloaded **automatically on first use**.
-    *   **Tiny:** ~75 MB | **Small:** ~460 MB | **Large:** ~3 GB
-*   **100% Offline:** Once a model has been used once, it is stored locally. You can disconnect from the internet forever and the app will continue to function perfectly.
+1.  **Download:** Get the latest `LocalTranscriberPro.exe` from the [Releases](https://github.com/vhaloo/LocalTranscriberPro/releases) page.
+2.  **Run:** Double-click to launch. No installation required.
+3.  **Drivers (Optional):** For GPU acceleration, ensure you have [NVIDIA CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) installed.
 
 ---
 
-## 📥 Installation (Choose One)
+## 📖 User Guide
 
-### Option 1: Automatic Web Installer (Recommended) 🏆
-*The easiest way. It downloads and builds the app for you automatically.*
+### 🎙️ Live Recording
+1.  Select your **Microphone** and **Model Size** (Small is recommended).
+2.  Click **Record** (or press `F1`).
+3.  Speak! Text will appear in real-time blocks.
+4.  Click **Stop** (`F3`) to finalize and save.
 
-**Prerequisite:** [Download Python 3.12](https://www.python.org/downloads/release/python-3128/) (Check "Add to PATH" during install).
+### 📁 File Transcription
+1.  Click **Batch Files**.
+2.  Select one or more audio/video files (Shift+Click).
+3.  The app will process them one by one and save text files to your Desktop.
 
-#### Windows
-1.  **[Click here to download `Web_Builder.cmd`](https://github.com/vhaloo/LocalTranscriberPro/releases/latest/download/Web_Builder.cmd)**
-2.  Double-click the downloaded file.
-3.  Wait for the script to finish (~3GB download).
-4.  The app will appear on your **Desktop**.
-
-⚠️ **First Launch Note:** The first time you run the app, it may take **30-60 seconds** to unpack the AI engine. **Subsequent launches will be instant (5s).**
-
-#### Linux / Raspberry Pi / Mac
-Run this command in your terminal:
-```bash
-curl -sL https://github.com/vhaloo/LocalTranscriberPro/releases/download/v0.8/web_builder.sh | bash
-```
-
-### Option 2: Direct Download (Windows Standalone)
-*If you prefer downloading the exe directly.*
-
-1.  Go to the **[Releases Page](../../releases/latest)**.
-2.  Download these **3 files**:
-    *   `Merge_Installer_v0.8.cmd`
-    *   `LocalTranscriberPro_v0.8.exe.001`
-    *   `LocalTranscriberPro_v0.8.exe.002`
-3.  Place them in the **same folder**.
-4.  Double-click **`Merge_Installer_v0.8.cmd`**.
-5.  Launch the resulting `LocalTranscriberPro.exe`.
-
-⚠️ **Startup Note:** Because this is a single portable file, it must unpack itself into a temporary folder **every time you run it**. This takes **30-60 seconds** on every launch. For instant startup, use **Option 1 (Web Installer)** instead.
-
-### Option 3: Run from Source (Devs)
-
-**Prerequisite:** [Python 3.12](https://www.python.org/downloads/release/python-3128/).
-
-#### Windows
-```bash
-git clone https://github.com/vhaloo/LocalTranscriberPro.git
-cd LocalTranscriberPro
-create_installer.bat
-```
-
-#### Linux / macOS
-```bash
-git clone https://github.com/vhaloo/LocalTranscriberPro.git
-cd LocalTranscriberPro
-python3 -m venv venv
-source venv/bin/activate
-pip install torch torchvision torchaudio
-pip install -r requirements.txt
-python local_transcriber.py
-```
+### ⚙️ Tools Menu
+*   **Model Manager:** View downloaded models and delete them to free up disk space.
+*   **Translation:** Toggle this to translate non-English audio to English.
 
 ---
 
-## ❓ Troubleshooting
+## 💻 Requirements
+*   **OS:** Windows 10/11 (64-bit)
+*   **RAM:** 8GB recommended (4GB minimum).
+*   **Storage:** ~500MB - 3GB depending on models used.
 
-| Issue | Solution |
-| :--- | :--- |
-| **App crashes on start** | Ensure you have installed [NVIDIA Drivers](https://www.nvidia.com/Download/index.aspx) (Windows/Linux). |
-| **"CUDA Not Available"** | Reinstall using **Option 1** to force GPU libraries. If you don't have an NVIDIA card, this is normal; the app will use CPU. |
-| **Mac M1/M2 Slow?** | Ensure you are on macOS 12.3+ for Metal acceleration. |
+---
+
+## 👨‍💻 Developer
+**Developed by Vhaloo**
+*   [GitHub Profile](https://github.com/vhaloo)
 
 ---
 
