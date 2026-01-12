@@ -1,4 +1,13 @@
 @echo off
+
+:: --- LOGGING WRAPPER ---
+if "%1" neq ":LOGGED_MODE" (
+    echo [INFO] Restarting with logging enabled...
+    echo. > installer_log.txt
+    "%~f0" :LOGGED_MODE >> installer_log.txt 2>&1
+    exit /b
+)
+
 setlocal EnableDelayedExpansion
 title Local Transcriber Pro - Ultimate Installer
 color 1F
@@ -16,6 +25,9 @@ echo   2. Detect NVIDIA GPU (CUDA)
 echo   3. Download & Build the Application
 echo   4. Launch it!
 echo.
+:: Remove initial pause for smoother automated run, or keep it if desired. 
+:: We keep it but warn user that logs are being written.
+echo   [NOTE] Output is being logged to installer_log.txt
 pause
 cls
 
@@ -207,6 +219,8 @@ echo   ERROR: INSTALLATION FAILED
 echo ===============================================================================
 echo.
 echo   Something went wrong. Please check the error messages above.
+echo   Full log saved to: %~dp0installer_log.txt
+echo.
 echo   Common fixes:
 echo   1. Check internet connection.
 echo   2. Run this script as Administrator.
