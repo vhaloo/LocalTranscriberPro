@@ -7,13 +7,16 @@
 
 **Local Transcriber Pro** is a high-performance, private, and offline transcription tool developed by **Vhaloo**. It converts spoken audio from your microphone or existing files into text with extreme accuracy using OpenAI's Whisper models, running entirely on your own device.
 
+![App Preview](app_preview.png)
+
 ---
 
 ## 🚀 Key Features
 
-### 🎬 Subtitle Creation (New!)
-*   **Export as .SRT:** Automatically generate subtitles with precise timestamps for your YouTube videos, movies, or social media clips.
-*   **Batch Process:** Drag and drop multiple video files to generate subtitles for all of them overnight.
+### 🎬 Universal Subtitle Creator (New!)
+*   **Any Source:** Create subtitles for **ANY** video or audio file you have—movies, TV shows, podcasts, lectures, or raw camera footage.
+*   **Export as .SRT:** Automatically generate subtitles with precise timestamps compatible with YouTube, VLC, and Premiere Pro.
+*   **Batch Process:** Drag and drop an entire season of a show or a folder of clips to subtitle them all overnight.
 
 ### 🔒 Privacy First
 *   **100% Offline:** No data ever leaves your computer.
@@ -21,7 +24,7 @@
 
 ### ⚡ High Performance
 *   **GPU Acceleration:** Utilizes NVIDIA CUDA for blazing fast transcription (Auto-switches to CPU if unavailable).
-*   **Batch Processing:** Queue up multiple audio/video files and let it work in the background.
+*   **Smart Queue:** Process unlimited files in the background without freezing your PC.
 
 ### 🛠️ Advanced Tools
 *   **Translation:** Instantly translate foreign audio into English text.
@@ -49,7 +52,7 @@
 
 ### 📁 File Transcription / Subtitles
 1.  Click **Batch Files**.
-2.  Select one or more audio/video files (Shift+Click).
+2.  Select one or more audio/video files (Shift+Click). Supports .mp4, .mkv, .mp3, .wav, .mov, and more.
 3.  The app will process them one by one.
 4.  **Export:** Use the "Export..." menu to save as `.srt` (Subtitles) or `.txt` (Text).
 
