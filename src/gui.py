@@ -13,8 +13,9 @@ from tkinter import messagebox, filedialog
 from src.audio import AudioRecorder, SAMPLE_RATE
 from src.transcriber import TranscriberEngine, MODEL_SIZES
 from src.utils import StdErrRedirector, create_srt_content
+from src.tooltip import ToolTip
 
-APP_VERSION = "v0.9.5"
+APP_VERSION = "v0.9.6"
 DEV_CREDIT = "Developed by Vhaloo"
 
 CHUNK_OPTIONS = {
@@ -30,23 +31,18 @@ class HelpDialog(ctk.CTkToplevel):
         super().__init__(parent)
         self.title("Quick Guide")
         self.geometry("600x500")
-        
-        # Keep on top
         self.transient(parent)
         self.grab_set()
         self.focus_force()
-        
         try:
             x = parent.winfo_x() + 50
             y = parent.winfo_y() + 50
             self.geometry(f"+{x}+{y}")
         except: pass
-        
         self.setup_ui()
 
     def setup_ui(self):
         ctk.CTkLabel(self, text="Local Transcriber Pro Guide", font=("Roboto Medium", 20)).pack(pady=10)
-        
         info = (
             "1. Microphone & Model:\n"
             "   - Select your input device and the AI model size.\n"
@@ -65,10 +61,8 @@ class HelpDialog(ctk.CTkToplevel):
             "5. Export:\n"
             "   - Save as Text (.txt) or Subtitles (.srt)."
         )
-        
         lbl = ctk.CTkLabel(self, text=info, justify="left", font=("Roboto", 14), anchor="w")
         lbl.pack(padx=20, pady=10, fill="both")
-        
         ctk.CTkLabel(self, text=DEV_CREDIT, font=("Roboto", 12), text_color="#0984e3").pack(side="bottom", pady=10)
         ctk.CTkButton(self, text="Close", command=self.destroy).pack(side="bottom", pady=5)
 
@@ -78,17 +72,14 @@ class ModelManagerDialog(ctk.CTkToplevel):
         self.title("Model Manager")
         self.geometry("500x400")
         self.engine = engine
-        
         self.transient(parent)
         self.grab_set()
         self.focus_force()
-        
         try:
             x = parent.winfo_x() + 80
             y = parent.winfo_y() + 80
             self.geometry(f"+{x}+{y}")
         except: pass
-        
         self.setup_ui()
 
     def setup_ui(self):
@@ -163,8 +154,14 @@ class TranscriberApp(ctk.CTk):
         
         btn_box = ctk.CTkFrame(h_box, fg_color="transparent")
         btn_box.pack(side="right")
-        ctk.CTkButton(btn_box, text="Tools", width=80, command=self.open_tools_menu).pack(side="right", padx=5)
-        ctk.CTkButton(btn_box, text="Help", width=60, fg_color="gray", hover_color="gray40", command=self.open_help).pack(side="right", padx=5)
+        
+        self.tools_btn = ctk.CTkButton(btn_box, text="Tools", width=80, command=self.open_tools_menu)
+        self.tools_btn.pack(side="right", padx=5)
+        ToolTip(self.tools_btn, "Manage AI models and disk space")
+        
+        self.help_btn = ctk.CTkButton(btn_box, text="Help", width=60, fg_color="gray", hover_color="gray40", command=self.open_help)
+        self.help_btn.pack(side="right", padx=5)
+        ToolTip(self.help_btn, "View quick start guide")
 
         # Settings
         self.settings_frame = ctk.CTkFrame(self)
@@ -176,17 +173,20 @@ class TranscriberApp(ctk.CTk):
         ctk.CTkLabel(r1, text="Mic:", font=("Roboto", 14)).pack(side="left", padx=5)
         self.device_combo = ctk.CTkComboBox(r1, width=220)
         self.device_combo.pack(side="left", padx=5)
+        ToolTip(self.device_combo, "Select audio input device")
         self.populate_devices()
 
         ctk.CTkLabel(r1, text="Model:", font=("Roboto", 14)).pack(side="left", padx=(15, 5))
         self.model_combo = ctk.CTkComboBox(r1, values=list(MODEL_SIZES.values()), width=140)
         self.model_combo.set(MODEL_SIZES["small"])
         self.model_combo.pack(side="left", padx=5)
+        ToolTip(self.model_combo, "Select AI model size\n(Small = Fast, Large = Accurate)")
 
         ctk.CTkLabel(r1, text="Context:", font=("Roboto", 14)).pack(side="left", padx=(15, 5))
         self.chunk_combo = ctk.CTkComboBox(r1, values=list(CHUNK_OPTIONS.keys()), width=130)
         self.chunk_combo.set("10s (Balanced)")
         self.chunk_combo.pack(side="left", padx=5)
+        ToolTip(self.chunk_combo, "How often to process audio chunks")
 
         ctk.CTkLabel(r1, text="Device:", font=("Roboto", 14)).pack(side="left", padx=(15, 5))
         proc_values = ["Auto", "CPU"]
@@ -195,35 +195,55 @@ class TranscriberApp(ctk.CTk):
         self.proc_combo = ctk.CTkComboBox(r1, values=proc_values, width=120)
         self.proc_combo.set("Auto")
         self.proc_combo.pack(side="left", padx=5)
+        ToolTip(self.proc_combo, "Processing hardware (GPU recommended)")
 
         if self.engine.cuda_missing:
-            ctk.CTkButton(r1, text="⚠️ GPU", fg_color="#e67e22", hover_color="#d35400", 
-                          command=lambda: webbrowser.open("https://developer.nvidia.com/cuda-downloads"), width=60).pack(side="right", padx=10)
+            gpu_btn = ctk.CTkButton(r1, text="⚠️ GPU", fg_color="#e67e22", hover_color="#d35400", 
+                          command=lambda: webbrowser.open("https://developer.nvidia.com/cuda-downloads"), width=60)
+            gpu_btn.pack(side="right", padx=10)
+            ToolTip(gpu_btn, "Click to install NVIDIA Drivers for speed")
 
         # Row 2
         r2 = ctk.CTkFrame(self.settings_frame, fg_color="transparent")
         r2.pack(fill="x", padx=10, pady=5)
         
         self.translate_var = ctk.BooleanVar(value=False)
-        ctk.CTkCheckBox(r2, text="Translate (EN)", variable=self.translate_var, font=("Roboto", 12), text_color="#fdcb6e").pack(side="left", padx=5)
+        t_chk = ctk.CTkCheckBox(r2, text="Translate (EN)", variable=self.translate_var, font=("Roboto", 12), text_color="#fdcb6e")
+        t_chk.pack(side="left", padx=5)
+        ToolTip(t_chk, "Translate non-English audio to English text")
 
         self.cleanup_var = ctk.BooleanVar(value=True)
-        ctk.CTkCheckBox(r2, text="Auto-Cleanup", variable=self.cleanup_var, font=("Roboto", 12)).pack(side="left", padx=15)
+        c_chk = ctk.CTkCheckBox(r2, text="Auto-Cleanup", variable=self.cleanup_var, font=("Roboto", 12))
+        c_chk.pack(side="left", padx=15)
+        ToolTip(c_chk, "Remove repetitive AI errors/hallucinations")
 
         self.time_fmt_var = ctk.StringVar(value="[HH:MM:SS]")
-        ctk.CTkOptionMenu(r2, values=["[HH:MM:SS]", "[MM:SS]", "None"], variable=self.time_fmt_var, command=self.refresh_display, width=110).pack(side="left", padx=(20, 5))
+        time_menu = ctk.CTkOptionMenu(r2, values=["[HH:MM:SS]", "[MM:SS]", "None"], variable=self.time_fmt_var, command=self.refresh_display, width=110)
+        time_menu.pack(side="left", padx=(20, 5))
+        ToolTip(time_menu, "Timestamp format")
         
         self.layout_var = ctk.StringVar(value="Block")
-        ctk.CTkOptionMenu(r2, values=["Block", "Stream"], variable=self.layout_var, command=self.refresh_display, width=110).pack(side="left", padx=5)
+        layout_menu = ctk.CTkOptionMenu(r2, values=["Block", "Stream"], variable=self.layout_var, command=self.refresh_display, width=110)
+        layout_menu.pack(side="left", padx=5)
+        ToolTip(layout_menu, "Text display style")
 
         self.open_file_var = ctk.BooleanVar(value=True)
-        ctk.CTkCheckBox(r2, text="Open Result", variable=self.open_file_var, font=("Roboto", 12)).pack(side="right", padx=10)
+        open_chk = ctk.CTkCheckBox(r2, text="Open Result", variable=self.open_file_var, font=("Roboto", 12))
+        open_chk.pack(side="right", padx=10)
+        ToolTip(open_chk, "Automatically open file after transcription")
 
-        # Visualizer Frame
+        # Visualizer Frame & Clear Button
         self.vis_frame = ctk.CTkFrame(self, fg_color="#2b2b2b", height=60)
         self.vis_frame.grid(row=2, column=0, sticky="ew", padx=20, pady=5)
+        
+        # Clear Button (Trash Icon style)
+        self.clear_btn = ctk.CTkButton(self.vis_frame, text="🗑️ Clear Log", width=80, height=30, 
+                                       fg_color="#444", hover_color="#666", command=self.clear_log)
+        self.clear_btn.place(relx=0.95, rely=0.5, anchor="center")
+        ToolTip(self.clear_btn, "Clear all text from the window")
+
         self.vis_canvas = ctk.CTkCanvas(self.vis_frame, bg="#2b2b2b", highlightthickness=0, height=60)
-        self.vis_canvas.pack(fill="both", expand=True)
+        self.vis_canvas.pack(fill="both", expand=True, padx=(0, 100)) # Space for button
         
         self.loading_label = ctk.CTkLabel(self.vis_frame, text="", font=("Roboto", 11), text_color="gray")
         self.loading_label.place(relx=0.5, rely=0.5, anchor="center")
@@ -232,9 +252,6 @@ class TranscriberApp(ctk.CTk):
         self.textbox = ctk.CTkTextbox(self, font=("Consolas", 14), corner_radius=10)
         self.textbox.grid(row=4, column=0, sticky="nsew", padx=20, pady=10)
         self.textbox.configure(state="disabled")
-        
-        # Configure Red Tag for alerts
-        # Note: CTkTextbox doesn't expose tag_config easily in API, accessing internal widget
         try:
             self.textbox._textbox.tag_config("alert", foreground="#ff5555", font=("Consolas", 14, "bold"))
         except: pass
@@ -252,20 +269,25 @@ class TranscriberApp(ctk.CTk):
         # Record Buttons
         self.record_btn = ctk.CTkButton(self.btn_inner, text="● Record", fg_color="#d63031", hover_color="#ff7675", width=120, height=45, font=("Roboto", 15, "bold"), command=self.start_recording)
         self.record_btn.pack(side="left", padx=10)
+        ToolTip(self.record_btn, "Start recording from microphone (F1)")
 
         self.pause_btn = ctk.CTkButton(self.btn_inner, text="❚❚ Pause", fg_color="#e17055", hover_color="#fab1a0", width=100, height=45, font=("Roboto", 15, "bold"), state="disabled", command=self.toggle_pause)
         self.pause_btn.pack(side="left", padx=10)
+        ToolTip(self.pause_btn, "Pause/Resume recording (F2)")
 
         self.stop_btn = ctk.CTkButton(self.btn_inner, text="■ Stop", fg_color="#636e72", hover_color="#b2bec3", width=100, height=45, font=("Roboto", 15, "bold"), state="disabled", command=self.stop_recording)
         self.stop_btn.pack(side="left", padx=10)
+        ToolTip(self.stop_btn, "Stop and finalize recording (F3)")
         
         # Batch File Button
         self.file_btn = ctk.CTkButton(self.btn_inner, text="📁 Batch Files", fg_color="#0984e3", hover_color="#74b9ff", width=140, height=45, font=("Roboto", 15, "bold"), command=self.transcribe_batch)
         self.file_btn.pack(side="left", padx=(30, 10))
+        ToolTip(self.file_btn, "Transcribe multiple audio/video files")
 
         self.action_menu = ctk.CTkOptionMenu(self.btn_inner, values=["Export...", "Export TXT", "Export SRT", "Save As..."], command=self.perform_export, width=120, height=45, font=("Roboto", 13))
         self.action_menu.set("Export...")
         self.action_menu.pack(side="left", padx=10)
+        ToolTip(self.action_menu, "Save transcript to file")
 
         self.status_bar = ctk.CTkLabel(self, text="Ready", anchor="e", text_color="gray")
         self.status_bar.grid(row=6, column=0, sticky="ew", padx=25, pady=(0, 10))
@@ -311,6 +333,12 @@ class TranscriberApp(ctk.CTk):
         if sel: self.device_combo.set(sel)
         elif devices: self.device_combo.set(devices[0])
 
+    def clear_log(self):
+        if messagebox.askyesno("Clear Log", "Are you sure you want to clear the transcript?"):
+            self.transcript_data = []
+            self.refresh_display()
+            self.log_sys("Log cleared.")
+
     # --- Core Logic ---
     def start_recording(self):
         if self.is_loading_model: return
@@ -330,7 +358,7 @@ class TranscriberApp(ctk.CTk):
             self.after(0, self.on_rec_start)
             self.transcription_thread = threading.Thread(target=self.process_queue, daemon=True)
             self.transcription_thread.start()
-        except Exception as e:
+        except Exception as e: 
             self.log_sys(f"Error: {e}")
             self.after(0, lambda: self.lock_ui(False))
         finally:
@@ -386,7 +414,7 @@ class TranscriberApp(ctk.CTk):
                 self.after(0, lambda f=filename: self.log_sys(f"--- End {f} ---"))
                 self.after(0, lambda: self.save_txt(ask=False, auto=True))
             self.after(0, lambda: self.log_sys("Batch Complete."))
-        except Exception as e:
+        except Exception as e: 
             self.log_sys(f"Batch Error: {e}")
         finally:
             self.redirector.stop()
@@ -406,7 +434,6 @@ class TranscriberApp(ctk.CTk):
         self.stop_btn.configure(state="normal", fg_color="#d63031")
         self.status_bar.configure(text="● RECORDING...")
         
-        # Red log message
         self.textbox.configure(state="normal")
         self.textbox.insert("end", "\n[System] ", "default")
         self.textbox.insert("end", "!!! RECORDING AND TRANSCRIBING !!!\n", "alert")
