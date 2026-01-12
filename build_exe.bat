@@ -18,4 +18,4 @@ echo.
 echo Build Complete.
 echo The executable is located in the "dist" folder.
 pause
-exit
+exit /b 0
