@@ -69,7 +69,9 @@ curl -sL https://github.com/vhaloo/LocalTranscriberPro/releases/latest/download/
 ## 📖 User Guide
 
 ### 🎙️ Live Recording
-1.  Select your **Microphone** and **Model Size** ("Small" is a good balance of speed/accuracy).
+1.  Select your **Microphone** and **Model Size**. 
+    *   **"Small"** is a good balance of speed and accuracy.
+    *   **"Large"** offers the **most accurate** transcription (requires more VRAM/CPU).
 2.  Click **Record** (or press `F1`).
 3.  Speak! Text will appear in real-time blocks.
 4.  Click **Stop** (`F3`) to finalize. The transcript is automatically saved to your Desktop.
