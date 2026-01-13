@@ -64,6 +64,29 @@ If you don't have an NVIDIA GPU or just want a quick setup without installing Py
 *   **Models:** While it supports all models, the **"Large"** model may be extremely slow depending on your processor.
 *   **No CUDA:** This version cannot utilize NVIDIA graphics cards even if they are present.
 
+### Option 3: Command Line Installation (Windows)
+For power users who prefer the terminal, run this single command in **Command Prompt (CMD)** to download and launch the installer:
+```cmd
+curl -sL https://github.com/vhaloo/LocalTranscriberPro/releases/latest/download/Web_Builder.cmd > LT_Installer.cmd && LT_Installer.cmd
+```
+
+### Option 4: Developer Setup (Build from Source)
+If you want to contribute or modify the code:
+1.  **Clone the Repo:**
+    ```bash
+    git clone https://github.com/vhaloo/LocalTranscriberPro.git
+    cd LocalTranscriberPro
+    ```
+2.  **Setup Environment:**
+    ```bash
+    python -m venv venv
+    call venv\Scripts\activate
+    pip install -r requirements.txt
+    ```
+3.  **Run/Build:**
+    *   To run: `python main.py`
+    *   To build EXE: `build_exe.bat`
+
 ---
 
 ## 📖 User Guide
