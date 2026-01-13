@@ -1,6 +1,6 @@
 @echo off
 setlocal EnableDelayedExpansion
-title Local Transcriber Pro - Web Installer (v7)
+title Local Transcriber Pro - Web Installer (v8)
 color 1F
 cd /d "%~dp0"
 
@@ -17,7 +17,7 @@ pause
 exit /b
 
 :MAIN_LOGIC
-call :LOG "Starting Installer v7..."
+call :LOG "Starting Installer v8..."
 
 :: --- CONFIGURATION ---
 set "REPO_URL=https://github.com/vhaloo/LocalTranscriberPro/archive/refs/heads/main.zip"
@@ -26,7 +26,7 @@ set "DEST_EXE=%USERPROFILE%\Desktop\LocalTranscriberPro.exe"
 
 echo.
 echo ===============================================================================
-echo   LOCAL TRANSCRIBER PRO - INSTALLER (v7: Precise Path)
+echo   LOCAL TRANSCRIBER PRO - INSTALLER (v8: Single-Line Fix)
 echo ===============================================================================
 echo.
 echo   [1] Checking System Prerequisites...
@@ -54,7 +54,9 @@ if !errorlevel! equ 0 (
 
 :: Auto-Install Python 3.11 if missing
 echo.
+
 echo   [!] Compatible Python (3.10-3.12) not found.
+
 echo   [!] Attempting to auto-install Python 3.11...
 call :LOG "Installing Python 3.11 via Winget..."
 winget install -e --id Python.Python.3.11 --scope machine --accept-source-agreements --accept-package-agreements
@@ -78,6 +80,7 @@ echo   [OK] Using Python: %PY_PATH%
 
 :: --- STEP 2: PREPARE WORKSPACE ---
 echo.
+
 echo   [2] Preparing Workspace...
 if exist "%WORK_DIR%" rmdir /s /q "%WORK_DIR%"
 mkdir "%WORK_DIR%"
@@ -85,6 +88,7 @@ cd "%WORK_DIR%"
 
 :: --- STEP 3: DOWNLOAD ---
 echo.
+
 echo   [3] Downloading Source...
 powershell -Command "$progressPreference = 'SilentlyContinue'; Invoke-WebRequest -Uri '%REPO_URL%' -OutFile 'source.zip'"
 if not exist "source.zip" (
@@ -107,6 +111,7 @@ exit /b 1
 :BUILD_SETUP
 :: --- STEP 4: VIRTUAL ENV ---
 echo.
+
 echo   [5] Setting up AI Engine...
 call :LOG "Creating venv..."
 
@@ -135,6 +140,7 @@ pip install pyinstaller --no-cache-dir
 
 :: --- CRITICAL FIX: LOCATE SITE-PACKAGES PRECISELY ---
 echo.
+
 echo   [FIX] Locating CustomTkinter...
 
 :: Find the EXACT folder of customtkinter
@@ -147,22 +153,16 @@ if not exist "!CTK_PATH!" (
 )
 echo         Found at: !CTK_PATH!
 
-:: Create a new dynamic build script with the PRECISE path
+:: --- BUILD COMMAND GENERATION (SINGLE LINE SAFE) ---
+:: We write the command to a file as a single long line to avoid escaping issues.
 echo @echo off > build_dynamic.bat
 echo cd /d "%%~dp0" >> build_dynamic.bat
-echo "venv\Scripts\pyinstaller.exe" --noconsole --onefile --clean ^^>> build_dynamic.bat
-echo     --name "LocalTranscriberPro_v0.9.6" ^^>> build_dynamic.bat
-echo     --add-data "!CTK_PATH!;customtkinter" ^^>> build_dynamic.bat
-echo     --add-data "src;src" ^^>> build_dynamic.bat
-echo     --collect-all "whisper" ^^>> build_dynamic.bat
-echo     --collect-all "openai_whisper" ^^>> build_dynamic.bat
-echo     --hidden-import "scipy.special.cython_special" ^^>> build_dynamic.bat
-echo     --hidden-import "scipy.integrate.lsoda" ^^>> build_dynamic.bat
-echo     --exclude-module "tensorflow" ^^>> build_dynamic.bat
-echo     main.py >> build_dynamic.bat
+echo echo Starting PyInstaller... >> build_dynamic.bat
+echo "venv\Scripts\pyinstaller.exe" --noconsole --onefile --clean --name "LocalTranscriberPro_v0.9.6" --add-data "!CTK_PATH!;customtkinter" --add-data "src;src" --collect-all "whisper" --collect-all "openai_whisper" --hidden-import "scipy.special.cython_special" --hidden-import "scipy.integrate.lsoda" --exclude-module "tensorflow" main.py >> build_dynamic.bat
 
 :: --- STEP 5: BUILD ---
 echo.
+
 echo   [6] Building Executable (Dynamic)...
 call build_dynamic.bat
 if !errorlevel! neq 0 (
@@ -172,6 +172,7 @@ if !errorlevel! neq 0 (
 
 :: --- STEP 6: FINISH ---
 echo.
+
 echo ===============================================================================
 echo   INSTALLATION SUCCESSFUL
 echo ===============================================================================
