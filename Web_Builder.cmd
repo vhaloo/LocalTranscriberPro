@@ -175,12 +175,27 @@ echo   INSTALLATION COMPLETE
 echo ===============================================================================
 
 if exist "dist\LocalTranscriberPro_*.exe" (
+    echo   [INSTALL] Updating Desktop Shortcut...
+    
+    :: Force close if running
+    taskkill /F /IM "LocalTranscriberPro.exe" >nul 2>&1
+    
+    :: Copy to Desktop
     copy /Y "dist\LocalTranscriberPro_*.exe" "%DEST_EXE%" >nul
-    echo   [SUCCESS] App installed to Desktop!
-    echo.
-    echo   You can close this window.
-    timeout /t 10
-    exit
+    
+    if exist "%DEST_EXE%" (
+        echo   [SUCCESS] App installed to: %DEST_EXE%
+        echo.
+        echo   You can close this window.
+        timeout /t 10
+        exit
+    ) else (
+        echo   [ERROR] Failed to copy to Desktop.
+        echo   Possible cause: Antivirus or Permissions.
+        echo   You can manually find the exe in: %CD%\dist
+        pause
+        exit /b 1
+    )
 ) else (
     echo   [ERROR] Build failed. Check logs.
     pause
