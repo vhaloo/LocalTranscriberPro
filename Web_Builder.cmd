@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-title Local Transcriber Pro - Web Installer (v12)
+title Local Transcriber Pro - Web Installer (v13: Integrity Check)
 color 1F
 
 :: --- LOGGING START ---
@@ -9,7 +9,7 @@ echo Installer started at %TIME% > install_log.txt
 set LOGCMD=echo
 
 %LOGCMD% ===============================================================================
-%LOGCMD%   LOCAL TRANSCRIBER PRO - INSTALLER (v12: DLL Fix)
+%LOGCMD%   LOCAL TRANSCRIBER PRO - INSTALLER (v13: Integrity Check)
 %LOGCMD% ===============================================================================
 
 set "WORK_DIR=LT_Build_Temp"
@@ -30,7 +30,6 @@ if %errorlevel% equ 0 (
     goto :FOUND_PY
 )
 
-%LOGCMD% [ERROR] Compatible Python not found. >> install_log.txt
 echo [ERROR] Compatible Python not found.
 pause
 exit /b 1
@@ -80,7 +79,6 @@ if %errorlevel% equ 0 (
 
 pip install -r requirements.txt --no-cache-dir >> ..\..\install_log.txt 2>&1
 pip install pyinstaller --no-cache-dir >> ..\..\install_log.txt 2>&1
-:: Install missing DLL provider
 pip install tbb --no-cache-dir >> ..\..\install_log.txt 2>&1
 
 :: --- FIX: LOCATE SITE-PACKAGES ---
@@ -91,7 +89,6 @@ echo Found at: %CTK_PATH% >> ..\..\install_log.txt
 :: --- BUILD ---
 echo [6] Building Executable...
 echo @echo off > build_run.bat
-:: Added --collect-all "tbb" and "numba" to fix missing DLLs
 echo "venv\Scripts\pyinstaller.exe" --noconsole --onefile --clean --name "LocalTranscriberPro_v0.9.6" --add-data "%CTK_PATH%;customtkinter" --add-data "src;src" --collect-all "whisper" --collect-all "openai_whisper" --collect-all "tbb" --collect-all "numba" --hidden-import "scipy.special.cython_special" --hidden-import "scipy.integrate.lsoda" --exclude-module "tensorflow" main.py >> build_run.bat
 
 call build_run.bat >> ..\..\install_log.txt 2>&1
@@ -109,14 +106,22 @@ echo   INSTALLATION SUCCESSFUL
 echo ===============================================================================
 
 if exist "dist\LocalTranscriberPro_*.exe" (
+    echo [CHECK] Verifying Build Size...
+    for %%F in ("dist\LocalTranscriberPro_*.exe") do set "SIZE=%%~zF"
+    
+    echo Size is: %SIZE% bytes
+    if %SIZE% LSS 100000000 (
+        echo [ERROR] The built file is suspiciously small (<100MB).
+        echo Something went wrong during PyInstaller packaging.
+        pause
+        exit /b 1
+    )
+
     echo [INSTALL] Closing old app...
     taskkill /F /IM "LocalTranscriberPro.exe" >nul 2>&1
     
-    echo [INSTALL] Backing up old version...
-    if exist "%DEST_EXE%" move /Y "%DEST_EXE%" "%DEST_EXE%.bak" >nul 2>&1
-    
-    echo [INSTALL] Copying new version...
-    copy /Y "dist\LocalTranscriberPro_*.exe" "%DEST_EXE%" >nul
+    echo [INSTALL] Copying to Desktop (Safe Copy)...
+    copy /Y /B "dist\LocalTranscriberPro_*.exe" "%DEST_EXE%" >nul
     
     if exist "%DEST_EXE%" (
         echo [DONE] App installed to Desktop.
@@ -126,8 +131,7 @@ if exist "dist\LocalTranscriberPro_*.exe" (
         pause >nul
         exit
     ) else (
-        echo [ERROR] Copy failed. restoring backup...
-        if exist "%DEST_EXE%.bak" move /Y "%DEST_EXE%.bak" "%DEST_EXE%" >nul
+        echo [ERROR] Copy failed. Check Permissions.
         pause
         exit /b 1
     )
