@@ -1,6 +1,6 @@
 @echo off
 setlocal EnableDelayedExpansion
-title Local Transcriber Pro - Web Installer (v6)
+title Local Transcriber Pro - Web Installer (v7)
 color 1F
 cd /d "%~dp0"
 
@@ -17,7 +17,7 @@ pause
 exit /b
 
 :MAIN_LOGIC
-call :LOG "Starting Installer v6..."
+call :LOG "Starting Installer v7..."
 
 :: --- CONFIGURATION ---
 set "REPO_URL=https://github.com/vhaloo/LocalTranscriberPro/archive/refs/heads/main.zip"
@@ -26,7 +26,7 @@ set "DEST_EXE=%USERPROFILE%\Desktop\LocalTranscriberPro.exe"
 
 echo.
 echo ===============================================================================
-echo   LOCAL TRANSCRIBER PRO - INSTALLER (v6: Path Fix)
+echo   LOCAL TRANSCRIBER PRO - INSTALLER (v7: Precise Path)
 echo ===============================================================================
 echo.
 echo   [1] Checking System Prerequisites...
@@ -133,24 +133,26 @@ if !errorlevel! equ 0 (
 pip install -r requirements.txt --no-cache-dir
 pip install pyinstaller --no-cache-dir
 
-:: --- CRITICAL FIX: LOCATE SITE-PACKAGES ---
+:: --- CRITICAL FIX: LOCATE SITE-PACKAGES PRECISELY ---
 echo.
-echo   [FIX] Patching Build Script...
-for /f "tokens=*" %%i in ('python -c "import site; print(site.getsitepackages()[0])"') do set "SITE_PKG=%%i"
-echo         Found Site-Packages at: %SITE_PKG%
+echo   [FIX] Locating CustomTkinter...
 
-if not exist "%SITE_PKG%\customtkinter" (
-    echo   [ERROR] CustomTkinter NOT FOUND in %SITE_PKG%
-    echo   Re-installing...
-    pip install customtkinter --force-reinstall --no-cache-dir
+:: Find the EXACT folder of customtkinter
+for /f "tokens=*" %%i in ('python -c "import customtkinter; import os; print(os.path.dirname(customtkinter.__file__))"') do set "CTK_PATH=%%i"
+
+if not exist "!CTK_PATH!" (
+    echo   [ERROR] Could not locate customtkinter path.
+    echo   Reported: !CTK_PATH!
+    exit /b 1
 )
+echo         Found at: !CTK_PATH!
 
-:: Create a new dynamic build script
+:: Create a new dynamic build script with the PRECISE path
 echo @echo off > build_dynamic.bat
 echo cd /d "%%~dp0" >> build_dynamic.bat
 echo "venv\Scripts\pyinstaller.exe" --noconsole --onefile --clean ^^>> build_dynamic.bat
 echo     --name "LocalTranscriberPro_v0.9.6" ^^>> build_dynamic.bat
-echo     --add-data "%SITE_PKG%\customtkinter;customtkinter" ^^>> build_dynamic.bat
+echo     --add-data "!CTK_PATH!;customtkinter" ^^>> build_dynamic.bat
 echo     --add-data "src;src" ^^>> build_dynamic.bat
 echo     --collect-all "whisper" ^^>> build_dynamic.bat
 echo     --collect-all "openai_whisper" ^^>> build_dynamic.bat
