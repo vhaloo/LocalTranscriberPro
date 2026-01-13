@@ -3,7 +3,7 @@
 [![OS - Windows](https://img.shields.io/badge/OS-Windows-blue?logo=windows&logoColor=white)](https://github.com/vhaloo/LocalTranscriberPro/releases)
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Status](https://img.shields.io/badge/status-Release%20v0.9.6-brightgreen)
+![Status](https://img.shields.io/badge/status-Release%20v0.9.7-brightgreen)
 
 **Local Transcriber Pro** is a high-performance, private, and offline transcription tool developed by **Vhaloo**. It converts spoken audio from your microphone or existing files into text with extreme accuracy using OpenAI's Whisper models, running entirely on your own device.
 
@@ -43,10 +43,11 @@
 ## 📥 Installation
 
 ### Option 1: One-Click Installer (Recommended)
-This script will automatically download the latest version and set everything up for you.
+This script will automatically download the latest version, check for Python/FFmpeg, and build the app optimized for your PC.
 
 1.  **[Click here to download `Web_Builder.cmd`](https://github.com/vhaloo/LocalTranscriberPro/releases/latest/download/Web_Builder.cmd)**
 2.  Double-click the downloaded file to install.
+3.  The app will be placed directly on your **Desktop**.
 
 *(Alternative: You can run this command in CMD)*
 ```cmd
@@ -55,15 +56,9 @@ curl -sL https://github.com/vhaloo/LocalTranscriberPro/releases/latest/download/
 
 ### Option 2: Download EXE
 1.  Go to the [**Releases Page**](https://github.com/vhaloo/LocalTranscriberPro/releases).
-2.  Look for the latest version tag (e.g., `v0.9.6`).
+2.  Look for the latest version tag (e.g., `v0.9.7`).
 3.  Download `LocalTranscriberPro.exe`.
 4.  Double-click to run.
-
-### Option 3: Build from Source (Developers)
-If you want the absolute latest code from the `main` branch:
-1.  Clone the repo: `git clone https://github.com/vhaloo/LocalTranscriberPro`
-2.  Install requirements: `pip install -r requirements.txt`
-3.  Run the build script: `build_exe.bat`
 
 ---
 
@@ -85,6 +80,10 @@ If you want the absolute latest code from the `main` branch:
 
 ## ❓ Troubleshooting
 
+### **"This app can't run on your PC"**
+*   **Cause:** This usually means the download was interrupted or the file is incomplete (0KB).
+*   **Fix:** Re-run the `Web_Builder.cmd` installer. It includes an **Integrity Check** to ensure the build is complete before finishing.
+
 ### **"CUDA is not available / Running in CPU mode"**
 *   **Cause:** The app cannot find an NVIDIA GPU or the correct drivers.
 *   **Fix:** 
@@ -97,12 +96,8 @@ If you want the absolute latest code from the `main` branch:
 *   **Cause:** This app is built with PyInstaller. Some antivirus software (like Windows Defender) generates "False Positives" for unsigned Python executables.
 *   **Fix:** Add an exclusion for the folder where you keep the app, or click "Run Anyway" -> "More Info" if Windows SmartScreen blocks it. Since this is open source, you can verify the code yourself!
 
-### **"Transcription is slow"**
-*   **Cause:** You are likely running on CPU with a large model.
-*   **Fix:** Switch to the **"Tiny"** or **"Base"** model for faster CPU performance, or upgrade your hardware.
-
-### **"The app crashes immediately"**
-*   **Fix:** Ensure you have **Visual C++ Redistributable** installed (standard on most Windows PCs). Try running the app as Administrator.
+### **"Installer Failed"**
+*   **Fix:** If `Web_Builder.cmd` fails, check your **Desktop** for a file named `LT_Install_Log.txt`. It contains the full error report to help diagnose the issue.
 
 ---
 
