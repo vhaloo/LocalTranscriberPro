@@ -42,8 +42,8 @@
 
 ## 📥 Installation
 
-### Option 1: One-Click Installer (Recommended)
-This script will automatically download the latest version, check for prerequisites, and build the app optimized for your PC.
+### Option 1: One-Click Installer (Recommended for GPU)
+This script will automatically download the latest version, check for prerequisites, and build the app optimized for your PC. **This is the only way to get full NVIDIA GPU (CUDA) acceleration.**
 
 1.  **[Click here to download `Web_Builder.cmd`](https://github.com/vhaloo/LocalTranscriberPro/releases/latest/download/Web_Builder.cmd)**
 2.  Double-click the downloaded file to install.
@@ -53,16 +53,10 @@ This script will automatically download the latest version, check for prerequisi
 *   **[Python 3.12](https://www.python.org/downloads/release/python-3128/)** (Required - **IMPORTANT:** Tick "Add Python to PATH" during installation)
 *   **[NVIDIA CUDA Toolkit 12.x](https://developer.nvidia.com/cuda-downloads)** (For NVIDIA GeForce users - highly recommended for speed)
 
-*(Alternative: You can run this command in CMD)*
-```cmd
-curl -sL https://github.com/vhaloo/LocalTranscriberPro/releases/latest/download/Web_Builder.cmd > install.cmd && install.cmd
-```
-
-### Option 2: Download EXE
-1.  Go to the [**Releases Page**](https://github.com/vhaloo/LocalTranscriberPro/releases).
-2.  Look for the latest version tag (e.g., `v0.9.7`).
-3.  Download `LocalTranscriberPro.exe`.
-4.  Double-click to run.
+### Option 2: Direct Download (CPU Only)
+If you don't have an NVIDIA GPU or just want a quick standalone file:
+1.  **[Download `LocalTranscriberPro_v0.9.7_CPU_Only.exe`](https://github.com/vhaloo/LocalTranscriberPro/releases/latest/download/LocalTranscriberPro_v0.9.7_CPU_Only.exe)**
+2.  Double-click to run. (Note: Transcription will be slower as it only uses your Processor).
 
 ---
 
