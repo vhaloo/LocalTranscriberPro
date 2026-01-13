@@ -1,15 +1,22 @@
 # Local Transcriber Project History
 
-## Session: January 12, 2026 (YOLO Mode)
+## Session: January 13, 2026 (Stability Update)
 
-### **Status: Release v0.9.6**
-Major update with universal subtitle support and UI improvements.
+### **Status: Release v0.9.7**
+Major stability update for the Web Installer and runtime dependencies.
 
 ### **Current Application State**
-*   **Desktop App:** Local Transcriber Pro v0.9.6
+*   **Desktop App:** Local Transcriber Pro v0.9.7
 *   **Repo:** https://github.com/vhaloo/LocalTranscriberPro
 
 ### **Version Changelog**
+*   **v0.9.7 (Desktop):**
+    *   **Fix:** Completely rewritten `Web_Builder.cmd` (v14) with Desktop logging and integrity checks.
+    *   **Fix:** Resolved "This app can't run on your PC" error by fixing partial/corrupt builds.
+    *   **Fix:** Added missing `tbb` and `numba` DLLs to PyInstaller bundle.
+    *   **Fix:** Dynamic detection of `customtkinter` paths during build.
+    *   **Compatibility:** Verified support for Python 3.12.
+
 *   **v0.9.6 (Desktop):**
     *   **Feature:** **Universal Subtitle Creator** (Create .srt from any video/audio).
     *   **UI:** Added **Clear Log Button** and **Tooltips** for better UX.
