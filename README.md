@@ -43,11 +43,15 @@
 ## 📥 Installation
 
 ### Option 1: One-Click Installer (Recommended)
-This script will automatically download the latest version, check for Python/FFmpeg, and build the app optimized for your PC.
+This script will automatically download the latest version, check for prerequisites, and build the app optimized for your PC.
 
 1.  **[Click here to download `Web_Builder.cmd`](https://github.com/vhaloo/LocalTranscriberPro/releases/latest/download/Web_Builder.cmd)**
 2.  Double-click the downloaded file to install.
 3.  The app will be placed directly on your **Desktop**.
+
+*Note: If the installer fails to auto-detect your environment, ensure you have these installed:*
+*   **[Python 3.12](https://www.python.org/downloads/release/python-3128/)** (Required)
+*   **[NVIDIA CUDA Toolkit 12.x](https://developer.nvidia.com/cuda-downloads)** (For NVIDIA GeForce users - highly recommended for speed)
 
 *(Alternative: You can run this command in CMD)*
 ```cmd
