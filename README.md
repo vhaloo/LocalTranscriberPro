@@ -50,7 +50,7 @@ This script will automatically download the latest version, check for prerequisi
 3.  The app will be placed directly on your **Desktop**.
 
 *Note: If the installer fails to auto-detect your environment, ensure you have these installed:*
-*   **[Python 3.12](https://www.python.org/downloads/release/python-3128/)** (Required)
+*   **[Python 3.12](https://www.python.org/downloads/release/python-3128/)** (Required - **IMPORTANT:** Tick "Add Python to PATH" during installation)
 *   **[NVIDIA CUDA Toolkit 12.x](https://developer.nvidia.com/cuda-downloads)** (For NVIDIA GeForce users - highly recommended for speed)
 
 *(Alternative: You can run this command in CMD)*
