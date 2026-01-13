@@ -1,34 +1,29 @@
 @echo off
 setlocal EnableDelayedExpansion
-title Local Transcriber Pro - Web Installer (v8)
+title Local Transcriber Pro - Web Installer (v9)
 color 1F
 cd /d "%~dp0"
 
-:: --- CRASH PROTECTION WRAPPER ---
-if "%~1"=="__RUNNING_INTERNAL__" goto :MAIN_LOGIC
-cmd /c "%~f0" __RUNNING_INTERNAL__
-echo.
 echo ===============================================================================
-echo   INSTALLER STOPPED
+echo   LOCAL TRANSCRIBER PRO - INSTALLER (v9: Linear Mode)
 echo ===============================================================================
-echo   If you see an error above, please take a screenshot.
 echo.
-pause
-exit /b
-
-:MAIN_LOGIC
-call :LOG "Starting Installer v8..."
 
 :: --- CONFIGURATION ---
 set "REPO_URL=https://github.com/vhaloo/LocalTranscriberPro/archive/refs/heads/main.zip"
 set "WORK_DIR=LT_Build_Temp"
 set "DEST_EXE=%USERPROFILE%\Desktop\LocalTranscriberPro.exe"
 
+:: DEBUG CHECK
+if "%REPO_URL%"=="" (
+    echo [CRITICAL ERROR] Variables failed to set.
+    pause
+    exit /b 1
+)
+echo [DEBUG] URL: %REPO_URL%
+echo [DEBUG] WORK: %WORK_DIR%
 echo.
-echo ===============================================================================
-echo   LOCAL TRANSCRIBER PRO - INSTALLER (v8: Single-Line Fix)
-echo ===============================================================================
-echo.
+
 echo   [1] Checking System Prerequisites...
 
 :: --- STEP 1: FIND PYTHON (3.10 - 3.12) ---
@@ -54,14 +49,12 @@ if !errorlevel! equ 0 (
 
 :: Auto-Install Python 3.11 if missing
 echo.
-
 echo   [!] Compatible Python (3.10-3.12) not found.
-
 echo   [!] Attempting to auto-install Python 3.11...
-call :LOG "Installing Python 3.11 via Winget..."
 winget install -e --id Python.Python.3.11 --scope machine --accept-source-agreements --accept-package-agreements
 if !errorlevel! neq 0 (
     echo   [ERROR] Winget install failed.
+    pause
     exit /b 1
 )
 
@@ -71,28 +64,33 @@ if exist "%LOCALAPPDATA%\Programs\Python\Python311\python.exe" set "PY_PATH=%LOC
 
 if not defined PY_PATH (
     echo   [ERROR] Python installed but not found. Restart PC?
+    pause
     exit /b 1
 )
 
 :VERIFY_PY
-call :LOG "Using Python: %PY_PATH%"
 echo   [OK] Using Python: %PY_PATH%
 
 :: --- STEP 2: PREPARE WORKSPACE ---
 echo.
-
 echo   [2] Preparing Workspace...
 if exist "%WORK_DIR%" rmdir /s /q "%WORK_DIR%"
 mkdir "%WORK_DIR%"
+if !errorlevel! neq 0 (
+    echo [ERROR] Failed to create workspace "%WORK_DIR%".
+    pause
+    exit /b 1
+)
 cd "%WORK_DIR%"
 
 :: --- STEP 3: DOWNLOAD ---
 echo.
-
 echo   [3] Downloading Source...
 powershell -Command "$progressPreference = 'SilentlyContinue'; Invoke-WebRequest -Uri '%REPO_URL%' -OutFile 'source.zip'"
 if not exist "source.zip" (
     echo   [ERROR] Download failed.
+    echo   URL was: %REPO_URL%
+    pause
     exit /b 1
 )
 
@@ -106,18 +104,19 @@ for /d %%D in (*) do (
     )
 )
 echo   [ERROR] Source code structure invalid.
+pause
 exit /b 1
 
 :BUILD_SETUP
 :: --- STEP 4: VIRTUAL ENV ---
 echo.
-
 echo   [5] Setting up AI Engine...
-call :LOG "Creating venv..."
+echo       - Creating venv...
 
 "%PY_PATH%" -m venv venv
 if !errorlevel! neq 0 (
     echo   [ERROR] Failed to create venv.
+    pause
     exit /b 1
 )
 
@@ -138,9 +137,8 @@ if !errorlevel! equ 0 (
 pip install -r requirements.txt --no-cache-dir
 pip install pyinstaller --no-cache-dir
 
-:: --- CRITICAL FIX: LOCATE SITE-PACKAGES PRECISELY ---
+:: --- FIX: LOCATE SITE-PACKAGES PRECISELY ---
 echo.
-
 echo   [FIX] Locating CustomTkinter...
 
 :: Find the EXACT folder of customtkinter
@@ -149,12 +147,12 @@ for /f "tokens=*" %%i in ('python -c "import customtkinter; import os; print(os.
 if not exist "!CTK_PATH!" (
     echo   [ERROR] Could not locate customtkinter path.
     echo   Reported: !CTK_PATH!
+    pause
     exit /b 1
 )
 echo         Found at: !CTK_PATH!
 
-:: --- BUILD COMMAND GENERATION (SINGLE LINE SAFE) ---
-:: We write the command to a file as a single long line to avoid escaping issues.
+:: --- BUILD COMMAND GENERATION ---
 echo @echo off > build_dynamic.bat
 echo cd /d "%%~dp0" >> build_dynamic.bat
 echo echo Starting PyInstaller... >> build_dynamic.bat
@@ -162,17 +160,16 @@ echo "venv\Scripts\pyinstaller.exe" --noconsole --onefile --clean --name "LocalT
 
 :: --- STEP 5: BUILD ---
 echo.
-
 echo   [6] Building Executable (Dynamic)...
 call build_dynamic.bat
 if !errorlevel! neq 0 (
     echo   [ERROR] Build script failed.
+    pause
     exit /b 1
 )
 
 :: --- STEP 6: FINISH ---
 echo.
-
 echo ===============================================================================
 echo   INSTALLATION SUCCESSFUL
 echo ===============================================================================
@@ -186,13 +183,12 @@ if exist "dist\LocalTranscriberPro_*.exe" (
     if exist "%DEST_EXE%" (
         echo.
         echo   [DONE] App is ready on your Desktop!
-        exit /b 0
+        echo   You can close this window.
+        timeout /t 10
+        exit
     )
 )
 
 echo   [ERROR] Copy failed. File might be in 'dist' folder.
+pause
 exit /b 1
-
-:LOG
-echo [%DATE% %TIME%] %~1 >> "%~dp0\install_log.txt"
-exit /b 0
