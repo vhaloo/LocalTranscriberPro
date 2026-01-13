@@ -54,9 +54,15 @@ This script will automatically download the latest version, check for prerequisi
 *   **[NVIDIA CUDA Toolkit 12.x](https://developer.nvidia.com/cuda-downloads)** (For NVIDIA GeForce users - highly recommended for speed)
 
 ### Option 2: Direct Download (CPU Only)
-If you don't have an NVIDIA GPU or just want a quick standalone file:
-1.  **[Download `LocalTranscriberPro_v0.9.7_CPU_Only.exe`](https://github.com/vhaloo/LocalTranscriberPro/releases/latest/download/LocalTranscriberPro_v0.9.7_CPU_Only.exe)**
-2.  Double-click to run. (Note: Transcription will be slower as it only uses your Processor).
+If you don't have an NVIDIA GPU or just want a quick setup without installing Python:
+1.  **[Download `LocalTranscriberPro_v0.9.7_CPU_Only.exe`](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v0.9.7/LocalTranscriberPro_v0.9.7_CPU_Only.exe)**
+2.  Double-click to run.
+
+⚠️ **CPU Version Limitations:**
+*   **Speed:** Transcription is significantly slower (can take 5-10x longer than GPU).
+*   **Resource Heavy:** High CPU usage during processing may slow down your computer.
+*   **Models:** While it supports all models, the **"Large"** model may be extremely slow depending on your processor.
+*   **No CUDA:** This version cannot utilize NVIDIA graphics cards even if they are present.
 
 ---
 
