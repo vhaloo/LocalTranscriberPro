@@ -1,20 +1,17 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-title Local Transcriber Pro - Web Installer (v11)
+title Local Transcriber Pro - Web Installer (v12)
 color 1F
 
 :: --- LOGGING START ---
 echo Installer started at %TIME% > install_log.txt
-:: Function to log and echo
 set LOGCMD=echo
 
 %LOGCMD% ===============================================================================
-%LOGCMD%   LOCAL TRANSCRIBER PRO - INSTALLER (v11: Debug Mode)
+%LOGCMD%   LOCAL TRANSCRIBER PRO - INSTALLER (v12: DLL Fix)
 %LOGCMD% ===============================================================================
-%LOGCMD%.
 
-:: --- CONFIGURATION ---
 set "WORK_DIR=LT_Build_Temp"
 set "DEST_EXE=%USERPROFILE%\Desktop\LocalTranscriberPro.exe"
 
@@ -22,15 +19,10 @@ set "DEST_EXE=%USERPROFILE%\Desktop\LocalTranscriberPro.exe"
 
 :: --- STEP 1: FIND PYTHON ---
 set "PY_PATH="
-:: Check Standard Locations
 if exist "%ProgramFiles%\Python312\python.exe" set "PY_PATH=%ProgramFiles%\Python312\python.exe" & goto :FOUND_PY
 if exist "%ProgramFiles%\Python311\python.exe" set "PY_PATH=%ProgramFiles%\Python311\python.exe" & goto :FOUND_PY
-if exist "%ProgramFiles%\Python310\python.exe" set "PY_PATH=%ProgramFiles%\Python310\python.exe" & goto :FOUND_PY
 if exist "%LOCALAPPDATA%\Programs\Python\Python312\python.exe" set "PY_PATH=%LOCALAPPDATA%\Programs\Python\Python312\python.exe" & goto :FOUND_PY
 if exist "%LOCALAPPDATA%\Programs\Python\Python311\python.exe" set "PY_PATH=%LOCALAPPDATA%\Programs\Python\Python311\python.exe" & goto :FOUND_PY
-if exist "%LOCALAPPDATA%\Programs\Python\Python310\python.exe" set "PY_PATH=%LOCALAPPDATA%\Programs\Python\Python310\python.exe" & goto :FOUND_PY
-if exist "C:\Python312\python.exe" set "PY_PATH=C:\Python312\python.exe" & goto :FOUND_PY
-if exist "C:\Python311\python.exe" set "PY_PATH=C:\Python311\python.exe" & goto :FOUND_PY
 
 python --version >nul 2>&1
 if %errorlevel% equ 0 (
@@ -45,7 +37,6 @@ exit /b 1
 
 :FOUND_PY
 echo [OK] Using Python: %PY_PATH%
-echo [OK] Using Python: %PY_PATH% >> install_log.txt
 
 :: --- STEP 2: PREPARE WORKSPACE ---
 echo [2] Preparing Workspace...
@@ -57,7 +48,6 @@ cd "%WORK_DIR%"
 echo [3] Downloading Source...
 powershell -Command "$progressPreference = 'SilentlyContinue'; Invoke-WebRequest -Uri 'https://github.com/vhaloo/LocalTranscriberPro/archive/refs/heads/main.zip' -OutFile 'source.zip'"
 if not exist "source.zip" (
-    echo [ERROR] Download failed. >> ..\install_log.txt
     echo [ERROR] Download failed.
     pause
     exit /b 1
@@ -77,7 +67,7 @@ echo [5] Setting up AI Engine...
 "%PY_PATH%" -m venv venv
 call venv\Scripts\activate.bat
 
-echo     - Installing Dependencies... >> ..\..\install_log.txt
+echo     - Installing Dependencies...
 python -m pip install --upgrade pip --no-cache-dir >nul 2>&1
 
 :: GPU Check
@@ -90,6 +80,8 @@ if %errorlevel% equ 0 (
 
 pip install -r requirements.txt --no-cache-dir >> ..\..\install_log.txt 2>&1
 pip install pyinstaller --no-cache-dir >> ..\..\install_log.txt 2>&1
+:: Install missing DLL provider
+pip install tbb --no-cache-dir >> ..\..\install_log.txt 2>&1
 
 :: --- FIX: LOCATE SITE-PACKAGES ---
 echo [FIX] Locating CustomTkinter...
@@ -99,7 +91,8 @@ echo Found at: %CTK_PATH% >> ..\..\install_log.txt
 :: --- BUILD ---
 echo [6] Building Executable...
 echo @echo off > build_run.bat
-echo "venv\Scripts\pyinstaller.exe" --noconsole --onefile --clean --name "LocalTranscriberPro_v0.9.6" --add-data "%CTK_PATH%;customtkinter" --add-data "src;src" --collect-all "whisper" --collect-all "openai_whisper" --hidden-import "scipy.special.cython_special" --hidden-import "scipy.integrate.lsoda" --exclude-module "tensorflow" main.py >> build_run.bat
+:: Added --collect-all "tbb" and "numba" to fix missing DLLs
+echo "venv\Scripts\pyinstaller.exe" --noconsole --onefile --clean --name "LocalTranscriberPro_v0.9.6" --add-data "%CTK_PATH%;customtkinter" --add-data "src;src" --collect-all "whisper" --collect-all "openai_whisper" --collect-all "tbb" --collect-all "numba" --hidden-import "scipy.special.cython_special" --hidden-import "scipy.integrate.lsoda" --exclude-module "tensorflow" main.py >> build_run.bat
 
 call build_run.bat >> ..\..\install_log.txt 2>&1
 
@@ -135,7 +128,6 @@ if exist "dist\LocalTranscriberPro_*.exe" (
     ) else (
         echo [ERROR] Copy failed. restoring backup...
         if exist "%DEST_EXE%.bak" move /Y "%DEST_EXE%.bak" "%DEST_EXE%" >nul
-        echo [ERROR] Could not write to Desktop. Check Permissions.
         pause
         exit /b 1
     )
