@@ -7,6 +7,8 @@
 
 **Local Transcriber Pro** is a high-performance, private, and offline transcription tool developed by **Vhaloo**. It converts spoken audio from your microphone or existing files into text with extreme accuracy using OpenAI's Whisper models, running entirely on your own device.
 
+LTP is the best choice for Windows users who want the "Professional" accuracy of the best voice recognition engine in the world (Exact same as ChatGPT), but with the privacy and zero-cost of local hardware and open-source software, with a one-click installation, on any computer.
+
 ![Local Transcriber Pro Preview](app_preview.png)
 
 ---
