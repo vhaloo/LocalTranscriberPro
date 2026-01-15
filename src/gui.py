@@ -11,7 +11,7 @@ import tkinter as tk
 from tkinter import messagebox, filedialog
 
 from src.audio import AudioRecorder, SAMPLE_RATE
-from src.transcriber import TranscriberEngine, MODEL_SIZES
+from src.transcriber import TranscriberEngine, MODEL_SIZES, REVERSE_MODEL_MAP
 from src.utils import StdErrRedirector, create_srt_content
 from src.tooltip import ToolTip
 from src.youtube_utils import download_youtube_audio
@@ -113,6 +113,43 @@ class ModelManagerDialog(ctk.CTkToplevel):
             else:
                 messagebox.showerror("Error", "Could not delete file.", parent=self)
 
+class ModelAdviceDialog(ctk.CTkToplevel):
+    def __init__(self, parent, current_model, on_switch, on_keep):
+        super().__init__(parent)
+        self.title("Optimization Tip")
+        self.geometry("450x250")
+        self.transient(parent)
+        self.grab_set()
+        self.focus_force()
+        try:
+            x = parent.winfo_x() + 100
+            y = parent.winfo_y() + 100
+            self.geometry(f"+{x}+{y}")
+        except: pass
+        
+        self.on_switch = on_switch
+        self.on_keep = on_keep
+        
+        lbl = ctk.CTkLabel(self, text="For best results with files/videos,\nwe recommend switching to the 'Large' model.", font=("Roboto", 14), justify="center")
+        lbl.pack(pady=20, padx=20)
+        
+        info = ctk.CTkLabel(self, text="Note: 'Large' (~3GB) provides the highest accuracy\nbut requires downloading once and uses more RAM.", text_color="gray", font=("Roboto", 12))
+        info.pack(pady=(0, 20))
+        
+        btn_frame = ctk.CTkFrame(self, fg_color="transparent")
+        btn_frame.pack(fill="x", padx=20)
+        
+        ctk.CTkButton(btn_frame, text="Switch to Large (Recommended)", fg_color="#00b894", hover_color="#00cec9", command=self.switch).pack(side="left", expand=True, padx=5)
+        ctk.CTkButton(btn_frame, text=f"Keep '{current_model}'", fg_color="gray", hover_color="gray40", command=self.keep).pack(side="right", expand=True, padx=5)
+
+    def switch(self):
+        self.on_switch()
+        self.destroy()
+
+    def keep(self):
+        self.on_keep()
+        self.destroy()
+
 class TranscriberApp(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -132,6 +169,7 @@ class TranscriberApp(ctk.CTk):
         self.is_loading_model = False
         self.batch_queue = []
         self.backup_file = os.path.join(os.getcwd(), ".unsaved_session.json")
+        self.advice_given = False
 
         self.setup_ui()
         self.setup_bindings()
@@ -168,7 +206,7 @@ class TranscriberApp(ctk.CTk):
         ToolTip(self.help_btn, "View quick start guide")
 
         # Tabview for Modes
-        self.tab_view = ctk.CTkTabview(self, height=100)
+        self.tab_view = ctk.CTkTabview(self, height=100, command=self.on_tab_change)
         self.tab_view.grid(row=1, column=0, sticky="ew", padx=20, pady=5)
         self.tab_view.add("General")
         self.tab_view.add("YouTube")
@@ -255,21 +293,27 @@ class TranscriberApp(ctk.CTk):
         self.yt_btn.pack(side="left", padx=10)
 
         # Visualizer Frame & Clear Button
-        self.vis_frame = ctk.CTkFrame(self, fg_color="#2b2b2b", height=60)
+        self.vis_frame = ctk.CTkFrame(self, fg_color="#2b2b2b", height=70) # Increased height for progress bar
         self.vis_frame.grid(row=2, column=0, sticky="ew", padx=20, pady=5)
         
         # Clear Button
         self.clear_btn = ctk.CTkButton(self.vis_frame, text="🗑️ Clear Log", width=80, height=30, 
                                        fg_color="#444", hover_color="#666", command=self.clear_log)
         self.clear_btn.place(relx=0.95, rely=0.5, anchor="center")
-        ToolTip(self.clear_btn, "Clear all text from the window")
-
-        self.vis_canvas = ctk.CTkCanvas(self.vis_frame, bg="#2b2b2b", highlightthickness=0, height=60)
-        self.vis_canvas.pack(fill="both", expand=True, padx=(0, 100)) 
         
-        self.loading_label = ctk.CTkLabel(self.vis_frame, text="", font=("Roboto", 11), text_color="gray")
-        self.loading_label.place(relx=0.5, rely=0.5, anchor="center")
+        # Loading Label (Step Info)
+        self.loading_label = ctk.CTkLabel(self.vis_frame, text="", font=("Roboto", 12), text_color="#dfe6e9")
+        self.loading_label.place(relx=0.5, rely=0.3, anchor="center")
 
+        # Progress Bar
+        self.progress_bar = ctk.CTkProgressBar(self.vis_frame, width=400, height=10, progress_color="#00b894")
+        self.progress_bar.place(relx=0.5, rely=0.7, anchor="center")
+        self.progress_bar.set(0)
+        self.progress_bar.place_forget() # Hide initially
+
+        self.vis_canvas = ctk.CTkCanvas(self.vis_frame, bg="#2b2b2b", highlightthickness=0, height=70)
+        self.vis_canvas.pack(fill="both", expand=True, padx=(0, 100))
+        
         # Text Area
         self.textbox = ctk.CTkTextbox(self, font=("Consolas", 14), corner_radius=10)
         self.textbox.grid(row=4, column=0, sticky="nsew", padx=20, pady=10)
@@ -291,64 +335,210 @@ class TranscriberApp(ctk.CTk):
         # Record Buttons
         self.record_btn = ctk.CTkButton(self.btn_inner, text="● Record", fg_color="#d63031", hover_color="#ff7675", width=120, height=45, font=("Roboto", 15, "bold"), command=self.start_recording)
         self.record_btn.pack(side="left", padx=10)
-        ToolTip(self.record_btn, "Start recording from microphone (F1)")
-
+        
         self.pause_btn = ctk.CTkButton(self.btn_inner, text="❚❚ Pause", fg_color="#e17055", hover_color="#fab1a0", width=100, height=45, font=("Roboto", 15, "bold"), state="disabled", command=self.toggle_pause)
         self.pause_btn.pack(side="left", padx=10)
-        ToolTip(self.pause_btn, "Pause/Resume recording (F2)")
-
+        
         self.stop_btn = ctk.CTkButton(self.btn_inner, text="■ Stop", fg_color="#636e72", hover_color="#b2bec3", width=100, height=45, font=("Roboto", 15, "bold"), state="disabled", command=self.stop_recording)
         self.stop_btn.pack(side="left", padx=10)
-        ToolTip(self.stop_btn, "Stop and finalize recording (F3)")
         
         # Batch File Button
         self.file_btn = ctk.CTkButton(self.btn_inner, text="📁 Batch Files", fg_color="#0984e3", hover_color="#74b9ff", width=140, height=45, font=("Roboto", 15, "bold"), command=self.transcribe_batch)
         self.file_btn.pack(side="left", padx=(30, 10))
-        ToolTip(self.file_btn, "Transcribe multiple audio/video files")
-
+        
         self.action_menu = ctk.CTkOptionMenu(self.btn_inner, values=["Export...", "Export TXT", "Export SRT", "Save As..."], command=self.perform_export, width=120, height=45, font=("Roboto", 13))
         self.action_menu.set("Export...")
         self.action_menu.pack(side="left", padx=10)
-        ToolTip(self.action_menu, "Save transcript to file")
-
+        
         self.status_bar = ctk.CTkLabel(self, text="Ready", anchor="e", text_color="gray")
         self.status_bar.grid(row=6, column=0, sticky="ew", padx=25, pady=(0, 10))
 
     def update_visualizer(self):
         if self.running:
-            self.vis_canvas.delete("wave")
-            
-            if self.is_loading_model:
-                pass
-            elif self.recorder.recording and not self.recorder.paused:
-                width = self.vis_canvas.winfo_width()
-                height = self.vis_canvas.winfo_height()
-                data = self.recorder.wave_data
-                points = []
-                bar_width = width / len(data)
-                mid_y = height / 2
+            # Mode Switching for Visualizer Frame
+            if self.is_loading_model: 
+                # Show Progress Bar, Hide Canvas
+                self.vis_canvas.pack_forget()
+                self.progress_bar.place(relx=0.5, rely=0.7, anchor="center")
+                self.loading_label.place(relx=0.5, rely=0.3, anchor="center")
+            else:
+                # Hide Progress Bar, Show Canvas
+                self.progress_bar.place_forget()
+                self.loading_label.place_forget()
+                if not self.vis_canvas.winfo_ismapped():
+                    self.vis_canvas.pack(fill="both", expand=True, padx=(0, 100))
                 
-                for i, val in enumerate(data):
-                    x = i * bar_width
-                    amp = val * height * 5 
-                    y1 = mid_y - amp
-                    y2 = mid_y + amp
-                    points.append(x)
-                    points.append(y1)
-                    points.append(x)
-                    points.append(y2)
-                
-                if points:
-                    self.vis_canvas.create_line(points, fill="#00b894", width=2, tag="wave", smooth=True)
+                self.vis_canvas.delete("wave")
+                if self.recorder.recording and not self.recorder.paused:
+                    width = self.vis_canvas.winfo_width()
+                    height = self.vis_canvas.winfo_height()
+                    data = self.recorder.wave_data
+                    points = []
+                    bar_width = width / len(data)
+                    mid_y = height / 2
+                    
+                    for i, val in enumerate(data):
+                        x = i * bar_width
+                        amp = val * height * 5 
+                        y1 = mid_y - amp
+                        y2 = mid_y + amp
+                        points.append(x)
+                        points.append(y1)
+                        points.append(x)
+                        points.append(y2)
+                    
+                    if points:
+                        self.vis_canvas.create_line(points, fill="#00b894", width=2, tag="wave", smooth=True)
             
             self.after(50, self.update_visualizer)
 
-    def open_tools_menu(self):
-        ModelManagerDialog(self, self.engine)
+    def on_tab_change(self):
+        if self.tab_view.get() == "YouTube" and not self.advice_given:
+            self.check_model_advice()
 
-    def open_help(self):
-        HelpDialog(self)
+    def check_model_advice(self):
+        current_model = REVERSE_MODEL_MAP.get(self.model_combo.get(), "small")
+        if current_model != "large":
+            ModelAdviceDialog(self, self.model_combo.get(), 
+                              on_switch=lambda: self.model_combo.set(MODEL_SIZES["large"]),
+                              on_keep=lambda: None)
+            self.advice_given = True 
 
+    # --- Progress & Logging ---
+    def set_loading(self, show, msg=""):
+        self.is_loading_model = show
+        self.loading_label.configure(text=msg)
+        if not show:
+            self.progress_bar.set(0)
+
+    def update_progress(self, val):
+        self.progress_bar.set(val)
+
+    def log_sys(self, msg):
+        self.textbox.configure(state="normal")
+        self.textbox.insert("end", f"\n[System] {msg}\n")
+        self.textbox.see("end")
+        self.textbox.configure(state="disabled")
+
+    # --- YouTube Logic ---
+    def start_youtube_process(self):
+        url = self.yt_url_entry.get().strip()
+        if not url:
+            messagebox.showwarning("Input Required", "Please enter a valid YouTube URL.")
+            return
+        
+        self.set_loading(True, "Initializing YouTube Process...")
+        self.lock_ui(True)
+        self.yt_btn.configure(state="disabled")
+        threading.Thread(target=self.process_youtube_thread, args=(url,), daemon=True).start()
+
+    def process_youtube_thread(self, url):
+        # We use a custom redirector that also updates the progress bar
+        self.redirector = StdErrRedirector(self.update_progress)
+        self.redirector.start()
+        try:
+            temp_dir = os.path.join(os.getcwd(), "temp_downloads")
+            if not os.path.exists(temp_dir): os.makedirs(temp_dir)
+            
+            # Step 1: Download
+            self.after(0, lambda: self.log_sys("Step 1/3: Downloading audio from YouTube..."))
+            self.after(0, lambda: self.set_loading(True, "Downloading Audio (0%)..."))
+            
+            def dl_progress(pct):
+                self.after(0, lambda: self.set_loading(True, f"Downloading Audio ({pct:.1f}%)..."))
+                self.after(0, lambda: self.update_progress(pct / 100.0))
+
+            audio_file = download_youtube_audio(url, temp_dir, dl_progress)
+            self.after(0, lambda: self.log_sys(f"Download complete: {os.path.basename(audio_file)}"))
+
+            # Step 2: Load Model
+            self.after(0, lambda: self.set_loading(True, "Step 2/3: Loading AI Model (This may take a moment)..."))
+            self.engine.load_model(self.model_combo.get(), self.proc_combo.get())
+            
+            # Step 3: Transcribe
+            task = "translate" if self.translate_var.get() else "transcribe"
+            self.after(0, lambda: self.set_loading(True, "Step 3/3: Transcribing (Please wait)..."))
+            self.after(0, lambda: self.log_sys("Step 3/3: Transcribing..."))
+            self.session_start_time = datetime.datetime.now()
+            
+            # We assume transcribe_file now handles progress internally via tqdm -> stderr -> update_progress
+            result = self.engine.transcribe_file(audio_file, task=task, verbose=True)
+            
+            if result and "segments" in result:
+                for segment in result["segments"]:
+                    text = segment["text"].strip()
+                    if self.cleanup_var.get(): text = self.engine.cleanup_text(text)
+                    if text:
+                        start = segment['start']
+                        end = segment['end']
+                        abs_time = self.session_start_time + datetime.timedelta(seconds=start)
+                        self.after(0, lambda t=text, time=abs_time, s=start, e=end: self.add_segment(t, time, s, e))
+            
+            self.after(0, lambda: self.log_sys("✅ Transcription Complete."))
+            self.after(0, lambda: self.save_txt(ask=False, auto=True))
+            
+            try: os.remove(audio_file)
+            except: pass
+
+        except Exception as e:
+            self.log_sys(f"YouTube Error: {e}")
+        finally:
+            self.redirector.stop()
+            self.after(0, lambda: self.set_loading(False))
+            self.after(0, lambda: self.lock_ui(False))
+            self.after(0, lambda: self.yt_btn.configure(state="normal"))
+
+    # --- Batch Logic ---
+    def transcribe_batch(self):
+        if self.is_loading_model: return
+        
+        self.check_model_advice() # Trigger advice if needed
+        
+        filepaths = filedialog.askopenfilenames(filetypes=[("Media Files", "*.wav *.mp3 *.m4a *.mp4 *.flac *.ogg *.mkv *.mov"), ("All", "*.*")])
+        if not filepaths: return
+        
+        self.batch_queue = list(filepaths)
+        self.set_loading(True, "Preparing batch...")
+        self.lock_ui(True)
+        threading.Thread(target=self.process_batch_thread, daemon=True).start()
+
+    def process_batch_thread(self):
+        self.redirector = StdErrRedirector(self.update_progress)
+        self.redirector.start()
+        try:
+            self.after(0, lambda: self.set_loading(True, "Loading AI Model..."))
+            self.engine.load_model(self.model_combo.get(), self.proc_combo.get())
+            task = "translate" if self.translate_var.get() else "transcribe"
+            total = len(self.batch_queue)
+            
+            for i, filepath in enumerate(self.batch_queue):
+                filename = os.path.basename(filepath)
+                self.after(0, lambda: self.set_loading(True, f"Processing {i+1}/{total}: {filename}"))
+                self.after(0, lambda: self.log_sys(f"--- Processing {i+1}/{total}: {filename} ---"))
+                
+                self.session_start_time = datetime.datetime.now()
+                result = self.engine.transcribe_file(filepath, task=task, verbose=True)
+                
+                if result and "segments" in result:
+                    for segment in result["segments"]:
+                        text = segment["text"].strip()
+                        if self.cleanup_var.get(): text = self.engine.cleanup_text(text)
+                        if text:
+                            start = segment['start']
+                            end = segment['end']
+                            abs_time = self.session_start_time + datetime.timedelta(seconds=start)
+                            self.after(0, lambda t=text, time=abs_time, s=start, e=end: self.add_segment(t, time, s, e))
+                self.after(0, lambda: self.save_txt(ask=False, auto=True))
+            
+            self.after(0, lambda: self.log_sys("✅ Batch Processing Complete."))
+        except Exception as e: 
+            self.log_sys(f"Batch Error: {e}")
+        finally:
+            self.redirector.stop()
+            self.after(0, lambda: self.set_loading(False))
+            self.after(0, lambda: self.lock_ui(False))
+
+    # --- Core Logic & Helpers (Unchanged) ---
     def populate_devices(self):
         devices, sel = self.recorder.get_devices()
         self.device_combo.configure(values=devices)
@@ -361,70 +551,12 @@ class TranscriberApp(ctk.CTk):
             self.refresh_display()
             self.log_sys("Log cleared.")
 
-    # --- YouTube Logic ---
-    def start_youtube_process(self):
-        url = self.yt_url_entry.get().strip()
-        if not url:
-            messagebox.showwarning("Input Required", "Please enter a valid YouTube URL.")
-            return
-        
-        self.set_loading(True, "Initializing YouTube Download...")
-        self.lock_ui(True)
-        self.yt_btn.configure(state="disabled")
-        threading.Thread(target=self.process_youtube_thread, args=(url,), daemon=True).start()
+    def open_tools_menu(self):
+        ModelManagerDialog(self, self.engine)
 
-    def process_youtube_thread(self, url):
-        self.redirector = StdErrRedirector(self.update_progress)
-        self.redirector.start()
-        try:
-            # 1. Download
-            temp_dir = os.path.join(os.getcwd(), "temp_downloads")
-            if not os.path.exists(temp_dir): os.makedirs(temp_dir)
-            
-            self.after(0, lambda: self.log_sys(f"Downloading audio from: {url}"))
-            
-            def progress_cb(pct):
-                self.after(0, lambda: self.set_loading(True, f"Downloading... {pct:.1f}%"))
+    def open_help(self):
+        HelpDialog(self)
 
-            audio_file = download_youtube_audio(url, temp_dir, progress_cb)
-            self.after(0, lambda: self.log_sys(f"Download complete: {os.path.basename(audio_file)}"))
-
-            # 2. Transcribe
-            self.set_loading(True, "Loading AI Model...")
-            self.engine.load_model(self.model_combo.get(), self.proc_combo.get())
-            
-            task = "translate" if self.translate_var.get() else "transcribe"
-            self.after(0, lambda: self.set_loading(True, "Transcribing audio..."))
-            self.session_start_time = datetime.datetime.now()
-            
-            result = self.engine.transcribe_file(audio_file, task=task)
-            
-            if result and "segments" in result:
-                for segment in result["segments"]:
-                    text = segment["text"].strip()
-                    if self.cleanup_var.get(): text = self.engine.cleanup_text(text)
-                    if text:
-                        start = segment['start']
-                        end = segment['end']
-                        abs_time = self.session_start_time + datetime.timedelta(seconds=start)
-                        self.after(0, lambda t=text, time=abs_time, s=start, e=end: self.add_segment(t, time, s, e))
-            
-            self.after(0, lambda: self.log_sys("YouTube Transcription Complete."))
-            self.after(0, lambda: self.save_txt(ask=False, auto=True))
-            
-            # Cleanup
-            try: os.remove(audio_file)
-            except: pass
-
-        except Exception as e:
-            self.log_sys(f"YouTube Error: {e}")
-        finally:
-            self.redirector.stop()
-            self.after(0, lambda: self.set_loading(False))
-            self.after(0, lambda: self.lock_ui(False))
-            self.after(0, lambda: self.yt_btn.configure(state="normal"))
-
-    # --- Core Logic ---
     def start_recording(self):
         if self.is_loading_model: return
         self.set_loading(True, "Initializing Model...")
@@ -439,7 +571,7 @@ class TranscriberApp(ctk.CTk):
         try:
             self.engine.load_model(self.model_combo.get(), self.proc_combo.get())
             self.session_start_time = datetime.datetime.now()
-            self.recorder.start(dev, 10) # 10s chunk
+            self.recorder.start(dev, 10) 
             self.after(0, self.on_rec_start)
             self.transcription_thread = threading.Thread(target=self.process_queue, daemon=True)
             self.transcription_thread.start()
@@ -465,60 +597,10 @@ class TranscriberApp(ctk.CTk):
         self.after(0, lambda: self.status_bar.configure(text="Processing complete."))
         self.after(0, lambda: self.lock_ui(False))
 
-    def transcribe_batch(self):
-        if self.is_loading_model: return
-        filepaths = filedialog.askopenfilenames(filetypes=[("Media Files", "*.wav *.mp3 *.m4a *.mp4 *.flac *.ogg *.mkv *.mov"), ("All", "*.*")])
-        if not filepaths: return
-        self.batch_queue = list(filepaths)
-        self.set_loading(True, "Preparing batch...")
-        self.lock_ui(True)
-        threading.Thread(target=self.process_batch_thread, daemon=True).start()
-
-    def process_batch_thread(self):
-        self.redirector = StdErrRedirector(self.update_progress)
-        self.redirector.start()
-        try:
-            self.engine.load_model(self.model_combo.get(), self.proc_combo.get())
-            task = "translate" if self.translate_var.get() else "transcribe"
-            total = len(self.batch_queue)
-            for i, filepath in enumerate(self.batch_queue):
-                filename = os.path.basename(filepath)
-                self.after(0, lambda: self.set_loading(True, f"Processing {i+1}/{total}: {filename}"))
-                self.session_start_time = datetime.datetime.now()
-                result = self.engine.transcribe_file(filepath, task=task)
-                self.after(0, lambda f=filename: self.log_sys(f"--- Start {f} ---"))
-                if result and "segments" in result:
-                    for segment in result["segments"]:
-                        text = segment["text"].strip()
-                        if self.cleanup_var.get(): text = self.engine.cleanup_text(text)
-                        if text:
-                            start = segment['start']
-                            end = segment['end']
-                            abs_time = self.session_start_time + datetime.timedelta(seconds=start)
-                            self.after(0, lambda t=text, time=abs_time, s=start, e=end: self.add_segment(t, time, s, e))
-                self.after(0, lambda f=filename: self.log_sys(f"--- End {f} ---"))
-                self.after(0, lambda: self.save_txt(ask=False, auto=True))
-            self.after(0, lambda: self.log_sys("Batch Complete."))
-        except Exception as e: 
-            self.log_sys(f"Batch Error: {e}")
-        finally:
-            self.redirector.stop()
-            self.after(0, lambda: self.set_loading(False))
-            self.after(0, lambda: self.lock_ui(False))
-
-    # --- Helpers ---
-    def set_loading(self, show, msg=""):
-        self.is_loading_model = show
-        self.loading_label.configure(text=msg)
-
-    def update_progress(self, val):
-        pass
-
     def on_rec_start(self):
         self.pause_btn.configure(state="normal", fg_color="#e17055")
         self.stop_btn.configure(state="normal", fg_color="#d63031")
         self.status_bar.configure(text="● RECORDING...")
-        
         self.textbox.configure(state="normal")
         self.textbox.insert("end", "\n[System] ", "default")
         self.textbox.insert("end", "!!! RECORDING AND TRANSCRIBING !!!\n", "alert")
@@ -577,12 +659,6 @@ class TranscriberApp(ctk.CTk):
         full_text = "".join(self.format_segment(s) for s in self.transcript_data)
         if not full_text: self.textbox.insert("0.0", "--- Transcript Log ---\n\n")
         else: self.textbox.insert("0.0", full_text)
-        self.textbox.see("end")
-        self.textbox.configure(state="disabled")
-
-    def log_sys(self, msg):
-        self.textbox.configure(state="normal")
-        self.textbox.insert("end", f"\n[System] {msg}\n")
         self.textbox.see("end")
         self.textbox.configure(state="disabled")
 
