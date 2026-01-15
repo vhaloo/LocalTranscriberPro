@@ -12,7 +12,7 @@ import subprocess
 import platform
 import tkinter as tk
 from tkinter import messagebox, filedialog
-from TkinterDnD2 import DND_FILES, TkinterDnD
+from tkinterdnd2 import DND_FILES, TkinterDnD
 
 from src.audio import AudioRecorder, SAMPLE_RATE
 from src.transcriber import TranscriberEngine, MODEL_SIZES, REVERSE_MODEL_MAP
@@ -174,7 +174,11 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         ctk.set_default_color_theme("blue")
 
         # Drag and Drop
-        self.TkdndVersion = TkinterDnD._require(self)
+        try:
+            self.TkdndVersion = TkinterDnD._require(self)
+        except Exception as e:
+            logging.error(f"DnD Init Failed: {e}")
+            self.TkdndVersion = None
         
         self.recorder = AudioRecorder()
         self.engine = TranscriberEngine()
@@ -378,6 +382,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
 
     # --- Drag & Drop ---
     def setup_dnd(self):
+        if not self.TkdndVersion: return
         self.drop_target_register(DND_FILES)
         self.dnd_bind('<<Drop>>', self.drop_files)
 
