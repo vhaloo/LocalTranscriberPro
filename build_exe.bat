@@ -4,7 +4,7 @@ echo Starting Build Process (v0.9 Modular)...
 echo This may take several minutes.
 
 "venv\Scripts\pyinstaller.exe" --noconsole --onefile --clean ^
-    --name "LocalTranscriberPro_v0.9.9" ^
+    --name "LocalTranscriberPro_v0.9.10" ^
     --add-data "venv\Lib\site-packages\customtkinter;customtkinter" ^
     --add-data "src;src" ^
     --collect-all "whisper" ^

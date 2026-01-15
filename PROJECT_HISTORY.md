@@ -1,15 +1,21 @@
 # Local Transcriber Project History
 
-## Session: January 13, 2026 (Autosave & UX Polish)
+## Session: January 13, 2026 (Drag & Drop + Cross-Platform)
 
-### **Status: Release v0.9.9**
-Added robust autosave, enhanced UX animations, and detailed help documentation.
+### **Status: Release v0.9.10**
+Added Drag & Drop support and cross-platform compatibility fixes.
 
 ### **Current Application State**
-*   **Desktop App:** Local Transcriber Pro v0.9.9
+*   **Desktop App:** Local Transcriber Pro v0.9.10
 *   **Repo:** https://github.com/vhaloo/LocalTranscriberPro
 
 ### **Version Changelog**
+*   **v0.9.10 (Desktop):**
+    *   **Feature:** **Drag & Drop Support**. Drag audio/video files directly into the app window to start batch transcription.
+    *   **Compatibility:** Fixed file opening logic to work on macOS (`open`) and Linux (`xdg-open`).
+    *   **Compatibility:** Used `os.path.expanduser` for correct Desktop/Documents path detection on non-Windows systems.
+    *   **Dependency:** Added `tkinterdnd2` for DnD functionality.
+
 *   **v0.9.9 (Desktop):**
     *   **Feature:** **Autosave to Documents**. Sessions are now automatically saved to `Documents/Transcriptions/` upon completion.
     *   **UX:** Added **pulsating record button** animation to indicate active recording/loading states.

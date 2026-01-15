@@ -8,8 +8,11 @@ import csv
 import logging
 import webbrowser
 import numpy as np
+import subprocess
+import platform
 import tkinter as tk
 from tkinter import messagebox, filedialog
+from TkinterDnD2 import DND_FILES, TkinterDnD
 
 from src.audio import AudioRecorder, SAMPLE_RATE
 from src.transcriber import TranscriberEngine, MODEL_SIZES, REVERSE_MODEL_MAP
@@ -17,7 +20,7 @@ from src.utils import StdErrRedirector, create_srt_content
 from src.tooltip import ToolTip
 from src.youtube_utils import download_youtube_audio
 
-APP_VERSION = "v0.9.9"
+APP_VERSION = "v0.9.10"
 DEV_CREDIT = "Developed by Vhaloo"
 
 CHUNK_OPTIONS = {
@@ -161,7 +164,7 @@ class ModelAdviceDialog(ctk.CTkToplevel):
         self.on_keep()
         self.destroy()
 
-class TranscriberApp(ctk.CTk):
+class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
     def __init__(self):
         super().__init__()
         
@@ -170,6 +173,9 @@ class TranscriberApp(ctk.CTk):
         ctk.set_appearance_mode("Dark")
         ctk.set_default_color_theme("blue")
 
+        # Drag and Drop
+        self.TkdndVersion = TkinterDnD._require(self)
+        
         self.recorder = AudioRecorder()
         self.engine = TranscriberEngine()
         self.transcription_thread = None
@@ -183,12 +189,13 @@ class TranscriberApp(ctk.CTk):
         self.backup_file = os.path.join(os.getcwd(), ".unsaved_session.json")
         self.advice_given = False
         
-        # Autosave setup
+        # Autosave setup (Cross-platform)
         self.autosave_dir = os.path.join(os.path.expanduser("~"), "Documents", "Transcriptions")
         if not os.path.exists(self.autosave_dir): os.makedirs(self.autosave_dir)
 
         self.setup_ui()
         self.setup_bindings()
+        self.setup_dnd()
         self.check_recovery()
         self.protocol("WM_DELETE_WINDOW", self.on_close)
         
@@ -246,7 +253,7 @@ class TranscriberApp(ctk.CTk):
 
         ctk.CTkLabel(r1, text="Context:", font=("Roboto", 14)).pack(side="left", padx=(15, 5))
         self.chunk_combo = ctk.CTkComboBox(r1, values=list(CHUNK_OPTIONS.keys()), width=130)
-        self.chunk_combo.set("30s (Best Context)") # Default to 30s
+        self.chunk_combo.set("30s (Best Context)") 
         self.chunk_combo.pack(side="left", padx=5)
         ToolTip(self.chunk_combo, "Larger context (30s) helps AI understand full sentences better.")
 
@@ -356,6 +363,53 @@ class TranscriberApp(ctk.CTk):
         self.status_bar = ctk.CTkLabel(self, text="Ready", anchor="e", text_color="gray")
         self.status_bar.grid(row=6, column=0, sticky="ew", padx=25, pady=(0, 10))
 
+    # --- Cross-Platform Helpers ---
+    def open_file_safe(self, path):
+        """Cross-platform file opener."""
+        try:
+            if platform.system() == 'Windows':
+                os.startfile(path)
+            elif platform.system() == 'Darwin':
+                subprocess.call(['open', path])
+            else: # Linux
+                subprocess.call(['xdg-open', path])
+        except Exception as e:
+            self.log_sys(f"Could not open file: {e}")
+
+    # --- Drag & Drop ---
+    def setup_dnd(self):
+        self.drop_target_register(DND_FILES)
+        self.dnd_bind('<<Drop>>', self.drop_files)
+
+    def drop_files(self, event):
+        if self.is_loading_model: return
+        raw_files = event.data
+        if not raw_files: return
+        
+        # Clean paths (TkinterDnD returns {path with space} path_no_space)
+        files = self.parse_tcl_list(raw_files)
+        if files:
+            self.check_model_advice()
+            self.batch_queue = files
+            self.set_loading(True, "Processing dropped files...")
+            self.lock_ui(True)
+            threading.Thread(target=self.process_batch_thread, daemon=True).start()
+
+    def parse_tcl_list(self, raw_str):
+        # Basic parser for Tcl list format from TkinterDnD
+        files = []
+        current = ""
+        in_brace = False
+        for char in raw_str:
+            if char == '{': in_brace = True
+            elif char == '}': in_brace = False
+            elif char == ' ' and not in_brace:
+                if current: files.append(current)
+                current = ""
+            else: current += char
+        if current: files.append(current)
+        return [f.strip('{}') for f in files]
+
     # --- Visualizer & Animations ---
     def update_visualizer(self):
         if self.running:
@@ -392,19 +446,17 @@ class TranscriberApp(ctk.CTk):
 
     def pulsate_record_btn(self):
         if not self.running: return
-        if self.is_loading_model: # Loading State -> Blink Yellow
+        if self.is_loading_model:
             current = self.record_btn.cget("fg_color")
-            next_col = "#e17055" if current == "#fab1a0" else "#fab1a0" # Orange <-> Light Orange
+            next_col = "#e17055" if current == "#fab1a0" else "#fab1a0"
             self.record_btn.configure(fg_color=next_col, text="● Loading...")
             self.animate_id = self.after(500, self.pulsate_record_btn)
-        
-        elif self.recorder.recording and not self.recorder.paused: # Recording State -> Blink Red
+        elif self.recorder.recording and not self.recorder.paused:
             current = self.record_btn.cget("fg_color")
-            next_col = "#d63031" if current == "#ff7675" else "#ff7675" # Red <-> Light Red
+            next_col = "#d63031" if current == "#ff7675" else "#ff7675"
             self.record_btn.configure(fg_color=next_col, text="● Recording")
             self.animate_id = self.after(800, self.pulsate_record_btn)
-        
-        else: # Idle/Paused -> Reset
+        else:
             self.record_btn.configure(fg_color="#d63031", text="● Record")
             self.animate_id = None
 
@@ -427,7 +479,7 @@ class TranscriberApp(ctk.CTk):
         if show:
             if not self.animate_id: self.pulsate_record_btn()
         else:
-            if not self.recorder.recording: # If finished, stop pulsing
+            if not self.recorder.recording:
                 self.record_btn.configure(fg_color="#d63031", text="● Record")
             self.progress_bar.set(0)
 
@@ -581,8 +633,6 @@ class TranscriberApp(ctk.CTk):
         try:
             self.engine.load_model(self.model_combo.get(), self.proc_combo.get())
             self.session_start_time = datetime.datetime.now()
-            # Default chunk is 30s now as per requirements, but let's respect combo if user changed it.
-            # Combo defaults to 30s in setup_ui.
             chunk_s = CHUNK_OPTIONS.get(self.chunk_combo.get(), 30)
             self.recorder.start(dev, chunk_s) 
             self.after(0, self.on_rec_start)
@@ -620,8 +670,6 @@ class TranscriberApp(ctk.CTk):
         self.textbox.insert("end", "!!! RECORDING AND TRANSCRIBING !!!\n", "alert")
         self.textbox.see("end")
         self.textbox.configure(state="disabled")
-        
-        # Start Pulsating for Recording
         self.pulsate_record_btn()
 
     def lock_ui(self, lock):
@@ -640,13 +688,13 @@ class TranscriberApp(ctk.CTk):
             self.recorder.resume()
             self.pause_btn.configure(text="❚❚ Pause", fg_color="#e17055")
             self.status_bar.configure(text="● Recording...")
-            self.pulsate_record_btn() # Resume pulsing
+            self.pulsate_record_btn()
         else:
             self.recorder.pause()
             self.pause_btn.configure(text="▶ Resume", fg_color="#00b894")
             self.status_bar.configure(text="❚❚ Paused")
-            if self.animate_id: self.after_cancel(self.animate_id) # Stop pulsing
-            self.record_btn.configure(fg_color="#d63031", text="● Record") # Reset color
+            if self.animate_id: self.after_cancel(self.animate_id) 
+            self.record_btn.configure(fg_color="#d63031", text="● Record") 
 
     def stop_recording(self):
         self.recorder.stop()
@@ -675,7 +723,7 @@ class TranscriberApp(ctk.CTk):
             elif ts_mode == "[MM:SS]":
                 ts_str = f"[{segment['time'].strftime('%M:%S')}] "
             return f"{ts_str}{segment['text']}\n"
-        else: # Stream
+        else: 
             return f"{segment['text']} "
 
     def refresh_display(self, _=None):
@@ -713,11 +761,9 @@ class TranscriberApp(ctk.CTk):
             timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
             base = os.path.join(self.autosave_dir, f"Autosave_{timestamp}")
             
-            # Save TXT
             full_text = "".join(self.format_segment(s) for s in self.transcript_data)
             with open(base + ".txt", "w", encoding="utf-8") as f: f.write(full_text)
             
-            # Save JSON (for recovery)
             serializable = []
             for item in self.transcript_data:
                 entry = item.copy()
@@ -740,30 +786,30 @@ class TranscriberApp(ctk.CTk):
         if ask:
             path = filedialog.asksaveasfilename(defaultextension=".txt", initialfile=fname, filetypes=[("Text", "*.txt")])
         else:
-            path = os.path.join(os.environ['USERPROFILE'], 'Desktop', fname)
+            path = os.path.join(os.path.expanduser("~"), 'Desktop', fname) # Safe Desktop Path
         if path:
             try:
                 full_text = "".join(self.format_segment(s) for s in self.transcript_data)
                 with open(path, "w", encoding="utf-8") as f:
                     f.write(full_text)
                 self.log_sys(f"Saved TXT: {path}")
-                if self.open_file_var.get() and not auto: os.startfile(path)
+                if self.open_file_var.get() and not auto: self.open_file_safe(path)
             except Exception as e: self.log_sys(f"Error: {e}")
 
     def save_srt(self):
         fname = f"Subs_{{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}}.srt"
-        path = os.path.join(os.environ['USERPROFILE'], 'Desktop', fname)
+        path = os.path.join(os.path.expanduser("~"), 'Desktop', fname) # Safe Desktop Path
         try:
             content = create_srt_content(self.transcript_data)
             with open(path, "w", encoding="utf-8") as f:
                 f.write(content)
             self.log_sys(f"Saved SRT: {path}")
-            if self.open_file_var.get(): os.startfile(path)
+            if self.open_file_var.get(): self.open_file_safe(path)
         except Exception as e: self.log_sys(f"Error: {e}")
 
     def save_json(self):
         fname = f"Data_{{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}}.json"
-        path = os.path.join(os.environ['USERPROFILE'], 'Desktop', fname)
+        path = os.path.join(os.path.expanduser("~"), 'Desktop', fname) # Safe Desktop Path
         try:
             serializable = []
             for item in self.transcript_data:
@@ -776,7 +822,7 @@ class TranscriberApp(ctk.CTk):
 
     def save_csv(self):
         fname = f"Data_{{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}}.csv"
-        path = os.path.join(os.environ['USERPROFILE'], 'Desktop', fname)
+        path = os.path.join(os.path.expanduser("~"), 'Desktop', fname) # Safe Desktop Path
         try:
             with open(path, "w", newline="", encoding="utf-8") as f:
                 writer = csv.writer(f)
