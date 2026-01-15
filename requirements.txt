@@ -7,3 +7,4 @@ tqdm
 requests
 packaging
 yt-dlp
+tkinterdnd2
