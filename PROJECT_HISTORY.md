@@ -1,15 +1,23 @@
 # Local Transcriber Project History
 
-## Session: January 13, 2026 (YouTube Feature)
+## Session: January 13, 2026 (Autosave & UX Polish)
 
-### **Status: Release v0.9.8**
-Added integrated YouTube audio downloading and transcription.
+### **Status: Release v0.9.9**
+Added robust autosave, enhanced UX animations, and detailed help documentation.
 
 ### **Current Application State**
-*   **Desktop App:** Local Transcriber Pro v0.9.8
+*   **Desktop App:** Local Transcriber Pro v0.9.9
 *   **Repo:** https://github.com/vhaloo/LocalTranscriberPro
 
 ### **Version Changelog**
+*   **v0.9.9 (Desktop):**
+    *   **Feature:** **Autosave to Documents**. Sessions are now automatically saved to `Documents/Transcriptions/` upon completion.
+    *   **UX:** Added **pulsating record button** animation to indicate active recording/loading states.
+    *   **UX:** Enhanced tooltips and added explanatory labels for model selection and context window.
+    *   **Docs:** Completely revamped "Help" dialog with detailed resource usage guide.
+    *   **Export:** Added JSON and CSV export options for developers.
+    *   **Default:** Context window now defaults to 30s for better coherence.
+
 *   **v0.9.8 (Desktop):**
     *   **Feature:** **YouTube Transcription Tab**. Paste a URL to automatically download audio and generate a transcript/subtitle file.
     *   **Dependency:** Added `yt-dlp` for robust video extraction.

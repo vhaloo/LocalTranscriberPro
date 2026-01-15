@@ -3,7 +3,7 @@
 [![OS - Windows](https://img.shields.io/badge/OS-Windows-blue?logo=windows&logoColor=white)](https://github.com/vhaloo/LocalTranscriberPro/releases)
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Status](https://img.shields.io/badge/status-Release%20v0.9.8-brightgreen)
+![Status](https://img.shields.io/badge/status-Release%20v0.9.9-brightgreen)
 
 **Local Transcriber Pro** is a high-performance, private, and offline transcription tool developed by **Vhaloo**. It converts spoken audio from your microphone or existing files into text with extreme accuracy using OpenAI's Whisper models, running entirely on your own device.
 
@@ -35,6 +35,7 @@ LTP is the best choice for Windows users who want the "Professional" accuracy of
 | Feature | Description |
 | :--- | :--- |
 | **YouTube Mode** | **NEW!** Paste a link to download & subtitle videos automatically. |
+| **Autosave** | Sessions are automatically saved to `Documents/Transcriptions`. |
 | **Live Recording** | Record meetings or ideas with a real-time waveform visualizer. |
 | **Translation** | Instantly translate foreign audio into English text. |
 | **Auto-Cleanup** | Smart AI filtering removes repetitive "hallucinations" and loops. |
@@ -58,7 +59,7 @@ This script will automatically download the latest version, check for prerequisi
 
 ### Option 2: Direct Download (CPU Only)
 If you don't have an NVIDIA GPU or just want a quick setup without installing Python:
-1.  **[Download `LocalTranscriberPro_v0.9.8_CPU_Only.exe`](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v0.9.8/LocalTranscriberPro_v0.9.8_CPU_Only.exe)**
+1.  **[Download `LocalTranscriberPro_v0.9.9_CPU_Only.exe`](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v0.9.9/LocalTranscriberPro_v0.9.9_CPU_Only.exe)**
 2.  Double-click to run.
 
 ⚠️ **CPU Version Limitations:**

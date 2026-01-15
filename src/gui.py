@@ -4,6 +4,7 @@ import datetime
 import os
 import sys
 import json
+import csv
 import logging
 import webbrowser
 import numpy as np
@@ -16,7 +17,7 @@ from src.utils import StdErrRedirector, create_srt_content
 from src.tooltip import ToolTip
 from src.youtube_utils import download_youtube_audio
 
-APP_VERSION = "v0.9.8"
+APP_VERSION = "v0.9.9"
 DEV_CREDIT = "Developed by Vhaloo"
 
 CHUNK_OPTIONS = {
@@ -30,45 +31,55 @@ CHUNK_OPTIONS = {
 class HelpDialog(ctk.CTkToplevel):
     def __init__(self, parent):
         super().__init__(parent)
-        self.title("Quick Guide")
-        self.geometry("600x550")
+        self.title("Detailed Guide")
+        self.geometry("700x650")
         self.transient(parent)
         self.grab_set()
         self.focus_force()
         try:
             x = parent.winfo_x() + 50
             y = parent.winfo_y() + 50
-            self.geometry(f"+{x}+{y}")
+            self.geometry(f"{x}+{y}")
         except: pass
         self.setup_ui()
 
     def setup_ui(self):
-        ctk.CTkLabel(self, text="Local Transcriber Pro Guide", font=("Roboto Medium", 20)).pack(pady=10)
+        ctk.CTkLabel(self, text="Local Transcriber Pro - User Manual", font=("Roboto Medium", 22)).pack(pady=10)
+        
+        scroll = ctk.CTkScrollableFrame(self)
+        scroll.pack(fill="both", expand=True, padx=10, pady=5)
+        
         info = (
-            "1. Microphone & Model:\n"
-            "   - Select your input device and the AI model size.\n"
-            "   - 'Small' is a good balance. 'Large' is best for files.\n\n"
-            "2. Recording:\n"
-            "   - Press 'Record' or F1 to start.\n"
-            "   - The waveform shows your voice input level.\n"
-            "   - Text appears in blocks as you speak.\n\n"
-            "3. File Transcription:\n"
-            "   - Click 'Batch Files' to process audio/video files.\n"
-            "   - Supports .mp3, .wav, .mp4, .mkv, and more.\n\n"
-            "4. YouTube Transcription:\n"
-            "   - Paste a YouTube URL in the 'YouTube' tab.\n"
-            "   - Click 'Download & Transcribe'.\n\n"
-            "5. Tools:\n"
-            "   - 'Translate': Converts foreign audio to English text.\n"
-            "   - 'Auto-Cleanup': Removes repetitive AI errors.\n"
-            "   - 'Model Manager': Delete unused models to save space.\n\n"
-            "6. Export:\n"
-            "   - Save as Text (.txt) or Subtitles (.srt)."
+            "1. AI Models & Hardware:\n"
+            "   - Tiny/Base: Fast, low RAM (<1GB). Good for quick dictation.\n"
+            "   - Small: Balanced. Standard for most real-time use.\n"
+            "   - Medium: High accuracy. Needs ~5GB RAM.\n"
+            "   - Large: Professional accuracy (near perfect). Needs ~8GB+ RAM.\n"
+            "     *Note: Large model is slow on CPU. Use NVIDIA GPU for best results.*\n\n"
+            "2. Context Window (30s Default):\n"
+            "   - This controls how much 'audio history' the AI sees.\n"
+            "   - 30s provides the best sentence coherence and grammar.\n"
+            "   - Lower values (5-10s) feel snappier but may cut off sentences.\n\n"
+            "3. Recording Features:\n"
+            "   - Press 'Record' (F1). The button pulsates to show activity.\n"
+            "   - 'Loading' state happens first (loading 3GB+ model into RAM).\n"
+            "   - Audio is Autosaved to 'Documents/Transcriptions'.\n\n"
+            "4. YouTube & Files:\n"
+            "   - The app downloads video audio automatically.\n"
+            "   - Progress bar shows download -> model load -> transcription.\n"
+            "   - Large files take time! (Approx. 1/5th real-time on GPU).\n\n"
+            "5. Exporting:\n"
+            "   - TXT: Plain text document.\n"
+            "   - SRT: Subtitle file for YouTube/VLC (Time-synced).\n"
+            "   - JSON/CSV: Structured data for developers/databases.\n\n"
+            "6. Troubleshooting:\n"
+            "   - If app freezes during 'Loading', wait. It's loading 3GB data.\n"
+            "   - Ensure 'Visual C++' is installed if crashes occur.\n"
         )
-        lbl = ctk.CTkLabel(self, text=info, justify="left", font=("Roboto", 14), anchor="w")
-        lbl.pack(padx=20, pady=10, fill="both")
-        ctk.CTkLabel(self, text=DEV_CREDIT, font=("Roboto", 12), text_color="#0984e3").pack(side="bottom", pady=10)
-        ctk.CTkButton(self, text="Close", command=self.destroy).pack(side="bottom", pady=5)
+        lbl = ctk.CTkLabel(scroll, text=info, justify="left", font=("Roboto", 14), anchor="w")
+        lbl.pack(padx=10, pady=10, fill="both")
+        
+        ctk.CTkButton(self, text="Close", command=self.destroy).pack(pady=10)
 
 class ModelManagerDialog(ctk.CTkToplevel):
     def __init__(self, parent, engine):
@@ -82,7 +93,7 @@ class ModelManagerDialog(ctk.CTkToplevel):
         try:
             x = parent.winfo_x() + 80
             y = parent.winfo_y() + 80
-            self.geometry(f"+{x}+{y}")
+            self.geometry(f"{x}+{y}")
         except: pass
         self.setup_ui()
 
@@ -124,7 +135,7 @@ class ModelAdviceDialog(ctk.CTkToplevel):
         try:
             x = parent.winfo_x() + 100
             y = parent.winfo_y() + 100
-            self.geometry(f"+{x}+{y}")
+            self.geometry(f"{x}+{y}")
         except: pass
         
         self.on_switch = on_switch
@@ -155,7 +166,7 @@ class TranscriberApp(ctk.CTk):
         super().__init__()
         
         self.title(f"Local Transcriber Pro {APP_VERSION}")
-        self.geometry("1100x900")
+        self.geometry("1100x950")
         ctk.set_appearance_mode("Dark")
         ctk.set_default_color_theme("blue")
 
@@ -163,6 +174,7 @@ class TranscriberApp(ctk.CTk):
         self.engine = TranscriberEngine()
         self.transcription_thread = None
         self.running = True
+        self.animate_id = None
         
         self.transcript_data = [] 
         self.session_start_time = None
@@ -170,6 +182,10 @@ class TranscriberApp(ctk.CTk):
         self.batch_queue = []
         self.backup_file = os.path.join(os.getcwd(), ".unsaved_session.json")
         self.advice_given = False
+        
+        # Autosave setup
+        self.autosave_dir = os.path.join(os.path.expanduser("~"), "Documents", "Transcriptions")
+        if not os.path.exists(self.autosave_dir): os.makedirs(self.autosave_dir)
 
         self.setup_ui()
         self.setup_bindings()
@@ -203,7 +219,7 @@ class TranscriberApp(ctk.CTk):
         
         self.help_btn = ctk.CTkButton(btn_box, text="Help", width=60, fg_color="gray", hover_color="gray40", command=self.open_help)
         self.help_btn.pack(side="right", padx=5)
-        ToolTip(self.help_btn, "View quick start guide")
+        ToolTip(self.help_btn, "View detailed manual")
 
         # Tabview for Modes
         self.tab_view = ctk.CTkTabview(self, height=100, command=self.on_tab_change)
@@ -215,25 +231,24 @@ class TranscriberApp(ctk.CTk):
         gen_tab = self.tab_view.tab("General")
         
         r1 = ctk.CTkFrame(gen_tab, fg_color="transparent")
-        r1.pack(fill="x", padx=10, pady=5)
+        r1.pack(fill="x", padx=10, pady=2)
         
         ctk.CTkLabel(r1, text="Mic:", font=("Roboto", 14)).pack(side="left", padx=5)
         self.device_combo = ctk.CTkComboBox(r1, width=220)
         self.device_combo.pack(side="left", padx=5)
-        ToolTip(self.device_combo, "Select audio input device")
         self.populate_devices()
 
         ctk.CTkLabel(r1, text="Model:", font=("Roboto", 14)).pack(side="left", padx=(15, 5))
         self.model_combo = ctk.CTkComboBox(r1, values=list(MODEL_SIZES.values()), width=140)
         self.model_combo.set(MODEL_SIZES["small"])
         self.model_combo.pack(side="left", padx=5)
-        ToolTip(self.model_combo, "Select AI model size\n(Small = Fast, Large = Accurate)")
+        ToolTip(self.model_combo, "Select AI model size. Bigger = Slower but more Accurate.")
 
         ctk.CTkLabel(r1, text="Context:", font=("Roboto", 14)).pack(side="left", padx=(15, 5))
         self.chunk_combo = ctk.CTkComboBox(r1, values=list(CHUNK_OPTIONS.keys()), width=130)
-        self.chunk_combo.set("10s (Balanced)")
+        self.chunk_combo.set("30s (Best Context)") # Default to 30s
         self.chunk_combo.pack(side="left", padx=5)
-        ToolTip(self.chunk_combo, "How often to process audio chunks")
+        ToolTip(self.chunk_combo, "Larger context (30s) helps AI understand full sentences better.")
 
         ctk.CTkLabel(r1, text="Device:", font=("Roboto", 14)).pack(side="left", padx=(15, 5))
         proc_values = ["Auto", "CPU"]
@@ -242,13 +257,11 @@ class TranscriberApp(ctk.CTk):
         self.proc_combo = ctk.CTkComboBox(r1, values=proc_values, width=120)
         self.proc_combo.set("Auto")
         self.proc_combo.pack(side="left", padx=5)
-        ToolTip(self.proc_combo, "Processing hardware (GPU recommended)")
 
-        if self.engine.cuda_missing:
-            gpu_btn = ctk.CTkButton(r1, text="⚠️ GPU", fg_color="#e67e22", hover_color="#d35400", 
-                          command=lambda: webbrowser.open("https://developer.nvidia.com/cuda-downloads"), width=60)
-            gpu_btn.pack(side="right", padx=10)
-            ToolTip(gpu_btn, "Click to install NVIDIA Drivers for speed")
+        # Explanatory Sub-labels
+        r1_sub = ctk.CTkFrame(gen_tab, fg_color="transparent", height=15)
+        r1_sub.pack(fill="x", padx=10)
+        ctk.CTkLabel(r1_sub, text="Tip: Use 'Large' model for complex audio (requires 8GB RAM).", font=("Roboto", 10), text_color="gray").pack(side="left", padx=5)
 
         # Row 2 (General)
         r2 = ctk.CTkFrame(gen_tab, fg_color="transparent")
@@ -257,59 +270,50 @@ class TranscriberApp(ctk.CTk):
         self.translate_var = ctk.BooleanVar(value=False)
         t_chk = ctk.CTkCheckBox(r2, text="Translate (EN)", variable=self.translate_var, font=("Roboto", 12), text_color="#fdcb6e")
         t_chk.pack(side="left", padx=5)
-        ToolTip(t_chk, "Translate non-English audio to English text")
 
         self.cleanup_var = ctk.BooleanVar(value=True)
         c_chk = ctk.CTkCheckBox(r2, text="Auto-Cleanup", variable=self.cleanup_var, font=("Roboto", 12))
         c_chk.pack(side="left", padx=15)
-        ToolTip(c_chk, "Remove repetitive AI errors/hallucinations")
 
         self.time_fmt_var = ctk.StringVar(value="[HH:MM:SS]")
         time_menu = ctk.CTkOptionMenu(r2, values=["[HH:MM:SS]", "[MM:SS]", "None"], variable=self.time_fmt_var, command=self.refresh_display, width=110)
         time_menu.pack(side="left", padx=(20, 5))
-        ToolTip(time_menu, "Timestamp format")
+        ToolTip(time_menu, "Timestamp style for the log window.")
         
         self.layout_var = ctk.StringVar(value="Block")
         layout_menu = ctk.CTkOptionMenu(r2, values=["Block", "Stream"], variable=self.layout_var, command=self.refresh_display, width=110)
         layout_menu.pack(side="left", padx=5)
-        ToolTip(layout_menu, "Text display style")
+        ToolTip(layout_menu, "Block: Paragraphs (Better reading). Stream: Continuous lines.")
 
         self.open_file_var = ctk.BooleanVar(value=True)
         open_chk = ctk.CTkCheckBox(r2, text="Open Result", variable=self.open_file_var, font=("Roboto", 12))
         open_chk.pack(side="right", padx=10)
-        ToolTip(open_chk, "Automatically open file after transcription")
 
         # --- YouTube Tab ---
         yt_tab = self.tab_view.tab("YouTube")
-        
         yt_frame = ctk.CTkFrame(yt_tab, fg_color="transparent")
         yt_frame.pack(fill="both", expand=True, padx=10, pady=10)
-        
         ctk.CTkLabel(yt_frame, text="YouTube URL:", font=("Roboto", 14)).pack(side="left", padx=5)
         self.yt_url_entry = ctk.CTkEntry(yt_frame, width=400, placeholder_text="Paste link here (https://www.youtube.com/watch?v=...)")
         self.yt_url_entry.pack(side="left", padx=10, fill="x", expand=True)
-        
         self.yt_btn = ctk.CTkButton(yt_frame, text="Download & Transcribe", fg_color="#c4302b", hover_color="#e62e2d", command=self.start_youtube_process)
         self.yt_btn.pack(side="left", padx=10)
 
         # Visualizer Frame & Clear Button
-        self.vis_frame = ctk.CTkFrame(self, fg_color="#2b2b2b", height=70) # Increased height for progress bar
+        self.vis_frame = ctk.CTkFrame(self, fg_color="#2b2b2b", height=70)
         self.vis_frame.grid(row=2, column=0, sticky="ew", padx=20, pady=5)
         
-        # Clear Button
         self.clear_btn = ctk.CTkButton(self.vis_frame, text="🗑️ Clear Log", width=80, height=30, 
                                        fg_color="#444", hover_color="#666", command=self.clear_log)
         self.clear_btn.place(relx=0.95, rely=0.5, anchor="center")
         
-        # Loading Label (Step Info)
         self.loading_label = ctk.CTkLabel(self.vis_frame, text="", font=("Roboto", 12), text_color="#dfe6e9")
         self.loading_label.place(relx=0.5, rely=0.3, anchor="center")
 
-        # Progress Bar
         self.progress_bar = ctk.CTkProgressBar(self.vis_frame, width=400, height=10, progress_color="#00b894")
         self.progress_bar.place(relx=0.5, rely=0.7, anchor="center")
         self.progress_bar.set(0)
-        self.progress_bar.place_forget() # Hide initially
+        self.progress_bar.place_forget()
 
         self.vis_canvas = ctk.CTkCanvas(self.vis_frame, bg="#2b2b2b", highlightthickness=0, height=70)
         self.vis_canvas.pack(fill="both", expand=True, padx=(0, 100))
@@ -318,8 +322,7 @@ class TranscriberApp(ctk.CTk):
         self.textbox = ctk.CTkTextbox(self, font=("Consolas", 14), corner_radius=10)
         self.textbox.grid(row=4, column=0, sticky="nsew", padx=20, pady=10)
         self.textbox.configure(state="disabled")
-        try:
-            self.textbox._textbox.tag_config("alert", foreground="#ff5555", font=("Consolas", 14, "bold"))
+        try: self.textbox._textbox.tag_config("alert", foreground="#ff5555", font=("Consolas", 14, "bold"))
         except: pass
 
         # Controls
@@ -332,7 +335,6 @@ class TranscriberApp(ctk.CTk):
         self.btn_inner = ctk.CTkFrame(self.controls_frame, fg_color="transparent")
         self.btn_inner.pack()
 
-        # Record Buttons
         self.record_btn = ctk.CTkButton(self.btn_inner, text="● Record", fg_color="#d63031", hover_color="#ff7675", width=120, height=45, font=("Roboto", 15, "bold"), command=self.start_recording)
         self.record_btn.pack(side="left", padx=10)
         
@@ -342,27 +344,26 @@ class TranscriberApp(ctk.CTk):
         self.stop_btn = ctk.CTkButton(self.btn_inner, text="■ Stop", fg_color="#636e72", hover_color="#b2bec3", width=100, height=45, font=("Roboto", 15, "bold"), state="disabled", command=self.stop_recording)
         self.stop_btn.pack(side="left", padx=10)
         
-        # Batch File Button
         self.file_btn = ctk.CTkButton(self.btn_inner, text="📁 Batch Files", fg_color="#0984e3", hover_color="#74b9ff", width=140, height=45, font=("Roboto", 15, "bold"), command=self.transcribe_batch)
         self.file_btn.pack(side="left", padx=(30, 10))
         
-        self.action_menu = ctk.CTkOptionMenu(self.btn_inner, values=["Export...", "Export TXT", "Export SRT", "Save As..."], command=self.perform_export, width=120, height=45, font=("Roboto", 13))
+        self.action_menu = ctk.CTkOptionMenu(self.btn_inner, 
+                                             values=["Export...", "Export TXT", "Export SRT", "Export JSON", "Export CSV", "Save As...", "Set Autosave Folder"],
+                                             command=self.perform_export, width=120, height=45, font=("Roboto", 13))
         self.action_menu.set("Export...")
         self.action_menu.pack(side="left", padx=10)
         
         self.status_bar = ctk.CTkLabel(self, text="Ready", anchor="e", text_color="gray")
         self.status_bar.grid(row=6, column=0, sticky="ew", padx=25, pady=(0, 10))
 
+    # --- Visualizer & Animations ---
     def update_visualizer(self):
         if self.running:
-            # Mode Switching for Visualizer Frame
             if self.is_loading_model: 
-                # Show Progress Bar, Hide Canvas
                 self.vis_canvas.pack_forget()
                 self.progress_bar.place(relx=0.5, rely=0.7, anchor="center")
                 self.loading_label.place(relx=0.5, rely=0.3, anchor="center")
             else:
-                # Hide Progress Bar, Show Canvas
                 self.progress_bar.place_forget()
                 self.loading_label.place_forget()
                 if not self.vis_canvas.winfo_ismapped():
@@ -376,7 +377,6 @@ class TranscriberApp(ctk.CTk):
                     points = []
                     bar_width = width / len(data)
                     mid_y = height / 2
-                    
                     for i, val in enumerate(data):
                         x = i * bar_width
                         amp = val * height * 5 
@@ -386,11 +386,27 @@ class TranscriberApp(ctk.CTk):
                         points.append(y1)
                         points.append(x)
                         points.append(y2)
-                    
                     if points:
                         self.vis_canvas.create_line(points, fill="#00b894", width=2, tag="wave", smooth=True)
-            
             self.after(50, self.update_visualizer)
+
+    def pulsate_record_btn(self):
+        if not self.running: return
+        if self.is_loading_model: # Loading State -> Blink Yellow
+            current = self.record_btn.cget("fg_color")
+            next_col = "#e17055" if current == "#fab1a0" else "#fab1a0" # Orange <-> Light Orange
+            self.record_btn.configure(fg_color=next_col, text="● Loading...")
+            self.animate_id = self.after(500, self.pulsate_record_btn)
+        
+        elif self.recorder.recording and not self.recorder.paused: # Recording State -> Blink Red
+            current = self.record_btn.cget("fg_color")
+            next_col = "#d63031" if current == "#ff7675" else "#ff7675" # Red <-> Light Red
+            self.record_btn.configure(fg_color=next_col, text="● Recording")
+            self.animate_id = self.after(800, self.pulsate_record_btn)
+        
+        else: # Idle/Paused -> Reset
+            self.record_btn.configure(fg_color="#d63031", text="● Record")
+            self.animate_id = None
 
     def on_tab_change(self):
         if self.tab_view.get() == "YouTube" and not self.advice_given:
@@ -408,7 +424,11 @@ class TranscriberApp(ctk.CTk):
     def set_loading(self, show, msg=""):
         self.is_loading_model = show
         self.loading_label.configure(text=msg)
-        if not show:
+        if show:
+            if not self.animate_id: self.pulsate_record_btn()
+        else:
+            if not self.recorder.recording: # If finished, stop pulsing
+                self.record_btn.configure(fg_color="#d63031", text="● Record")
             self.progress_bar.set(0)
 
     def update_progress(self, val):
@@ -433,14 +453,12 @@ class TranscriberApp(ctk.CTk):
         threading.Thread(target=self.process_youtube_thread, args=(url,), daemon=True).start()
 
     def process_youtube_thread(self, url):
-        # We use a custom redirector that also updates the progress bar
         self.redirector = StdErrRedirector(self.update_progress)
         self.redirector.start()
         try:
             temp_dir = os.path.join(os.getcwd(), "temp_downloads")
             if not os.path.exists(temp_dir): os.makedirs(temp_dir)
             
-            # Step 1: Download
             self.after(0, lambda: self.log_sys("Step 1/3: Downloading audio from YouTube..."))
             self.after(0, lambda: self.set_loading(True, "Downloading Audio (0%)..."))
             
@@ -451,18 +469,15 @@ class TranscriberApp(ctk.CTk):
             audio_file = download_youtube_audio(url, temp_dir, dl_progress)
             self.after(0, lambda: self.log_sys(f"Download complete: {os.path.basename(audio_file)}"))
 
-            # Step 2: Load Model
-            self.after(0, lambda: self.set_loading(True, "Step 2/3: Loading AI Model (This may take a moment)..."))
+            self.after(0, lambda: self.set_loading(True, "Step 2/3: Loading AI Model (May take ~1 min)..."))
             self.engine.load_model(self.model_combo.get(), self.proc_combo.get())
             
-            # Step 3: Transcribe
             task = "translate" if self.translate_var.get() else "transcribe"
             self.after(0, lambda: self.set_loading(True, "Step 3/3: Transcribing (Please wait)..."))
             self.after(0, lambda: self.log_sys("Step 3/3: Transcribing..."))
             self.session_start_time = datetime.datetime.now()
             
-            # We assume transcribe_file now handles progress internally via tqdm -> stderr -> update_progress
-            result = self.engine.transcribe_file(audio_file, task=task, verbose=True)
+            result = self.engine.transcribe_file(audio_file, task=task, verbose=False)
             
             if result and "segments" in result:
                 for segment in result["segments"]:
@@ -475,7 +490,7 @@ class TranscriberApp(ctk.CTk):
                         self.after(0, lambda t=text, time=abs_time, s=start, e=end: self.add_segment(t, time, s, e))
             
             self.after(0, lambda: self.log_sys("✅ Transcription Complete."))
-            self.after(0, lambda: self.save_txt(ask=False, auto=True))
+            self.after(0, lambda: self.autosave_all())
             
             try: os.remove(audio_file)
             except: pass
@@ -491,9 +506,7 @@ class TranscriberApp(ctk.CTk):
     # --- Batch Logic ---
     def transcribe_batch(self):
         if self.is_loading_model: return
-        
-        self.check_model_advice() # Trigger advice if needed
-        
+        self.check_model_advice()
         filepaths = filedialog.askopenfilenames(filetypes=[("Media Files", "*.wav *.mp3 *.m4a *.mp4 *.flac *.ogg *.mkv *.mov"), ("All", "*.*")])
         if not filepaths: return
         
@@ -517,7 +530,7 @@ class TranscriberApp(ctk.CTk):
                 self.after(0, lambda: self.log_sys(f"--- Processing {i+1}/{total}: {filename} ---"))
                 
                 self.session_start_time = datetime.datetime.now()
-                result = self.engine.transcribe_file(filepath, task=task, verbose=True)
+                result = self.engine.transcribe_file(filepath, task=task, verbose=False)
                 
                 if result and "segments" in result:
                     for segment in result["segments"]:
@@ -528,7 +541,7 @@ class TranscriberApp(ctk.CTk):
                             end = segment['end']
                             abs_time = self.session_start_time + datetime.timedelta(seconds=start)
                             self.after(0, lambda t=text, time=abs_time, s=start, e=end: self.add_segment(t, time, s, e))
-                self.after(0, lambda: self.save_txt(ask=False, auto=True))
+                self.after(0, lambda: self.autosave_all())
             
             self.after(0, lambda: self.log_sys("✅ Batch Processing Complete."))
         except Exception as e: 
@@ -538,7 +551,7 @@ class TranscriberApp(ctk.CTk):
             self.after(0, lambda: self.set_loading(False))
             self.after(0, lambda: self.lock_ui(False))
 
-    # --- Core Logic & Helpers (Unchanged) ---
+    # --- Core Logic & Helpers ---
     def populate_devices(self):
         devices, sel = self.recorder.get_devices()
         self.device_combo.configure(values=devices)
@@ -551,15 +564,12 @@ class TranscriberApp(ctk.CTk):
             self.refresh_display()
             self.log_sys("Log cleared.")
 
-    def open_tools_menu(self):
-        ModelManagerDialog(self, self.engine)
-
-    def open_help(self):
-        HelpDialog(self)
+    def open_tools_menu(self): ModelManagerDialog(self, self.engine)
+    def open_help(self): HelpDialog(self)
 
     def start_recording(self):
         if self.is_loading_model: return
-        self.set_loading(True, "Initializing Model...")
+        self.set_loading(True, "Initializing Model (~30s)...")
         self.lock_ui(True)
         try: dev_idx = int(self.device_combo.get().split(":")[0])
         except: dev_idx = 0
@@ -571,7 +581,10 @@ class TranscriberApp(ctk.CTk):
         try:
             self.engine.load_model(self.model_combo.get(), self.proc_combo.get())
             self.session_start_time = datetime.datetime.now()
-            self.recorder.start(dev, 10) 
+            # Default chunk is 30s now as per requirements, but let's respect combo if user changed it.
+            # Combo defaults to 30s in setup_ui.
+            chunk_s = CHUNK_OPTIONS.get(self.chunk_combo.get(), 30)
+            self.recorder.start(dev, chunk_s) 
             self.after(0, self.on_rec_start)
             self.transcription_thread = threading.Thread(target=self.process_queue, daemon=True)
             self.transcription_thread.start()
@@ -596,6 +609,7 @@ class TranscriberApp(ctk.CTk):
             except Exception as e: logging.error(f"Transcribe fail: {e}")
         self.after(0, lambda: self.status_bar.configure(text="Processing complete."))
         self.after(0, lambda: self.lock_ui(False))
+        self.after(0, lambda: self.autosave_all())
 
     def on_rec_start(self):
         self.pause_btn.configure(state="normal", fg_color="#e17055")
@@ -606,6 +620,9 @@ class TranscriberApp(ctk.CTk):
         self.textbox.insert("end", "!!! RECORDING AND TRANSCRIBING !!!\n", "alert")
         self.textbox.see("end")
         self.textbox.configure(state="disabled")
+        
+        # Start Pulsating for Recording
+        self.pulsate_record_btn()
 
     def lock_ui(self, lock):
         state = "disabled" if lock else "normal"
@@ -623,15 +640,20 @@ class TranscriberApp(ctk.CTk):
             self.recorder.resume()
             self.pause_btn.configure(text="❚❚ Pause", fg_color="#e17055")
             self.status_bar.configure(text="● Recording...")
+            self.pulsate_record_btn() # Resume pulsing
         else:
             self.recorder.pause()
             self.pause_btn.configure(text="▶ Resume", fg_color="#00b894")
             self.status_bar.configure(text="❚❚ Paused")
+            if self.animate_id: self.after_cancel(self.animate_id) # Stop pulsing
+            self.record_btn.configure(fg_color="#d63031", text="● Record") # Reset color
 
     def stop_recording(self):
         self.recorder.stop()
         self.status_bar.configure(text="Finalizing...")
         self.recorder.audio_queue.put(None)
+        if self.animate_id: self.after_cancel(self.animate_id)
+        self.record_btn.configure(fg_color="#d63031", text="● Record")
 
     def add_segment(self, text, custom_time=None, start=0.0, end=0.0):
         if not custom_time: custom_time = datetime.datetime.now()
@@ -646,12 +668,15 @@ class TranscriberApp(ctk.CTk):
 
     def format_segment(self, segment):
         ts_mode = self.time_fmt_var.get()
-        ts_str = ""
-        if ts_mode == "[HH:MM:SS]":
-            ts_str = f"[{segment['time'].strftime('%H:%M:%S')}] "
-        elif ts_mode == "[MM:SS]":
-            ts_str = f"[{segment['time'].strftime('%M:%S')}] "
-        return f"{ts_str}{segment['text']}\n"
+        if self.layout_var.get() == "Block":
+            ts_str = ""
+            if ts_mode == "[HH:MM:SS]":
+                ts_str = f"[{segment['time'].strftime('%H:%M:%S')}] "
+            elif ts_mode == "[MM:SS]":
+                ts_str = f"[{segment['time'].strftime('%M:%S')}] "
+            return f"{ts_str}{segment['text']}\n"
+        else: # Stream
+            return f"{segment['text']} "
 
     def refresh_display(self, _=None):
         self.textbox.configure(state="normal")
@@ -664,14 +689,51 @@ class TranscriberApp(ctk.CTk):
 
     def perform_export(self, choice):
         if choice == "Export...": return
+        if choice == "Set Autosave Folder":
+            self.change_autosave_folder()
+            self.action_menu.set("Export...")
+            return
+            
         if not self.transcript_data:
             self.log_sys("Nothing to export.")
             self.action_menu.set("Export...")
             return
+            
         if choice == "Export SRT": self.save_srt()
         elif choice == "Export TXT": self.save_txt()
+        elif choice == "Export JSON": self.save_json()
+        elif choice == "Export CSV": self.save_csv()
         elif choice == "Save As...": self.save_txt(ask=True)
         self.action_menu.set("Export...")
+
+    def autosave_all(self):
+        """Autosaves to the designated Documents folder."""
+        if not self.transcript_data: return
+        try:
+            timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+            base = os.path.join(self.autosave_dir, f"Autosave_{timestamp}")
+            
+            # Save TXT
+            full_text = "".join(self.format_segment(s) for s in self.transcript_data)
+            with open(base + ".txt", "w", encoding="utf-8") as f: f.write(full_text)
+            
+            # Save JSON (for recovery)
+            serializable = []
+            for item in self.transcript_data:
+                entry = item.copy()
+                if isinstance(entry['time'], datetime.datetime): entry['time'] = entry['time'].isoformat()
+                serializable.append(entry)
+            with open(base + ".json", "w", encoding="utf-8") as f: json.dump(serializable, f, indent=4)
+            
+            self.log_sys(f"💾 Session Autosaved to: {self.autosave_dir}")
+        except Exception as e:
+            self.log_sys(f"Autosave failed: {e}")
+
+    def change_autosave_folder(self):
+        new_dir = filedialog.askdirectory(title="Select Autosave Folder")
+        if new_dir:
+            self.autosave_dir = new_dir
+            self.log_sys(f"Autosave location updated: {self.autosave_dir}")
 
     def save_txt(self, ask=False, auto=False):
         fname = f"Transcript_{{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}}.txt"
@@ -697,6 +759,31 @@ class TranscriberApp(ctk.CTk):
                 f.write(content)
             self.log_sys(f"Saved SRT: {path}")
             if self.open_file_var.get(): os.startfile(path)
+        except Exception as e: self.log_sys(f"Error: {e}")
+
+    def save_json(self):
+        fname = f"Data_{{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}}.json"
+        path = os.path.join(os.environ['USERPROFILE'], 'Desktop', fname)
+        try:
+            serializable = []
+            for item in self.transcript_data:
+                entry = item.copy()
+                if isinstance(entry['time'], datetime.datetime): entry['time'] = entry['time'].isoformat()
+                serializable.append(entry)
+            with open(path, "w", encoding="utf-8") as f: json.dump(serializable, f, indent=4)
+            self.log_sys(f"Saved JSON: {path}")
+        except Exception as e: self.log_sys(f"Error: {e}")
+
+    def save_csv(self):
+        fname = f"Data_{{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}}.csv"
+        path = os.path.join(os.environ['USERPROFILE'], 'Desktop', fname)
+        try:
+            with open(path, "w", newline="", encoding="utf-8") as f:
+                writer = csv.writer(f)
+                writer.writerow(["Timestamp", "Start(s)", "End(s)", "Text"])
+                for item in self.transcript_data:
+                    writer.writerow([item['time'], item.get('start',0), item.get('end',0), item['text']])
+            self.log_sys(f"Saved CSV: {path}")
         except Exception as e: self.log_sys(f"Error: {e}")
 
     def check_recovery(self):
