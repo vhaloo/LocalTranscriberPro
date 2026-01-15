@@ -14,8 +14,9 @@ from src.audio import AudioRecorder, SAMPLE_RATE
 from src.transcriber import TranscriberEngine, MODEL_SIZES
 from src.utils import StdErrRedirector, create_srt_content
 from src.tooltip import ToolTip
+from src.youtube_utils import download_youtube_audio
 
-APP_VERSION = "v0.9.6"
+APP_VERSION = "v0.9.8"
 DEV_CREDIT = "Developed by Vhaloo"
 
 CHUNK_OPTIONS = {
@@ -30,7 +31,7 @@ class HelpDialog(ctk.CTkToplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title("Quick Guide")
-        self.geometry("600x500")
+        self.geometry("600x550")
         self.transient(parent)
         self.grab_set()
         self.focus_force()
@@ -54,11 +55,14 @@ class HelpDialog(ctk.CTkToplevel):
             "3. File Transcription:\n"
             "   - Click 'Batch Files' to process audio/video files.\n"
             "   - Supports .mp3, .wav, .mp4, .mkv, and more.\n\n"
-            "4. Tools:\n"
+            "4. YouTube Transcription:\n"
+            "   - Paste a YouTube URL in the 'YouTube' tab.\n"
+            "   - Click 'Download & Transcribe'.\n\n"
+            "5. Tools:\n"
             "   - 'Translate': Converts foreign audio to English text.\n"
             "   - 'Auto-Cleanup': Removes repetitive AI errors.\n"
             "   - 'Model Manager': Delete unused models to save space.\n\n"
-            "5. Export:\n"
+            "6. Export:\n"
             "   - Save as Text (.txt) or Subtitles (.srt)."
         )
         lbl = ctk.CTkLabel(self, text=info, justify="left", font=("Roboto", 14), anchor="w")
@@ -163,11 +167,16 @@ class TranscriberApp(ctk.CTk):
         self.help_btn.pack(side="right", padx=5)
         ToolTip(self.help_btn, "View quick start guide")
 
-        # Settings
-        self.settings_frame = ctk.CTkFrame(self)
-        self.settings_frame.grid(row=1, column=0, sticky="ew", padx=20, pady=5)
+        # Tabview for Modes
+        self.tab_view = ctk.CTkTabview(self, height=100)
+        self.tab_view.grid(row=1, column=0, sticky="ew", padx=20, pady=5)
+        self.tab_view.add("General")
+        self.tab_view.add("YouTube")
         
-        r1 = ctk.CTkFrame(self.settings_frame, fg_color="transparent")
+        # --- General Tab (Settings) ---
+        gen_tab = self.tab_view.tab("General")
+        
+        r1 = ctk.CTkFrame(gen_tab, fg_color="transparent")
         r1.pack(fill="x", padx=10, pady=5)
         
         ctk.CTkLabel(r1, text="Mic:", font=("Roboto", 14)).pack(side="left", padx=5)
@@ -203,8 +212,8 @@ class TranscriberApp(ctk.CTk):
             gpu_btn.pack(side="right", padx=10)
             ToolTip(gpu_btn, "Click to install NVIDIA Drivers for speed")
 
-        # Row 2
-        r2 = ctk.CTkFrame(self.settings_frame, fg_color="transparent")
+        # Row 2 (General)
+        r2 = ctk.CTkFrame(gen_tab, fg_color="transparent")
         r2.pack(fill="x", padx=10, pady=5)
         
         self.translate_var = ctk.BooleanVar(value=False)
@@ -232,18 +241,31 @@ class TranscriberApp(ctk.CTk):
         open_chk.pack(side="right", padx=10)
         ToolTip(open_chk, "Automatically open file after transcription")
 
+        # --- YouTube Tab ---
+        yt_tab = self.tab_view.tab("YouTube")
+        
+        yt_frame = ctk.CTkFrame(yt_tab, fg_color="transparent")
+        yt_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        ctk.CTkLabel(yt_frame, text="YouTube URL:", font=("Roboto", 14)).pack(side="left", padx=5)
+        self.yt_url_entry = ctk.CTkEntry(yt_frame, width=400, placeholder_text="Paste link here (https://www.youtube.com/watch?v=...)")
+        self.yt_url_entry.pack(side="left", padx=10, fill="x", expand=True)
+        
+        self.yt_btn = ctk.CTkButton(yt_frame, text="Download & Transcribe", fg_color="#c4302b", hover_color="#e62e2d", command=self.start_youtube_process)
+        self.yt_btn.pack(side="left", padx=10)
+
         # Visualizer Frame & Clear Button
         self.vis_frame = ctk.CTkFrame(self, fg_color="#2b2b2b", height=60)
         self.vis_frame.grid(row=2, column=0, sticky="ew", padx=20, pady=5)
         
-        # Clear Button (Trash Icon style)
+        # Clear Button
         self.clear_btn = ctk.CTkButton(self.vis_frame, text="🗑️ Clear Log", width=80, height=30, 
                                        fg_color="#444", hover_color="#666", command=self.clear_log)
         self.clear_btn.place(relx=0.95, rely=0.5, anchor="center")
         ToolTip(self.clear_btn, "Clear all text from the window")
 
         self.vis_canvas = ctk.CTkCanvas(self.vis_frame, bg="#2b2b2b", highlightthickness=0, height=60)
-        self.vis_canvas.pack(fill="both", expand=True, padx=(0, 100)) # Space for button
+        self.vis_canvas.pack(fill="both", expand=True, padx=(0, 100)) 
         
         self.loading_label = ctk.CTkLabel(self.vis_frame, text="", font=("Roboto", 11), text_color="gray")
         self.loading_label.place(relx=0.5, rely=0.5, anchor="center")
@@ -338,6 +360,69 @@ class TranscriberApp(ctk.CTk):
             self.transcript_data = []
             self.refresh_display()
             self.log_sys("Log cleared.")
+
+    # --- YouTube Logic ---
+    def start_youtube_process(self):
+        url = self.yt_url_entry.get().strip()
+        if not url:
+            messagebox.showwarning("Input Required", "Please enter a valid YouTube URL.")
+            return
+        
+        self.set_loading(True, "Initializing YouTube Download...")
+        self.lock_ui(True)
+        self.yt_btn.configure(state="disabled")
+        threading.Thread(target=self.process_youtube_thread, args=(url,), daemon=True).start()
+
+    def process_youtube_thread(self, url):
+        self.redirector = StdErrRedirector(self.update_progress)
+        self.redirector.start()
+        try:
+            # 1. Download
+            temp_dir = os.path.join(os.getcwd(), "temp_downloads")
+            if not os.path.exists(temp_dir): os.makedirs(temp_dir)
+            
+            self.after(0, lambda: self.log_sys(f"Downloading audio from: {url}"))
+            
+            def progress_cb(pct):
+                self.after(0, lambda: self.set_loading(True, f"Downloading... {pct:.1f}%"))
+
+            audio_file = download_youtube_audio(url, temp_dir, progress_cb)
+            self.after(0, lambda: self.log_sys(f"Download complete: {os.path.basename(audio_file)}"))
+
+            # 2. Transcribe
+            self.set_loading(True, "Loading AI Model...")
+            self.engine.load_model(self.model_combo.get(), self.proc_combo.get())
+            
+            task = "translate" if self.translate_var.get() else "transcribe"
+            self.after(0, lambda: self.set_loading(True, "Transcribing audio..."))
+            self.session_start_time = datetime.datetime.now()
+            
+            result = self.engine.transcribe_file(audio_file, task=task)
+            
+            if result and "segments" in result:
+                for segment in result["segments"]:
+                    text = segment["text"].strip()
+                    if self.cleanup_var.get(): text = self.engine.cleanup_text(text)
+                    if text:
+                        start = segment['start']
+                        end = segment['end']
+                        abs_time = self.session_start_time + datetime.timedelta(seconds=start)
+                        self.after(0, lambda t=text, time=abs_time, s=start, e=end: self.add_segment(t, time, s, e))
+            
+            self.after(0, lambda: self.log_sys("YouTube Transcription Complete."))
+            self.after(0, lambda: self.save_txt(ask=False, auto=True))
+            
+            # Cleanup
+            try: os.remove(audio_file)
+            except: pass
+
+        except Exception as e:
+            self.log_sys(f"YouTube Error: {e}")
+        finally:
+            self.redirector.stop()
+            self.after(0, lambda: self.set_loading(False))
+            self.after(0, lambda: self.lock_ui(False))
+            self.after(0, lambda: self.yt_btn.configure(state="normal"))
 
     # --- Core Logic ---
     def start_recording(self):
@@ -446,6 +531,7 @@ class TranscriberApp(ctk.CTk):
         self.file_btn.configure(state=state)
         self.device_combo.configure(state=state)
         self.model_combo.configure(state=state)
+        self.yt_btn.configure(state=state)
         if not lock:
             self.pause_btn.configure(state="disabled", text="❚❚ Pause")
             self.stop_btn.configure(state="disabled")

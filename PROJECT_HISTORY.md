@@ -1,15 +1,20 @@
 # Local Transcriber Project History
 
-## Session: January 13, 2026 (Stability Update)
+## Session: January 13, 2026 (YouTube Feature)
 
-### **Status: Release v0.9.7**
-Major stability update for the Web Installer and runtime dependencies.
+### **Status: Release v0.9.8**
+Added integrated YouTube audio downloading and transcription.
 
 ### **Current Application State**
-*   **Desktop App:** Local Transcriber Pro v0.9.7
+*   **Desktop App:** Local Transcriber Pro v0.9.8
 *   **Repo:** https://github.com/vhaloo/LocalTranscriberPro
 
 ### **Version Changelog**
+*   **v0.9.8 (Desktop):**
+    *   **Feature:** **YouTube Transcription Tab**. Paste a URL to automatically download audio and generate a transcript/subtitle file.
+    *   **Dependency:** Added `yt-dlp` for robust video extraction.
+    *   **UI:** Added dedicated tab interface for switching between "General" and "YouTube" modes.
+
 *   **v0.9.7 (Desktop):**
     *   **Fix:** Completely rewritten `Web_Builder.cmd` (v14) with Desktop logging and integrity checks.
     *   **Fix:** Resolved "This app can't run on your PC" error by fixing partial/corrupt builds.
