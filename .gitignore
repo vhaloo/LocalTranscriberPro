@@ -1,21 +1,16 @@
-# Build artifacts
+venv/
+__pycache__/
+*.pyc
 build/
 dist/
 *.spec
-*.exe
-*.zip
-
-# Virtual Environments
-venv/
-env/
-__pycache__/
-*.pyc
-
-# Logs and Temp files
 *.log
-.unsaved_session.*
-installer_debug.log
-app_base64.txt
-
-# User data
-Transcript_*.txt
+local_transcriber.py
+*.mp3
+*.wav
+*.mp4
+*.mkv
+*.srt
+*.txt
+temp_downloads/
+.unsaved_session.json
