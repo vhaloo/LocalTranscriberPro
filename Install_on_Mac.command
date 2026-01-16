@@ -1,33 +1,48 @@
 #!/bin/bash
 cd "$(dirname "$0")"
 echo "==================================================="
-echo "   Local Transcriber Pro - Mac Installer"
+echo "   Local Transcriber Pro - Mac Installer v2"
 echo "==================================================="
-echo "This script will build the app and install it to your user Applications folder."
-echo "It may take 2-5 minutes. Please wait."
+echo "This script will fix dependencies and reinstall the app."
 echo ""
 
-# 1. Check Python
+# 0. Check Homebrew (Essential for dependencies)
+if ! command -v brew &> /dev/null; then
+    echo "⚠️  Homebrew is not installed."
+    echo "It is strongly recommended for installing 'ffmpeg' (required for audio)."
+    echo "Please visit https://brew.sh to install it, then run this script again."
+    read -p "Press ENTER to continue anyway (App might crash)..."
+fi
+
+# 1. Install System Dependencies
+echo "⬇️  Checking system libraries..."
+if command -v brew &> /dev/null; then
+    echo "   - Installing ffmpeg (Audio Engine)..."
+    brew install ffmpeg > /dev/null 2>&1
+    echo "   - Installing python-tk (GUI Support)..."
+    brew install python-tk > /dev/null 2>&1
+else
+    echo "❌ Skipped Brew installs (Homebrew missing)."
+fi
+
+# 2. Setup Python
 if ! command -v python3.12 &> /dev/null; then
-    echo "❌ Python 3.12 not found!"
-    echo "Please install it from python.org or run: brew install python@3.12"
+    echo "❌ Python 3.12 not found! Run: brew install python@3.12"
     read -p "Press ENTER to exit..."
     exit 1
 fi
 
-# 2. Setup Build Environment
-echo "📦 Setting up build environment..."
-if [ ! -d "venv" ]; then
-    python3.12 -m venv venv
-fi
+echo "📦 Setting up virtual environment..."
+rm -rf venv
+python3.12 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip > /dev/null
-echo "⬇️  Installing dependencies..."
+echo "⬇️  Installing Python packages..."
 pip install -r requirements.txt > /dev/null
 pip install pyinstaller > /dev/null
 
-# 3. Build the App
-echo "🔨 Building Application (This uses your CPU/GPU to optimize)..."
+# 3. Build
+echo "🔨 Building App (This takes ~2 minutes)..."
 rm -rf build dist
 pyinstaller --noconsole --windowed --clean \
     --name "Local Transcriber Pro" \
@@ -47,38 +62,34 @@ pyinstaller --noconsole --windowed --clean \
     main.py > build_log.txt 2>&1
 
 if [ ! -d "dist/Local Transcriber Pro.app" ]; then
-    echo "❌ Build failed! Check build_log.txt for details."
+    echo "❌ Build failed! View 'build_log.txt' for details."
     read -p "Press ENTER to exit..."
     exit 1
 fi
 
-# 4. Install to User Applications (No Sudo Required)
-echo "📂 Moving to ~/Applications folder..."
+# 4. Install
+echo "📂 Installing to ~/Applications..."
 USER_APPS="$HOME/Applications"
-if [ ! -d "$USER_APPS" ]; then
-    mkdir -p "$USER_APPS"
-fi
-
-TARGET_APP="$USER_APPS/Local Transcriber Pro.app"
-
-if [ -d "$TARGET_APP" ]; then
-    rm -rf "$TARGET_APP"
-fi
-
+mkdir -p "$USER_APPS"
+rm -rf "$USER_APPS/Local Transcriber Pro.app"
 mv "dist/Local Transcriber Pro.app" "$USER_APPS/"
 
 # 5. Cleanup
-echo "🧹 Cleaning up temporary files..."
 rm -rf build dist *.spec
 
 echo ""
-echo "✅ SUCCESS!"
-echo "Local Transcriber Pro has been installed to:"
-echo "   $USER_APPS"
+echo "✅ INSTALLATION COMPLETE!"
+echo "---------------------------------------------------"
+echo "The app is in: $USER_APPS"
+
 echo ""
-echo "👉 You can find it in your User Applications folder."
-echo "   (If you don't see it in Launchpad, check your Home folder > Applications)"
+echo "❓ TROUBLESHOOTING:"
+echo "If the app crashes (bounces then quits), it is usually due to a missing file."
+echo "We can launch it right now in 'Debug Mode' to see the error message."
+
+read -p "Press ENTER to Launch in Debug Mode (or Ctrl+C to quit)..."
+
 echo ""
-echo "You can now delete this source folder."
-echo ""
-read -p "Press ENTER to close..."
+echo "🚀 Launching... (Look for error messages below)"
+echo "---------------------------------------------------"
+"$USER_APPS/Local Transcriber Pro.app/Contents/MacOS/Local Transcriber Pro"
