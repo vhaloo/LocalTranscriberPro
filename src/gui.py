@@ -20,7 +20,7 @@ from src.utils import StdErrRedirector, create_srt_content
 from src.tooltip import ToolTip
 from src.youtube_utils import download_youtube_audio
 
-APP_VERSION = "v0.9.10"
+APP_VERSION = "v0.9.11"
 DEV_CREDIT = "Developed by Vhaloo"
 
 CHUNK_OPTIONS = {
@@ -31,11 +31,13 @@ CHUNK_OPTIONS = {
     "30s (Best Context)": 30
 }
 
+VIDEO_EXTENSIONS = {'.mp4', '.mkv', '.mov', '.avi', '.webm', '.flv', '.wmv', '.m4v'}
+
 class HelpDialog(ctk.CTkToplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title("Detailed Guide")
-        self.geometry("700x650")
+        self.geometry("700x700")
         self.transient(parent)
         self.grab_set()
         self.focus_force()
@@ -63,19 +65,24 @@ class HelpDialog(ctk.CTkToplevel):
             "   - This controls how much 'audio history' the AI sees.\n"
             "   - 30s provides the best sentence coherence and grammar.\n"
             "   - Lower values (5-10s) feel snappier but may cut off sentences.\n\n"
-            "3. Recording Features:\n"
+            "3. Smart Subtitles (Video Mode):\n"
+            "   - When you drag & drop or select a VIDEO file (.mp4, .mkv, etc.),\n"
+            "     the app automatically creates a .SRT file next to it.\n"
+            "   - Filename is matched (e.g., 'Movie.mp4' -> 'Movie.srt').\n"
+            "   - VLC and other players will auto-detect these subtitles.\n\n"
+            "4. Recording Features:\n"
             "   - Press 'Record' (F1). The button pulsates to show activity.\n"
             "   - 'Loading' state happens first (loading 3GB+ model into RAM).\n"
             "   - Audio is Autosaved to 'Documents/Transcriptions'.\n\n"
-            "4. YouTube & Files:\n"
+            "5. YouTube & Files:\n"
             "   - The app downloads video audio automatically.\n"
             "   - Progress bar shows download -> model load -> transcription.\n"
             "   - Large files take time! (Approx. 1/5th real-time on GPU).\n\n"
-            "5. Exporting:\n"
+            "6. Exporting:\n"
             "   - TXT: Plain text document.\n"
             "   - SRT: Subtitle file for YouTube/VLC (Time-synced).\n"
             "   - JSON/CSV: Structured data for developers/databases.\n\n"
-            "6. Troubleshooting:\n"
+            "7. Troubleshooting:\n"
             "   - If app freezes during 'Loading', wait. It's loading 3GB data.\n"
             "   - Ensure 'Visual C++' is installed if crashes occur.\n"
         )
@@ -314,7 +321,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.vis_frame = ctk.CTkFrame(self, fg_color="#2b2b2b", height=70)
         self.vis_frame.grid(row=2, column=0, sticky="ew", padx=20, pady=5)
         
-        self.clear_btn = ctk.CTkButton(self.vis_frame, text="🗑️ Clear Log", width=80, height=30, 
+        self.clear_btn = ctk.CTkButton(self.vis_frame, text="\U0001f5d1️ Clear Log", width=80, height=30, 
                                        fg_color="#444", hover_color="#666", command=self.clear_log)
         self.clear_btn.place(relx=0.95, rely=0.5, anchor="center")
         
@@ -391,7 +398,6 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         raw_files = event.data
         if not raw_files: return
         
-        # Clean paths (TkinterDnD returns {path with space} path_no_space)
         files = self.parse_tcl_list(raw_files)
         if files:
             self.check_model_advice()
@@ -401,7 +407,6 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             threading.Thread(target=self.process_batch_thread, daemon=True).start()
 
     def parse_tcl_list(self, raw_str):
-        # Basic parser for Tcl list format from TkinterDnD
         files = []
         current = ""
         in_brace = False
@@ -589,7 +594,9 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                 self.session_start_time = datetime.datetime.now()
                 result = self.engine.transcribe_file(filepath, task=task, verbose=False)
                 
+                # Smart Subtitle Generation
                 if result and "segments" in result:
+                    # Generate autosave/UI segments
                     for segment in result["segments"]:
                         text = segment["text"].strip()
                         if self.cleanup_var.get(): text = self.engine.cleanup_text(text)
@@ -598,6 +605,10 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                             end = segment['end']
                             abs_time = self.session_start_time + datetime.timedelta(seconds=start)
                             self.after(0, lambda t=text, time=abs_time, s=start, e=end: self.add_segment(t, time, s, e))
+                    
+                    # Generate side-by-side SRT for videos
+                    self.save_smart_subtitle(filepath, result["segments"])
+
                 self.after(0, lambda: self.autosave_all())
             
             self.after(0, lambda: self.log_sys("✅ Batch Processing Complete."))
@@ -607,6 +618,19 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             self.redirector.stop()
             self.after(0, lambda: self.set_loading(False))
             self.after(0, lambda: self.lock_ui(False))
+
+    def save_smart_subtitle(self, filepath, segments):
+        """Creates a .srt file next to the video if it's a known video format."""
+        try:
+            ext = os.path.splitext(filepath)[1].lower()
+            if ext in VIDEO_EXTENSIONS:
+                srt_path = os.path.splitext(filepath)[0] + ".srt"
+                content = create_srt_content(segments)
+                with open(srt_path, "w", encoding="utf-8") as f:
+                    f.write(content)
+                self.after(0, lambda: self.log_sys(f"\U0001f4f9 Smart Subtitle created: {os.path.basename(srt_path)}"))
+        except Exception as e:
+            logging.error(f"Smart Subtitle Error: {e}")
 
     # --- Core Logic & Helpers ---
     def populate_devices(self):
@@ -693,7 +717,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             self.recorder.resume()
             self.pause_btn.configure(text="❚❚ Pause", fg_color="#e17055")
             self.status_bar.configure(text="● Recording...")
-            self.pulsate_record_btn()
+            self.pulsate_record_btn() 
         else:
             self.recorder.pause()
             self.pause_btn.configure(text="▶ Resume", fg_color="#00b894")
@@ -776,7 +800,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                 serializable.append(entry)
             with open(base + ".json", "w", encoding="utf-8") as f: json.dump(serializable, f, indent=4)
             
-            self.log_sys(f"💾 Session Autosaved to: {self.autosave_dir}")
+            self.log_sys(f"\U0001f4be Session Autosaved to: {self.autosave_dir}")
         except Exception as e:
             self.log_sys(f"Autosave failed: {e}")
 
