@@ -49,6 +49,24 @@ if platform.system() == "Darwin":
         # Prepend to ensure we find our tools first
         os.environ["PATH"] = ":".join(new_paths) + ":" + current_path
 
+# --- Fix 3: Working Directory (Crucial for .app bundles) ---
+# macOS .app bundles launch with CWD as /, causing permission errors for file writes.
+if getattr(sys, 'frozen', False):
+    if platform.system() == "Darwin":
+        safe_dir = os.path.join(os.path.expanduser("~"), "Library", "Application Support", "LocalTranscriberPro")
+    else:
+        safe_dir = os.path.join(os.getenv("APPDATA", os.getcwd()), "LocalTranscriberPro")
+        
+    if not os.path.exists(safe_dir):
+        try: os.makedirs(safe_dir)
+        except: pass
+    
+    # Change CWD so relative paths (temp_downloads, backups) work
+    try:
+        os.chdir(safe_dir)
+    except Exception as e:
+        print(f"Failed to change directory: {e}")
+
 if __name__ == "__main__":
     setup_logging()
     app = TranscriberApp()
