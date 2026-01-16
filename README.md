@@ -98,6 +98,32 @@ If you want to contribute or modify the code:
     *   To run: `python main.py`
     *   To build EXE: `build_exe.bat`
 
+### 🍎 Mac Installation (Apple Silicon / Intel)
+We provide scripts to easily build and run the app on macOS. This supports full hardware acceleration on M1/M2/M3 chips via Metal (MPS).
+
+1.  **Clone the Repo:**
+    ```bash
+    git clone https://github.com/vhaloo/LocalTranscriberPro.git
+    cd LocalTranscriberPro
+    ```
+2.  **Run Setup Script:**
+    This script installs Python 3.12 (if missing), creates a virtual environment, and installs dependencies.
+    ```bash
+    chmod +x setup_mac.sh
+    ./setup_mac.sh
+    ```
+3.  **Run the App:**
+    ```bash
+    source venv/bin/activate
+    python main.py
+    ```
+4.  **Optional: Build Binary:**
+    To create a standalone executable in the `dist/` folder:
+    ```bash
+    chmod +x build_mac.sh
+    ./build_mac.sh
+    ```
+
 ---
 
 ## 📖 User Guide
