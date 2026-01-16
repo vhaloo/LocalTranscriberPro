@@ -3,7 +3,7 @@ cd "$(dirname "$0")"
 echo "==================================================="
 echo "   Local Transcriber Pro - Mac Installer"
 echo "==================================================="
-echo "This script will build the app and install it to your Applications folder."
+echo "This script will build the app and install it to your user Applications folder."
 echo "It may take 2-5 minutes. Please wait."
 echo ""
 
@@ -28,7 +28,6 @@ pip install pyinstaller > /dev/null
 
 # 3. Build the App
 echo "🔨 Building Application (This uses your CPU/GPU to optimize)..."
-# Using the same flags as build_mac.command
 rm -rf build dist
 pyinstaller --noconsole --windowed --clean \
     --name "Local Transcriber Pro" \
@@ -53,12 +52,20 @@ if [ ! -d "dist/Local Transcriber Pro.app" ]; then
     exit 1
 fi
 
-# 4. Install
-echo "📂 Moving to Applications folder..."
-if [ -d "/Applications/Local Transcriber Pro.app" ]; then
-    rm -rf "/Applications/Local Transcriber Pro.app"
+# 4. Install to User Applications (No Sudo Required)
+echo "📂 Moving to ~/Applications folder..."
+USER_APPS="$HOME/Applications"
+if [ ! -d "$USER_APPS" ]; then
+    mkdir -p "$USER_APPS"
 fi
-mv "dist/Local Transcriber Pro.app" /Applications/
+
+TARGET_APP="$USER_APPS/Local Transcriber Pro.app"
+
+if [ -d "$TARGET_APP" ]; then
+    rm -rf "$TARGET_APP"
+fi
+
+mv "dist/Local Transcriber Pro.app" "$USER_APPS/"
 
 # 5. Cleanup
 echo "🧹 Cleaning up temporary files..."
@@ -66,7 +73,12 @@ rm -rf build dist *.spec
 
 echo ""
 echo "✅ SUCCESS!"
-echo "Local Transcriber Pro has been installed to your Applications folder."
+echo "Local Transcriber Pro has been installed to:"
+echo "   $USER_APPS"
+echo ""
+echo "👉 You can find it in your User Applications folder."
+echo "   (If you don't see it in Launchpad, check your Home folder > Applications)"
+echo ""
 echo "You can now delete this source folder."
 echo ""
 read -p "Press ENTER to close..."
