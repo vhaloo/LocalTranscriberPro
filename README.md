@@ -30,7 +30,7 @@ LTP is the best choice for Windows users who want the "Professional" accuracy of
 
 ### 🚀 **Unbound Potential**
 *   **No Limits:** Transcribe files of **ANY size or length**. From a 5-second voice memo to a 100-hour continuous recording.
-*   **Universal Formats:** Supports virtually every audio and video format in existence. If you can play it, we can transcribe it.
+*   **Universal Formats:** Supports virtually every audio and video format in existence. If it can be played, the app can transcribe it.
 *   **AI Ready:** Perfect for processing massive "Brain dump" dictaphone recordings or week-long meeting logs to feed into LLMs (ChatGPT/Claude) for summarization and analysis.
 
 ---
