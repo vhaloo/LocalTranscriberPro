@@ -8,3 +8,4 @@ requests
 packaging
 yt-dlp
 tkinterdnd2
+certifi
