@@ -99,7 +99,7 @@ If you want to contribute or modify the code:
     *   To build EXE: `build_exe.bat`
 
 ### 🍎 Mac Installation (Apple Silicon / Intel)
-We provide scripts to easily build and run the app on macOS. This supports full hardware acceleration on M1/M2/M3 chips via Metal (MPS).
+We provide scripts to easily build and run the app on macOS. This supports full hardware acceleration on M1/M2/M3/M4/M5 chips via Metal (MPS).
 
 1.  **Clone the Repo:**
     ```bash
