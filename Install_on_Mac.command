@@ -107,7 +107,11 @@ function build_app() {
         return
     fi
 
-    echo "🔐 Signing App (Ad-Hoc) with Entitlements..."
+    echo "🔐 Signing Internal Libraries..."
+    # Sign all dylibs/so files individually first (required for M1/M2)
+    find "dist/Local Transcriber Pro.app/Contents" -type f \( -name "*.dylib" -o -name "*.so" \) -exec codesign --force --sign - "{}" \; >/dev/null 2>&1
+
+    echo "🔐 Signing App Bundle (Ad-Hoc)..."
     codesign --force --deep --sign - --entitlements entitlements.plist "dist/Local Transcriber Pro.app" >/dev/null 2>&1
 
     echo ""
