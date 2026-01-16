@@ -105,8 +105,8 @@ function build_app() {
         return
     fi
 
-    echo "🔐 Signing App (Ad-Hoc) for Apple Silicon..."
-    codesign --force --deep --sign - "dist/Local Transcriber Pro.app" >/dev/null 2>&1
+    echo "🔐 Signing App (Ad-Hoc) with Entitlements..."
+    codesign --force --deep --sign - --entitlements entitlements.plist "dist/Local Transcriber Pro.app" >/dev/null 2>&1
 
     echo "📂 Installing to ~\/Applications..."
     mkdir -p "$HOME/Applications"
