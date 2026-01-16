@@ -28,7 +28,8 @@ function show_menu() {
     echo "==================================================="
     echo "1. Full Install (Recommended)"
     echo "   - Downloads FFmpeg & Python 3.12"
-    echo "   - Builds, SIGNS & Installs App to ~\/Applications"
+    echo "   - Builds App & Installs to /Applications"
+    echo "   - Requires Admin Password"
     echo ""
     echo "2. Quick Rebuild"
     echo "   - Just rebuilds code (if already setup)"
@@ -53,6 +54,7 @@ function install_deps() {
         echo "⬇️  Installing FFmpeg (Audio Engine)..."
         brew install ffmpeg >/dev/null 2>&1
         echo "⬇️  Installing Python 3.12..."
+        # Explicitly install python@3.12 to avoid 3.13 issues
         brew install python@3.12 >/dev/null 2>&1
         brew unlink python@3.12 && brew link --overwrite python@3.12 >/dev/null 2>&1
     fi
@@ -108,22 +110,38 @@ function build_app() {
     echo "🔐 Signing App (Ad-Hoc) with Entitlements..."
     codesign --force --deep --sign - --entitlements entitlements.plist "dist/Local Transcriber Pro.app" >/dev/null 2>&1
 
-    echo "📂 Installing to ~\/Applications..."
-    mkdir -p "$HOME/Applications"
-    rm -rf "$HOME/Applications/Local Transcriber Pro.app"
-    mv "dist/Local Transcriber Pro.app" "$HOME/Applications/"
+    echo ""
+    echo "📂 Installing to /Applications..."
+    echo "🔑 Please enter your password to move the app:"
+    
+    # Remove existing app if it exists
+    if [ -d "/Applications/Local Transcriber Pro.app" ]; then
+        sudo rm -rf "/Applications/Local Transcriber Pro.app"
+    fi
+    
+    # Move new app using sudo
+    sudo mv "dist/Local Transcriber Pro.app" /Applications/
+    
+    # Fix ownership to root:wheel (standard for /Apps)
+    sudo chown -R root:wheel "/Applications/Local Transcriber Pro.app"
+
+    # Cleanup
     rm -rf build dist *.spec
 
-    echo "✅ Success! Installed to User Applications."
+    echo ""
+    echo "✅ Success! Installed to /Applications."
     echo "   You can delete the source folder now."
     read -p "Press ENTER to return to menu..."
 }
 
 function debug_app() {
     echo ""
-    APP_PATH="$HOME/Applications/Local Transcriber Pro.app/Contents/MacOS/Local Transcriber Pro"
+    # Check System Applications folder now
+    APP_PATH="/Applications/Local Transcriber Pro.app/Contents/MacOS/Local Transcriber Pro"
+    
     if [ ! -f "$APP_PATH" ]; then
         echo "❌ App not found at: $APP_PATH"
+        echo "   (Did you install it yet?)"
     else
         echo "🚀 Launching App in Debug Mode..."
         "$APP_PATH"
@@ -134,10 +152,10 @@ function debug_app() {
 while true; do
     show_menu
     case $choice in
-        1) install_deps; build_app ;; 
-        2) build_app ;; 
-        3) debug_app ;; 
-        4) exit 0 ;; 
-        *) echo "Invalid option." ;; 
+        1) install_deps; build_app ;;
+        2) build_app ;;
+        3) debug_app ;;
+        4) exit 0 ;;
+        *) echo "Invalid option." ;;
     esac
 done
