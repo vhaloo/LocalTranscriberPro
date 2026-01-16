@@ -1,4 +1,5 @@
 #!/bin/bash
+cd "$(dirname "$0")"
 echo "Building Local Transcriber Pro for Mac (Apple Silicon)..."
 
 source venv/bin/activate
