@@ -98,17 +98,37 @@ If you want to contribute or modify the code:
     *   To run: `python main.py`
     *   To build EXE: `build_exe.bat`
 
-### 🍎 Mac Installation (Apple Silicon / Intel)
-Supports full hardware acceleration on M1/M2/M3/M4/M5 chips via Metal (MPS).
+### 🍎 Mac Installation
 
-**Easy Installation:**
+#### **Requirements**
+*   **Hardware:** Apple Silicon (M1/M2/M3/M4/M5) highly recommended for GPU speed. Intel Macs supported (CPU only, slower).
+*   **OS:** macOS 12 (Monterey) or later.
+*   **Software:** The installer automates setting up Python 3.12 and FFmpeg via Homebrew.
+
+#### **Option 1: Easy Installer (No Terminal)**
 1.  **[Download Source Code (ZIP)](https://github.com/vhaloo/LocalTranscriberPro/archive/refs/heads/main.zip)** and unzip it.
 2.  Open the folder.
 3.  Double-click **`Install_on_Mac.command`**.
-4.  Wait for the process to finish (~3 mins). It will create **Local Transcriber Pro.app** in your **Applications** folder.
-5.  You can now run it from Launchpad or Applications!
+4.  Choose **Option 1 (Full Install)** in the menu.
+    *   *Note: If macOS blocks it, Right-Click the file > Open > Open.*
 
-*Note: If macOS prevents the script from running, Right-Click the file > Open > Open.*
+#### **Option 2: Terminal One-Liner (Fastest)**
+Paste this into your Terminal to download and launch the installer instantly:
+```bash
+curl -sL https://raw.githubusercontent.com/vhaloo/LocalTranscriberPro/main/Install_on_Mac.command > Install_LTP.command && chmod +x Install_LTP.command && ./Install_LTP.command
+```
+
+#### **Option 3: Manual Developer Setup**
+1.  Install dependencies: `brew install python@3.12 ffmpeg python-tk`
+2.  Clone & Run:
+    ```bash
+    git clone https://github.com/vhaloo/LocalTranscriberPro.git
+    cd LocalTranscriberPro
+    python3.12 -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+    python main.py
+    ```
 
 ---
 
