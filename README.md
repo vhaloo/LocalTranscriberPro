@@ -101,13 +101,14 @@ If you want to contribute or modify the code:
 ### 🍎 Mac Installation (Apple Silicon / Intel)
 Supports full hardware acceleration on M1/M2/M3/M4/M5 chips via Metal (MPS).
 
-**Easiest Method (No Terminal Required):**
+**Easy Installation:**
 1.  **[Download Source Code (ZIP)](https://github.com/vhaloo/LocalTranscriberPro/archive/refs/heads/main.zip)** and unzip it.
 2.  Open the folder.
-3.  Double-click **`setup_mac.command`**. (This installs dependencies).
-4.  Once done, double-click **`run_app.command`** to start!
+3.  Double-click **`Install_on_Mac.command`**.
+4.  Wait for the process to finish (~3 mins). It will create **Local Transcriber Pro.app** in your **Applications** folder.
+5.  You can now run it from Launchpad or Applications!
 
-*Note: If macOS prevents the script from running ("Unidentified Developer"), Right-Click the file > Open > Open.*
+*Note: If macOS prevents the script from running, Right-Click the file > Open > Open.*
 
 ---
 
