@@ -6,6 +6,18 @@ import certifi
 from src.utils import setup_logging
 from src.gui import TranscriberApp
 
+# --- Fix 0: macOS Finder Crash Fix (Redirect Stdout/Stderr) ---
+# GUI apps launched from Finder have no stdout/stderr. Writing to them causes a crash.
+if getattr(sys, 'frozen', False) and platform.system() == "Darwin":
+    log_dir = os.path.join(os.path.expanduser("~"), "Library", "Logs", "LocalTranscriberPro")
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+    
+    # Redirect stdout/stderr to a log file
+    log_file = os.path.join(log_dir, "app_debug.log")
+    sys.stdout = open(log_file, "w")
+    sys.stderr = sys.stdout
+
 # --- Fix 1: SSL Certificates ---
 os.environ["SSL_CERT_FILE"] = certifi.where()
 os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
@@ -36,7 +48,6 @@ if platform.system() == "Darwin":
     if new_paths:
         # Prepend to ensure we find our tools first
         os.environ["PATH"] = ":".join(new_paths) + ":" + current_path
-        # Also update sys.path if needed, though usually PATH is enough for subprocess calls
 
 if __name__ == "__main__":
     setup_logging()
