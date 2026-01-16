@@ -27,8 +27,11 @@ function install_deps() {
     if ! command -v brew &> /dev/null; then
         echo "⚠️  Homebrew not found. Skipping FFmpeg install."
     else
-        echo "⬇️  Installing/Updating FFmpeg & Python-TK..."
-        brew install ffmpeg python-tk 2>/dev/null
+        echo "⬇️  Installing/Updating FFmpeg & Python 3.12..."
+        # We explicitly install python@3.12 to ensure compatibility (PyTorch supports 3.12).
+        # We DO NOT install 'python-tk' generic, as it pulls the latest python (3.13+).
+        # Homebrew's python@3.12 includes tkinter support.
+        brew install ffmpeg python@3.12 2>/dev/null
     fi
 
     if ! command -v python3.12 &> /dev/null; then
