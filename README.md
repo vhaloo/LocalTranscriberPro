@@ -28,6 +28,11 @@ LTP is the best choice for Windows users who want the "Professional" accuracy of
 *   **GPU Acceleration:** Automatically detects NVIDIA GPUs (CUDA) for blazing fast transcription (up to 10x faster than CPU).
 *   **Smart Queue:** Process unlimited files in the background without freezing your PC.
 
+### 🚀 **Unbound Potential**
+*   **No Limits:** Transcribe files of **ANY size or length**. From a 5-second voice memo to a 100-hour continuous recording.
+*   **Universal Formats:** Supports virtually every audio and video format in existence. If you can play it, we can transcribe it.
+*   **AI Ready:** Perfect for processing massive "Brain dump" dictaphone recordings or week-long meeting logs to feed into LLMs (ChatGPT/Claude) for summarization and analysis.
+
 ---
 
 ## 🛠️ Features at a Glance
