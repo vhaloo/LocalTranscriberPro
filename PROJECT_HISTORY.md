@@ -1,19 +1,21 @@
 # Local Transcriber Project History
 
-## Session: January 13, 2026 (Smart Subtitles)
+## Session: January 13, 2026 (Mac Port Complete)
 
-### **Status: Release v0.9.11**
-Added "Smart Subtitles" for video files and drag & drop polish.
+### **Status: Release v0.9.11 (Universal)**
+Successfully ported to macOS with full Apple Silicon support and a native-like installer experience.
 
 ### **Current Application State**
 *   **Desktop App:** Local Transcriber Pro v0.9.11
 *   **Repo:** https://github.com/vhaloo/LocalTranscriberPro
 
 ### **Version Changelog**
-*   **v0.9.11 (Desktop):**
-    *   **Feature:** **Smart Subtitles**. Dragging a video file (mp4, mkv, mov, etc.) now automatically generates a `.srt` file in the *same folder* with the matching filename (e.g., `Movie.mp4` -> `Movie.srt`), allowing players like VLC to auto-detect it.
-    *   **Fix:** Resolved `TkinterDnD2` import error in built executable.
-    *   **Refactor:** Improved cross-platform compatibility for file opening and path handling.
+*   **v0.9.11 (Universal):**
+    *   **Mac Support:** Full M1/M2/M3/M4/M5 hardware acceleration (Metal/MPS).
+    *   **Mac Installer:** Custom `.command` script builds and installs a native `.app` bundle to `/Applications`.
+    *   **Stability:** Fixed "Bouncing/Crash" on Mac by correctly handling working directories and code signing.
+    *   **Architecture:** Moved internal data (logs, temp files) to `AppData`/`Application Support` for better OS compliance on all platforms.
+    *   **Smart Subtitles:** Auto-generated `.srt` files for video inputs.
 
 *   **v0.9.10 (Desktop):**
     *   **Feature:** **Drag & Drop Support**. Drag audio/video files directly into the app window to start batch transcription.
