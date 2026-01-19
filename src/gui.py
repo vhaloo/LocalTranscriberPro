@@ -12,7 +12,16 @@ import subprocess
 import platform
 import tkinter as tk
 from tkinter import messagebox, filedialog
-from tkinterdnd2 import DND_FILES, TkinterDnD
+
+try:
+    from tkinterdnd2 import DND_FILES, TkinterDnD
+    HAS_DND = True
+except ImportError:
+    HAS_DND = False
+    # Dummy class to prevent inheritance error
+    class TkinterDnD:
+        class DnDWrapper: pass
+    DND_FILES = ""
 
 from src.audio import AudioRecorder, SAMPLE_RATE
 from src.transcriber import TranscriberEngine, MODEL_SIZES, REVERSE_MODEL_MAP
@@ -181,11 +190,12 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         ctk.set_default_color_theme("blue")
 
         # Drag and Drop
-        try:
-            self.TkdndVersion = TkinterDnD._require(self)
-        except Exception as e:
-            logging.error(f"DnD Init Failed: {e}")
-            self.TkdndVersion = None
+        self.TkdndVersion = None
+        if HAS_DND:
+            try:
+                self.TkdndVersion = TkinterDnD._require(self)
+            except Exception as e:
+                logging.error(f"DnD Init Failed: {e}")
         
         self.recorder = AudioRecorder()
         self.engine = TranscriberEngine()
