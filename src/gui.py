@@ -553,7 +553,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                 if self.diarization_var.get():
                     self.after(0, lambda: self.set_loading(True, "Step 4/4: Detecting Speakers (Diarization)..."))
                     self.after(0, lambda: self.log_sys("Step 4/4: Analyzing voices..."))
-                    result['segments'] = self.diarizer.process(audio_file, result['segments'])
+                    result['segments'] = self.diarizer.process(audio_file, result['segments'], callback=self.log_sys)
 
                 for segment in result["segments"]:
                     text = segment["text"].strip()
@@ -616,7 +616,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                     if self.diarization_var.get():
                         self.after(0, lambda: self.set_loading(True, "Detecting Speakers..."))
                         self.after(0, lambda: self.log_sys("Analysing voices (Diarization)..."))
-                        result['segments'] = self.diarizer.process(filepath, result['segments'])
+                        result['segments'] = self.diarizer.process(filepath, result['segments'], callback=self.log_sys)
 
                     # Generate autosave/UI segments
                     for segment in result["segments"]:
