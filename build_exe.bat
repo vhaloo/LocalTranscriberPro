@@ -1,14 +1,21 @@
 @echo off
 cd /d "%~dp0"
-echo Starting Build Process (v0.9 Modular)...
+echo Starting Build Process (v0.9.11)...
 echo This may take several minutes.
 
 "venv\Scripts\pyinstaller.exe" --noconsole --onefile --clean ^
-    --name "LocalTranscriberPro_v0.9.11" ^
+    --name "LocalTranscriberPro_v0.9.11_CPU_Only" ^
     --add-data "venv\Lib\site-packages\customtkinter;customtkinter" ^
     --add-data "src;src" ^
     --collect-all "whisper" ^
     --collect-all "openai_whisper" ^
+    --collect-all "tbb" ^
+    --collect-all "numba" ^
+    --collect-all "torch" ^
+    --collect-all "scipy" ^
+    --collect-all "yt_dlp" ^
+    --collect-all "tkinterdnd2" ^
+    --collect-all "certifi" ^
     --hidden-import "scipy.special.cython_special" ^
     --hidden-import "scipy.integrate.lsoda" ^
     --exclude-module "tensorflow" ^
