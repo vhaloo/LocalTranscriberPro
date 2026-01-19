@@ -7,6 +7,7 @@ import numpy as np
 try:
     import torch
     import torchaudio
+    import torchaudio.transforms as T
     from speechbrain.inference.speaker import EncoderClassifier
     from sklearn.cluster import AgglomerativeClustering
     HAS_DEPS = True
@@ -18,7 +19,8 @@ class Diarizer:
     def __init__(self):
         self.classifier = None
         self.enabled = HAS_DEPS
-        self.logger = print # Default to print
+        self.logger = print 
+        self.target_fs = 16000  # ECAPA-TDNN expects 16kHz
 
     def log(self, msg):
         if self.logger: self.logger(f"[Diarizer] {msg}")
@@ -30,16 +32,16 @@ class Diarizer:
         if self.classifier: return True
         
         try:
-            self.log("Loading Speaker Recognition Model (downloading if needed)...")
+            self.log("Loading Speaker Recognition Model (SpeechBrain)...")
             save_path = os.path.join(os.path.expanduser("~"), ".cache", "speechbrain")
             
-            # Force CPU to be safe
+            # Force CPU to be safe and avoid VRAM conflicts
             self.classifier = EncoderClassifier.from_hparams(
                 source="speechbrain/spkrec-ecapa-voxceleb",
                 savedir=save_path,
                 run_opts={"device": "cpu"}
             )
-            self.log("Model loaded.")
+            self.log("Model loaded successfully.")
             return True
         except Exception as e:
             self.log(f"Model load failed: {e}")
@@ -50,70 +52,92 @@ class Diarizer:
         """
         Assigns speaker labels to segments.
         Modifies 'segments' in-place and returns them.
-        callback: function(str) to log messages to GUI.
         """
         if callback: self.logger = callback
-        
         if not self.enabled: return segments
         if not self.load_model(): return segments
         
         self.log(f"Analyzing audio: {os.path.basename(audio_path)}")
+        
         try:
             # 1. Load Audio
             try:
                 signal, fs = torchaudio.load(audio_path, normalize=True)
             except Exception as e:
-                self.log(f"Torchaudio load error: {e}. Trying soundfile...")
+                self.log(f"Torchaudio load failed ({e}). Trying fallback...")
                 import soundfile as sf
                 sig_np, fs = sf.read(audio_path)
                 signal = torch.from_numpy(sig_np).float()
                 if len(signal.shape) == 1: signal = signal.unsqueeze(0)
                 else: signal = signal.t()
 
+            # 2. Mix to Mono
             if signal.shape[0] > 1:
                 signal = torch.mean(signal, dim=0, keepdim=True)
-            
-            # 2. Extract Embeddings
+
+            # 3. Resample to 16kHz (CRITICAL for Model Accuracy)
+            if fs != self.target_fs:
+                self.log(f"Resampling from {fs}Hz to {self.target_fs}Hz...")
+                resampler = T.Resample(fs, self.target_fs)
+                signal = resampler(signal)
+                fs = self.target_fs
+
+            # 4. Extract Embeddings per Segment
             embeddings = []
             valid_indices = []
             
             total_segs = len(segments)
-            self.log(f"Extracting embeddings for {total_segs} segments...")
+            self.log(f"Extracting voice fingerprints from {total_segs} segments...")
             
             for i, seg in enumerate(segments):
                 start = seg['start']
                 end = seg['end']
+                
+                # Convert time (seconds) to samples
                 s_samp = int(start * fs)
                 e_samp = int(end * fs)
                 
+                # Boundary Checks
                 if e_samp > signal.shape[1]: e_samp = signal.shape[1]
                 if s_samp >= e_samp: continue
                 
+                # Extract Segment Audio
                 sub = signal[:, s_samp:e_samp]
                 
-                if sub.shape[1] < 3000: continue 
+                # Check Duration
+                # Model needs at least ~0.5s (8000 samples) for reliable detection.
+                # If too short, we skip assigning a speaker (or assign unknown later).
+                if sub.shape[1] < 4000: # Allow down to 0.25s but might be noisy
+                    continue 
                 
-                emb = self.classifier.encode_batch(sub)
+                # Get Embedding
+                # encode_batch returns (batch, 1, 192) -> squeeze to (192)
+                with torch.no_grad():
+                    emb = self.classifier.encode_batch(sub)
+                
                 embeddings.append(emb.squeeze().numpy())
                 valid_indices.append(i)
                 
-                if i > 0 and i % 50 == 0:
+                if i > 0 and i % 20 == 0:
                     self.log(f"Processed {i}/{total_segs} segments...")
-            
+
             if not embeddings: 
-                self.log("No valid audio segments found for analysis.")
+                self.log("No valid audio segments found (too short or silent).")
                 return segments
             
-            # 3. Cluster
-            self.log("Clustering speakers...")
+            # 5. Clustering (Speaker Identification)
+            self.log(f"Grouping {len(embeddings)} segments into speakers...")
             X = np.array(embeddings)
             
-            thresh = 0.5 
+            # Parameters
+            thresh = 0.5 # Cosine distance threshold (lower = stricter)
             n_clusters = None
+            
             if num_speakers:
                 n_clusters = int(num_speakers)
                 thresh = None
             
+            # Agglomerative Clustering is best for this when K is unknown
             clusterer = AgglomerativeClustering(
                 n_clusters=n_clusters,
                 metric="cosine",
@@ -122,19 +146,25 @@ class Diarizer:
             )
             labels = clusterer.fit_predict(X)
             
-            # 4. Apply Labels
+            # 6. Apply Labels
             unique_speakers = set(labels)
-            self.log(f"Found {len(unique_speakers)} unique speakers.")
+            self.log(f"Detected {len(unique_speakers)} distinct speakers.")
             
+            # Map back to original segments
             for idx, label in zip(valid_indices, labels):
                 spk_label = f"Speaker {label + 1}"
                 segments[idx]['speaker'] = spk_label
-                segments[idx]['text'] = f"[{spk_label}] {segments[idx]['text']}"
+                
+                # Visual Tag in Text
+                # Only prepend if not already there (idempotency)
+                original_text = segments[idx]['text']
+                if not original_text.startswith("[Speaker"):
+                    segments[idx]['text'] = f"[{spk_label}] {original_text}"
                 
             return segments
             
         except Exception as e:
-            self.log(f"Critical Failure: {e}")
+            self.log(f"Critical Failure in Diarizer: {e}")
             import traceback
             traceback.print_exc()
             return segments
