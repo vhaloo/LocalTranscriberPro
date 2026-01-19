@@ -14,6 +14,11 @@ import tkinter as tk
 from tkinter import messagebox, filedialog
 
 try:
+    import soundfile as sf
+except ImportError:
+    sf = None
+
+try:
     from tkinterdnd2 import DND_FILES, TkinterDnD
     HAS_DND = True
 except ImportError:
@@ -199,6 +204,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.session_start_time = None
         self.is_loading_model = False
         self.batch_queue = []
+        self.full_audio_buffer = [] # Store raw audio for Diarization
         self.backup_file = os.path.join(os.getcwd(), ".unsaved_session.json")
         self.advice_given = False
         
@@ -684,6 +690,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         try:
             self.engine.load_model(self.model_combo.get(), self.proc_combo.get())
             self.session_start_time = datetime.datetime.now()
+            self.full_audio_buffer = [] # Reset buffer
             chunk_s = CHUNK_OPTIONS.get(self.chunk_combo.get(), 30)
             self.recorder.start(dev, chunk_s) 
             self.after(0, self.on_rec_start)
@@ -701,16 +708,80 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         while True:
             data = self.recorder.audio_queue.get()
             if data is None: break
+            
+            # Store data for Diarization
+            self.full_audio_buffer.append(data.copy())
+            
             try:
                 fp16 = (self.engine.device == "cuda")
                 res = self.engine.transcribe_audio(data.flatten(), task=task, fp16=fp16)
                 text = res["text"].strip()
                 if self.cleanup_var.get(): text = self.engine.cleanup_text(text)
-                if text: self.after(0, lambda t=text: self.add_segment(t))
+                
+                # Calculate start/end relative to session start
+                # Assuming simple concatenation of chunks
+                current_duration = sum(len(c) for c in self.full_audio_buffer[:-1]) / SAMPLE_RATE
+                chunk_len = len(data) / SAMPLE_RATE
+                
+                if text: 
+                    self.after(0, lambda t=text, s=current_duration, e=current_duration+chunk_len: self.add_segment(t, start=s, end=e))
             except Exception as e: logging.error(f"Transcribe fail: {e}")
-        self.after(0, lambda: self.status_bar.configure(text="Processing complete."))
-        self.after(0, lambda: self.lock_ui(False))
-        self.after(0, lambda: self.autosave_all())
+        
+        # Recording Stopped - Post Process
+        self.after(0, self.post_process_recording)
+
+    def post_process_recording(self):
+        self.status_bar.configure(text="Processing complete.")
+        
+        # Run Diarization if enabled
+        if self.diarization_var.get() and self.full_audio_buffer and sf:
+            try:
+                self.set_loading(True, "Finalizing: Detecting Speakers...")
+                self.log_sys("--- Analyzing recorded session for speakers ---")
+                
+                # Save temp file
+                temp_wav = os.path.join(os.getcwd(), "temp_rec_session.wav")
+                full_audio = np.concatenate(self.full_audio_buffer)
+                
+                # Convert float32 to PCM_16 for compatibility if needed, but sf handles it
+                sf.write(temp_wav, full_audio, SAMPLE_RATE)
+                
+                # Process
+                # We need to construct a 'segments' list from our transcript_data that matches this session
+                # Filter transcript_data to only include items from this session (based on time?)
+                # Simplification: Assume transcript_data is mostly from this session if clear was clicked, 
+                # or just process the last N segments.
+                # Better: Filter by session_start_time
+                
+                session_segments = []
+                indices = []
+                for i, seg in enumerate(self.transcript_data):
+                    if seg['time'] >= self.session_start_time:
+                        session_segments.append(seg)
+                        indices.append(i)
+                
+                if session_segments:
+                    updated_segments = self.diarizer.process(temp_wav, session_segments, callback=self.log_sys)
+                    
+                    # Update main list
+                    for idx, updated in zip(indices, updated_segments):
+                        self.transcript_data[idx] = updated
+                    
+                    self.refresh_display()
+                    self.log_sys("✅ Speaker detection applied.")
+                
+                try: os.remove(temp_wav)
+                except: pass
+                
+            except Exception as e:
+                self.log_sys(f"Diarization Error: {e}")
+            finally:
+                self.set_loading(False)
+        elif self.diarization_var.get() and not sf:
+             self.log_sys("Error: 'soundfile' library missing. Cannot process recording.")
+
+        self.lock_ui(False)
+        self.autosave_all()
 
     def on_rec_start(self):
         self.pause_btn.configure(state="normal", fg_color="#e17055")
