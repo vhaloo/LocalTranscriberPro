@@ -1,6 +1,6 @@
 @echo off
 setlocal EnableDelayedExpansion
-title Local Transcriber Pro - Web Installer (v15: DnD+Certifi)
+title Local Transcriber Pro - Web Installer (v16: Diarization)
 color 1F
 cd /d "%~dp0"
 
@@ -15,7 +15,7 @@ set "LOGFILE_APPEND=>> "%LOG_FILE%""
 :: Macro to log and display
 (
   echo ===============================================================================
-  echo   LOCAL TRANSCRIBER PRO - INSTALLER (v15: DnD+Certifi)
+  echo   LOCAL TRANSCRIBER PRO - INSTALLER (v16: Diarization)
   echo ===============================================================================
   echo.
   echo   [INFO] Logs are being saved to: %LOG_FILE%
@@ -116,7 +116,7 @@ echo Found at: !CTK_PATH! >> "%LOG_FILE%"
 echo [6] Building Executable... >> "%LOG_FILE%"
 echo [6] Building Executable...
 echo @echo off > build_run.bat
-echo "venv\Scripts\pyinstaller.exe" --noconsole --onefile --clean --name "LocalTranscriberPro_v0.9.11" --add-data "!CTK_PATH!;customtkinter" --add-data "src;src" --collect-all "whisper" --collect-all "openai_whisper" --collect-all "tbb" --collect-all "numba" --collect-all "torch" --collect-all "scipy" --collect-all "yt_dlp" --collect-all "tkinterdnd2" --collect-all "certifi" --hidden-import "scipy.special.cython_special" --hidden-import "scipy.integrate.lsoda" --exclude-module "tensorflow" main.py >> build_run.bat
+echo "venv\Scripts\pyinstaller.exe" --noconsole --onefile --clean --name "LocalTranscriberPro_v0.9.12" --add-data "!CTK_PATH!;customtkinter" --add-data "src;src" --collect-all "whisper" --collect-all "openai_whisper" --collect-all "tbb" --collect-all "numba" --collect-all "torch" --collect-all "torchaudio" --collect-all "scipy" --collect-all "yt_dlp" --collect-all "tkinterdnd2" --collect-all "certifi" --collect-all "speechbrain" --collect-all "sklearn" --hidden-import "scipy.special.cython_special" --hidden-import "scipy.integrate.lsoda" --hidden-import "sklearn.utils._cython_blas" --hidden-import "sklearn.neighbors.typedefs" --hidden-import "sklearn.neighbors.quad_tree" --hidden-import "sklearn.tree._utils" --exclude-module "tensorflow" main.py >> build_run.bat
 
 call build_run.bat >> "%LOG_FILE%" 2>&1
 

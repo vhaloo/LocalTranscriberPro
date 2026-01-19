@@ -28,8 +28,7 @@ function show_menu() {
     echo "==================================================="
     echo "1. Full Install (Recommended)"
     echo "   - Downloads FFmpeg & Python 3.12"
-    echo "   - Builds App & Installs to /Applications"
-    echo "   - Requires Admin Password"
+    echo "   - Builds, SIGNS & Installs App to ~/Applications"
     echo ""
     echo "2. Quick Rebuild"
     echo "   - Just rebuilds code (if already setup)"
@@ -54,7 +53,6 @@ function install_deps() {
         echo "⬇️  Installing FFmpeg (Audio Engine)..."
         brew install ffmpeg >/dev/null 2>&1
         echo "⬇️  Installing Python 3.12..."
-        # Explicitly install python@3.12 to avoid 3.13 issues
         brew install python@3.12 >/dev/null 2>&1
         brew unlink python@3.12 && brew link --overwrite python@3.12 >/dev/null 2>&1
     fi
@@ -90,13 +88,20 @@ function build_app() {
         --collect-all "tbb" \
         --collect-all "numba" \
         --collect-all "torch" \
+        --collect-all "torchaudio" \
         --collect-all "scipy" \
         --collect-all "yt_dlp" \
         --collect-all "tkinterdnd2" \
         --collect-all "customtkinter" \
         --collect-all "certifi" \
+        --collect-all "speechbrain" \
+        --collect-all "sklearn" \
         --hidden-import "scipy.special.cython_special" \
         --hidden-import "scipy.integrate.lsoda" \
+        --hidden-import "sklearn.utils._cython_blas" \
+        --hidden-import "sklearn.neighbors.typedefs" \
+        --hidden-import "sklearn.neighbors.quad_tree" \
+        --hidden-import "sklearn.tree._utils" \
         --exclude-module "tensorflow" \
         main.py > build_log.txt 2>&1
 
@@ -108,8 +113,7 @@ function build_app() {
     fi
 
     echo "🔐 Signing Internal Libraries..."
-    # Sign all dylibs/so files individually first (required for M1/M2)
-    find "dist/Local Transcriber Pro.app/Contents" -type f \( -name "*.dylib" -o -name "*.so" \) -exec codesign --force --sign - "{}" \; >/dev/null 2>&1
+    find "dist/Local Transcriber Pro.app/Contents" -type f -o -name "*.dylib" -o -name "*.so" -exec codesign --force --sign - "{}" \; >/dev/null 2>&1
 
     echo "🔐 Signing App Bundle (Ad-Hoc)..."
     codesign --force --deep --sign - --entitlements entitlements.plist "dist/Local Transcriber Pro.app" >/dev/null 2>&1
@@ -118,18 +122,13 @@ function build_app() {
     echo "📂 Installing to /Applications..."
     echo "🔑 Please enter your password to move the app:"
     
-    # Remove existing app if it exists
     if [ -d "/Applications/Local Transcriber Pro.app" ]; then
         sudo rm -rf "/Applications/Local Transcriber Pro.app"
     fi
     
-    # Move new app using sudo
     sudo mv "dist/Local Transcriber Pro.app" /Applications/
-    
-    # Fix ownership to root:wheel (standard for /Apps)
     sudo chown -R root:wheel "/Applications/Local Transcriber Pro.app"
 
-    # Cleanup
     rm -rf build dist *.spec
 
     echo ""
@@ -140,7 +139,6 @@ function build_app() {
 
 function debug_app() {
     echo ""
-    # Check System Applications folder now
     APP_PATH="/Applications/Local Transcriber Pro.app/Contents/MacOS/Local Transcriber Pro"
     
     if [ ! -f "$APP_PATH" ]; then
