@@ -12,3 +12,4 @@ tkinterdnd2
 certifi
 speechbrain
 scikit-learn
+huggingface_hub<0.27
