@@ -1,15 +1,21 @@
 # Local Transcriber Project History
 
-## Session: January 13, 2026 (Mac Port Complete)
+## Session: January 13, 2026 (Speaker Detection)
 
-### **Status: Release v0.9.11 (Universal)**
-Successfully ported to macOS with full Apple Silicon support and a native-like installer experience.
+### **Status: Release v0.9.12**
+Added Speaker Diarization ("Detect Speakers") and critical Mac fixes.
 
 ### **Current Application State**
-*   **Desktop App:** Local Transcriber Pro v0.9.11
+*   **Desktop App:** Local Transcriber Pro v0.9.12
 *   **Repo:** https://github.com/vhaloo/LocalTranscriberPro
 
 ### **Version Changelog**
+*   **v0.9.12 (Desktop):**
+    *   **Feature:** **Speaker Detection**. Added a "Detect Speakers" checkbox. Uses `speechbrain` to identify distinct speakers in audio files and tag them (e.g., [Speaker 1]). Best for podcasts/interviews.
+    *   **Fix (Mac):** Made Drag-and-Drop optional to prevent crashes on systems where the library fails to load.
+    *   **Fix (Mac):** Installer now recursively signs all internal libraries, fixing the "Bounce" crash on Apple Silicon.
+    *   **Fix (Mac):** Installer now forces Python 3.12 installation to avoid compatibility issues with 3.13/3.14.
+
 *   **v0.9.11 (Universal):**
     *   **Mac Support:** Full M1/M2/M3/M4/M5 hardware acceleration (Metal/MPS).
     *   **Mac Installer:** Custom `.command` script builds and installs a native `.app` bundle to `/Applications`.

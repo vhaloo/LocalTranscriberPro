@@ -18,7 +18,6 @@ try:
     HAS_DND = True
 except ImportError:
     HAS_DND = False
-    # Dummy class to prevent inheritance error
     class TkinterDnD:
         class DnDWrapper: pass
     DND_FILES = ""
@@ -28,8 +27,9 @@ from src.transcriber import TranscriberEngine, MODEL_SIZES, REVERSE_MODEL_MAP
 from src.utils import StdErrRedirector, create_srt_content
 from src.tooltip import ToolTip
 from src.youtube_utils import download_youtube_audio
+from src.diarizer import Diarizer
 
-APP_VERSION = "v0.9.11"
+APP_VERSION = "v0.9.12"
 DEV_CREDIT = "Developed by Vhaloo"
 
 CHUNK_OPTIONS = {
@@ -70,30 +70,21 @@ class HelpDialog(ctk.CTkToplevel):
             "   - Medium: High accuracy. Needs ~5GB RAM.\n"
             "   - Large: Professional accuracy (near perfect). Needs ~8GB+ RAM.\n"
             "     *Note: Large model is slow on CPU. Use NVIDIA GPU for best results.*\n\n"
-            "2. Context Window (30s Default):\n"
+            "2. Smart Features:\n"
+            "   - Detect Speakers: Identifies who is speaking (Speaker 1, Speaker 2).\n"
+            "     *Best for interviews/podcasts. Adds processing time.*\n"
+            "   - Smart Subtitles: Drag a video to auto-create a .SRT file.\n"
+            "   - Auto-Cleanup: Removes repetitive AI hallucinations.\n\n"
+            "3. Context Window (30s Default):\n"
             "   - This controls how much 'audio history' the AI sees.\n"
-            "   - 30s provides the best sentence coherence and grammar.\n"
-            "   - Lower values (5-10s) feel snappier but may cut off sentences.\n\n"
-            "3. Smart Subtitles (Video Mode):\n"
-            "   - When you drag & drop or select a VIDEO file (.mp4, .mkv, etc.),\n"
-            "     the app automatically creates a .SRT file next to it.\n"
-            "   - Filename is matched (e.g., 'Movie.mp4' -> 'Movie.srt').\n"
-            "   - VLC and other players will auto-detect these subtitles.\n\n"
-            "4. Recording Features:\n"
-            "   - Press 'Record' (F1). The button pulsates to show activity.\n"
-            "   - 'Loading' state happens first (loading 3GB+ model into RAM).\n"
-            "   - Audio is Autosaved to 'Documents/Transcriptions'.\n\n"
-            "5. YouTube & Files:\n"
+            "   - 30s provides the best sentence coherence and grammar.\n\n"
+            "4. YouTube & Files:\n"
             "   - The app downloads video audio automatically.\n"
-            "   - Progress bar shows download -> model load -> transcription.\n"
-            "   - Large files take time! (Approx. 1/5th real-time on GPU).\n\n"
-            "6. Exporting:\n"
+            "   - Progress bar shows download -> model load -> transcription.\n\n"
+            "5. Exporting:\n"
             "   - TXT: Plain text document.\n"
             "   - SRT: Subtitle file for YouTube/VLC (Time-synced).\n"
-            "   - JSON/CSV: Structured data for developers/databases.\n\n"
-            "7. Troubleshooting:\n"
-            "   - If app freezes during 'Loading', wait. It's loading 3GB data.\n"
-            "   - Ensure 'Visual C++' is installed if crashes occur.\n"
+            "   - JSON/CSV: Structured data for developers/databases.\n"
         )
         lbl = ctk.CTkLabel(scroll, text=info, justify="left", font=("Roboto", 14), anchor="w")
         lbl.pack(padx=10, pady=10, fill="both")
@@ -199,6 +190,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         
         self.recorder = AudioRecorder()
         self.engine = TranscriberEngine()
+        self.diarizer = Diarizer()
         self.transcription_thread = None
         self.running = True
         self.animate_id = None
@@ -302,6 +294,11 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.cleanup_var = ctk.BooleanVar(value=True)
         c_chk = ctk.CTkCheckBox(r2, text="Auto-Cleanup", variable=self.cleanup_var, font=("Roboto", 12))
         c_chk.pack(side="left", padx=15)
+
+        self.diarization_var = ctk.BooleanVar(value=False)
+        d_chk = ctk.CTkCheckBox(r2, text="Detect Speakers", variable=self.diarization_var, font=("Roboto", 12), text_color="#00cec9")
+        d_chk.pack(side="left", padx=15)
+        ToolTip(d_chk, "Identify different speakers (Speaker 1, Speaker 2...). Best for files/YouTube.")
 
         self.time_fmt_var = ctk.StringVar(value="[HH:MM:SS]")
         time_menu = ctk.CTkOptionMenu(r2, values=["[HH:MM:SS]", "[MM:SS]", "None"], variable=self.time_fmt_var, command=self.refresh_display, width=110)
@@ -552,6 +549,12 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             result = self.engine.transcribe_file(audio_file, task=task, verbose=False)
             
             if result and "segments" in result:
+                # Optional Diarization
+                if self.diarization_var.get():
+                    self.after(0, lambda: self.set_loading(True, "Step 4/4: Detecting Speakers (Diarization)..."))
+                    self.after(0, lambda: self.log_sys("Step 4/4: Analyzing voices..."))
+                    result['segments'] = self.diarizer.process(audio_file, result['segments'])
+
                 for segment in result["segments"]:
                     text = segment["text"].strip()
                     if self.cleanup_var.get(): text = self.engine.cleanup_text(text)
@@ -560,7 +563,10 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                         end = segment['end']
                         abs_time = self.session_start_time + datetime.timedelta(seconds=start)
                         self.after(0, lambda t=text, time=abs_time, s=start, e=end: self.add_segment(t, time, s, e))
-            
+                    
+                    # Generate side-by-side SRT for videos
+                    self.save_smart_subtitle(audio_file, result["segments"])
+
             self.after(0, lambda: self.log_sys("✅ Transcription Complete."))
             self.after(0, lambda: self.autosave_all())
             
@@ -606,6 +612,12 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                 
                 # Smart Subtitle Generation
                 if result and "segments" in result:
+                    # Optional Diarization
+                    if self.diarization_var.get():
+                        self.after(0, lambda: self.set_loading(True, "Detecting Speakers..."))
+                        self.after(0, lambda: self.log_sys("Analysing voices (Diarization)..."))
+                        result['segments'] = self.diarizer.process(filepath, result['segments'])
+
                     # Generate autosave/UI segments
                     for segment in result["segments"]:
                         text = segment["text"].strip()

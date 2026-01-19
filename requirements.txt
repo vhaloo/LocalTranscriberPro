@@ -3,9 +3,12 @@ sounddevice
 numpy
 openai-whisper
 torch
+torchaudio
 tqdm
 requests
 packaging
 yt-dlp
 tkinterdnd2
 certifi
+speechbrain
+scikit-learn
