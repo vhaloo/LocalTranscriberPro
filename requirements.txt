@@ -13,3 +13,4 @@ certifi
 speechbrain
 scikit-learn
 huggingface_hub<0.27
+soundfile

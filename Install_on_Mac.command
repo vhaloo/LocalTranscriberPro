@@ -96,6 +96,7 @@ function build_app() {
         --collect-all "certifi" \
         --collect-all "speechbrain" \
         --collect-all "sklearn" \
+        --collect-all "soundfile" \
         --hidden-import "scipy.special.cython_special" \
         --hidden-import "scipy.integrate.lsoda" \
         --hidden-import "sklearn.utils._cython_blas" \
