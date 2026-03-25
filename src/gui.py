@@ -58,7 +58,7 @@ class HelpDialog(ctk.CTkToplevel):
         try:
             x = parent.winfo_x() + 50
             y = parent.winfo_y() + 50
-            self.geometry(f"+{x}+{y}")
+            self.geometry(f"{x}+{y}")
         except: pass
         self.setup_ui()
 
@@ -72,79 +72,41 @@ class HelpDialog(ctk.CTkToplevel):
             "--- GENERAL SETTINGS ---
 
 "
-            "Mic (Microphone): Selects the audio input device for live recording. Make sure your microphone is connected before launching.
-
-"
-            "Model (AI Engine Size): Determines transcription accuracy and speed.
-"
-            "   - Tiny (~75 MB): Extremely fast, low accuracy. Runs on any potato PC (<1GB RAM).
-"
-            "   - Base (~145 MB): Fast, okay accuracy. Good for clear speech (<1GB RAM).
-"
-            "   - Small (~461 MB): The sweet spot. Excellent speed and accuracy (~2GB RAM).
-"
-            "   - Medium (~1.5 GB): High accuracy. Good for accents or complex words (~5GB RAM).
-"
-            "   - Large (~3 GB): Professional, near-perfect accuracy. Requires a dedicated GPU (8GB+ VRAM) or it will be very slow.
-
-"
-            "Context (Audio History): How much audio the AI processes at once.
-"
-            "   - 5s: Fastest text appearance, but grammar might be poor.
-"
-            "   - 30s: Best context. The AI understands full sentences before printing, resulting in perfect punctuation.
-
-"
-            "Device (Hardware Acceleration): Auto-detects the best hardware. Select 'GPU (CUDA)' for maximum speed if you have an NVIDIA card.
-
-"
-            
+            "Mic (Microphone): Selects the audio input device for live recording. Make sure your microphone is connected before launching.\n\n"
+            "Model (AI Engine Size): Determines transcription accuracy and speed.\n"
+            "   - Tiny (~75 MB): Extremely fast, low accuracy. Runs on any potato PC (<1GB RAM).\n"
+            "   - Base (~145 MB): Fast, okay accuracy. Good for clear speech (<1GB RAM).\n"
+            "   - Small (~461 MB): The sweet spot. Excellent speed and accuracy (~2GB RAM).\n"
+            "   - Medium (~1.5 GB): High accuracy. Good for accents or complex words (~5GB RAM).\n"
+            "   - Large (~3 GB): Professional, near-perfect accuracy. Requires a dedicated GPU (8GB+ VRAM) or it will be very slow.\n\n"
+            "Context (Audio History): How much audio the AI processes at once.\n"
+            "   - 5s: Fastest text appearance, but grammar might be poor.\n"
+            "   - 30s: Best context. The AI understands full sentences before printing, resulting in perfect punctuation.\n\n"
+            "Device (Hardware Acceleration): Auto-detects the best hardware. Select 'GPU (CUDA)' for maximum speed if you have an NVIDIA card.\n\n"
             "--- FEATURES ---
 
 "
-            "Translate (EN): If checked, any foreign language spoken will be instantly translated into English text.
-
-"
-            "Auto-Cleanup: AI models sometimes 'hallucinate' (repeat phrases like 'Thank you' in silence). This filters them out automatically.
-
-"
-            "Detect Speakers (Diarization): Analyzes the audio to identify different speakers (Speaker 1, Speaker 2). Crucial for interviews. NOTE: Adds significant processing time.
-
-"
-            "Open Result: When checked, the folder containing your saved transcript will automatically open when finished.
-
-"
-            
+            "Translate (EN): If checked, any foreign language spoken will be instantly translated into English text.\n\n"
+            "Auto-Cleanup: AI models sometimes 'hallucinate' (repeat phrases like 'Thank you' in silence). This filters them out automatically.\n\n"
+            "Detect Speakers (Diarization): Analyzes the audio to identify different speakers (Speaker 1, Speaker 2). Crucial for interviews. NOTE: Adds significant processing time.\n\n"
+            "Open Result: When checked, the folder containing your saved transcript will automatically open when finished.\n\n"
             "--- BUTTONS & ACTIONS ---
 
 "
-            "Record / Pause / Stop: Controls live microphone transcription. Visualizer shows audio levels.
-
-"
-            "Batch Files: Select one or multiple audio/video files from your PC. The app will process them sequentially in the background.
-
-"
-            "Export... Menu:
-"
-            "   - Export TXT: Saves a plain text document.
-"
-            "   - Export SRT: Saves a subtitle file with timestamps (perfect for YouTube/VLC).
-"
-            "   - Export JSON/CSV: For developers needing raw data.
-"
-            "   - Set Autosave Folder: Change where the app saves files automatically.
-
-"
-            "Clear Log: Wipes the current text from the screen.
-
-"
-            
+            "Record / Pause / Stop: Controls live microphone transcription. Visualizer shows audio levels.\n\n"
+            "Batch Files: Select one or multiple audio/video files from your PC. The app will process them sequentially in the background.\n\n"
+            "Export... Menu:\n"
+            "   - Export TXT: Saves a plain text document.\n"
+            "   - Export SRT: Saves a subtitle file with timestamps (perfect for YouTube/VLC).\n"
+            "   - Export JSON/CSV: For developers needing raw data.\n"
+            "   - Set Autosave Folder: Change where the app saves files automatically.\n\n"
+            "Clear Log: Wipes the current text from the screen.\n\n"
             "--- YOUTUBE TAB ---
 
 "
             "Paste any YouTube link. The app will rip the audio locally and transcribe it. If it's a music video, it will try to get lyrics."
         )
-        lbl = ctk.CTkLabel(scroll, text=info, justify="left", font=("Roboto", 14), anchor="w")
+        lbl = ctk.CTkLabel(scroll, text=info, justify="left", font=("Roboto", 14), anchor="w", wraplength=700)
         lbl.pack(padx=10, pady=10, fill="both")
         
         ctk.CTkButton(self, text="Close", command=self.destroy).pack(pady=10)
@@ -161,7 +123,7 @@ class ModelManagerDialog(ctk.CTkToplevel):
         try:
             x = parent.winfo_x() + 80
             y = parent.winfo_y() + 80
-            self.geometry(f"+{x}+{y}")
+            self.geometry(f"{x}+{y}")
         except: pass
         self.setup_ui()
 
@@ -194,7 +156,7 @@ class ModelManagerDialog(ctk.CTkToplevel):
 
 class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
     def __init__(self):
-        super().__init__()
+        super().__init__(self)
         
         self.title(f"Local Transcriber Pro {APP_VERSION}")
         self.geometry("1150x950")
