@@ -34,7 +34,7 @@ from src.tooltip import ToolTip
 from src.youtube_utils import download_youtube_audio
 from src.diarizer import Diarizer
 
-APP_VERSION = "v0.9.12"
+APP_VERSION = "v1.0"
 DEV_CREDIT = "Developed by Vhaloo"
 
 CHUNK_OPTIONS = {
