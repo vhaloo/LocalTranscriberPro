@@ -1,5 +1,17 @@
 # Local Transcriber Project History
 
+## Session: February 26, 2026 (v1.1 Update)
+
+### **Status: Release v1.1**
+Added comprehensive tooltips, exhaustive help manual, and intelligent hardware-based model selection.
+
+### **Version Changelog**
+*   **v1.1 (Windows):**
+    *   **Auto-Detect Model:** The application now intelligently scans available system RAM and NVIDIA VRAM to automatically recommend and select the most accurate AI model your PC can handle without crashing.
+    *   **Comprehensive Tooltips:** Added hover-over pop-up explanations for *every single* button, dropdown, and checkbox in the interface.
+    *   **Detailed Manual:** Completely rewrote the internal Help dialog to be an exhaustive, feature-by-feature manual.
+    *   **Model Requirements Guidance:** The model selection dropdown now features a detailed tooltip explicitly outlining the hardware requirements for each model tier (Tiny to Large).
+
 ## Session: February 25, 2026 (v1.0 Release)
 
 ### **Status: Release v1.0**

@@ -33,6 +33,47 @@ class TranscriberEngine:
         self.cuda_missing = self.has_nvidia_gpu and not self.torch_cuda_available
         self.mps_available = hasattr(torch.backends, "mps") and torch.backends.mps.is_available()
 
+    def recommend_model(self):
+        """Auto-detects best model based on hardware"""
+        try:
+            if self.torch_cuda_available:
+                # Get VRAM in GB
+                vram_gb = torch.cuda.get_device_properties(0).total_memory / (1024**3)
+                if vram_gb >= 8: return MODEL_SIZES["large"]
+                if vram_gb >= 5: return MODEL_SIZES["medium"]
+                if vram_gb >= 2: return MODEL_SIZES["small"]
+                return MODEL_SIZES["base"]
+            elif self.mps_available:
+                # Mac M-series usually has shared RAM, default to small/medium
+                return MODEL_SIZES["small"]
+            else:
+                # CPU mode - try to get system RAM
+                import ctypes
+                class MEMORYSTATUSEX(ctypes.Structure):
+                    _fields_ = [
+                        ("dwLength", ctypes.c_ulong),
+                        ("dwMemoryLoad", ctypes.c_ulong),
+                        ("ullTotalPhys", ctypes.c_ulonglong),
+                        ("ullAvailPhys", ctypes.c_ulonglong),
+                        ("ullTotalPageFile", ctypes.c_ulonglong),
+                        ("ullAvailPageFile", ctypes.c_ulonglong),
+                        ("ullTotalVirtual", ctypes.c_ulonglong),
+                        ("ullAvailVirtual", ctypes.c_ulonglong),
+                        ("sullAvailExtendedVirtual", ctypes.c_ulonglong),
+                    ]
+                stat = MEMORYSTATUSEX()
+                stat.dwLength = ctypes.sizeof(stat)
+                ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(stat))
+                ram_gb = stat.ullTotalPhys / (1024**3)
+                
+                # CPU is slow, so we don't recommend Large even if they have RAM
+                if ram_gb >= 16: return MODEL_SIZES["small"]
+                if ram_gb >= 8: return MODEL_SIZES["base"]
+                return MODEL_SIZES["tiny"]
+        except Exception as e:
+            logging.error(f"Error auto-detecting hardware: {e}")
+            return MODEL_SIZES["small"]
+
     def load_model(self, model_name_display, device_mode):
         """Loads the model if not already loaded or if name/device changed."""
         model_name = REVERSE_MODEL_MAP.get(model_name_display, "small")

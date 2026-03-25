@@ -34,7 +34,7 @@ from src.tooltip import ToolTip
 from src.youtube_utils import download_youtube_audio
 from src.diarizer import Diarizer
 
-APP_VERSION = "v1.0"
+APP_VERSION = "v1.1"
 DEV_CREDIT = "Developed by Vhaloo"
 
 CHUNK_OPTIONS = {
@@ -50,46 +50,99 @@ VIDEO_EXTENSIONS = {'.mp4', '.mkv', '.mov', '.avi', '.webm', '.flv', '.wmv', '.m
 class HelpDialog(ctk.CTkToplevel):
     def __init__(self, parent):
         super().__init__(parent)
-        self.title("Detailed Guide")
-        self.geometry("700x700")
+        self.title("Exhaustive User Manual")
+        self.geometry("750x800")
         self.transient(parent)
         self.grab_set()
         self.focus_force()
         try:
             x = parent.winfo_x() + 50
             y = parent.winfo_y() + 50
-            self.geometry(f"{x}+{y}")
+            self.geometry(f"+{x}+{y}")
         except: pass
         self.setup_ui()
 
     def setup_ui(self):
-        ctk.CTkLabel(self, text="Local Transcriber Pro - User Manual", font=("Roboto Medium", 22)).pack(pady=10)
+        ctk.CTkLabel(self, text="Local Transcriber Pro - Exhaustive Manual", font=("Roboto Medium", 22)).pack(pady=10)
         
         scroll = ctk.CTkScrollableFrame(self)
         scroll.pack(fill="both", expand=True, padx=10, pady=5)
         
         info = (
-            "1. AI Models & Hardware:\n"
-            "   - Tiny/Base: Fast, low RAM (<1GB). Good for quick dictation.\n"
-            "   - Small: Balanced. Standard for most real-time use.\n"
-            "   - Medium: High accuracy. Needs ~5GB RAM.\n"
-            "   - Large: Professional accuracy (near perfect). Needs ~8GB+ RAM.\n"
-            "     *Note: Large model is slow on CPU. Use NVIDIA GPU for best results.*\n\n"
-            "2. Smart Features:\n"
-            "   - Detect Speakers: Identifies who is speaking (Speaker 1, Speaker 2).\n"
-            "     *Best for interviews/podcasts. Adds processing time.*\n"
-            "   - Smart Subtitles: Drag a video to auto-create a .SRT file.\n"
-            "   - Auto-Cleanup: Removes repetitive AI hallucinations.\n\n"
-            "3. Context Window (30s Default):\n"
-            "   - This controls how much 'audio history' the AI sees.\n"
-            "   - 30s provides the best sentence coherence and grammar.\n\n"
-            "4. YouTube & Files:\n"
-            "   - The app downloads video audio automatically.\n"
-            "   - Progress bar shows download -> model load -> transcription.\n\n"
-            "5. Exporting:\n"
-            "   - TXT: Plain text document.\n"
-            "   - SRT: Subtitle file for YouTube/VLC (Time-synced).\n"
-            "   - JSON/CSV: Structured data for developers/databases.\n"
+            "--- GENERAL SETTINGS ---
+
+"
+            "Mic (Microphone): Selects the audio input device for live recording. Make sure your microphone is connected before launching.
+
+"
+            "Model (AI Engine Size): Determines transcription accuracy and speed.
+"
+            "   - Tiny (~75 MB): Extremely fast, low accuracy. Runs on any potato PC (<1GB RAM).
+"
+            "   - Base (~145 MB): Fast, okay accuracy. Good for clear speech (<1GB RAM).
+"
+            "   - Small (~461 MB): The sweet spot. Excellent speed and accuracy (~2GB RAM).
+"
+            "   - Medium (~1.5 GB): High accuracy. Good for accents or complex words (~5GB RAM).
+"
+            "   - Large (~3 GB): Professional, near-perfect accuracy. Requires a dedicated GPU (8GB+ VRAM) or it will be very slow.
+
+"
+            "Context (Audio History): How much audio the AI processes at once.
+"
+            "   - 5s: Fastest text appearance, but grammar might be poor.
+"
+            "   - 30s: Best context. The AI understands full sentences before printing, resulting in perfect punctuation.
+
+"
+            "Device (Hardware Acceleration): Auto-detects the best hardware. Select 'GPU (CUDA)' for maximum speed if you have an NVIDIA card.
+
+"
+            
+            "--- FEATURES ---
+
+"
+            "Translate (EN): If checked, any foreign language spoken will be instantly translated into English text.
+
+"
+            "Auto-Cleanup: AI models sometimes 'hallucinate' (repeat phrases like 'Thank you' in silence). This filters them out automatically.
+
+"
+            "Detect Speakers (Diarization): Analyzes the audio to identify different speakers (Speaker 1, Speaker 2). Crucial for interviews. NOTE: Adds significant processing time.
+
+"
+            "Open Result: When checked, the folder containing your saved transcript will automatically open when finished.
+
+"
+            
+            "--- BUTTONS & ACTIONS ---
+
+"
+            "Record / Pause / Stop: Controls live microphone transcription. Visualizer shows audio levels.
+
+"
+            "Batch Files: Select one or multiple audio/video files from your PC. The app will process them sequentially in the background.
+
+"
+            "Export... Menu:
+"
+            "   - Export TXT: Saves a plain text document.
+"
+            "   - Export SRT: Saves a subtitle file with timestamps (perfect for YouTube/VLC).
+"
+            "   - Export JSON/CSV: For developers needing raw data.
+"
+            "   - Set Autosave Folder: Change where the app saves files automatically.
+
+"
+            "Clear Log: Wipes the current text from the screen.
+
+"
+            
+            "--- YOUTUBE TAB ---
+
+"
+            "Paste any YouTube link. The app will rip the audio locally and transcribe it. If it's a music video, it will try to get lyrics."
         )
         lbl = ctk.CTkLabel(scroll, text=info, justify="left", font=("Roboto", 14), anchor="w")
         lbl.pack(padx=10, pady=10, fill="both")
@@ -108,7 +161,7 @@ class ModelManagerDialog(ctk.CTkToplevel):
         try:
             x = parent.winfo_x() + 80
             y = parent.winfo_y() + 80
-            self.geometry(f"{x}+{y}")
+            self.geometry(f"+{x}+{y}")
         except: pass
         self.setup_ui()
 
@@ -139,53 +192,15 @@ class ModelManagerDialog(ctk.CTkToplevel):
             else:
                 messagebox.showerror("Error", "Could not delete file.", parent=self)
 
-class ModelAdviceDialog(ctk.CTkToplevel):
-    def __init__(self, parent, current_model, on_switch, on_keep):
-        super().__init__(parent)
-        self.title("Optimization Tip")
-        self.geometry("450x250")
-        self.transient(parent)
-        self.grab_set()
-        self.focus_force()
-        try:
-            x = parent.winfo_x() + 100
-            y = parent.winfo_y() + 100
-            self.geometry(f"{x}+{y}")
-        except: pass
-        
-        self.on_switch = on_switch
-        self.on_keep = on_keep
-        
-        lbl = ctk.CTkLabel(self, text="For best results with files/videos,\nwe recommend switching to the 'Large' model.", font=("Roboto", 14), justify="center")
-        lbl.pack(pady=20, padx=20)
-        
-        info = ctk.CTkLabel(self, text="Note: 'Large' (~3GB) provides the highest accuracy\nbut requires downloading once and uses more RAM.", text_color="gray", font=("Roboto", 12))
-        info.pack(pady=(0, 20))
-        
-        btn_frame = ctk.CTkFrame(self, fg_color="transparent")
-        btn_frame.pack(fill="x", padx=20)
-        
-        ctk.CTkButton(btn_frame, text="Switch to Large (Recommended)", fg_color="#00b894", hover_color="#00cec9", command=self.switch).pack(side="left", expand=True, padx=5)
-        ctk.CTkButton(btn_frame, text=f"Keep '{current_model}'", fg_color="gray", hover_color="gray40", command=self.keep).pack(side="right", expand=True, padx=5)
-
-    def switch(self):
-        self.on_switch()
-        self.destroy()
-
-    def keep(self):
-        self.on_keep()
-        self.destroy()
-
 class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
     def __init__(self):
         super().__init__()
         
         self.title(f"Local Transcriber Pro {APP_VERSION}")
-        self.geometry("1100x950")
+        self.geometry("1150x950")
         ctk.set_appearance_mode("Dark")
         ctk.set_default_color_theme("blue")
 
-        # Drag and Drop
         self.TkdndVersion = None
         if HAS_DND:
             try:
@@ -204,11 +219,9 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.session_start_time = None
         self.is_loading_model = False
         self.batch_queue = []
-        self.full_audio_buffer = [] # Store raw audio for Diarization
+        self.full_audio_buffer = [] 
         self.backup_file = os.path.join(os.getcwd(), ".unsaved_session.json")
-        self.advice_given = False
         
-        # Autosave setup (Cross-platform)
         self.autosave_dir = os.path.join(os.path.expanduser("~"), "Documents", "Transcriptions")
         if not os.path.exists(self.autosave_dir): os.makedirs(self.autosave_dir)
 
@@ -241,14 +254,14 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         
         self.tools_btn = ctk.CTkButton(btn_box, text="Tools", width=80, command=self.open_tools_menu)
         self.tools_btn.pack(side="right", padx=5)
-        ToolTip(self.tools_btn, "Manage AI models and disk space")
+        ToolTip(self.tools_btn, "Model Manager: View and delete downloaded AI models from your hard drive.")
         
         self.help_btn = ctk.CTkButton(btn_box, text="Help", width=60, fg_color="gray", hover_color="gray40", command=self.open_help)
         self.help_btn.pack(side="right", padx=5)
-        ToolTip(self.help_btn, "View detailed manual")
+        ToolTip(self.help_btn, "Open the exhaustive User Manual explaining all features.")
 
         # Tabview for Modes
-        self.tab_view = ctk.CTkTabview(self, height=100, command=self.on_tab_change)
+        self.tab_view = ctk.CTkTabview(self, height=100)
         self.tab_view.grid(row=1, column=0, sticky="ew", padx=20, pady=5)
         self.tab_view.add("General")
         self.tab_view.add("YouTube")
@@ -259,76 +272,101 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         r1 = ctk.CTkFrame(gen_tab, fg_color="transparent")
         r1.pack(fill="x", padx=10, pady=2)
         
-        ctk.CTkLabel(r1, text="Mic:", font=("Roboto", 14)).pack(side="left", padx=5)
+        lbl_mic = ctk.CTkLabel(r1, text="Mic:", font=("Roboto", 14))
+        lbl_mic.pack(side="left", padx=5)
         self.device_combo = ctk.CTkComboBox(r1, width=220)
         self.device_combo.pack(side="left", padx=5)
         self.populate_devices()
+        ToolTip(self.device_combo, "Hardware Input: Select the microphone to record from.")
+        ToolTip(lbl_mic, "Hardware Input: Select the microphone to record from.")
 
-        ctk.CTkLabel(r1, text="Model:", font=("Roboto", 14)).pack(side="left", padx=(15, 5))
+        lbl_mod = ctk.CTkLabel(r1, text="Model:", font=("Roboto", 14))
+        lbl_mod.pack(side="left", padx=(15, 5))
         self.model_combo = ctk.CTkComboBox(r1, values=list(MODEL_SIZES.values()), width=140)
-        self.model_combo.set(MODEL_SIZES["small"])
+        
+        # Auto-Detect Best Model
+        recommended_model = self.engine.recommend_model()
+        self.model_combo.set(recommended_model)
+        
         self.model_combo.pack(side="left", padx=5)
-        ToolTip(self.model_combo, "Select AI model size. Bigger = Slower but more Accurate.")
+        model_tooltip = (
+            "Select AI Model Size (Auto-detected based on your PC):\n"
+            "- Tiny/Base: Fastest, lowest RAM.\n"
+            "- Small: Great balance of speed & accuracy.\n"
+            "- Medium: High accuracy.\n"
+            "- Large: Perfect accuracy (Needs 8GB+ GPU)."
+        )
+        ToolTip(self.model_combo, model_tooltip)
+        ToolTip(lbl_mod, model_tooltip)
 
-        ctk.CTkLabel(r1, text="Context:", font=("Roboto", 14)).pack(side="left", padx=(15, 5))
+        lbl_ctx = ctk.CTkLabel(r1, text="Context:", font=("Roboto", 14))
+        lbl_ctx.pack(side="left", padx=(15, 5))
         self.chunk_combo = ctk.CTkComboBox(r1, values=list(CHUNK_OPTIONS.keys()), width=130)
         self.chunk_combo.set("30s (Best Context)") 
         self.chunk_combo.pack(side="left", padx=5)
-        ToolTip(self.chunk_combo, "Larger context (30s) helps AI understand full sentences better.")
+        ctx_tt = "Chunk Size: Larger contexts (30s) allow the AI to understand full sentences before typing, fixing grammar."
+        ToolTip(self.chunk_combo, ctx_tt)
+        ToolTip(lbl_ctx, ctx_tt)
 
-        ctk.CTkLabel(r1, text="Device:", font=("Roboto", 14)).pack(side="left", padx=(15, 5))
+        lbl_dev = ctk.CTkLabel(r1, text="Device:", font=("Roboto", 14))
+        lbl_dev.pack(side="left", padx=(15, 5))
         proc_values = ["Auto", "CPU"]
         if self.engine.torch_cuda_available: proc_values.insert(1, "GPU (CUDA)")
         if self.engine.mps_available: proc_values.insert(1, "GPU (MPS)")
         self.proc_combo = ctk.CTkComboBox(r1, values=proc_values, width=120)
         self.proc_combo.set("Auto")
         self.proc_combo.pack(side="left", padx=5)
-
-        # Explanatory Sub-labels
-        r1_sub = ctk.CTkFrame(gen_tab, fg_color="transparent", height=15)
-        r1_sub.pack(fill="x", padx=10)
-        ctk.CTkLabel(r1_sub, text="Tip: Use 'Large' model for complex audio (requires 8GB RAM).", font=("Roboto", 10), text_color="gray").pack(side="left", padx=5)
+        dev_tt = "Hardware Acceleration: 'Auto' will use your NVIDIA GPU if available. CPU is significantly slower."
+        ToolTip(self.proc_combo, dev_tt)
+        ToolTip(lbl_dev, dev_tt)
 
         # Row 2 (General)
         r2 = ctk.CTkFrame(gen_tab, fg_color="transparent")
         r2.pack(fill="x", padx=10, pady=5)
         
         self.translate_var = ctk.BooleanVar(value=False)
-        t_chk = ctk.CTkCheckBox(r2, text="Translate (EN)", variable=self.translate_var, font=("Roboto", 12), text_color="#fdcb6e")
-        t_chk.pack(side="left", padx=5)
+        self.translate_chk = ctk.CTkCheckBox(r2, text="Translate (EN)", variable=self.translate_var, font=("Roboto", 12), text_color="#fdcb6e")
+        self.translate_chk.pack(side="left", padx=5)
+        ToolTip(self.translate_chk, "If checked, any non-English audio will be automatically translated into English text.")
 
         self.cleanup_var = ctk.BooleanVar(value=True)
-        c_chk = ctk.CTkCheckBox(r2, text="Auto-Cleanup", variable=self.cleanup_var, font=("Roboto", 12))
-        c_chk.pack(side="left", padx=15)
+        self.cleanup_chk = ctk.CTkCheckBox(r2, text="Auto-Cleanup", variable=self.cleanup_var, font=("Roboto", 12))
+        self.cleanup_chk.pack(side="left", padx=15)
+        ToolTip(self.cleanup_chk, "Filters out common AI glitches (like repeating 'Thank you' during silence).")
 
         self.diarization_var = ctk.BooleanVar(value=False)
-        d_chk = ctk.CTkCheckBox(r2, text="Detect Speakers", variable=self.diarization_var, font=("Roboto", 12), text_color="#00cec9")
-        d_chk.pack(side="left", padx=15)
-        ToolTip(d_chk, "Identify different speakers (Speaker 1, Speaker 2...). Best for files/YouTube.")
+        self.diarization_chk = ctk.CTkCheckBox(r2, text="Detect Speakers", variable=self.diarization_var, font=("Roboto", 12), text_color="#00cec9")
+        self.diarization_chk.pack(side="left", padx=15)
+        ToolTip(self.diarization_chk, "Diarization: Identifies who is speaking (Speaker 1, Speaker 2). NOTE: Adds processing time!")
 
         self.time_fmt_var = ctk.StringVar(value="[HH:MM:SS]")
-        time_menu = ctk.CTkOptionMenu(r2, values=["[HH:MM:SS]", "[MM:SS]", "None"], variable=self.time_fmt_var, command=self.refresh_display, width=110)
-        time_menu.pack(side="left", padx=(20, 5))
-        ToolTip(time_menu, "Timestamp style for the log window.")
+        self.time_menu = ctk.CTkOptionMenu(r2, values=["[HH:MM:SS]", "[MM:SS]", "None"], variable=self.time_fmt_var, command=self.refresh_display, width=110)
+        self.time_menu.pack(side="left", padx=(20, 5))
+        ToolTip(self.time_menu, "Timestamp visual format for the text log below.")
         
         self.layout_var = ctk.StringVar(value="Block")
-        layout_menu = ctk.CTkOptionMenu(r2, values=["Block", "Stream"], variable=self.layout_var, command=self.refresh_display, width=110)
-        layout_menu.pack(side="left", padx=5)
-        ToolTip(layout_menu, "Block: Paragraphs (Better reading). Stream: Continuous lines.")
+        self.layout_menu = ctk.CTkOptionMenu(r2, values=["Block", "Stream"], variable=self.layout_var, command=self.refresh_display, width=110)
+        self.layout_menu.pack(side="left", padx=5)
+        ToolTip(self.layout_menu, "Block creates paragraphs. Stream puts all text on continuous lines.")
 
         self.open_file_var = ctk.BooleanVar(value=True)
-        open_chk = ctk.CTkCheckBox(r2, text="Open Result", variable=self.open_file_var, font=("Roboto", 12))
-        open_chk.pack(side="right", padx=10)
+        self.open_chk = ctk.CTkCheckBox(r2, text="Open Result", variable=self.open_file_var, font=("Roboto", 12))
+        self.open_chk.pack(side="right", padx=10)
+        ToolTip(self.open_chk, "Automatically open the saved text file or folder when transcription finishes.")
 
         # --- YouTube Tab ---
         yt_tab = self.tab_view.tab("YouTube")
         yt_frame = ctk.CTkFrame(yt_tab, fg_color="transparent")
         yt_frame.pack(fill="both", expand=True, padx=10, pady=10)
-        ctk.CTkLabel(yt_frame, text="YouTube URL:", font=("Roboto", 14)).pack(side="left", padx=5)
+        lbl_yt = ctk.CTkLabel(yt_frame, text="YouTube URL:", font=("Roboto", 14))
+        lbl_yt.pack(side="left", padx=5)
         self.yt_url_entry = ctk.CTkEntry(yt_frame, width=400, placeholder_text="Paste link here (https://www.youtube.com/watch?v=...)")
         self.yt_url_entry.pack(side="left", padx=10, fill="x", expand=True)
+        ToolTip(self.yt_url_entry, "Paste the full URL of a YouTube video here.")
+        
         self.yt_btn = ctk.CTkButton(yt_frame, text="Download & Transcribe", fg_color="#c4302b", hover_color="#e62e2d", command=self.start_youtube_process)
         self.yt_btn.pack(side="left", padx=10)
+        ToolTip(self.yt_btn, "Downloads the video audio and creates a full transcript/subtitle file automatically.")
 
         # Visualizer Frame & Clear Button
         self.vis_frame = ctk.CTkFrame(self, fg_color="#2b2b2b", height=70)
@@ -337,6 +375,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.clear_btn = ctk.CTkButton(self.vis_frame, text="\U0001f5d1️ Clear Log", width=80, height=30, 
                                        fg_color="#444", hover_color="#666", command=self.clear_log)
         self.clear_btn.place(relx=0.95, rely=0.5, anchor="center")
+        ToolTip(self.clear_btn, "Wipe all text from the screen below to start fresh.")
         
         self.loading_label = ctk.CTkLabel(self.vis_frame, text="", font=("Roboto", 12), text_color="#dfe6e9")
         self.loading_label.place(relx=0.5, rely=0.3, anchor="center")
@@ -348,6 +387,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
 
         self.vis_canvas = ctk.CTkCanvas(self.vis_frame, bg="#2b2b2b", highlightthickness=0, height=70)
         self.vis_canvas.pack(fill="both", expand=True, padx=(0, 100))
+        ToolTip(self.vis_canvas, "Audio Visualizer: Shows your microphone input levels in real-time.")
         
         # Text Area
         self.textbox = ctk.CTkTextbox(self, font=("Consolas", 14), corner_radius=10)
@@ -368,34 +408,38 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
 
         self.record_btn = ctk.CTkButton(self.btn_inner, text="● Record", fg_color="#d63031", hover_color="#ff7675", width=120, height=45, font=("Roboto", 15, "bold"), command=self.start_recording)
         self.record_btn.pack(side="left", padx=10)
+        ToolTip(self.record_btn, "Start recording audio from your microphone. Hotkey: F1")
         
         self.pause_btn = ctk.CTkButton(self.btn_inner, text="❚❚ Pause", fg_color="#e17055", hover_color="#fab1a0", width=100, height=45, font=("Roboto", 15, "bold"), state="disabled", command=self.toggle_pause)
         self.pause_btn.pack(side="left", padx=10)
+        ToolTip(self.pause_btn, "Temporarily pause recording without saving. Hotkey: F2")
         
         self.stop_btn = ctk.CTkButton(self.btn_inner, text="■ Stop", fg_color="#636e72", hover_color="#b2bec3", width=100, height=45, font=("Roboto", 15, "bold"), state="disabled", command=self.stop_recording)
         self.stop_btn.pack(side="left", padx=10)
+        ToolTip(self.stop_btn, "Stop recording and process final audio. Hotkey: F3")
         
         self.file_btn = ctk.CTkButton(self.btn_inner, text="📁 Batch Files", fg_color="#0984e3", hover_color="#74b9ff", width=140, height=45, font=("Roboto", 15, "bold"), command=self.transcribe_batch)
         self.file_btn.pack(side="left", padx=(30, 10))
+        ToolTip(self.file_btn, "Select multiple Audio or Video files from your PC to transcribe them all automatically.")
         
         self.action_menu = ctk.CTkOptionMenu(self.btn_inner, 
                                              values=["Export...", "Export TXT", "Export SRT", "Export JSON", "Export CSV", "Save As...", "Set Autosave Folder"],
                                              command=self.perform_export, width=120, height=45, font=("Roboto", 13))
         self.action_menu.set("Export...")
         self.action_menu.pack(side="left", padx=10)
+        ToolTip(self.action_menu, "Save the current text into different formats (TXT, Subtitle SRT, JSON, CSV) or change where auto-saves go.")
         
         self.status_bar = ctk.CTkLabel(self, text="Ready", anchor="e", text_color="gray")
         self.status_bar.grid(row=6, column=0, sticky="ew", padx=25, pady=(0, 10))
 
     # --- Cross-Platform Helpers ---
     def open_file_safe(self, path):
-        """Cross-platform file opener."""
         try:
             if platform.system() == 'Windows':
                 os.startfile(path)
             elif platform.system() == 'Darwin':
                 subprocess.call(['open', path])
-            else: # Linux
+            else:
                 subprocess.call(['xdg-open', path])
         except Exception as e:
             self.log_sys(f"Could not open file: {e}")
@@ -413,7 +457,6 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         
         files = self.parse_tcl_list(raw_files)
         if files:
-            self.check_model_advice()
             self.batch_queue = files
             self.set_loading(True, "Processing dropped files...")
             self.lock_ui(True)
@@ -483,18 +526,6 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             self.record_btn.configure(fg_color="#d63031", text="● Record")
             self.animate_id = None
 
-    def on_tab_change(self):
-        if self.tab_view.get() == "YouTube" and not self.advice_given:
-            self.check_model_advice()
-
-    def check_model_advice(self):
-        current_model = REVERSE_MODEL_MAP.get(self.model_combo.get(), "small")
-        if current_model != "large":
-            ModelAdviceDialog(self, self.model_combo.get(), 
-                              on_switch=lambda: self.model_combo.set(MODEL_SIZES["large"]),
-                              on_keep=lambda: None)
-            self.advice_given = True 
-
     # --- Progress & Logging ---
     def set_loading(self, show, msg=""):
         self.is_loading_model = show
@@ -502,7 +533,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         if show:
             if not self.animate_id: self.pulsate_record_btn()
         else:
-            if not self.recorder.recording:
+            if not self.recorder.recording: 
                 self.record_btn.configure(fg_color="#d63031", text="● Record")
             self.progress_bar.set(0)
 
@@ -555,7 +586,6 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             result = self.engine.transcribe_file(audio_file, task=task, verbose=False)
             
             if result and "segments" in result:
-                # Optional Diarization
                 if self.diarization_var.get():
                     self.after(0, lambda: self.set_loading(True, "Step 4/4: Detecting Speakers (Diarization)..."))
                     self.after(0, lambda: self.log_sys("Step 4/4: Analyzing voices..."))
@@ -570,7 +600,6 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                         abs_time = self.session_start_time + datetime.timedelta(seconds=start)
                         self.after(0, lambda t=text, time=abs_time, s=start, e=end: self.add_segment(t, time, s, e))
                     
-                    # Generate side-by-side SRT for videos
                     self.save_smart_subtitle(audio_file, result["segments"])
 
             self.after(0, lambda: self.log_sys("✅ Transcription Complete."))
@@ -590,7 +619,6 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
     # --- Batch Logic ---
     def transcribe_batch(self):
         if self.is_loading_model: return
-        self.check_model_advice()
         filepaths = filedialog.askopenfilenames(filetypes=[("Media Files", "*.wav *.mp3 *.m4a *.mp4 *.flac *.ogg *.mkv *.mov"), ("All", "*.*")])
         if not filepaths: return
         
@@ -616,15 +644,12 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                 self.session_start_time = datetime.datetime.now()
                 result = self.engine.transcribe_file(filepath, task=task, verbose=False)
                 
-                # Smart Subtitle Generation
                 if result and "segments" in result:
-                    # Optional Diarization
                     if self.diarization_var.get():
                         self.after(0, lambda: self.set_loading(True, "Detecting Speakers..."))
                         self.after(0, lambda: self.log_sys("Analysing voices (Diarization)..."))
                         result['segments'] = self.diarizer.process(filepath, result['segments'], callback=self.log_sys)
 
-                    # Generate autosave/UI segments
                     for segment in result["segments"]:
                         text = segment["text"].strip()
                         if self.cleanup_var.get(): text = self.engine.cleanup_text(text)
@@ -634,7 +659,6 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                             abs_time = self.session_start_time + datetime.timedelta(seconds=start)
                             self.after(0, lambda t=text, time=abs_time, s=start, e=end: self.add_segment(t, time, s, e))
                     
-                    # Generate side-by-side SRT for videos
                     self.save_smart_subtitle(filepath, result["segments"])
 
                 self.after(0, lambda: self.autosave_all())
@@ -648,7 +672,6 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             self.after(0, lambda: self.lock_ui(False))
 
     def save_smart_subtitle(self, filepath, segments):
-        """Creates a .srt file next to the video if it's a known video format."""
         try:
             ext = os.path.splitext(filepath)[1].lower()
             if ext in VIDEO_EXTENSIONS:
@@ -690,7 +713,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         try:
             self.engine.load_model(self.model_combo.get(), self.proc_combo.get())
             self.session_start_time = datetime.datetime.now()
-            self.full_audio_buffer = [] # Reset buffer
+            self.full_audio_buffer = [] 
             chunk_s = CHUNK_OPTIONS.get(self.chunk_combo.get(), 30)
             self.recorder.start(dev, chunk_s) 
             self.after(0, self.on_rec_start)
@@ -709,7 +732,6 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             data = self.recorder.audio_queue.get()
             if data is None: break
             
-            # Store data for Diarization
             self.full_audio_buffer.append(data.copy())
             
             try:
@@ -718,8 +740,6 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                 text = res["text"].strip()
                 if self.cleanup_var.get(): text = self.engine.cleanup_text(text)
                 
-                # Calculate start/end relative to session start
-                # Assuming simple concatenation of chunks
                 current_duration = sum(len(c) for c in self.full_audio_buffer[:-1]) / SAMPLE_RATE
                 chunk_len = len(data) / SAMPLE_RATE
                 
@@ -727,31 +747,20 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                     self.after(0, lambda t=text, s=current_duration, e=current_duration+chunk_len: self.add_segment(t, start=s, end=e))
             except Exception as e: logging.error(f"Transcribe fail: {e}")
         
-        # Recording Stopped - Post Process
         self.after(0, self.post_process_recording)
 
     def post_process_recording(self):
         self.status_bar.configure(text="Processing complete.")
         
-        # Run Diarization if enabled
         if self.diarization_var.get() and self.full_audio_buffer and sf:
             try:
                 self.set_loading(True, "Finalizing: Detecting Speakers...")
                 self.log_sys("--- Analyzing recorded session for speakers ---")
                 
-                # Save temp file
                 temp_wav = os.path.join(os.getcwd(), "temp_rec_session.wav")
                 full_audio = np.concatenate(self.full_audio_buffer)
                 
-                # Convert float32 to PCM_16 for compatibility if needed, but sf handles it
                 sf.write(temp_wav, full_audio, SAMPLE_RATE)
-                
-                # Process
-                # We need to construct a 'segments' list from our transcript_data that matches this session
-                # Filter transcript_data to only include items from this session (based on time?)
-                # Simplification: Assume transcript_data is mostly from this session if clear was clicked, 
-                # or just process the last N segments.
-                # Better: Filter by session_start_time
                 
                 session_segments = []
                 indices = []
@@ -763,7 +772,6 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                 if session_segments:
                     updated_segments = self.diarizer.process(temp_wav, session_segments, callback=self.log_sys)
                     
-                    # Update main list
                     for idx, updated in zip(indices, updated_segments):
                         self.transcript_data[idx] = updated
                     
@@ -788,7 +796,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.stop_btn.configure(state="normal", fg_color="#d63031")
         self.status_bar.configure(text="● RECORDING...")
         self.textbox.configure(state="normal")
-        self.textbox.insert("end", "\n[System] ", "default")
+        self.textbox.insert("end", "[System] ", "default")
         self.textbox.insert("end", "!!! RECORDING AND TRANSCRIBING !!!\n", "alert")
         self.textbox.see("end")
         self.textbox.configure(state="disabled")
@@ -877,7 +885,6 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.action_menu.set("Export...")
 
     def autosave_all(self):
-        """Autosaves to the designated Documents folder."""
         if not self.transcript_data: return
         try:
             timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
@@ -908,7 +915,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         if ask:
             path = filedialog.asksaveasfilename(defaultextension=".txt", initialfile=fname, filetypes=[("Text", "*.txt")])
         else:
-            path = os.path.join(os.path.expanduser("~"), 'Desktop', fname) # Safe Desktop Path
+            path = os.path.join(os.path.expanduser("~"), 'Desktop', fname) 
         if path:
             try:
                 full_text = "".join(self.format_segment(s) for s in self.transcript_data)
@@ -920,7 +927,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
 
     def save_srt(self):
         fname = f"Subs_{{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}}.srt"
-        path = os.path.join(os.path.expanduser("~"), 'Desktop', fname) # Safe Desktop Path
+        path = os.path.join(os.path.expanduser("~"), 'Desktop', fname) 
         try:
             content = create_srt_content(self.transcript_data)
             with open(path, "w", encoding="utf-8") as f:
@@ -931,7 +938,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
 
     def save_json(self):
         fname = f"Data_{{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}}.json"
-        path = os.path.join(os.path.expanduser("~"), 'Desktop', fname) # Safe Desktop Path
+        path = os.path.join(os.path.expanduser("~"), 'Desktop', fname) 
         try:
             serializable = []
             for item in self.transcript_data:
@@ -944,7 +951,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
 
     def save_csv(self):
         fname = f"Data_{{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}}.csv"
-        path = os.path.join(os.path.expanduser("~"), 'Desktop', fname) # Safe Desktop Path
+        path = os.path.join(os.path.expanduser("~"), 'Desktop', fname) 
         try:
             with open(path, "w", newline="", encoding="utf-8") as f:
                 writer = csv.writer(f)

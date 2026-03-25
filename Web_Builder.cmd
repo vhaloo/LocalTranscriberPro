@@ -8,7 +8,7 @@ set "LOG_FILE=%USERPROFILE%\Desktop\LT_Install_Log.txt"
 echo Installer started at %DATE% %TIME% > "%LOG_FILE%"
 
 echo ===============================================================================
-echo   LOCAL TRANSCRIBER PRO - ULTIMATE INSTALLER (v1.0)
+echo   LOCAL TRANSCRIBER PRO - ULTIMATE INSTALLER (v1.1)
 echo ===============================================================================
 echo.
 echo   This installer will automatically setup:
@@ -128,7 +128,7 @@ echo [5] Building Application... >> "%LOG_FILE%"
 
 for /f "tokens=*" %%i in ('python -c "import customtkinter; import os; print(os.path.dirname(customtkinter.__file__))"') do set "CTK_PATH=%%i"
 
-set "APP_NAME=LocalTranscriberPro_v1.0"
+set "APP_NAME=LocalTranscriberPro_v1.1"
 
 echo @echo off > build_run.bat
 echo "venv\Scripts\pyinstaller.exe" --noconsole --onefile --clean --name "!APP_NAME!" --add-data "!CTK_PATH!;customtkinter" --add-data "src;src" --collect-all "whisper" --collect-all "openai_whisper" --collect-all "tbb" --collect-all "numba" --collect-all "torch" --collect-all "torchaudio" --collect-all "scipy" --collect-all "yt_dlp" --collect-all "tkinterdnd2" --collect-all "certifi" --collect-all "speechbrain" --collect-all "sklearn" --collect-all "soundfile" --hidden-import "scipy.special.cython_special" --hidden-import "scipy.integrate.lsoda" --hidden-import "sklearn.utils._cython_blas" --hidden-import "sklearn.neighbors.typedefs" --hidden-import "sklearn.neighbors.quad_tree" --hidden-import "sklearn.tree._utils" --exclude-module "tensorflow" main.py >> build_run.bat
