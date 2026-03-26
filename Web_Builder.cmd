@@ -6,7 +6,7 @@ color 0B
 :: --- ENTRY POINT ---
 :: This CMD stub launches the PowerShell engine which is 100x more reliable for installation tasks.
 echo Launching Ultimate Installer engine...
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$input_path = '%~dp0'; $code = (Get-Content '%~f0' -Raw) -split '\#\#\# PS_START \#\#\#'; [scriptblock]::Create($code[1]).Invoke($input_path)"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$input_path = '%~dp0'; $code = (Get-Content '%~f0' -Raw) -split '\### PS_START ###'; [scriptblock]::Create($code[1]).Invoke($input_path)"
 pause
 exit /b %errorlevel%
 
@@ -45,16 +45,15 @@ Write-Host "... Checking Visual C++ Redistributable..."
 if (-not (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" -ErrorAction SilentlyContinue)) {
     Write-Host "[MISSING] Installing Visual C++ via Winget..."
     winget install --id "Microsoft.VCRedist.2015+.x64" --accept-source-agreements --accept-package-agreements --silent
-} else { Write-Host "[OK] Visual C++ found." }
+} else { Write-Host "[OK] Visual C++ found." -ForegroundColor Green }
 
 # 1.2 FFmpeg
 Write-Host "... Checking FFmpeg..."
 if (-not (Get-Command ffmpeg -ErrorAction SilentlyContinue)) {
     Write-Host "[MISSING] Installing FFmpeg via Winget..."
     winget install --id "Gyan.FFmpeg" --accept-source-agreements --accept-package-agreements --silent
-    # Refresh Path for this session
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
-} else { Write-Host "[OK] FFmpeg found." }
+} else { Write-Host "[OK] FFmpeg found." -ForegroundColor Green }
 
 # 1.3 Python (STRICT CHECK: MUST BE 3.10-3.12 64-BIT)
 Write-Host "... Checking Python (64-bit 3.12 recommended)..."
@@ -66,25 +65,61 @@ $PyCheck = {
     return $false
 }
 
-if (&$PyCheck "py") { $PythonPath = "py" }
-elseif (&$PyCheck "python") { $PythonPath = "python" }
+$PossiblePaths = @(
+    "py", 
+    "python", 
+    "$env:LOCALAPPDATA\Programs\Python\Python312\python.exe",
+    "$env:ProgramFiles\Python312\python.exe"
+)
+
+foreach ($p in $PossiblePaths) {
+    $isValid = $false
+    if ($p -match "\") { 
+        if (Test-Path $p) { $isValid = $true } 
+    } else {
+        if (Get-Command $p -ErrorAction SilentlyContinue) { $isValid = $true }
+    }
+    
+    if ($isValid) {
+        if (&$PyCheck $p) {
+            $PythonPath = $p
+            break
+        }
+    }
+}
 
 if (-not $PythonPath) {
-    Write-Host "[MISSING] Compatible 64-bit Python not found. Installing Python 3.12.8..."
+    Write-Host "[MISSING] Compatible 64-bit Python not found. Installing Python 3.12.8..." -ForegroundColor Yellow
     $url = "https://www.python.org/ftp/python/3.12.8/python-3.12.8-amd64.exe"
     $out = "$env:TEMP\python_installer.exe"
     Invoke-WebRequest -Uri $url -OutFile $out
-    Write-Host "Installing... Please accept any security prompts."
-    Start-Process -FilePath $out -ArgumentList "/quiet InstallAllUsers=1 PrependPath=1 Include_test=0" -Wait
-    Remove-Item $out
-    Write-Host ""
-    Write-Host "===============================================================================" -ForegroundColor Red
-    Write-Host "   PYTHON INSTALLED! PLEASE RESTART YOUR PC OR THIS SCRIPT" -ForegroundColor Red
-    Write-Host "===============================================================================" -ForegroundColor Red
-    Read-Host "Press Enter to exit..."
-    exit
+    
+    Write-Host "Installing... A progress window should appear."
+    Start-Process -FilePath $out -ArgumentList "/passive InstallAllUsers=0 PrependPath=1 Include_test=0" -Wait
+    Remove-Item $out -ErrorAction SilentlyContinue
+    
+    # Try to find it again immediately using absolute paths
+    $PossiblePaths = @("$env:LOCALAPPDATA\Programs\Python\Python312\python.exe", "$env:ProgramFiles\Python312\python.exe")
+    foreach ($p in $PossiblePaths) {
+        if (Test-Path $p) {
+            if (&$PyCheck $p) {
+                $PythonPath = $p
+                break
+            }
+        }
+    }
+    
+    if (-not $PythonPath) {
+        Write-Host ""
+        Write-Host "===============================================================================" -ForegroundColor Red
+        Write-Host "   PYTHON INSTALLATION FAILED OR REQUIRES A FULL PC REBOOT." -ForegroundColor Red
+        Write-Host "===============================================================================" -ForegroundColor Red
+        Write-Host "Please restart your computer and run this installer again."
+        Read-Host "Press Enter to exit..."
+        exit 1
+    }
 }
-Write-Host "[OK] Python found: $PythonPath"
+Write-Host "[OK] Python found: $PythonPath" -ForegroundColor Green
 
 # --- STEP 2: WORKSPACE ---
 Show-Header
@@ -105,6 +140,8 @@ Set-Location $RepoDir.FullName
 # --- STEP 4: AI ENGINE ---
 Show-Header
 Write-Host "[4/6] Setting up AI Engine (Isolated Environment)..." -ForegroundColor Yellow
+
+# Use the absolute path we found to create the venv
 & $PythonPath -m venv venv
 $VenvPython = Join-Path (Get-Location) "venv\Scripts\python.exe"
 $VenvPip = Join-Path (Get-Location) "venv\Scripts\pip.exe"
