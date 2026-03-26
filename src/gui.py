@@ -162,7 +162,7 @@ class ModelManagerDialog(ctk.CTkToplevel):
 
 class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
     def __init__(self):
-        super().__init__(self)
+        super().__init__()
         
         self.title(f"Local Transcriber Pro {APP_VERSION}")
         self.geometry("1150x950")
