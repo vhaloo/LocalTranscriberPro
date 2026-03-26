@@ -81,7 +81,7 @@ $PossiblePaths = @(
 
 foreach ($p in $PossiblePaths) {
     $isValid = $false
-    if ($p -match "\") { 
+    if ($p -like "*\*") { 
         if (Test-Path $p) { $isValid = $true } 
     } else {
         if (Get-Command $p -ErrorAction SilentlyContinue) { $isValid = $true }
