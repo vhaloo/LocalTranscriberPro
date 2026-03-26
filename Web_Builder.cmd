@@ -3,11 +3,18 @@ setlocal EnableDelayedExpansion
 title Local Transcriber Pro Installer (v1.1)
 color 0B
 
-:: --- ENTRY POINT ---
-:: This CMD stub launches the PowerShell engine which is 100x more reliable for installation tasks.
+:: Define paths in environment variables to avoid quoting hell in PowerShell invocation
+set "__LT_SCRIPT_PATH=%~f0"
+set "__LT_INSTALL_DIR=%~dp0"
+
 echo Launching Ultimate Installer engine...
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$input_path = '%~dp0'; $code = (Get-Content '%~f0' -Raw) -split '\### PS_START ###'; [scriptblock]::Create($code[1]).Invoke($input_path)"
-pause
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$code = (Get-Content $env:__LT_SCRIPT_PATH -Raw) -split '(?m)^### PS_START ###'; [scriptblock]::Create($code[1]).Invoke($env:__LT_INSTALL_DIR)"
+
+if %errorlevel% neq 0 (
+    echo.
+    echo [CRITICAL ERROR] The installer engine failed to launch.
+    pause
+)
 exit /b %errorlevel%
 
 ### PS_START ###
