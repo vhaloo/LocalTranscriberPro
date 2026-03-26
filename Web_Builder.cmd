@@ -2,241 +2,197 @@
 setlocal EnableDelayedExpansion
 title Local Transcriber Pro Installer (v1.1)
 color 0B
-cd /d "%~dp0"
 
-:: --- LOGGING ---
-set "LOG_FILE=%USERPROFILE%\Desktop\LT_Install_Log.txt"
-echo Installer started at %DATE% %TIME% > "%LOG_FILE%"
-
-echo ===============================================================================
-echo   LOCAL TRANSCRIBER PRO - ULTIMATE INSTALLER (v1.1)
-echo ===============================================================================
-echo.
-echo   This installer will automatically setup:
-echo   - Python 64-bit (Required for AI)
-echo   - FFmpeg (for audio processing)
-echo   - Visual C++ Redistributable (for AI models)
-echo   - High-Performance CUDA components (if NVIDIA GPU is found)
-echo.
-echo   [INFO] Logs are being saved to: %LOG_FILE%
-echo.
-echo   Ready to install.
+:: --- ENTRY POINT ---
+:: This CMD stub launches the PowerShell engine which is 100x more reliable for installation tasks.
+echo Launching Ultimate Installer engine...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$input_path = '%~dp0'; [scriptblock]::Create((Get-Content '%~f0' | Out-String).Split(\"### PS_START ###\")[1]).Invoke($input_path)"
 pause
-cls
+exit /b %errorlevel%
 
-:: --- ADMIN CHECK ---
-echo [0/6] Verifying Permissions...
-net session >nul 2>&1
-if !errorlevel! neq 0 (
-    color 0E
-    echo [WARNING] Not running as Administrator. 
-    echo           Prerequisite installation may fail.
-    echo           If the script fails, right-click and "Run as Administrator".
-    echo.
-    timeout /t 5
-)
+### PS_START ###
+param($InstallDir)
 
-:: --- STEP 1: PREREQUISITES ---
-echo [1/6] Checking Prerequisites...
-echo [1] Checking Prerequisites... >> "%LOG_FILE%"
+$ErrorActionPreference = "Stop"
+$LogFile = "$env:USERPROFILE\Desktop\LT_Install_Log.txt"
+"Installer Engine v1.1 started at $(Get-Date)" | Out-File $LogFile
 
-:: Check for winget
-where winget >nul 2>&1
-if !errorlevel! neq 0 (
-    echo [ERROR] 'winget' is missing. This script requires 'App Installer' from the Microsoft Store.
-    echo         Please install it here: https://apps.microsoft.com/store/detail/app-installer/9NBLGGH4NNS1
-    pause
-    exit /b 1
-)
+function Show-Header {
+    Clear-Host
+    Write-Host "===============================================================================" -ForegroundColor Cyan
+    Write-Host "   LOCAL TRANSCRIBER PRO - ULTIMATE INSTALLER (v1.1)" -ForegroundColor Cyan
+    Write-Host "   (Developed by Vhaloo)" -ForegroundColor Cyan
+    Write-Host "===============================================================================" -ForegroundColor Cyan
+    Write-Host ""
+}
 
-set "WINGET_ARGS=--accept-source-agreements --accept-package-agreements"
+Show-Header
+Write-Host "This script will automatically setup:"
+Write-Host "- Python 3.12 (Optimized for AI)"
+Write-Host "- FFmpeg (Audio Engine)"
+Write-Host "- Visual C++ & CUDA (Hardware Acceleration)"
+Write-Host ""
+Write-Host "Logs are being saved to: $LogFile"
+Write-Host ""
+Read-Host "Press Enter to start the installation..."
 
-:: Check FFmpeg
-where ffmpeg >nul 2>&1
-if !errorlevel! neq 0 (
-    echo [MISSING] FFmpeg. Installing...
-    winget install --id "Gyan.FFmpeg" !WINGET_ARGS!
-    if !errorlevel! neq 0 echo [WARN] FFmpeg install might have failed. >> "%LOG_FILE%"
-) else (
-    echo [OK] FFmpeg found.
-)
+# --- STEP 1: PREREQUISITES ---
+Show-Header
+Write-Host "[1/6] Checking System Prerequisites..." -ForegroundColor Yellow
 
-:: Check VCRedist
-reg query "HKLM\SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" >nul 2>&1
-if !errorlevel! neq 0 (
-    echo [MISSING] Visual C++ Redist. Installing...
-    winget install --id "Microsoft.VCRedist.2015+.x64" !WINGET_ARGS!
-) else (
-    echo [OK] Visual C++ Redist found.
-)
+# 1.1 Visual C++
+Write-Host "... Checking Visual C++ Redistributable..."
+if (-not (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" -ErrorAction SilentlyContinue)) {
+    Write-Host "[MISSING] Installing Visual C++ via Winget..."
+    winget install --id "Microsoft.VCRedist.2015+.x64" --accept-source-agreements --accept-package-agreements --silent
+} else { Write-Host "[OK] Visual C++ found." }
 
-:: Check Python (MUST BE 64-BIT)
-set "PY_CMD="
-set "PYTHON_FOUND=0"
+# 1.2 FFmpeg
+Write-Host "... Checking FFmpeg..."
+if (-not (Get-Command ffmpeg -ErrorAction SilentlyContinue)) {
+    Write-Host "[MISSING] Installing FFmpeg via Winget..."
+    winget install --id "Gyan.FFmpeg" --accept-source-agreements --accept-package-agreements --silent
+    # Refresh Path for this session
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
+} else { Write-Host "[OK] FFmpeg found." }
 
-:: Check 'py' launcher
-py -0 >nul 2>&1
-if !errorlevel! equ 0 (
-    py -c "import sys; exit(0 if sys.maxsize > 2**32 else 1)" >nul 2>&1
-    if !errorlevel! equ 0 (
-        set "PY_CMD=py"
-        set "PYTHON_FOUND=1"
-    )
-)
+# 1.3 Python (STRICT CHECK: MUST BE 3.10-3.12 64-BIT)
+Write-Host "... Checking Python (64-bit 3.12 recommended)..."
+$PythonPath = $null
+$PyCheck = {
+    param($cmd)
+    $out = & $cmd -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor},{sys.maxsize > 2**32}')" 2>$null
+    if ($out -match "3\.(10|11|12),True") { return $true }
+    return $false
+}
 
-:: Check 'python' command
-if !PYTHON_FOUND! equ 0 (
-    python -c "import sys; exit(0 if sys.maxsize > 2**32 else 1)" >nul 2>&1
-    if !errorlevel! equ 0 (
-        set "PY_CMD=python"
-        set "PYTHON_FOUND=1"
-    )
-)
+if (&$PyCheck "py") { $PythonPath = "py" }
+elseif (&$PyCheck "python") { $PythonPath = "python" }
 
-if !PYTHON_FOUND! equ 0 (
-    echo [MISSING] 64-bit Python not found. Auto-Installing...
-    echo Downloading Python 3.12.8...
-    powershell -Command "$progressPreference = 'SilentlyContinue'; Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.12.8/python-3.12.8-amd64.exe' -OutFile 'python_installer.exe'"
-    
-    echo Installing Python silently...
-    start /wait python_installer.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0
-    del python_installer.exe
-    
-    echo.
-    echo [IMPORTANT] Python installed. Windows needs to refresh your PATH.
-    echo Please CLOSE this window and RUN THIS SCRIPT AGAIN.
-    pause
-    exit /b
-)
-
-echo [OK] 64-bit Python found: !PY_CMD!
-
-echo.
-echo [2/6] Preparing Workspace...
-if exist "LT_Temp" rmdir /s /q "LT_Temp"
-mkdir "LT_Temp"
-cd "LT_Temp"
-
-echo.
-echo [3/6] Downloading Source Code...
-powershell -Command "$progressPreference = 'SilentlyContinue'; Invoke-WebRequest -Uri 'https://github.com/vhaloo/LocalTranscriberPro/archive/refs/heads/main.zip' -OutFile 'source.zip'"
-if not exist "source.zip" (
-    echo [ERROR] Download failed. Check your internet connection.
-    pause
-    exit /b 1
-)
-powershell -Command "Expand-Archive -Path 'source.zip' -DestinationPath '.' -Force"
-
-dir /b /ad > dirs.txt
-set /p INNER_DIR=<dirs.txt
-cd "!INNER_DIR!"
-del ..\dirs.txt
-
-echo.
-echo [4/6] Setting up AI Engine...
-"!PY_CMD!" -m venv venv
-set "VENV_PYTHON=venv\Scripts\python.exe"
-set "VENV_PIP=venv\Scripts\pip.exe"
-
-echo ... Updating Pip...
-"!VENV_PYTHON!" -m pip install --upgrade pip --no-cache-dir >> "%LOG_FILE%" 2>&1
-
-nvidia-smi >nul 2>&1
-if !errorlevel! equ 0 (
-    echo [GPU] NVIDIA GPU Detected! Installing CUDA optimized AI...
-    "!VENV_PIP!" install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124 --no-cache-dir
-) else (
-    echo [CPU] No NVIDIA GPU detected. Installing standard AI...
-    "!VENV_PIP!" install torch torchvision torchaudio --no-cache-dir
-)
-
-echo     - Installing requirements...
-"!VENV_PIP!" install -r requirements.txt --no-cache-dir >> "%LOG_FILE%" 2>&1
-"!VENV_PIP!" install pyinstaller tbb --no-cache-dir >> "%LOG_FILE%" 2>&1
-
-echo.
-echo [5/6] Building Application (This takes a few minutes)...
-for /f "usebackq tokens=*" %%i in (`"!VENV_PYTHON!" -c "import customtkinter; import os; print(os.path.dirname(customtkinter.__file__))"`) do set "CTK_PATH=%%i"
-
-set "APP_NAME=LocalTranscriberPro_v1.1"
-
-echo ... Running PyInstaller...
-"!VENV_PYTHON!" -m PyInstaller --noconsole --onefile --clean ^
-    --name "!APP_NAME!" ^
-    --add-data "!CTK_PATH!;customtkinter" ^
-    --add-data "src;src" ^
-    --collect-all "whisper" ^
-    --collect-all "openai_whisper" ^
-    --collect-all "tbb" ^
-    --collect-all "numba" ^
-    --collect-all "torch" ^
-    --collect-all "torchaudio" ^
-    --collect-all "scipy" ^
-    --collect-all "yt_dlp" ^
-    --collect-all "tkinterdnd2" ^
-    --collect-all "certifi" ^
-    --collect-all "speechbrain" ^
-    --collect-all "sklearn" ^
-    --collect-all "soundfile" ^
-    --hidden-import "scipy.special.cython_special" ^
-    --hidden-import "scipy.integrate.lsoda" ^
-    --hidden-import "sklearn.utils._cython_blas" ^
-    --hidden-import "sklearn.neighbors.typedefs" ^
-    --hidden-import "sklearn.neighbors.quad_tree" ^
-    --hidden-import "sklearn.tree._utils" ^
-    --exclude-module "tensorflow" ^
-    main.py >> "%LOG_FILE%" 2>&1
-
-if !errorlevel! neq 0 (
-    echo [ERROR] Build failed. Check Desktop log.
-    goto :ERROR
-)
-
-echo.
-echo [6/6] Finalizing Installation...
-set "SIZE=0"
-if exist "dist\!APP_NAME!.exe" (
-    for %%F in ("dist\!APP_NAME!.exe") do set "SIZE=%%~zF"
-)
-
-if !SIZE! LSS 100000000 (
-    echo [ERROR] The built file is too small. >> "%LOG_FILE%"
-    goto :ERROR
-)
-
-set "DEST_DIR=%USERPROFILE%\Desktop\Local Transcriber Pro"
-if not exist "!DEST_DIR!" mkdir "!DEST_DIR!"
-
-taskkill /F /IM "!APP_NAME!.exe" >nul 2>&1
-copy /Y /B "dist\!APP_NAME!.exe" "!DEST_DIR!\!APP_NAME!.exe" >nul
-
-powershell -Command "$WshShell = New-Object -comObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut('%USERPROFILE%\Desktop\Local Transcriber Pro.lnk'); $Shortcut.TargetPath = '!DEST_DIR!\!APP_NAME!.exe'; $Shortcut.WorkingDirectory = '!DEST_DIR!'; $Shortcut.Save()"
-
-if exist "!DEST_DIR!\!APP_NAME!.exe" (
-    color 2F
-    echo ===============================================================================
-    echo   INSTALLATION SUCCESSFUL!
-    echo ===============================================================================
-    echo.
-    echo A folder and a shortcut have been created on your Desktop.
-    echo Starting the app now...
-    cd ..\..
-    start "" "!DEST_DIR!\!APP_NAME!.exe"
-    rmdir /s /q "LT_Temp"
-    timeout /t 5
+if (-not $PythonPath) {
+    Write-Host "[MISSING] Compatible 64-bit Python not found. Installing Python 3.12.8..."
+    $url = "https://www.python.org/ftp/python/3.12.8/python-3.12.8-amd64.exe"
+    $out = "$env:TEMP\python_installer.exe"
+    Invoke-WebRequest -Uri $url -OutFile $out
+    Write-Host "Installing... Please accept any security prompts."
+    Start-Process -FilePath $out -ArgumentList "/quiet InstallAllUsers=1 PrependPath=1 Include_test=0" -Wait
+    Remove-Item $out
+    Write-Host ""
+    Write-Host "===============================================================================" -ForegroundColor Red
+    Write-Host "   PYTHON INSTALLED! PLEASE RESTART YOUR PC OR THIS SCRIPT" -ForegroundColor Red
+    Write-Host "===============================================================================" -ForegroundColor Red
+    Read-Host "Press Enter to exit..."
     exit
-) else (
-    goto :ERROR
-)
+}
+Write-Host "[OK] Python found: $PythonPath"
 
-:ERROR
-color 4F
-echo.
-echo ===============================================================================
-echo   ERROR: INSTALLATION FAILED
-echo ===============================================================================
-echo.
-echo   Check the log file on your Desktop: LT_Install_Log.txt
-echo.
-pause
-exit /b 1
+# --- STEP 2: WORKSPACE ---
+Show-Header
+Write-Host "[2/6] Preparing Workspace..." -ForegroundColor Yellow
+$BuildDir = Join-Path $InstallDir "LT_Temp"
+if (Test-Path $BuildDir) { Remove-Item $BuildDir -Recurse -Force }
+New-Item -ItemType Directory -Path $BuildDir | Out-Null
+Set-Location $BuildDir
+
+# --- STEP 3: DOWNLOAD ---
+Write-Host "[3/6] Downloading Source Code..." -ForegroundColor Yellow
+$ZipPath = Join-Path $BuildDir "source.zip"
+Invoke-WebRequest -Uri "https://github.com/vhaloo/LocalTranscriberPro/archive/refs/heads/main.zip" -OutFile $ZipPath
+Expand-Archive -Path $ZipPath -DestinationPath $BuildDir -Force
+$RepoDir = Get-ChildItem -Directory | Select-Object -First 1
+Set-Location $RepoDir.FullName
+
+# --- STEP 4: AI ENGINE ---
+Show-Header
+Write-Host "[4/6] Setting up AI Engine (Isolated Environment)..." -ForegroundColor Yellow
+& $PythonPath -m venv venv
+$VenvPython = Join-Path (Get-Location) "venv\Scripts\python.exe"
+$VenvPip = Join-Path (Get-Location) "venv\Scripts\pip.exe"
+
+Write-Host "... Updating Pip..."
+& $VenvPython -m pip install --upgrade pip --no-cache-dir | Out-File $LogFile -Append
+
+# GPU Detection
+$HasGpu = $false
+try { nvidia-smi | Out-Null; $HasGpu = $true } catch {}
+
+if ($HasGpu) {
+    Write-Host "[GPU] NVIDIA Detected! Installing CUDA optimized Torch..." -ForegroundColor Green
+    & $VenvPip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124 --no-cache-dir
+} else {
+    Write-Host "[CPU] No GPU detected. Installing standard Torch..."
+    & $VenvPip install torch torchvision torchaudio --no-cache-dir
+}
+
+Write-Host "... Installing App requirements..."
+& $VenvPip install -r requirements.txt --no-cache-dir | Out-File $LogFile -Append
+& $VenvPip install pyinstaller tbb --no-cache-dir | Out-File $LogFile -Append
+
+# --- STEP 5: BUILD ---
+Show-Header
+Write-Host "[5/6] Building Application (Creating High-Performance EXE)..." -ForegroundColor Yellow
+$CtkPath = & $VenvPython -c "import customtkinter; import os; print(os.path.dirname(customtkinter.__file__))"
+$AppName = "LocalTranscriberPro_v1.1"
+
+# Run PyInstaller
+& $VenvPython -m PyInstaller --noconsole --onefile --clean `
+    --name $AppName `
+    --add-data "$($CtkPath);customtkinter" `
+    --add-data "src;src" `
+    --collect-all "whisper" `
+    --collect-all "openai_whisper" `
+    --collect-all "tbb" `
+    --collect-all "numba" `
+    --collect-all "torch" `
+    --collect-all "torchaudio" `
+    --collect-all "scipy" `
+    --collect-all "yt_dlp" `
+    --collect-all "tkinterdnd2" `
+    --collect-all "certifi" `
+    --collect-all "speechbrain" `
+    --collect-all "sklearn" `
+    --collect-all "soundfile" `
+    --hidden-import "scipy.special.cython_special" `
+    --hidden-import "scipy.integrate.lsoda" `
+    --hidden-import "sklearn.utils._cython_blas" `
+    --hidden-import "sklearn.neighbors.typedefs" `
+    --hidden-import "sklearn.neighbors.quad_tree" `
+    --hidden-import "sklearn.tree._utils" `
+    --exclude-module "tensorflow" `
+    main.py
+
+# --- STEP 6: FINALIZE ---
+$ExePath = Join-Path (Get-Location) "dist\$AppName.exe"
+if (Test-Path $ExePath) {
+    Show-Header
+    Write-Host "[6/6] Finalizing Installation..." -ForegroundColor Yellow
+    $DestDir = Join-Path $env:USERPROFILE "Desktop\Local Transcriber Pro"
+    if (-not (Test-Path $DestDir)) { New-Item -ItemType Directory -Path $DestDir | Out-Null }
+    
+    Copy-Item $ExePath -Destination (Join-Path $DestDir "$AppName.exe") -Force
+    
+    # Create Shortcut
+    $WshShell = New-Object -ComObject WScript.Shell
+    $Shortcut = $WshShell.CreateShortcut("$env:USERPROFILE\Desktop\Local Transcriber Pro.lnk")
+    $Shortcut.TargetPath = (Join-Path $DestDir "$AppName.exe")
+    $Shortcut.WorkingDirectory = $DestDir
+    $Shortcut.Save()
+
+    Write-Host ""
+    Write-Host "===============================================================================" -ForegroundColor Green
+    Write-Host "   INSTALLATION SUCCESSFUL!" -ForegroundColor Green
+    Write-Host "===============================================================================" -ForegroundColor Green
+    Write-Host "The app has been placed on your Desktop."
+    Write-Host "Starting now..."
+    Start-Process (Join-Path $DestDir "$AppName.exe")
+    Set-Location $InstallDir
+    # Remove-Item $BuildDir -Recurse -Force # Optional cleanup
+    exit 0
+} else {
+    Write-Host ""
+    Write-Host "===============================================================================" -ForegroundColor Red
+    Write-Host "   ERROR: BUILD FAILED" -ForegroundColor Red
+    Write-Host "===============================================================================" -ForegroundColor Red
+    Write-Host "Please check the log on your desktop: LT_Install_Log.txt"
+    exit 1
+}
