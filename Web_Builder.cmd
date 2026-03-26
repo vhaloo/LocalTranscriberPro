@@ -6,7 +6,7 @@ color 0B
 :: --- ENTRY POINT ---
 :: This CMD stub launches the PowerShell engine which is 100x more reliable for installation tasks.
 echo Launching Ultimate Installer engine...
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$input_path = '%~dp0'; [scriptblock]::Create((Get-Content '%~f0' | Out-String).Split(\"### PS_START ###\")[1]).Invoke($input_path)"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$input_path = '%~dp0'; $code = (Get-Content '%~f0' -Raw) -split '\#\#\# PS_START \#\#\#'; [scriptblock]::Create($code[1]).Invoke($input_path)"
 pause
 exit /b %errorlevel%
 
