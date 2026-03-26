@@ -104,29 +104,29 @@ echo [4] Setting up AI Engine... >> "%LOG_FILE%"
 "!PY_CMD!" -m venv venv
 call venv\Scripts\activate.bat
 
-python -m pip install --upgrade pip --no-cache-dir >> "%LOG_FILE%" 2>&1
+"venv\Scripts\python.exe" -m pip install --upgrade pip --no-cache-dir
 
 :: GPU Check
 nvidia-smi >nul 2>&1
 if !errorlevel! equ 0 (
     echo [GPU] NVIDIA GPU Detected! Installing CUDA optimized AI...
     echo [GPU] Detected. Installing CUDA Torch... >> "%LOG_FILE%"
-    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124 --no-cache-dir >> "%LOG_FILE%" 2>&1
+    "venv\Scripts\pip.exe" install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124 --no-cache-dir
 ) else (
     echo [CPU] No NVIDIA GPU detected. Installing standard AI...
     echo [CPU] No GPU. Installing CPU Torch... >> "%LOG_FILE%"
-    pip install torch torchvision torchaudio --no-cache-dir >> "%LOG_FILE%" 2>&1
+    "venv\Scripts\pip.exe" install torch torchvision torchaudio --no-cache-dir
 )
 
 echo     - Installing requirements...
-pip install -r requirements.txt --no-cache-dir >> "%LOG_FILE%" 2>&1
-pip install pyinstaller tbb --no-cache-dir >> "%LOG_FILE%" 2>&1
+"venv\Scripts\pip.exe" install -r requirements.txt --no-cache-dir
+"venv\Scripts\pip.exe" install pyinstaller tbb --no-cache-dir
 
 echo.
 echo [5/6] Building Application (This takes a few minutes)...
 echo [5] Building Application... >> "%LOG_FILE%"
 
-for /f "tokens=*" %%i in ('python -c "import customtkinter; import os; print(os.path.dirname(customtkinter.__file__))"') do set "CTK_PATH=%%i"
+for /f "tokens=*" %%i in ('"venv\Scripts\python.exe" -c "import customtkinter; import os; print(os.path.dirname(customtkinter.__file__))"') do set "CTK_PATH=%%i"
 
 set "APP_NAME=LocalTranscriberPro_v1.1"
 
