@@ -431,18 +431,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             threading.Thread(target=self.process_batch_thread, daemon=True).start()
 
     def parse_tcl_list(self, raw_str):
-        files = []
-        current = ""
-        in_brace = False
-        for char in raw_str:
-            if char == '{': in_brace = True
-            elif char == '}': in_brace = False
-            elif char == ' ' and not in_brace:
-                if current: files.append(current)
-                current = ""
-            else: current += char
-        if current: files.append(current)
-        return [f.strip('{}') for f in files]
+        return list(self.tk.splitlist(raw_str))
 
     # --- Visualizer & Animations ---
     def update_visualizer(self):
