@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Local Transcriber Pro
+Comment=Private offline audio transcription
+Comment[fr]=Transcription audio privée et hors ligne
+Exec=LocalTranscriberPro
+Icon=localtranscriberpro
+Categories=AudioVideo;Audio;Utility;
+Terminal=false
+StartupNotify=true

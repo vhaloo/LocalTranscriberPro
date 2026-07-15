@@ -1,198 +1,131 @@
-# Local Transcriber Pro 🎙️
+# Local Transcriber Pro 2.1
 
-[![OS - Windows](https://img.shields.io/badge/OS-Windows-blue?logo=windows&logoColor=white)](https://github.com/vhaloo/LocalTranscriberPro/releases)
-[![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)
-![License](https://img.shields.io/badge/license-MIT-green)
-![Status](https://img.shields.io/badge/status-Release%20v1.1-brightgreen)
+Private, offline transcription for Windows, macOS and Linux — with a genuinely simple interface when you want it and every professional control when you need it.
 
-**Local Transcriber Pro** is a high-performance, private, and offline transcription tool developed by **Vhaloo**. It converts spoken audio from your microphone or existing files into text with extreme accuracy using OpenAI's Whisper models, running entirely on your own device.
+> Français : [lire la présentation française](#français)
 
-LTP is the best choice for Windows users who want the "Professional" accuracy of the best voice recognition engine in the world (Exact same as ChatGPT), but with the privacy and zero-cost of local hardware and open-source software, with a one-click installation, on any computer.
+## What is new in 2.1
 
-![Local Transcriber Pro Preview](app_preview.png)
+- **A truly playful Simple mode.** Four large rounded choices lead to one clearly explained next step: Files, Conference, Endless Dictation or Online Video.
+- **A live vintage recorder display.** The microphone card stays visible, confirms the automatically selected device, draws the waveform, lights a level bar and moves an analog VU needle before recording begins.
+- **Three plain-language quality choices.** Best, Faster and Small PC select the appropriate technical model while Advanced mode still exposes the full catalogue.
+- **Explanations everywhere.** Hover over the main controls to learn what they do; privacy and automatic choices are also stated directly on screen.
 
----
+## The 2.0 foundation
 
-## 🌟 Why Local Transcriber Pro?
+- **Simple and Advanced interfaces.** Start with four clear tasks: files, conference, endless dictation or an online video. One button reveals every advanced setting.
+- **Maximum local quality by default.** The default profile selects the largest safe model for the computer and prioritizes OpenAI Whisper `large-v3`. `large-v3-turbo` is available when speed matters more.
+- **Every official Whisper size remains available.** Tiny, Base, Small, Medium, Large v1/v2/v3, Turbo and English-only variants.
+- **Hardware-aware acceleration.** NVIDIA CUDA and CPU use `faster-whisper`/CTranslate2; Apple Silicon uses MLX when available. A PyTorch compatibility engine provides a safe GPU fallback.
+- **Honest hardware proof.** The hardware panel shows the detected CPU, RAM, GPU, VRAM and which runtime is actually available — not merely whether a GPU name exists.
+- **Useful ETA.** Before a file starts, the app estimates processing time from its duration and hardware. After one completed transcription it learns the measured speed of that model and computer.
+- **English and French UI.** The first launch follows the operating-system language; language can be changed at any time.
+- **Modern sessions.** Conference mode enables speaker labels, dictation runs without a time limit, files can be dropped in batches, and online video audio can be downloaded explicitly.
+- **Complete exports.** Automatic TXT, SRT, VTT, JSON and CSV copies, editable transcript, one-click clipboard copy, crash recovery and smart subtitles beside videos.
 
-### 🔒 **Uncompromised Privacy**
-*   **100% Offline:** No data ever leaves your computer. No cloud APIs, no subscriptions, no tracking.
-*   **Secure:** Perfect for confidential meetings, legal/medical dictation, or personal journals.
+All transcription remains local. The only network operations are the first download of a selected model and an online-video download explicitly requested by the user.
 
-### 🎬 **Universal Subtitle Creator**
-*   **Any Source:** Create subtitles for **ANY** video or audio file (Movies, TV Shows, Podcasts, Lectures).
-*   **Export as .SRT:** Automatically generate time-synced subtitles for YouTube, VLC, or Premiere Pro.
-*   **Batch Process:** Drag and drop an entire season of a show to subtitle it overnight.
+## Install
 
-### ⚡ **High Performance**
-*   **GPU Acceleration:** Automatically detects NVIDIA GPUs (CUDA) for blazing fast transcription (up to 10x faster than CPU).
-*   **Smart Queue:** Process unlimited files in the background without freezing your PC.
+Download the package for your operating system from [GitHub Releases](https://github.com/vhaloo/LocalTranscriberPro/releases):
 
-### 🚀 **Unbound Potential**
-*   **No Limits:** Transcribe files of **ANY size or length**. From a 5-second voice memo to a 100-hour continuous recording.
-*   **Universal Formats:** Supports virtually every audio and video format in existence. If it can be played, the app can transcribe it.
-*   **AI Ready:** Perfect for processing massive "Brain dump" dictaphone recordings or week-long meeting logs to feed into LLMs (ChatGPT/Claude) for summarization and analysis.
+| System | Package | Minimum |
+|---|---|---|
+| Windows 11/10 x64 | `Windows-x64-Setup.exe` | 4 GB RAM for Tiny; NVIDIA GPU optional |
+| macOS 12+ | `.dmg` | Apple Silicon recommended; Intel uses CPU fallback |
+| Linux x86-64 | `.AppImage` or `.tar.gz` | Modern distribution, 4 GB RAM for Tiny |
 
----
+The application is self-contained. Python and build tools are not installed on the user's computer. Model weights are downloaded once, on demand, then reused offline.
 
-## 🛠️ Features at a Glance
+Unsigned community builds can trigger Windows SmartScreen or macOS Gatekeeper. Checksums are published as `SHA256SUMS.txt` with every 2.x release. Code-signing and notarization require maintainer certificates and are documented separately.
 
-| Feature | Description |
-| :--- | :--- |
-| **Speaker Detection** | **NEW!** Identifies and labels different speakers (e.g., [Speaker 1]). |
-| **Smart Subtitles** | **NEW!** Automatically creates `.srt` files next to videos for VLC. |
-| **Drag & Drop** | **NEW!** Drag audio/video files into the window to start transcribing. |
-| **YouTube Mode** | **NEW!** Paste a link to download & subtitle videos automatically. |
-| **Autosave** | Sessions are automatically saved to `Documents/Transcriptions`. |
-| **Live Recording** | Record meetings or ideas with a real-time waveform visualizer. |
-| **Translation** | Instantly translate foreign audio into English text. |
-| **Auto-Cleanup** | Smart AI filtering removes repetitive "hallucinations" and loops. |
-| **Model Manager** | Easily manage disk space by deleting unused AI models. |
-| **Formats** | Supports `.mp3`, `.wav`, `.mp4`, `.mkv`, `.mov`, `.flac`, and more. |
+## Models and practical requirements
 
----
+The values below are conservative working targets. Quantization and platform backends can change actual use.
 
-## 📥 Installation
+| Model | Typical download | Recommended memory | Use |
+|---|---:|---:|---|
+| `large-v3` | ~3.1 GB | 12+ GB RAM or 7+ GB VRAM | Best local multilingual accuracy; default when safe |
+| `large-v3-turbo` | ~1.6 GB | 8+ GB RAM or 5+ GB VRAM | Much faster, small accuracy trade-off; no reliable speech translation |
+| `medium` | ~1.5 GB | 8 GB RAM or 4 GB VRAM | Strong quality on mid-range computers |
+| `small` | ~0.5 GB | 5 GB RAM or 2 GB VRAM | Balanced quality and speed |
+| `base` | ~0.15 GB | 4 GB RAM | Lightweight general use |
+| `tiny` | ~0.08 GB | 4 GB RAM | Lowest-memory fallback; works slowly on a small CPU |
 
-### Option 1: One-Click Installer (Recommended for GPU)
-This script will automatically download the latest version, check for prerequisites, and build the app optimized for your PC. **This is the only way to get full NVIDIA GPU (CUDA) acceleration.**
+`gpt-4o-transcribe` is newer and more accurate than Whisper, but OpenAI currently provides it as a hosted API rather than downloadable local weights. Local Transcriber Pro therefore uses the strongest openly downloadable OpenAI checkpoint (`large-v3`) instead of pretending an API model is offline.
 
-1.  **[Click here to download `Web_Builder.cmd`](https://github.com/vhaloo/LocalTranscriberPro/releases/latest/download/Web_Builder.cmd)**
-2.  Double-click the downloaded file to install.
-3.  The app will be placed directly on your **Desktop**.
+See [Hardware and model selection](docs/HARDWARE.md) for exact behavior.
 
-*Note: If the installer fails to auto-detect your environment, ensure you have these installed:*
-*   **[Python 3.12](https://www.python.org/downloads/release/python-3128/)** (Required - **IMPORTANT:** Tick "Add Python to PATH" during installation)
-*   **[NVIDIA CUDA Toolkit 12.x](https://developer.nvidia.com/cuda-downloads)** (For NVIDIA GeForce users - highly recommended for speed)
+## Preserved and expanded feature set
 
-### Option 2: Direct Download (CPU Only)
-If you don't have an NVIDIA GPU or just want a quick setup without installing Python:
-1.  **[Download `LocalTranscriberPro_v1.1_CPU_Only.exe`](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v1.1/LocalTranscriberPro_v1.1_CPU_Only.exe)**
-2.  Double-click to run.
+- live microphone recording, pause and stop shortcuts
+- unlimited dictation and conference capture
+- audio/video batch queue and drag-and-drop folders
+- YouTube audio download and transcription
+- automatic spoken-language detection and speech-to-English translation
+- speaker diarization/labels
+- silence removal (VAD) and repetition cleanup
+- synchronized subtitles beside source videos
+- model cache manager
+- output-folder selection and open-on-complete
+- TXT, SRT, VTT, JSON and CSV export
+- session autosave and recovery
+- automatic CPU/GPU selection with manual override
 
-⚠️ **CPU Version Limitations:**
-*   **Speed:** Transcription is significantly slower (can take 5-10x longer than GPU).
-*   **Resource Heavy:** High CPU usage during processing may slow down your computer.
-*   **Models:** While it supports all models, the **"Large"** model may be extremely slow depending on your processor.
-*   **No CUDA:** This version cannot utilize NVIDIA graphics cards even if they are present.
+## Developer setup
 
-### Option 3: Command Line Installation (Windows)
-For power users who prefer the terminal, run this single command in **Command Prompt (CMD)** to download and launch the installer:
-```cmd
-curl -sL https://github.com/vhaloo/LocalTranscriberPro/releases/latest/download/Web_Builder.cmd > LT_Installer.cmd && LT_Installer.cmd
+```powershell
+py -3.12 -m venv .venv
+.venv\Scripts\python -m pip install -r requirements-dev.txt
+.venv\Scripts\python main.py
 ```
 
-### Option 4: Developer Setup (Build from Source)
-If you want to contribute or modify the code:
-1.  **Clone the Repo:**
-    ```bash
-    git clone https://github.com/vhaloo/LocalTranscriberPro.git
-    cd LocalTranscriberPro
-    ```
-2.  **Setup Environment:**
-    ```bash
-    python -m venv venv
-    call venv\Scripts\activate
-    pip install -r requirements.txt
-    ```
-3.  **Run/Build:**
-    *   To run: `python main.py`
-    *   To build EXE: `build_exe.bat`
+Speaker labeling adds the optional compatibility pack:
 
-### 🍎 Mac Installation
-
-#### **Requirements**
-*   **Hardware:** Apple Silicon (M1/M2/M3/M4/M5) highly recommended for GPU speed. Intel Macs supported (CPU only, slower).
-*   **OS:** macOS 12 (Monterey) or later.
-*   **Software:** The installer automates setting up Python 3.12 and FFmpeg via Homebrew.
-
-#### **Option 1: Easy Installer (No Terminal)**
-1.  **[Download Source Code (ZIP)](https://github.com/vhaloo/LocalTranscriberPro/archive/refs/heads/main.zip)** and unzip it.
-2.  Open the folder.
-3.  Double-click **`Install_on_Mac.command`**.
-4.  Choose **Option 1 (Full Install)** in the menu.
-    *   *Note: If macOS blocks it, Right-Click the file > Open > Open.*
-
-#### **Option 2: Terminal One-Liner (Fastest)**
-Paste this into your Terminal to download and launch the installer instantly:
-```bash
-curl -sL https://raw.githubusercontent.com/vhaloo/LocalTranscriberPro/main/Install_on_Mac.command > Install_LTP.command && chmod +x Install_LTP.command && ./Install_LTP.command
+```powershell
+.venv\Scripts\python -m pip install -r requirements-diarization.txt
 ```
 
-#### **Option 3: Manual Developer Setup**
-1.  Install dependencies: `brew install python@3.12 ffmpeg python-tk`
-2.  Clone & Run:
-    ```bash
-    git clone https://github.com/vhaloo/LocalTranscriberPro.git
-    cd LocalTranscriberPro
-    python3.12 -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
-    python main.py
-    ```
+Run the validation suite:
 
----
+```powershell
+.venv\Scripts\python -m ruff check main.py src tests
+.venv\Scripts\python -m pytest
+```
 
-## 📖 User Guide
+Build a Windows application folder:
 
-### 📺 YouTube Transcription
-1.  Switch to the **"YouTube"** tab.
-2.  Paste a video URL (e.g., `https://youtube.com/watch?v=...`).
-3.  Click **Download & Transcribe**.
-4.  The audio will be downloaded, processed, and the text will appear in the log.
+```powershell
+.\scripts\build_windows.ps1
+```
 
-### 🎙️ Live Recording
-1.  Select your **Microphone** and **Model Size**. 
-    *   **"Small"** is a good balance of speed and accuracy.
-    *   **"Large"** offers the **most accurate** transcription (requires more VRAM/CPU).
-2.  Click **Record** (or press `F1`).
-3.  Speak! Text will appear in real-time blocks.
-4.  Click **Stop** (`F3`) to finalize. The transcript is automatically saved to your Desktop.
+Cross-platform packages are reproducibly built by `.github/workflows/desktop-build.yml`. Full instructions are in [Building and releasing](docs/BUILDING.md).
 
-### 📁 File Transcription & Subtitles
-1.  Click **Batch Files**.
-2.  Select one or more audio/video files (Shift+Click).
-3.  The app will process them one by one.
-4.  **Export:** Use the "Export..." menu to save as `.srt` (Subtitles) or `.txt` (Text).
+## Privacy and security
 
----
+- No analytics, telemetry or cloud transcription is enabled by the app.
+- TLS certificate verification is never disabled.
+- Online downloads use an explicit YouTube host allowlist.
+- Model deletion is restricted to known cache directories.
+- The installer uses per-user installation and does not require administrator privileges.
+- Release assets include SHA-256 checksums.
 
-## ❓ Troubleshooting
+Read the complete [privacy and security note](docs/PRIVACY.md).
 
-### **"This app can't run on your PC"**
-*   **Cause:** This usually means the download was interrupted or the file is incomplete (0KB).
-*   **Fix:** Re-run the `Web_Builder.cmd` installer. It includes an **Integrity Check** to ensure the build is complete before finishing.
+## Version 1 archive
 
-### **"CUDA is not available / Running in CPU mode"**
-*   **Cause:** The app cannot find an NVIDIA GPU or the correct drivers.
-*   **Fix:** 
-    1.  Ensure you have an NVIDIA GPU.
-    2.  Update your GPU drivers via GeForce Experience.
-    3.  Download and install the **[NVIDIA CUDA Toolkit 12.x](https://developer.nvidia.com/cuda-downloads)**.
-    4.  Restart your computer.
+The original 1.1 application remains permanently available at [`archive-v1.1-before-v2.0`](https://github.com/vhaloo/LocalTranscriberPro/releases/tag/archive-v1.1-before-v2.0) and the original [`v1.1`](https://github.com/vhaloo/LocalTranscriberPro/releases/tag/v1.1) release.
 
-### **"Antivirus flagged the file"**
-*   **Cause:** This app is built with PyInstaller. Some antivirus software (like Windows Defender) generates "False Positives" for unsigned Python executables.
-*   **Fix:** Add an exclusion for the folder where you keep the app, or click "Run Anyway" -> "More Info" if Windows SmartScreen blocks it. Since this is open source, you can verify the code yourself!
+## Français
 
-### **"Installer Failed"**
-*   **Fix:** If `Web_Builder.cmd` fails, check your **Desktop** for a file named `LT_Install_Log.txt`. It contains the full error report to help diagnose the issue.
+Local Transcriber Pro 2.1 transcrit des fichiers, des conférences, une dictée sans fin ou une vidéo en ligne, entièrement sur l'ordinateur. L'interface démarre automatiquement en français lorsque le système est français et peut basculer en anglais en un clic.
 
----
+Le mode **Simple** propose quatre gros choix arrondis, puis une seule étape clairement expliquée. Un vumètre façon magnétophone montre en permanence que le microphone fonctionne, affiche son niveau en direct et confirme lorsque le microphone du système a été choisi automatiquement. Le mode **Avancé** redonne accès à tous les modèles, au choix CPU/GPU, à la langue parlée, à la traduction, aux personnes, aux silences, aux sous-titres et aux cinq formats d'export.
 
-## 💻 Requirements
-*   **OS:** Windows 10 or Windows 11 (64-bit).
-*   **Processor:** Intel Core i5 / AMD Ryzen 5 or better.
-*   **RAM:** 8GB recommended (4GB minimum).
-*   **Storage:** ~500MB initial space + space for downloaded models (1GB-3GB).
+Le réglage par défaut **Qualité maximale (Auto)** choisit le plus gros modèle que la mémoire de l'ordinateur peut utiliser sans risque. Sur une machine adéquate, c'est `large-v3`, le plus gros modèle Whisper local d'OpenAI. Un ordinateur Windows 11 avec 4 Go de RAM reste pris en charge grâce au modèle Tiny, même si le traitement peut être lent.
 
----
+Téléchargez l'installateur adapté dans les [releases GitHub](https://github.com/vhaloo/LocalTranscriberPro/releases). Au premier usage d'un modèle, son poids est téléchargé une seule fois; l'audio n'est jamais envoyé sur Internet.
 
-## 👨‍💻 Developer
-**Developed by Vhaloo**
-*   [GitHub Profile](https://github.com/vhaloo)
+## License
 
----
-
-## 📄 License
-MIT License. Free to use, modify, and distribute.
+MIT — developed by [Vhaloo](https://github.com/vhaloo).

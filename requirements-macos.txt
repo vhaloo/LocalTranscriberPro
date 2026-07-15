@@ -1,0 +1,4 @@
+-r requirements.txt
+-r requirements-diarization.txt
+mlx-whisper==0.4.3; platform_machine == "arm64"
+openai-whisper==20250625
