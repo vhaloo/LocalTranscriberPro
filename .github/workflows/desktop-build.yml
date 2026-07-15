@@ -88,7 +88,7 @@ jobs:
           chmod +x appimagetool
           ARCH=x86_64 ./appimagetool --appimage-extract-and-run AppDir "artifacts/LocalTranscriberPro-${VERSION}-Linux-x86_64.AppImage"
           tar -C dist -czf "artifacts/LocalTranscriberPro-${VERSION}-Linux-x86_64.tar.gz" LocalTranscriberPro
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact }}
           path: artifacts/*
