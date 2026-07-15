@@ -1,6 +1,6 @@
 # Optional-but-bundled speaker identification compatibility pack.
 # Build workflows preinstall the platform-appropriate torch wheel first.
-torch>=2.7,<2.12
+torch>=2.13.0,<2.14
 torchaudio>=2.7,<2.12
 speechbrain>=1.0.3,<2
 scikit-learn>=1.6,<2
