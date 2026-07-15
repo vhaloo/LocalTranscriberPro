@@ -1,9 +1,11 @@
 venv/
+.venv/
 __pycache__/
 *.pyc
 build/
 dist/
 *.spec
+!packaging/*.spec
 *.log
 local_transcriber.py
 *.mp3
@@ -12,5 +14,7 @@ local_transcriber.py
 *.mkv
 *.srt
 *.txt
+!requirements*.txt
 temp_downloads/
+artifacts/
 .unsaved_session.json

@@ -1,5 +1,18 @@
 # Local Transcriber Project History
 
+## Session: July 15, 2026 (v2.1 interface and v2.0 rewrite)
+
+### Status: Release candidate
+
+- Added the playful two-step Simple mode, permanent live tape-recorder VU meter, automatic microphone confirmation and expanded hover help for v2.1.
+- Added Simple and Advanced bilingual interfaces.
+- Added the complete OpenAI Whisper model catalogue with hardware-aware maximum-quality defaults.
+- Added faster-whisper/CTranslate2, MLX and PyTorch compatibility backends.
+- Added conference, endless dictation, online video and batch presets.
+- Added hardware proof, learned ETA, VTT, improved recovery and secure cache handling.
+- Added reproducible Windows, macOS and Linux packaging workflows.
+- Archived the v1.1 base as `archive-v1.1-before-v2.0`.
+
 ## Session: February 26, 2026 (v1.1 Update)
 
 ### **Status: Release v1.1**
