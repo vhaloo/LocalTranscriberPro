@@ -135,15 +135,39 @@ def main() -> int:
             from src.hardware import detect_hardware
 
             hardware = detect_hardware(report)
-            report("interface", 0.78)
+            report("preloading_model", 0.76)
+            from src.models import AUTO_MODEL_ID
+            from src.settings import SettingsStore
+            from src.transcriber import TranscriberEngine
+
+            settings = SettingsStore()
+            simple_mode = settings.get("ui_mode", "simple") == "simple"
+            requested_model = AUTO_MODEL_ID if simple_mode else settings.get("model", AUTO_MODEL_ID)
+            requested_device = "auto" if simple_mode else settings.get("device", "auto")
+            engine = TranscriberEngine(hardware)
+            preloaded_status = None
+            try:
+                preloaded_status = engine.load_model(
+                    requested_model,
+                    requested_device,
+                    lambda *_: report("preloading_model", 0.82),
+                )
+            except Exception:
+                logging.exception("Startup model preload failed; the interface will offer a safe retry")
+
+            report("interface", 0.92)
             from src.gui import TranscriberApp
 
             report("ready", 0.98)
-            return hardware, TranscriberApp
+            return hardware, engine, preloaded_status, TranscriberApp
 
         try:
-            hardware, app_class = splash.run(prepare)
-            app = app_class(hardware=hardware)
+            hardware, engine, preloaded_status, app_class = splash.run(prepare)
+            app = app_class(
+                hardware=hardware,
+                engine=engine,
+                preloaded_status=preloaded_status,
+            )
             app.mainloop()
             return 0
         except Exception as error:

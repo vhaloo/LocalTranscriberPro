@@ -12,12 +12,17 @@ Private, offline transcription for Windows, macOS and Linux — with a genuinely
 - **Immediate startup feedback.** A responsive bilingual splash screen appears before heavy AI libraries load and explains memory, GPU and interface preparation step by step. Duplicate launches are blocked.
 - **No missing FFmpeg surprise.** The platform-specific FFmpeg helper is now bundled for online-video extraction, alongside the Python, AI, audio and diarization runtimes already included.
 - **Long operations explain themselves.** First model download, cache preparation, engine startup and safe fallback each have a plain-language status.
+- **Record is armed before it is needed.** The maximum safe model loads during the startup splash. Changing a model or processor immediately preloads the replacement in the background.
+- **Permanent session history.** Every completed job is indexed in the new History view, older exports are discovered automatically, and no Clear action deletes saved work.
+- **Progressive recording safety.** Long microphone sessions continuously update TXT and JSON files under the user-owned `Documents/Transcriptions` folder before Stop is pressed.
+- **Flexible readable text.** Advanced mode can switch between paragraphs and one phrase per line, with optional start times and durations in seconds.
+- **Quality-first Simple mode.** Choosing Files, Conference, Dictation or Online Video automatically applies the largest safe model and the strongest stable accuracy settings for that computer.
 
 ## The 2.1 interface
 
 - **A truly playful Simple mode.** Four large rounded choices lead to one clearly explained next step: Files, Conference, Endless Dictation or Online Video.
 - **A live vintage recorder display.** The microphone card stays visible, confirms the automatically selected device, draws the waveform, lights a level bar and moves an analog VU needle before recording begins.
-- **Three plain-language quality choices.** Best, Faster and Small PC select the appropriate technical model while Advanced mode still exposes the full catalogue.
+- **No technical quality decision in Simple mode.** The app chooses maximum stable quality automatically; Advanced mode still exposes the full catalogue and tuning controls.
 - **Explanations everywhere.** Hover over the main controls to learn what they do; privacy and automatic choices are also stated directly on screen.
 
 ## The 2.0 foundation
@@ -29,7 +34,7 @@ Private, offline transcription for Windows, macOS and Linux — with a genuinely
 - **Honest hardware proof.** The hardware panel shows the detected CPU, RAM, GPU, VRAM and which runtime is actually available — not merely whether a GPU name exists.
 - **Useful ETA.** Before a file starts, the app estimates processing time from its duration and hardware. After one completed transcription it learns the measured speed of that model and computer.
 - **English and French UI.** The first launch follows the operating-system language; language can be changed at any time.
-- **Modern sessions.** Conference mode enables speaker labels, dictation runs without a time limit, files can be dropped in batches, and online video audio can be downloaded explicitly.
+- **Modern sessions.** Conference mode enables speaker labels, dictation runs without a time limit, files can be dropped in batches, online video audio can be downloaded explicitly, and History can reopen earlier work.
 - **Complete exports.** Automatic TXT, SRT, VTT, JSON and CSV copies, editable transcript, one-click clipboard copy, crash recovery and smart subtitles beside videos.
 
 All transcription remains local. The only network operations are the first download of a selected model and an online-video download explicitly requested by the user.
@@ -79,6 +84,9 @@ See [Hardware and model selection](docs/HARDWARE.md) for exact behavior.
 - synchronized subtitles beside source videos
 - model cache manager
 - output-folder selection and open-on-complete
+- permanent session history with earlier-export discovery
+- progressive TXT/JSON recording saves in `Documents/Transcriptions`
+- block/line layouts with optional timestamps and durations
 - TXT, SRT, VTT, JSON and CSV export
 - session autosave and recovery
 - automatic CPU/GPU selection with manual override
@@ -132,6 +140,10 @@ The original 1.1 application remains permanently available at [`archive-v1.1-bef
 Local Transcriber Pro 2.2 transcrit des fichiers, des conférences, une dictée sans fin ou une vidéo en ligne, entièrement sur l'ordinateur. L'interface démarre automatiquement en français lorsque le système est français et peut basculer en anglais en un clic.
 
 Le mode **Simple** propose quatre gros choix arrondis, puis une seule étape clairement expliquée. Un vumètre façon magnétophone montre en permanence que le microphone fonctionne, affiche son niveau en direct et confirme lorsque le microphone du système a été choisi automatiquement. Le mode **Avancé** redonne accès à tous les modèles, au choix CPU/GPU, à la langue parlée, à la traduction, aux personnes, aux silences, aux sous-titres et aux cinq formats d'export.
+
+Le modèle choisi est maintenant chargé pendant l’écran de démarrage, puis rechargé automatiquement dès que le modèle ou le processeur change. Le bouton **Enregistrer** est donc normalement déjà armé. Si une préparation exceptionnelle reste nécessaire, un écran couvrant toute l’application explique clairement ce qui se passe.
+
+Le nouvel **Historique** permet de revoir les sessions terminées et récupère aussi les anciens exports. Les enregistrements longs écrivent progressivement leur texte et leur JSON dans `Documents/Transcriptions`, sans attendre le bouton Arrêter. Le mode Avancé permet aussi de choisir blocs ou lignes, avec ou sans heure de départ et durée en secondes.
 
 Le réglage par défaut **Qualité maximale (Auto)** choisit le plus gros modèle que la mémoire de l'ordinateur peut utiliser sans risque. Sur une machine adéquate, c'est `large-v3`, le plus gros modèle Whisper local d'OpenAI. Un ordinateur Windows 11 avec 4 Go de RAM reste pris en charge grâce au modèle Tiny, même si le traitement peut être lent.
 

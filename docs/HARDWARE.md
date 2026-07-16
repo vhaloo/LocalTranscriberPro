@@ -16,6 +16,8 @@ Local Transcriber Pro 2.2 treats a model as available only after its complete ru
 
 The same free-memory and free-storage snapshot is refreshed immediately before a model is loaded. This protects against an old saved setting or another application consuming memory after Local Transcriber Pro started.
 
+The admitted maximum-quality model is preloaded during the startup splash. Changing the model or processor starts a background replacement load immediately. Record therefore uses the already-armed engine in the normal case; the full-window initialization message remains only as a truthful fallback if preloading has not completed or the resource check changed.
+
 ## Device routing
 
 Automatic mode checks routes in this order for each individual model:

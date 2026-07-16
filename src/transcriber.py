@@ -12,6 +12,7 @@ import logging
 import os
 import re
 import shutil
+import threading
 import time
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
@@ -57,6 +58,8 @@ class TranscriberEngine:
         self.device = "cpu"
         self.backend = "none"
         self.compute_type = "int8"
+        self.current_status: EngineStatus | None = None
+        self._load_lock = threading.RLock()
         self.model_cache = Path(user_cache_dir("LocalTranscriberPro", "Vhaloo")) / "models"
         self.model_cache.mkdir(parents=True, exist_ok=True)
 
@@ -105,9 +108,28 @@ class TranscriberEngine:
         device_mode: str = "auto",
         status_callback: LoadStatusCallback | None = None,
     ) -> EngineStatus:
+        with self._load_lock:
+            return self._load_model_unlocked(model_id, device_mode, status_callback)
+
+    def _load_model_unlocked(
+        self,
+        model_id: str,
+        device_mode: str = "auto",
+        status_callback: LoadStatusCallback | None = None,
+    ) -> EngineStatus:
         def report(stage: str, selected_model: str, device: str) -> None:
             if status_callback:
                 status_callback(stage, selected_model, device)
+
+        normalized_device = self._normalize_device(device_mode)
+        if (
+            self.model is not None
+            and self.current_status is not None
+            and self.current_status.requested_model_id == model_id
+            and self.current_status.requested_device == normalized_device
+        ):
+            report("model_cached", self.current_status.model_id, self.current_status.device)
+            return self.current_status
 
         report("resource_check", model_id, device_mode)
         self.hardware.refresh_resources()
@@ -226,7 +248,7 @@ class TranscriberEngine:
             target_device,
             compute,
         )
-        return EngineStatus(
+        self.current_status = EngineStatus(
             model_id=requested_model,
             requested_device=requested_device,
             device=target_device,
@@ -234,6 +256,15 @@ class TranscriberEngine:
             compute_type=compute,
             requested_model_id=model_id,
             fallback_reason=fallback_reason,
+        )
+        return self.current_status
+
+    def is_ready(self, model_id: str, device_mode: str = "auto") -> bool:
+        return bool(
+            self.model is not None
+            and self.current_status is not None
+            and self.current_status.requested_model_id == model_id
+            and self.current_status.requested_device == self._normalize_device(device_mode)
         )
 
     def _load_openai_fallback(self, model_id: str, device: str) -> None:
@@ -249,6 +280,7 @@ class TranscriberEngine:
     def unload_model(self) -> None:
         self.model = None
         self.model_name = None
+        self.current_status = None
         try:
             import torch
 

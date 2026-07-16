@@ -9,6 +9,13 @@
 - Added explicit status messages for first downloads, cached preparation, engine startup and safe retry.
 - Bundled a platform-specific FFmpeg binary so online-video extraction works on a clean computer.
 - Added a bilingual Windows installer preflight showing detected RAM, storage and bundled prerequisites.
+- Added startup and model-change preloading so the selected engine is normally armed before Record is pressed.
+- Added a persistent History view that indexes earlier exports and keeps every completed session reviewable.
+- Added progressive recording saves plus a human-readable history log inside the user's Transcriptions folder.
+- Added readable block/line layouts with optional start times and per-block durations.
+- Made Simple mode apply the highest stable model, beam search and task-specific settings automatically.
+- Added a full-window initialization state as a safety fallback when a model is not already armed.
+- Enlarged the transcript editor and made the active Stop Recording button unmistakable.
 
 ## 2.1.0
 
