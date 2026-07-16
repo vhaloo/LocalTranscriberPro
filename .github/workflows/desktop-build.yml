@@ -59,13 +59,13 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force artifacts | Out-Null
-          $version = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME.TrimStart('v') } else { '2.1.0-preview' }
+          $version = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME.TrimStart('v') } else { '2.2.0-preview' }
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "/DAppVersion=$version" packaging\windows\installer.iss
       - name: Package macOS DMG
         if: runner.os == 'macOS'
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          if [ "$GITHUB_REF_TYPE" != "tag" ]; then VERSION="2.1.0-preview"; fi
+          if [ "$GITHUB_REF_TYPE" != "tag" ]; then VERSION="2.2.0-preview"; fi
           mkdir -p artifacts dmg-root
           cp -R "dist/Local Transcriber Pro.app" dmg-root/
           ln -s /Applications dmg-root/Applications
@@ -75,7 +75,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          if [ "$GITHUB_REF_TYPE" != "tag" ]; then VERSION="2.1.0-preview"; fi
+          if [ "$GITHUB_REF_TYPE" != "tag" ]; then VERSION="2.2.0-preview"; fi
           mkdir -p artifacts AppDir/usr/bin AppDir/usr/share/applications AppDir/usr/share/icons/hicolor/256x256/apps
           cp -R dist/LocalTranscriberPro AppDir/usr/bin/
           cp packaging/linux/localtranscriberpro.desktop AppDir/

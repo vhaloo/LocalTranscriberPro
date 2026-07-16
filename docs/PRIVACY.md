@@ -33,4 +33,6 @@ Users should verify the SHA-256 checksum when installing an unsigned community b
 
 ## Local files
 
-Default transcripts are stored under the user's Documents/Transcriptions directory. Each completed session creates TXT, SRT, VTT, JSON and CSV outputs. A recovery file is kept only while a session is unsaved and is removed after successful autosave.
+Default transcripts are stored under the user's Documents/Transcriptions directory. Each completed session creates TXT, SRT, VTT, JSON and CSV outputs. Microphone sessions update their TXT and JSON progressively so useful work survives an interruption. A recovery file is kept only while a session is unsaved and is removed after successful autosave.
+
+The History view uses a local SQLite index under the user's application-data directory and a readable `LocalTranscriberPro-history.jsonl` log beside the exports. These contain transcript metadata and previews only, remain on the computer and are never uploaded.

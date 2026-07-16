@@ -12,6 +12,7 @@ import logging
 import os
 import re
 import shutil
+import threading
 import time
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
@@ -25,6 +26,7 @@ from src.hardware import HardwareProfile, detect_hardware
 from src.models import AUTO_MODEL_ID, MODEL_CATALOG, get_model, mlx_repository
 
 ProgressCallback = Callable[[float], None]
+LoadStatusCallback = Callable[[str, str, str], None]
 
 
 @dataclass
@@ -44,6 +46,8 @@ class EngineStatus:
     device: str
     backend: str
     compute_type: str
+    requested_model_id: str = ""
+    fallback_reason: str = ""
 
 
 class TranscriberEngine:
@@ -54,6 +58,8 @@ class TranscriberEngine:
         self.device = "cpu"
         self.backend = "none"
         self.compute_type = "int8"
+        self.current_status: EngineStatus | None = None
+        self._load_lock = threading.RLock()
         self.model_cache = Path(user_cache_dir("LocalTranscriberPro", "Vhaloo")) / "models"
         self.model_cache.mkdir(parents=True, exist_ok=True)
 
@@ -70,7 +76,7 @@ class TranscriberEngine:
         return self.hardware
 
     def recommend_model(self) -> str:
-        return self.hardware.recommended_model()
+        return self.hardware.recommended_model(cached_model_ids=self.cached_model_ids())
 
     @staticmethod
     def _normalize_device(device_mode: str) -> str:
@@ -96,11 +102,52 @@ class TranscriberEngine:
             raise RuntimeError("Apple GPU was requested, but MLX/MPS is not available. Use Automatic or CPU.")
         return requested
 
-    def load_model(self, model_id: str, device_mode: str = "auto") -> EngineStatus:
-        requested_model = model_id if model_id != AUTO_MODEL_ID else self.recommend_model()
-        get_model(requested_model)  # Normalize unknown ids through the catalogue.
+    def load_model(
+        self,
+        model_id: str,
+        device_mode: str = "auto",
+        status_callback: LoadStatusCallback | None = None,
+    ) -> EngineStatus:
+        with self._load_lock:
+            return self._load_model_unlocked(model_id, device_mode, status_callback)
+
+    def _load_model_unlocked(
+        self,
+        model_id: str,
+        device_mode: str = "auto",
+        status_callback: LoadStatusCallback | None = None,
+    ) -> EngineStatus:
+        def report(stage: str, selected_model: str, device: str) -> None:
+            if status_callback:
+                status_callback(stage, selected_model, device)
+
+        normalized_device = self._normalize_device(device_mode)
+        if (
+            self.model is not None
+            and self.current_status is not None
+            and self.current_status.requested_model_id == model_id
+            and self.current_status.requested_device == normalized_device
+        ):
+            report("model_cached", self.current_status.model_id, self.current_status.device)
+            return self.current_status
+
+        report("resource_check", model_id, device_mode)
+        self.hardware.refresh_resources()
+        cached = self.cached_model_ids()
+        requested_model = self.hardware.resolve_model(model_id, device_mode, cached)
+        get_model(requested_model)
         requested_device = self._normalize_device(device_mode)
-        target_device = self._resolve_device(requested_device)
+        compatibility = self.hardware.model_compatibility(
+            requested_model, device_mode, requested_model in cached
+        )
+        if not compatibility.supported:
+            raise RuntimeError(
+                f"No speech model can be started safely ({compatibility.reason_code}: "
+                f"{compatibility.detected:.1f}/{compatibility.required:.1f} GB)."
+            )
+        target_device = compatibility.device
+        fallback_reason = "" if model_id in {AUTO_MODEL_ID, requested_model} else "hardware_guard"
+        report("model_cached" if requested_model in cached else "model_download", requested_model, target_device)
 
         if target_device == "metal" and self.hardware.mlx_available:
             # MLX loads lazily inside transcribe(); retaining a marker keeps the
@@ -111,8 +158,7 @@ class TranscriberEngine:
                 self.model = True
         else:
             backend = "faster-whisper"
-            fw_device = "cuda" if target_device == "cuda" else "cpu"
-            compute = self.hardware.compute_type(fw_device)
+            compute = self.hardware.compute_type(target_device)
             if (
                 self.model_name != requested_model
                 or self.backend != backend
@@ -120,32 +166,76 @@ class TranscriberEngine:
                 or self.compute_type != compute
             ):
                 self.unload_model()
-                try:
-                    from faster_whisper import WhisperModel
-
-                    self.model = WhisperModel(
-                        requested_model,
-                        device=fw_device,
-                        compute_type=compute,
-                        cpu_threads=max(1, min(self.hardware.cpu_threads, 12)),
-                        download_root=str(self.model_cache),
+                attempts: list[tuple[str, str]] = [(requested_model, target_device)]
+                if target_device in {"cuda", "metal"}:
+                    cpu_check = self.hardware.model_compatibility(
+                        requested_model, "cpu", requested_model in cached
                     )
-                except Exception as faster_error:
-                    logging.exception("faster-whisper model load failed")
-                    if target_device in {"cuda", "metal"}:
+                    if cpu_check.supported:
+                        attempts.append((requested_model, "cpu"))
+                requested_rank = get_model(requested_model).quality_rank
+                for spec in sorted(MODEL_CATALOG, key=lambda item: item.quality_rank, reverse=True):
+                    if not spec.multilingual or spec.quality_rank >= requested_rank:
+                        continue
+                    check = self.hardware.model_compatibility(
+                        spec.model_id, device_mode, spec.model_id in cached
+                    )
+                    candidate = (spec.model_id, check.device)
+                    if check.supported and candidate not in attempts:
+                        attempts.append(candidate)
+                    if len(attempts) >= 3:
+                        break
+
+                errors: list[Exception] = []
+                loaded = False
+                for attempt_model, attempt_device in attempts:
+                    attempt_compute = self.hardware.compute_type(attempt_device)
+                    report("engine_start", attempt_model, attempt_device)
+                    try:
+                        from faster_whisper import WhisperModel
+
+                        self.model = WhisperModel(
+                            attempt_model,
+                            device="cuda" if attempt_device == "cuda" else "cpu",
+                            compute_type=attempt_compute,
+                            cpu_threads=max(1, min(self.hardware.cpu_threads, 12)),
+                            download_root=str(self.model_cache),
+                        )
+                        if (attempt_model, attempt_device) != attempts[0]:
+                            fallback_reason = "engine_retry"
+                            report("safe_fallback", attempt_model, attempt_device)
+                        requested_model = attempt_model
+                        target_device = attempt_device
+                        compute = attempt_compute
+                        loaded = True
+                        break
+                    except Exception as faster_error:
+                        errors.append(faster_error)
+                        logging.exception(
+                            "faster-whisper load failed for model=%s device=%s",
+                            attempt_model,
+                            attempt_device,
+                        )
+                if not loaded and target_device in {"cuda", "metal"}:
+                    spec = get_model(requested_model)
+                    enough_headroom = (
+                        target_device == "metal"
+                        or self.hardware.effective_free_vram_gb >= spec.vram_gb * 1.5
+                    )
+                    if enough_headroom:
                         try:
                             self._load_openai_fallback(requested_model, target_device)
                             backend = "openai-whisper"
                             compute = "float16"
+                            fallback_reason = "compatibility_engine"
+                            loaded = True
                         except Exception as fallback_error:
-                            raise RuntimeError(
-                                f"The accelerated engine could not start ({faster_error}). "
-                                f"The compatibility engine also failed ({fallback_error})."
-                            ) from fallback_error
-                    else:
-                        raise RuntimeError(
-                            f"The local transcription engine could not load {requested_model}: {faster_error}"
-                        ) from faster_error
+                            errors.append(fallback_error)
+                if not loaded:
+                    detail = errors[-1] if errors else "unknown engine error"
+                    raise RuntimeError(
+                        f"The safe local engine could not load a compatible model: {detail}"
+                    ) from (errors[-1] if errors else None)
 
         self.model_name = requested_model
         self.device = target_device
@@ -158,12 +248,23 @@ class TranscriberEngine:
             target_device,
             compute,
         )
-        return EngineStatus(
+        self.current_status = EngineStatus(
             model_id=requested_model,
             requested_device=requested_device,
             device=target_device,
             backend=backend,
             compute_type=compute,
+            requested_model_id=model_id,
+            fallback_reason=fallback_reason,
+        )
+        return self.current_status
+
+    def is_ready(self, model_id: str, device_mode: str = "auto") -> bool:
+        return bool(
+            self.model is not None
+            and self.current_status is not None
+            and self.current_status.requested_model_id == model_id
+            and self.current_status.requested_device == self._normalize_device(device_mode)
         )
 
     def _load_openai_fallback(self, model_id: str, device: str) -> None:
@@ -179,6 +280,7 @@ class TranscriberEngine:
     def unload_model(self) -> None:
         self.model = None
         self.model_name = None
+        self.current_status = None
         try:
             import torch
 
@@ -395,6 +497,23 @@ class TranscriberEngine:
             if resolved not in unique:
                 unique.append(resolved)
         return unique
+
+    def cached_model_ids(self) -> set[str]:
+        """Identify cached checkpoints without recursively measuring their size."""
+        names: list[str] = []
+        for root in self.cache_roots():
+            if not root.exists():
+                continue
+            try:
+                names.extend(path.name.lower().replace("--", "-") for path in root.iterdir())
+            except OSError:
+                continue
+        found: set[str] = set()
+        for spec in sorted(MODEL_CATALOG, key=lambda item: len(item.model_id), reverse=True):
+            token = spec.model_id.lower()
+            if any(name.endswith(token) or name == f"{token}.pt" for name in names):
+                found.add(spec.model_id)
+        return found
 
     @staticmethod
     def _folder_size(path: Path) -> int:

@@ -6,13 +6,30 @@ import json
 from pathlib import Path
 from typing import Any
 
-from platformdirs import user_config_dir, user_documents_dir
+from platformdirs import user_config_dir, user_data_dir, user_documents_dir
 
 from src.i18n import detect_ui_language
 from src.models import AUTO_MODEL_ID
 
+
+def default_output_folder() -> Path:
+    return Path(user_documents_dir()) / "Transcriptions"
+
+
+def ensure_output_folder(value: str | Path | None = None) -> Path:
+    """Return a writable user-owned folder without requiring administrator rights."""
+    preferred = Path(value).expanduser() if value else default_output_folder()
+    for candidate in (preferred, Path(user_data_dir("LocalTranscriberPro", "Vhaloo")) / "Transcriptions"):
+        try:
+            candidate.mkdir(parents=True, exist_ok=True)
+            return candidate
+        except OSError:
+            continue
+    return preferred
+
+
 DEFAULTS: dict[str, Any] = {
-    "schema_version": 2,
+    "schema_version": 4,
     "ui_language": detect_ui_language(),
     "ui_mode": "simple",
     "simple_quality": "best",
@@ -28,10 +45,13 @@ DEFAULTS: dict[str, Any] = {
     "open_result": False,
     "smart_subtitles": True,
     "chunk_seconds": 30,
-    "beam_size": 5,
-    "output_folder": str(Path(user_documents_dir()) / "Transcriptions"),
+    "beam_size": 8,
+    "transcript_layout": "blocks",
+    "show_timestamps": True,
+    "show_duration": False,
+    "output_folder": str(default_output_folder()),
     "benchmarks": {},
-    "window_geometry": "1180x860",
+    "window_geometry": "1220x940",
 }
 
 
@@ -46,6 +66,9 @@ class SettingsStore:
             loaded = json.loads(self.path.read_text(encoding="utf-8"))
             if isinstance(loaded, dict):
                 self.data.update(loaded)
+                if self.data.get("window_geometry") == "1180x860":
+                    self.data["window_geometry"] = "1220x940"
+                self.data["schema_version"] = DEFAULTS["schema_version"]
         except (OSError, ValueError, TypeError):
             return
 

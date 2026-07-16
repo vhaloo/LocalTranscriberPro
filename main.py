@@ -1,5 +1,6 @@
 import argparse
 import json
+import logging
 import os
 import platform
 import sys
@@ -111,11 +112,70 @@ def main() -> int:
     args = parse_args()
     if args.smoke_test:
         return run_packaged_smoke_test(args)
-    from src.gui import TranscriberApp
 
-    app = TranscriberApp()
-    app.mainloop()
-    return 0
+    # This module only uses the Python standard library, so it can paint a
+    # responsive window before importing the much larger AI and GUI stacks.
+    from src.startup import (
+        SingleInstanceLock,
+        StartupSplash,
+        notify_already_running,
+        notify_startup_error,
+    )
+
+    instance = SingleInstanceLock()
+    if not instance.acquire():
+        notify_already_running()
+        return 0
+
+    try:
+        splash = StartupSplash()
+
+        def prepare(report):
+            report("libraries", 0.14)
+            from src.hardware import detect_hardware
+
+            hardware = detect_hardware(report)
+            report("preloading_model", 0.76)
+            from src.models import AUTO_MODEL_ID
+            from src.settings import SettingsStore
+            from src.transcriber import TranscriberEngine
+
+            settings = SettingsStore()
+            simple_mode = settings.get("ui_mode", "simple") == "simple"
+            requested_model = AUTO_MODEL_ID if simple_mode else settings.get("model", AUTO_MODEL_ID)
+            requested_device = "auto" if simple_mode else settings.get("device", "auto")
+            engine = TranscriberEngine(hardware)
+            preloaded_status = None
+            try:
+                preloaded_status = engine.load_model(
+                    requested_model,
+                    requested_device,
+                    lambda *_: report("preloading_model", 0.82),
+                )
+            except Exception:
+                logging.exception("Startup model preload failed; the interface will offer a safe retry")
+
+            report("interface", 0.92)
+            from src.gui import TranscriberApp
+
+            report("ready", 0.98)
+            return hardware, engine, preloaded_status, TranscriberApp
+
+        try:
+            hardware, engine, preloaded_status, app_class = splash.run(prepare)
+            app = app_class(
+                hardware=hardware,
+                engine=engine,
+                preloaded_status=preloaded_status,
+            )
+            app.mainloop()
+            return 0
+        except Exception as error:
+            logging.exception("Application startup failed")
+            notify_startup_error(error)
+            return 1
+    finally:
+        instance.release()
 
 
 if __name__ == "__main__":
