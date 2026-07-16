@@ -49,6 +49,7 @@ for package in (
     "customtkinter",
     "tkinterdnd2",
     "faster_whisper",
+    "imageio_ffmpeg",
     "certifi",
     "whisper",
     "speechbrain",
@@ -113,7 +114,7 @@ if platform.system() == "Darwin":
         name="Local Transcriber Pro.app",
         icon=str(icon) if icon.exists() else None,
         bundle_identifier="com.vhaloo.localtranscriberpro",
-        version="2.1.0",
+        version="2.2.0",
         info_plist={
             "NSMicrophoneUsageDescription": "Local Transcriber Pro needs microphone access only when you start a recording.",
             "LSMinimumSystemVersion": "12.0",

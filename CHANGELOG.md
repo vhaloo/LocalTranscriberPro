@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.2.0
+
+- Added conservative model admission based on total/free RAM, total/free VRAM, disk space, architecture and proven CPU/GPU runtimes.
+- Added a complete model-requirements selector: unsafe choices remain visible but are greyed out, disabled and explained.
+- Added a second runtime guard that rechecks resources and safely falls back before allocating a model.
+- Added a responsive bilingual splash screen with real startup stages and duplicate-launch protection.
+- Added explicit status messages for first downloads, cached preparation, engine startup and safe retry.
+- Bundled a platform-specific FFmpeg binary so online-video extraction works on a clean computer.
+- Added a bilingual Windows installer preflight showing detected RAM, storage and bundled prerequisites.
+
 ## 2.1.0
 
 - Reimagined Simple mode as a playful two-step home screen with four large, rounded task choices.

@@ -1,4 +1,4 @@
-"""Local Transcriber Pro 2.1 desktop interface."""
+"""Local Transcriber Pro 2.2 desktop interface."""
 
 from __future__ import annotations
 
@@ -38,14 +38,15 @@ except ImportError:
 from src.audio import SAMPLE_RATE, AudioRecorder
 from src.diarizer import Diarizer
 from src.estimator import TimeEstimator, format_duration
-from src.hardware import HardwareProfile, detect_hardware
+from src.hardware import HardwareProfile, ModelCompatibility, detect_hardware
 from src.i18n import Translator
 from src.meter import TapeMeter
 from src.models import (
     AUTO_MODEL_ID,
-    model_choices,
+    MODEL_CATALOG,
     model_id_from_label,
     model_label,
+    model_requirement_text,
 )
 from src.settings import SettingsStore
 from src.tooltip import ToolTip
@@ -59,7 +60,7 @@ from src.utils import (
 )
 from src.youtube_utils import download_youtube_audio, is_supported_url
 
-APP_VERSION = "2.1.0"
+APP_VERSION = "2.2.0"
 DEV_CREDIT = "Vhaloo"
 
 BACKGROUND = "#08101F"
@@ -94,6 +95,18 @@ AUDIO_VIDEO_EXTENSIONS = {
     ".mpg",
 }
 VIDEO_EXTENSIONS = {".mp4", ".mkv", ".mov", ".avi", ".webm", ".flv", ".wmv", ".m4v", ".mpeg", ".mpg"}
+
+
+def compatibility_text(t: Translator, compatibility: ModelCompatibility) -> str:
+    if compatibility.supported:
+        return t("model_ready_on", device=compatibility.device.upper())
+    if compatibility.reason_code in {"cpu_runtime", "gpu_runtime"}:
+        return t(f"compat_{compatibility.reason_code}")
+    return t(
+        f"compat_{compatibility.reason_code}",
+        required=compatibility.required,
+        detected=compatibility.detected,
+    )
 
 LANGUAGE_OPTIONS = {
     "auto": ("Detect automatically", "Détection automatique"),
@@ -184,7 +197,7 @@ class HardwareDialog(ctk.CTkToplevel):
         self.t = parent.t
         profile = parent.hardware
         self.title(self.t("hardware_title"))
-        self.geometry("680x470")
+        self.geometry("720x570")
         self.transient(parent)
         self.grab_set()
         self.configure(fg_color=BACKGROUND)
@@ -228,10 +241,28 @@ class HardwareDialog(ctk.CTkToplevel):
         ).pack(anchor="w", padx=18, pady=(16, 8))
         ctk.CTkLabel(
             status,
-            text=self.t("recommended_model", model=profile.recommended_model()),
+            text=self.t(
+                "recommended_model",
+                model=profile.recommended_model(cached_model_ids=parent.engine.cached_model_ids()),
+            ),
             font=("Segoe UI", 13),
             text_color=TEXT,
         ).pack(anchor="w", padx=18, pady=3)
+        resources = self.t(
+            "hardware_resources",
+            available=profile.effective_available_ram_gb,
+            total=profile.ram_gb,
+            disk=profile.disk_free_gb,
+            vram_free=profile.effective_free_vram_gb,
+            vram_total=profile.gpu_vram_gb,
+        )
+        ctk.CTkLabel(
+            status,
+            text=resources,
+            font=("Segoe UI", 12),
+            text_color=MUTED,
+            justify="left",
+        ).pack(anchor="w", padx=18, pady=(8, 2))
         details = (
             f"CTranslate2 CUDA: {'yes' if profile.ctranslate_cuda else 'no'}   •   "
             f"PyTorch CUDA: {'yes' if profile.torch_cuda else 'no'}\n"
@@ -245,13 +276,168 @@ class HardwareDialog(ctk.CTkToplevel):
             text_color=MUTED,
             justify="left",
         ).pack(anchor="w", padx=18, pady=(8, 16))
+        ctk.CTkLabel(
+            self,
+            text=self.t("hardware_safety_explainer"),
+            font=("Segoe UI", 12),
+            text_color=MUTED,
+            justify="left",
+            wraplength=650,
+        ).pack(anchor="w", padx=28, pady=(12, 4))
+        buttons = ctk.CTkFrame(self, fg_color="transparent")
+        buttons.pack(fill="x", padx=28, pady=18)
+        ctk.CTkButton(
+            buttons,
+            text=self.t("model_requirements"),
+            command=lambda: (self.destroy(), ModelSelectorDialog(parent)),
+            fg_color=BLUE,
+            hover_color="#86BBFF",
+            text_color="#07111F",
+        ).pack(side="left")
+        ctk.CTkButton(
+            buttons,
+            text=self.t("close"),
+            command=self.destroy,
+            fg_color=ACCENT_DARK,
+            hover_color=ACCENT,
+        ).pack(side="right")
+
+
+class ModelSelectorDialog(ctk.CTkToplevel):
+    """Show every model while making unsafe choices visibly impossible."""
+
+    def __init__(self, parent: TranscriberApp):
+        super().__init__(parent)
+        self.parent_app = parent
+        self.t = parent.t
+        self.cached = parent.engine.cached_model_ids()
+        parent.hardware.refresh_resources()
+        self.title(self.t("model_requirements"))
+        self.geometry("820x690")
+        self.minsize(720, 560)
+        self.transient(parent)
+        self.grab_set()
+        self.configure(fg_color=BACKGROUND)
+
+        ctk.CTkLabel(
+            self,
+            text=self.t("model_requirements"),
+            font=("Segoe UI", 25, "bold"),
+            text_color=TEXT,
+        ).pack(anchor="w", padx=28, pady=(24, 4))
+        ctk.CTkLabel(
+            self,
+            text=self.t("model_requirements_help"),
+            font=("Segoe UI", 13),
+            text_color=MUTED,
+            justify="left",
+            wraplength=750,
+        ).pack(anchor="w", padx=28, pady=(0, 12))
+
+        self.scroll = ctk.CTkScrollableFrame(self, fg_color=PANEL, corner_radius=18)
+        self.scroll.pack(fill="both", expand=True, padx=28, pady=4)
+        self._add_auto_row()
+        for spec in MODEL_CATALOG:
+            self._add_model_row(spec.model_id)
+
         ctk.CTkButton(
             self,
             text=self.t("close"),
             command=self.destroy,
             fg_color=ACCENT_DARK,
             hover_color=ACCENT,
-        ).pack(pady=22)
+            width=120,
+        ).pack(pady=(12, 20))
+
+    def _add_auto_row(self) -> None:
+        recommended = self.parent_app.hardware.recommended_model(
+            self.parent_app.selected_device, self.cached
+        )
+        supported = self.parent_app.hardware.has_safe_model(
+            self.parent_app.selected_device, self.cached
+        )
+        selected = self.parent_app.selected_model_id == AUTO_MODEL_ID
+        row = ctk.CTkFrame(
+            self.scroll,
+            fg_color="#14372F" if selected else PANEL_ALT,
+            corner_radius=14,
+            border_width=1,
+            border_color=ACCENT if selected else "#2A3C5E",
+        )
+        row.pack(fill="x", padx=8, pady=(8, 5))
+        text = ctk.CTkFrame(row, fg_color="transparent")
+        text.pack(side="left", fill="both", expand=True, padx=15, pady=12)
+        ctk.CTkLabel(
+            text,
+            text=model_label(AUTO_MODEL_ID, self.t.language),
+            font=("Segoe UI", 14, "bold"),
+            text_color=TEXT,
+        ).pack(anchor="w")
+        ctk.CTkLabel(
+            text,
+            text=self.t("auto_will_use", model=recommended),
+            font=("Segoe UI", 12),
+            text_color=ACCENT if supported else RED,
+        ).pack(anchor="w", pady=(3, 0))
+        ctk.CTkButton(
+            row,
+            text=self.t("selected" if selected else "select"),
+            width=112,
+            state="disabled" if selected or not supported else "normal",
+            fg_color=ACCENT_DARK,
+            hover_color=ACCENT,
+            command=lambda: self._select(AUTO_MODEL_ID),
+        ).pack(side="right", padx=14)
+
+    def _add_model_row(self, model_id: str) -> None:
+        compatibility = self.parent_app.hardware.model_compatibility(
+            model_id,
+            self.parent_app.selected_device,
+            model_id in self.cached,
+        )
+        selected = self.parent_app.selected_model_id == model_id
+        row = ctk.CTkFrame(
+            self.scroll,
+            fg_color="#14372F" if selected else (PANEL_ALT if compatibility.supported else "#111827"),
+            corner_radius=14,
+            border_width=1,
+            border_color=ACCENT if selected else ("#2A3C5E" if compatibility.supported else "#222C3E"),
+        )
+        row.pack(fill="x", padx=8, pady=5)
+        text = ctk.CTkFrame(row, fg_color="transparent")
+        text.pack(side="left", fill="both", expand=True, padx=15, pady=11)
+        ctk.CTkLabel(
+            text,
+            text=model_label(model_id, self.t.language),
+            font=("Segoe UI", 14, "bold"),
+            text_color=TEXT if compatibility.supported else "#69768B",
+        ).pack(anchor="w")
+        ctk.CTkLabel(
+            text,
+            text=model_requirement_text(model_id, self.t.language),
+            font=("Segoe UI", 11),
+            text_color=MUTED if compatibility.supported else "#596579",
+        ).pack(anchor="w", pady=(2, 0))
+        ctk.CTkLabel(
+            text,
+            text=compatibility_text(self.t, compatibility),
+            font=("Segoe UI", 11, "bold"),
+            text_color=ACCENT if compatibility.supported else AMBER,
+        ).pack(anchor="w", pady=(3, 0))
+        ctk.CTkButton(
+            row,
+            text=self.t("selected" if selected else ("select" if compatibility.supported else "unavailable")),
+            width=112,
+            state="disabled" if selected or not compatibility.supported else "normal",
+            fg_color=ACCENT_DARK if compatibility.supported else "#293244",
+            hover_color=ACCENT,
+            text_color_disabled="#647084",
+            command=lambda value=model_id: self._select(value),
+        ).pack(side="right", padx=14)
+
+    def _select(self, model_id: str) -> None:
+        self.parent_app._select_model(model_id)
+        self.destroy()
 
 
 class ModelManagerDialog(ctk.CTkToplevel):
@@ -322,7 +508,7 @@ class ModelManagerDialog(ctk.CTkToplevel):
 
 
 class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
-    def __init__(self):
+    def __init__(self, hardware: HardwareProfile | None = None):
         super().__init__()
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("blue")
@@ -330,7 +516,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
 
         self.settings = SettingsStore()
         self.t = Translator(self.settings.get("ui_language"))
-        self.hardware: HardwareProfile = detect_hardware()
+        self.hardware: HardwareProfile = hardware or detect_hardware()
         self.engine = TranscriberEngine(self.hardware)
         self.estimator = TimeEstimator(self.settings.get("benchmarks", {}))
         self.recorder = AudioRecorder()
@@ -343,6 +529,22 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.selected_model_id = self.settings.get("model", AUTO_MODEL_ID)
         self.selected_device = self.settings.get("device", "auto")
         self.selected_language = self.settings.get("spoken_language", "auto")
+        available_devices = {"auto", "cpu"}
+        if self.hardware.ctranslate_cuda or self.hardware.torch_cuda:
+            available_devices.add("cuda")
+        if self.hardware.mlx_available or self.hardware.torch_mps:
+            available_devices.add("metal")
+        if self.selected_device not in available_devices:
+            self.selected_device = "auto"
+        cached_models = self.engine.cached_model_ids()
+        if self.selected_model_id != AUTO_MODEL_ID and not self.hardware.model_compatibility(
+            self.selected_model_id,
+            self.selected_device,
+            self.selected_model_id in cached_models,
+        ).supported:
+            self.selected_model_id = AUTO_MODEL_ID
+            self.simple_quality = "best"
+        self.hardware_ready = self.hardware.has_safe_model(self.selected_device, cached_models)
         self.pending_files: list[str] = []
         self.transcript_data: list[dict[str, Any]] = []
         self.full_audio_buffer: list[np.ndarray] = []
@@ -606,12 +808,20 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.simple_speaker_switch.pack(anchor="w", pady=(4, 0))
         ToolTip(self.simple_speaker_switch, self.t("tip_simple_speakers"))
 
-        ctk.CTkLabel(
+        automatic_model = self.hardware.recommended_model(
+            self.selected_device, self.engine.cached_model_ids()
+        )
+        self.simple_auto_summary_label = ctk.CTkLabel(
             self.simple_panel,
-            text=self.t("simple_automatic_summary"),
+            text=self.t(
+                "simple_automatic_summary",
+                model=automatic_model,
+                device=self.hardware.display_device,
+            ),
             font=("Segoe UI", 11),
-            text_color=ACCENT,
-        ).grid(row=3, column=0, sticky="w", padx=22, pady=(3, 13))
+            text_color=ACCENT if self.hardware_ready else RED,
+        )
+        self.simple_auto_summary_label.grid(row=3, column=0, sticky="w", padx=22, pady=(3, 13))
 
     def _build_tasks(self) -> None:
         self.task_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -835,15 +1045,26 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             text_color=TEXT,
         ).grid(row=0, column=0, columnspan=4, sticky="w", padx=20, pady=(16, 10))
 
-        self.model_combo = self._labeled_combo(
-            1,
-            0,
-            self.t("model"),
-            model_choices(self.t.language),
-            model_label(self.selected_model_id, self.t.language),
-            self._model_changed,
+        model_box = ctk.CTkFrame(self.advanced_panel, fg_color="transparent")
+        model_box.grid(row=1, column=0, sticky="ew", padx=10, pady=4)
+        ctk.CTkLabel(
+            model_box,
+            text=self.t("model"),
+            font=("Segoe UI", 11),
+            text_color=MUTED,
+        ).pack(anchor="w")
+        self.model_button = ctk.CTkButton(
+            model_box,
+            text=model_label(self.selected_model_id, self.t.language),
+            height=34,
+            fg_color=PANEL_ALT,
+            hover_color="#233654",
+            border_width=1,
+            border_color=ACCENT,
+            command=lambda: ModelSelectorDialog(self),
         )
-        ToolTip(self.model_combo, self.t("model_help"))
+        self.model_button.pack(fill="x", pady=(4, 0))
+        ToolTip(self.model_button, self.t("model_help"))
 
         self.device_display_map = self._device_display_map()
         device_values = list(self.device_display_map)
@@ -1082,9 +1303,9 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
 
     def _device_display_map(self) -> dict[str, str]:
         values = {self.t("device_auto"): "auto", self.t("device_cpu"): "cpu"}
-        if self.hardware.nvidia_detected:
+        if self.hardware.ctranslate_cuda or self.hardware.torch_cuda:
             values[self.t("device_cuda")] = "cuda"
-        if self.hardware.apple_silicon:
+        if self.hardware.mlx_available or self.hardware.torch_mps:
             values[self.t("device_metal")] = "metal"
         return values
 
@@ -1261,15 +1482,23 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
 
     def _simple_quality_changed(self, label: str) -> None:
         self.simple_quality = self.quality_display_map.get(label, "best")
-        self.selected_model_id = {
-            "best": AUTO_MODEL_ID,
-            "fast": "large-v3-turbo",
-            "light": "tiny",
-        }[self.simple_quality]
+        cached = self.engine.cached_model_ids()
+        if self.simple_quality == "best":
+            self.selected_model_id = AUTO_MODEL_ID
+        elif self.simple_quality == "fast":
+            self.selected_model_id = self.hardware.fast_recommended_model(
+                self.selected_device, cached
+            )
+        else:
+            tiny = self.hardware.model_compatibility("tiny", self.selected_device, "tiny" in cached)
+            self.selected_model_id = (
+                "tiny"
+                if tiny.supported
+                else self.hardware.recommended_model(self.selected_device, cached)
+            )
         if self.simple_quality == "fast":
             self.translate_var.set(False)
-        if hasattr(self, "model_combo"):
-            self.model_combo.set(model_label(self.selected_model_id, self.t.language))
+        self._update_model_indicators()
         self.persist_settings()
 
     def _simple_language_changed(self, label: str) -> None:
@@ -1291,14 +1520,21 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
     def toggle_mode(self) -> None:
         self.ui_mode = "advanced" if self.ui_mode == "simple" else "simple"
         if self.ui_mode == "simple":
-            self.selected_model_id = {
-                "best": AUTO_MODEL_ID,
-                "fast": "large-v3-turbo",
-                "light": "tiny",
-            }.get(self.simple_quality, AUTO_MODEL_ID)
+            cached = self.engine.cached_model_ids()
+            if self.simple_quality == "best":
+                self.selected_model_id = AUTO_MODEL_ID
+            elif self.simple_quality == "fast":
+                self.selected_model_id = self.hardware.fast_recommended_model(
+                    self.selected_device, cached
+                )
+            else:
+                self.selected_model_id = self.hardware.resolve_model(
+                    "tiny", self.selected_device, cached
+                )
             if self.selected_language not in {"auto", "fr", "en"}:
                 self.selected_language = "auto"
                 self.simple_language_control.set(self.t("language_auto"))
+            self._update_model_indicators()
         self.settings.set("ui_mode", self.ui_mode, save=True)
         self._apply_mode_visibility()
         self._update_source_context()
@@ -1320,17 +1556,57 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self._update_source_context()
 
     def _model_changed(self, label: str) -> None:
-        self.selected_model_id = model_id_from_label(label, self.t.language)
+        self._select_model(model_id_from_label(label, self.t.language))
+
+    def _select_model(self, model_id: str) -> None:
+        cached = self.engine.cached_model_ids()
+        if model_id != AUTO_MODEL_ID:
+            compatibility = self.hardware.model_compatibility(
+                model_id, self.selected_device, model_id in cached
+            )
+            if not compatibility.supported:
+                messagebox.showwarning(
+                    self.t("warning"), compatibility_text(self.t, compatibility), parent=self
+                )
+                return
+        self.selected_model_id = model_id
         self.simple_quality = {
             AUTO_MODEL_ID: "best",
             "large-v3-turbo": "fast",
             "tiny": "light",
         }.get(self.selected_model_id, "best")
+        self._update_model_indicators()
         self.persist_settings()
 
     def _device_changed(self, label: str) -> None:
         self.selected_device = self.device_display_map.get(label, "auto")
+        cached = self.engine.cached_model_ids()
+        if self.selected_model_id != AUTO_MODEL_ID and not self.hardware.model_compatibility(
+            self.selected_model_id,
+            self.selected_device,
+            self.selected_model_id in cached,
+        ).supported:
+            self.selected_model_id = AUTO_MODEL_ID
+            self.simple_quality = "best"
+        self._update_model_indicators()
         self.persist_settings()
+
+    def _update_model_indicators(self) -> None:
+        if hasattr(self, "model_button"):
+            self.model_button.configure(text=model_label(self.selected_model_id, self.t.language))
+        if hasattr(self, "simple_auto_summary_label"):
+            resolved = self.hardware.resolve_model(
+                self.selected_model_id,
+                self.selected_device,
+                self.engine.cached_model_ids(),
+            )
+            self.simple_auto_summary_label.configure(
+                text=self.t(
+                    "simple_automatic_summary",
+                    model=resolved,
+                    device=self.hardware.display_device,
+                )
+            )
 
     def _spoken_language_changed(self, label: str) -> None:
         self.selected_language = self.language_display_map.get(label, "auto")
@@ -1388,6 +1664,30 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             word_timestamps=True,
         )
 
+    def _engine_load_status(self, stage: str, model: str, device: str) -> None:
+        key = {
+            "resource_check": "load_resource_check",
+            "model_download": "load_model_download",
+            "model_cached": "load_model_cached",
+            "engine_start": "load_engine_start",
+            "safe_fallback": "load_safe_fallback",
+        }.get(stage, "progress_loading")
+        self._safe_ui(
+            self._set_status,
+            self.t(key, model=model, device=device.upper()),
+        )
+
+    def _can_start_safely(self) -> bool:
+        cached = self.engine.cached_model_ids()
+        if self.hardware.has_safe_model(self.selected_device, cached):
+            return True
+        messagebox.showerror(
+            self.t("error"),
+            self.t("no_safe_model"),
+            parent=self,
+        )
+        return False
+
     def choose_files(self) -> None:
         paths = filedialog.askopenfilenames(
             parent=self,
@@ -1427,6 +1727,8 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             messagebox.showwarning(self.t("warning"), self.t("no_files"), parent=self)
 
     def start_batch(self, paths: list[str]) -> None:
+        if not self._can_start_safely():
+            return
         valid = [str(Path(path)) for path in paths if Path(path).suffix.lower() in AUDIO_VIDEO_EXTENSIONS]
         if not valid:
             messagebox.showwarning(self.t("warning"), self.t("no_files"), parent=self)
@@ -1434,8 +1736,12 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         config = self.job_config()
         durations = [self.engine.audio_duration(path) for path in valid]
         total_audio = sum(durations)
-        resolved_model = self.hardware.resolve_model(config["model"])
-        resolved_device = self.hardware.best_device if config["device"] == "auto" else config["device"]
+        cached = self.engine.cached_model_ids()
+        resolved_model = self.hardware.resolve_model(config["model"], config["device"], cached)
+        compatibility = self.hardware.model_compatibility(
+            resolved_model, config["device"], resolved_model in cached
+        )
+        resolved_device = compatibility.device
         estimate = self.estimator.estimate(total_audio, resolved_model, resolved_device)
         self._start_job(estimate.seconds)
         threading.Thread(
@@ -1447,9 +1753,13 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
 
     def _batch_worker(self, paths: list[str], durations: list[float], config: dict[str, Any]) -> None:
         try:
-            resolved = self.hardware.resolve_model(config["model"])
+            resolved = self.hardware.resolve_model(
+                config["model"], config["device"], self.engine.cached_model_ids()
+            )
             self._safe_ui(self._set_status, self.t("progress_loading", model=resolved))
-            status = self.engine.load_model(config["model"], config["device"])
+            status = self.engine.load_model(
+                config["model"], config["device"], self._engine_load_status
+            )
             session_offset = self.transcript_data[-1].get("end", 0.0) + 1.0 if self.transcript_data else 0.0
             total = len(paths)
             last_saved: Path | None = None
@@ -1498,6 +1808,8 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             self._safe_ui(self._fail_job, error)
 
     def start_link(self) -> None:
+        if not self._can_start_safely():
+            return
         url = self.url_entry.get().strip()
         if not is_supported_url(url):
             messagebox.showwarning(self.t("warning"), self.t("invalid_url"), parent=self)
@@ -1524,9 +1836,13 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                 )
             )
             self._safe_ui(self._set_progress, 0.25)
-            resolved = self.hardware.resolve_model(config["model"])
+            resolved = self.hardware.resolve_model(
+                config["model"], config["device"], self.engine.cached_model_ids()
+            )
             self._safe_ui(self._set_status, self.t("progress_loading", model=resolved))
-            status = self.engine.load_model(config["model"], config["device"])
+            status = self.engine.load_model(
+                config["model"], config["device"], self._engine_load_status
+            )
             result = self.engine.transcribe_file(
                 str(downloaded),
                 self.transcribe_options(config),
@@ -1558,6 +1874,8 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
     def start_recording(self) -> None:
         if self.busy or self.recorder.recording:
             return
+        if not self._can_start_safely():
+            return
         config = self.job_config()
         microphone = self.microphone_combo.get()
         try:
@@ -1578,9 +1896,13 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
 
     def _recording_worker(self, device_index: int | None, config: dict[str, Any]) -> None:
         try:
-            resolved = self.hardware.resolve_model(config["model"])
+            resolved = self.hardware.resolve_model(
+                config["model"], config["device"], self.engine.cached_model_ids()
+            )
             self._safe_ui(self._set_status, self.t("progress_loading", model=resolved))
-            status = self.engine.load_model(config["model"], config["device"])
+            status = self.engine.load_model(
+                config["model"], config["device"], self._engine_load_status
+            )
             self.recorder.start(device_index, config["chunk"])
             self._safe_ui(self._recording_started)
             options = self.transcribe_options(config)

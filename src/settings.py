@@ -12,7 +12,7 @@ from src.i18n import detect_ui_language
 from src.models import AUTO_MODEL_ID
 
 DEFAULTS: dict[str, Any] = {
-    "schema_version": 2,
+    "schema_version": 3,
     "ui_language": detect_ui_language(),
     "ui_mode": "simple",
     "simple_quality": "best",

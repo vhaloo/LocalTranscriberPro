@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 from urllib.parse import urlparse
 
+import imageio_ffmpeg
 import yt_dlp
 
 ALLOWED_HOSTS = {
@@ -16,6 +17,14 @@ ALLOWED_HOSTS = {
     "youtu.be",
     "music.youtube.com",
 }
+
+
+def bundled_ffmpeg() -> str:
+    """Return the platform-matched FFmpeg shipped inside every desktop package."""
+    path = imageio_ffmpeg.get_ffmpeg_exe()
+    if not Path(path).is_file():
+        raise FileNotFoundError("The packaged FFmpeg audio helper is missing")
+    return path
 
 
 def is_supported_url(url: str) -> bool:
@@ -47,6 +56,7 @@ def download_youtube_audio(url, output_dir, progress_callback=None):
         "no_warnings": True,
         "noplaylist": True,
         "windowsfilenames": os.name == "nt",
+        "ffmpeg_location": bundled_ffmpeg(),
     }
 
     if progress_callback:

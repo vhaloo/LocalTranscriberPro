@@ -1,4 +1,2 @@
 @echo off
-call venv\Scripts\activate
-start /b pythonw local_transcriber.py
-exit
+start "" /D "%~dp0" "%~dp0.venv\Scripts\pythonw.exe" "%~dp0main.py"

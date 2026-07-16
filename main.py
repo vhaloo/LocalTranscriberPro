@@ -1,5 +1,6 @@
 import argparse
 import json
+import logging
 import os
 import platform
 import sys
@@ -111,11 +112,46 @@ def main() -> int:
     args = parse_args()
     if args.smoke_test:
         return run_packaged_smoke_test(args)
-    from src.gui import TranscriberApp
 
-    app = TranscriberApp()
-    app.mainloop()
-    return 0
+    # This module only uses the Python standard library, so it can paint a
+    # responsive window before importing the much larger AI and GUI stacks.
+    from src.startup import (
+        SingleInstanceLock,
+        StartupSplash,
+        notify_already_running,
+        notify_startup_error,
+    )
+
+    instance = SingleInstanceLock()
+    if not instance.acquire():
+        notify_already_running()
+        return 0
+
+    try:
+        splash = StartupSplash()
+
+        def prepare(report):
+            report("libraries", 0.14)
+            from src.hardware import detect_hardware
+
+            hardware = detect_hardware(report)
+            report("interface", 0.78)
+            from src.gui import TranscriberApp
+
+            report("ready", 0.98)
+            return hardware, TranscriberApp
+
+        try:
+            hardware, app_class = splash.run(prepare)
+            app = app_class(hardware=hardware)
+            app.mainloop()
+            return 0
+        except Exception as error:
+            logging.exception("Application startup failed")
+            notify_startup_error(error)
+            return 1
+    finally:
+        instance.release()
 
 
 if __name__ == "__main__":
