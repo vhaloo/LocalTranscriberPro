@@ -4,6 +4,12 @@ Private, offline transcription for Windows, macOS and Linux — with a genuinely
 
 > Français : [lire la présentation française](#français)
 
+## Simple interface / Interface simple
+
+![Local Transcriber Pro 2.2 simple mode showing automatic large-v3 selection, microphone VU meter, recording controls and transcript history](docs/images/local-transcriber-pro-2.2-simple-mode.png)
+
+*Simple mode automatically selects the safest maximum quality, confirms the microphone visually and keeps the recording controls and transcript in one clear workspace. / Le mode simple choisit automatiquement la meilleure qualité sûre, confirme visuellement le microphone et réunit les commandes d’enregistrement et la transcription dans un seul espace clair.*
+
 ## What is new in 2.2
 
 - **Crash-resistant automatic admission.** The app measures total and currently available RAM, free storage, CPU runtime, GPU runtime, total/free VRAM and architecture before admitting a model.
