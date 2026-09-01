@@ -10,4 +10,4 @@ sounddevice>=0.5.1,<0.6
 soundfile>=0.13,<0.14
 tkinterdnd2>=0.4.3,<0.5
 yt-dlp>=2025.6.30
-certifi>=2025.6.15
+certifi>=2026.6.17
