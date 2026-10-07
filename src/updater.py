@@ -166,5 +166,6 @@ def launch_installer(path: Path) -> None:
         raise ValueError("Automatic installation requires a verified Windows installer")
     # Inno Setup waits for the old application's mutex, then launches the new
     # version. User data lives outside the installation directory.
-    subprocess.Popen([str(path), "/SILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/CLOSEAPPLICATIONS", "/AUTOUPDATE"],
+    subprocess.Popen([str(path), "/SILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/CLOSEAPPLICATIONS", "/AUTOUPDATE",
+                      f"/WAITPID={os.getpid()}"],
                      creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)

@@ -133,11 +133,13 @@ def test_windows_installation_is_per_user_and_requests_relaunch(tmp_path, monkey
     package.write_bytes(b"verified")
     calls = []
     monkeypatch.setattr(updater.subprocess, "Popen", lambda args, **kwargs: calls.append((args, kwargs)))
+    monkeypatch.setattr(updater.os, "getpid", lambda: 12345)
     if updater.os.name != "nt":
         pytest.skip("Windows process creation flags are platform-specific")
     launch_installer(package)
     assert "/AUTOUPDATE" in calls[0][0]
     assert "/NORESTART" in calls[0][0]
+    assert "/WAITPID=12345" in calls[0][0]
     assert not any("runas" in arg.lower() for arg in calls[0][0])
 
 

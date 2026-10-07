@@ -6,6 +6,8 @@ The proposal shows the version and requires the user's acceptance. Download is c
 
 Before installation the app must be idle. It saves editor corrections, recovery and settings, starts the per-user Inno installer, then exits and releases the application mutex. `/AUTOUPDATE` instructs the installer to relaunch the installed version after copying. No Windows restart, administrator elevation or user-data deletion is requested.
 
+`/WAITPID` passes the actual retiring process ID. During `InitializeSetup`, the installer opens a synchronization-only process handle and waits for its exit before Inno checks the application mutex or replaces native libraries. A timeout stops the update before replacement. This avoids a startup race with the application's final save/close callbacks and uses Windows directly, with no shell helper.
+
 The bundled `_internal` runtime is replaced completely to prevent obsolete native libraries or dependency metadata from shadowing the new versions. Settings, history, downloaded models and recordings are outside that runtime directory and are preserved.
 
 Windows supports installation and relaunch. On macOS/Linux the accepted proposal opens the official release page for a platform-appropriate installation. Those platforms do not yet have automated replacement.

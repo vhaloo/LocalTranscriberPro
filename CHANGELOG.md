@@ -6,6 +6,7 @@
 - Added Accuracy/Speed profiles, feature-aware fallback, free-memory guards and real PyTorch CUDA probing.
 - Ranked models by estimated multilingual accuracy, with separate relative accuracy/speed scores and explicit English-only coverage.
 - Added startup/manual official release checks, opt-in installation, HTTPS host validation, exact size/SHA-256 verification, cancellation and Windows relaunch.
+- Made Windows upgrades wait for the retiring process to exit before checking the app mutex or replacing files.
 - Serialized inference/model replacement and routed worker events through the main UI queue.
 - Bounded file decoding and speaker extraction; replaced unlimited recording buffers with a progressively flushed WAV spool.
 - Preserved captured backlog on failure, added safe cancellation/closing and continued batches after individual corrupt files.

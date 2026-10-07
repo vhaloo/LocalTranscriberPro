@@ -26,8 +26,8 @@ OutputBaseFilename=LocalTranscriberPro-{#AppVersion}-Windows-x64-Setup
 #endif
 SetupIconFile=..\..\assets\icon.ico
 UninstallDisplayIcon={app}\{#AppExeName}
-Compression=lzma2/normal
-SolidCompression=yes
+Compression=zip/1
+SolidCompression=no
 WizardStyle=modern
 CloseApplications=yes
 RestartApplications=no
@@ -77,6 +77,13 @@ Filename: "{app}\{#AppExeName}"; Description: "{cm:LaunchProgram,Local Transcrib
 Filename: "{app}\{#AppExeName}"; Flags: nowait runasoriginaluser; Check: IsAutomaticUpdate
 
 [Code]
+function OpenProcess(Access: LongWord; Inherit: Integer; ProcessId: LongWord): THandle;
+  external 'OpenProcess@kernel32.dll stdcall';
+function WaitForSingleObject(Handle: THandle; Milliseconds: LongWord): LongWord;
+  external 'WaitForSingleObject@kernel32.dll stdcall';
+function CloseHandle(Handle: THandle): Integer;
+  external 'CloseHandle@kernel32.dll stdcall';
+
 var
   PreflightPage: TOutputMsgMemoWizardPage;
   DetectedRamGB: Extended;
@@ -115,7 +122,37 @@ begin
 end;
 
 function InitializeSetup(): Boolean;
+var
+  PreviousProcessId: Integer;
+  PreviousProcess: THandle;
+  WaitResult: LongWord;
 begin
+  Result := True;
+  PreviousProcessId := StrToIntDef(ExpandConstant('{param:WAITPID|0}'), 0);
+  if IsAutomaticUpdate() and (PreviousProcessId > 0) then
+  begin
+    { InitializeSetup runs before Inno's AppMutex and file-in-use checks. Wait
+      for the actual process exit, not a guessed delay or an early mutex release. }
+    PreviousProcess := OpenProcess($00100000, 0, PreviousProcessId);
+    if PreviousProcess <> 0 then
+    begin
+      Log(Format('Waiting for previous application process %d to exit.', [PreviousProcessId]));
+      try
+        WaitResult := WaitForSingleObject(PreviousProcess, 600000);
+      finally
+        CloseHandle(PreviousProcess);
+      end;
+      if WaitResult <> 0 then
+      begin
+        Log('Previous application did not exit; update stopped without replacing files.');
+        Result := False;
+        Exit;
+      end;
+      Log('Previous application exited; safe to replace the runtime.');
+    end
+    else
+      Log('Previous application process has already exited.');
+  end;
   DetectedRamGB := DetectRamGB();
   FreeDiskGB := DetectFreeDiskGB();
   Result := True;
