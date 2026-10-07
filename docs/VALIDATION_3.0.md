@@ -12,6 +12,8 @@ Real French and English human samples from the Sherpa model repository are used,
 
 Public YouTube download testing uses a short publicly accessible clip, without login, cookies or browser credential access. Failed/deleted videos are reported instead of being considered inference failures.
 
+The real Xbox NUI microphone is exercised through the source desktop UI: start, pause, resume, stop, final ASR and five automatic exports. The verified WAV is mono PCM16 at 16 kHz and contains 21.44 seconds of captured audio, excluding the paused interval. This verifies the physical capture route without representing a multi-speaker meeting. The multilingual selector's FR layout and separate score columns are visually inspected; the catalogue order and default Accuracy profile are checked separately.
+
 ## Scope and practical limits
 
 - This local validation targets Windows 11 x64, Ryzen 7 5800X, 64 GB RAM and RTX 5070 12 GB. macOS, Linux and Apple MPS/MLX need their own hardware validation.

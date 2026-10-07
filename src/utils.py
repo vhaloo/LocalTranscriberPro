@@ -8,12 +8,16 @@ import os
 import re
 import sys
 import tempfile
+import threading
+import time
 from collections.abc import Callable, Iterable
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any
 
 from platformdirs import user_log_dir
+
+_ATOMIC_REPLACE_LOCK = threading.Lock()
 
 
 def setup_logging() -> Path:
@@ -104,7 +108,18 @@ def atomic_write_text(path: Path, content: str, encoding: str = "utf-8") -> None
             handle.write(content)
             handle.flush()
             os.fsync(handle.fileno())
-        temporary.replace(path)
+        # Windows can reject concurrent replaces of the same destination, or a
+        # brief antivirus/indexer handle. Keep replacement atomic and retry only
+        # transient sharing/access errors; other failures remain visible.
+        with _ATOMIC_REPLACE_LOCK:
+            for attempt in range(5):
+                try:
+                    temporary.replace(path)
+                    break
+                except PermissionError as error:
+                    if getattr(error, "winerror", None) not in {5, 32, 33} or attempt == 4:
+                        raise
+                    time.sleep(0.02 * 2**attempt)
     finally:
         if temporary is not None:
             temporary.unlink(missing_ok=True)

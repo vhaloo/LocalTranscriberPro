@@ -8,6 +8,7 @@ That lets the hardware layer prevent choices that are likely to exhaust memory.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from math import log
 
 
 @dataclass(frozen=True)
@@ -26,6 +27,19 @@ class ModelSpec:
     revision: str = ""
     languages: tuple[str, ...] = ()
     auto_gpu_only: bool = False
+
+    @property
+    def multilingual_score(self) -> float | None:
+        """Editorial relative index, never a measured recognition percentage."""
+        if not self.multilingual:
+            return None
+        return round(max(0.0, min(10.0, self.quality_rank / 120 * 10)), 1)
+
+    @property
+    def relative_speed_score(self) -> float:
+        """Indicative logarithmic index of the catalogue's runtime estimates."""
+        factor = max(0.015, min(1.8, self.speed_factor))
+        return round(1 + 9 * log(1.8 / factor) / log(1.8 / 0.015), 1)
 
     def supports(self, language: str | None = None, task: str = "transcribe") -> bool:
         if task == "translate" and (not self.translation or not self.multilingual):
@@ -108,6 +122,11 @@ def get_model(model_id: str) -> ModelSpec:
         raise ValueError(f"Unknown speech model: {model_id}") from error
 
 
+def ranked_models() -> tuple[ModelSpec, ...]:
+    """Multilingual accuracy first; English-only checkpoints remain available."""
+    return tuple(sorted(MODEL_CATALOG, key=lambda spec: (not spec.multilingual, -spec.quality_rank)))
+
+
 def model_label(model_id: str, language: str = "en") -> str:
     if model_id == AUTO_MODEL_ID:
         return "Qualité maximale sûre (Auto)" if language == "fr" else "Safest maximum quality (Auto)"
@@ -118,7 +137,7 @@ def model_label(model_id: str, language: str = "en") -> str:
         "qwen3-asr-1.7b": ("précision multilingue 2026", "2026 multilingual accuracy"),
         "qwen3-asr-0.6b": ("multilingue compact 2026", "2026 compact multilingual"),
         "parakeet-tdt-0.6b-v3": ("25 langues, CPU rapide", "25 languages, fast CPU"),
-        "large-v3": ("meilleure précision", "best accuracy"),
+        "large-v3": ("multilingue, traduction", "multilingual, translation"),
         "large-v3-turbo": ("très rapide", "very fast"),
         "tiny": ("PC 4 Go", "4 GB PC"),
         "tiny.en": ("anglais, PC 4 Go", "English, 4 GB PC"),
@@ -131,6 +150,10 @@ def model_label(model_id: str, language: str = "en") -> str:
 
 def model_requirement_text(model_id: str, language: str = "en") -> str:
     spec = get_model(model_id)
+    if spec.family == "parakeet":
+        if language == "fr":
+            return f"CPU : {spec.ram_gb:g} Go RAM • aucun GPU requis • téléchargement : {spec.size_gb:g} Go"
+        return f"CPU: {spec.ram_gb:g} GB RAM • no GPU required • download: {spec.size_gb:g} GB"
     if language == "fr":
         return (
             f"CPU : {spec.ram_gb:g} Go RAM • GPU : {spec.vram_gb:g} Go VRAM • "
@@ -144,8 +167,20 @@ def model_requirement_text(model_id: str, language: str = "en") -> str:
 
 def model_choices(language: str) -> list[str]:
     return [model_label(AUTO_MODEL_ID, language), model_label(AUTO_FAST_MODEL_ID, language)] + [
-        model_label(item.model_id, language) for item in MODEL_CATALOG
+        model_label(item.model_id, language) for item in ranked_models()
     ]
+
+
+def model_capability_text(model_id: str, language: str = "en") -> str:
+    spec = get_model(model_id)
+    if not spec.multilingual:
+        return "Anglais uniquement" if language == "fr" else "English only"
+    coverage = (f"{len(spec.languages)} langues" if language == "fr" else f"{len(spec.languages)} languages") if spec.languages else (
+        "Multilingue" if language == "fr" else "Multilingual"
+    )
+    if spec.translation:
+        coverage += " • traduction vers l’anglais" if language == "fr" else " • English translation"
+    return coverage
 
 
 def model_id_from_label(label: str, language: str = "en") -> str:

@@ -7,6 +7,7 @@ Private, offline transcription for Windows, macOS and Linux — with a genuinely
 ## New in 3.0
 
 - **Qwen3-ASR 1.7B and 0.6B**, with a local forced aligner. Accuracy automatically selects 1.7B when a compatible GPU has sufficient free memory; otherwise it chooses a smaller admitted engine. No cloud transcription.
+- **Accuracy first** by default: the model selector ranks multilingual models and displays separate estimated accuracy and speed indices out of 10. English-only variants remain available at the end; these are indicative scores, not accuracy percentages.
 - **Parakeet TDT 0.6B v3**, a multilingual int8 ONNX engine for fast CPU transcription. The Speed profile can use it without an NVIDIA GPU.
 - **Every Whisper model remains available**, including speech-to-English translation and languages outside the newer engines' selected-language support. Translation automatically selects a compatible Whisper model; Turbo is excluded for translation.
 - **Updates at startup**, plus a manual ↻ check. A newer official stable release is proposed, never forced. Accepting downloads the installer, verifies its exact size and SHA-256, saves the session, replaces the Windows application for the current user, then relaunches it. Offline startup remains usable. The option can be disabled in Advanced mode.
@@ -143,6 +144,9 @@ The values below are conservative working targets. Quantization and platform bac
 
 | Model | Typical download | Recommended memory | Use |
 |---|---:|---:|---|
+| <code>qwen3-asr-1.7b</code> | ~6.2 GB with aligner | GPU: 7.5 GB free VRAM / CPU manual: 20 GB RAM | Default accuracy on a compatible powerful GPU; 30 languages |
+| <code>qwen3-asr-0.6b</code> | ~2.9 GB with aligner | GPU: 5.5 GB free VRAM / CPU manual: 12 GB RAM | Compact Qwen fallback; 30 languages |
+| <code>parakeet-tdt-0.6b-v3</code> | ~0.64 GB | CPU: 4 GB RAM | Fast CPU transcription; 25 European languages |
 | <code>large-v3</code>, <code>large-v2</code>, <code>large-v1</code> | ~3.1 GB | CPU: 12 GB RAM / GPU: 7 GB VRAM and 8 GB host RAM | Broad language coverage and speech translation; fallback for newer engines |
 | <code>large-v3-turbo</code> | ~1.6 GB | CPU: 8 GB RAM / GPU: 5 GB VRAM and 5.2 GB host RAM | Much faster, small accuracy trade-off; no reliable speech translation |
 | <code>medium</code> / <code>medium.en</code> | ~1.5 GB | CPU: 8 GB RAM / GPU: 4 GB VRAM and 5.2 GB host RAM | Strong quality on mid-range computers |
@@ -228,6 +232,7 @@ Transcription privée et hors ligne pour Windows, macOS et Linux — avec une in
 ## Nouveautés de la 3.0
 
 - **Qwen3-ASR 1.7B et 0.6B**, avec alignement local des mots. Précision sélectionne automatiquement 1.7B lorsqu'un GPU compatible possède assez de mémoire libre, puis un moteur plus léger si nécessaire.
+- **Priorité à la précision** par défaut : la liste classe les modèles multilingues et affiche deux indices estimés sur 10, précision et rapidité. Les variantes anglaises restent disponibles à la fin. Ces indices sont indicatifs et ne sont pas des pourcentages de réussite.
 - **Parakeet TDT 0.6B v3**, moteur multilingue ONNX int8 pour transcrire rapidement sur CPU. Le profil Rapidité peut l'utiliser sans GPU NVIDIA.
 - **Tous les modèles Whisper sont conservés**, avec traduction vers l'anglais et langues complémentaires. Traduire choisit automatiquement un modèle Whisper compatible ; Turbo est exclu pour cette tâche.
 - **Vérification des mises à jour au démarrage** et bouton ↻. Une nouvelle version stable officielle est proposée. Accepter télécharge l'installateur, vérifie sa taille et son SHA-256, sauvegarde la session, remplace l'application Windows pour ce compte et la relance. Une connexion indisponible ne bloque pas l'application. L'option se désactive en mode Avancé.
@@ -364,7 +369,10 @@ Les valeurs ci-dessous sont des objectifs de fonctionnement prudents. La quantif
 
 | Modèle | Téléchargement typique | Mémoire recommandée | Utilisation |
 |---|---:|---:|---|
-| <code>large-v3</code>, <code>large-v2</code>, <code>large-v1</code> | ~3,1 Go | CPU : 12 Go de RAM / GPU : 7 Go de VRAM et 8 Go de RAM | Meilleure précision locale multilingue; v3 est utilisé par défaut lorsqu’il est sûr |
+| <code>qwen3-asr-1.7b</code> | ~6,2 Go avec alignement | GPU : 7,5 Go de VRAM libre / CPU manuel : 20 Go de RAM | Précision par défaut sur GPU puissant compatible ; 30 langues |
+| <code>qwen3-asr-0.6b</code> | ~2,9 Go avec alignement | GPU : 5,5 Go de VRAM libre / CPU manuel : 12 Go de RAM | Repli Qwen compact ; 30 langues |
+| <code>parakeet-tdt-0.6b-v3</code> | ~0,64 Go | CPU : 4 Go de RAM | Transcription CPU rapide ; 25 langues européennes |
+| <code>large-v3</code>, <code>large-v2</code>, <code>large-v1</code> | ~3,1 Go | CPU : 12 Go de RAM / GPU : 7 Go de VRAM et 8 Go de RAM | Large couverture linguistique et traduction ; complément des nouveaux moteurs |
 | <code>large-v3-turbo</code> | ~1,6 Go | CPU : 8 Go de RAM / GPU : 5 Go de VRAM et 5,2 Go de RAM | Beaucoup plus rapide, avec une petite perte de précision; pas de traduction vocale fiable |
 | <code>medium</code> / <code>medium.en</code> | ~1,5 Go | CPU : 8 Go de RAM / GPU : 4 Go de VRAM et 5,2 Go de RAM | Grande qualité sur les ordinateurs intermédiaires |
 | <code>small</code> / <code>small.en</code> | ~0,5 Go | CPU : 5 Go de RAM / GPU : 2 Go de VRAM et 4 Go de RAM | Bon équilibre entre qualité et vitesse |

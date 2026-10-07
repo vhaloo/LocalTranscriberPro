@@ -4,6 +4,7 @@
 
 - Added pinned Qwen3-ASR 1.7B/0.6B with local forced alignment and Parakeet TDT 0.6B v3 int8 ONNX; retained all Whisper engines and translation.
 - Added Accuracy/Speed profiles, feature-aware fallback, free-memory guards and real PyTorch CUDA probing.
+- Ranked models by estimated multilingual accuracy, with separate relative accuracy/speed scores and explicit English-only coverage.
 - Added startup/manual official release checks, opt-in installation, HTTPS host validation, exact size/SHA-256 verification, cancellation and Windows relaunch.
 - Serialized inference/model replacement and routed worker events through the main UI queue.
 - Bounded file decoding and speaker extraction; replaced unlimited recording buffers with a progressively flushed WAV spool.

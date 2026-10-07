@@ -1,4 +1,4 @@
-"""Local Transcriber Pro 2.2 desktop interface."""
+"""Local Transcriber Pro desktop interface."""
 
 from __future__ import annotations
 
@@ -49,10 +49,12 @@ from src.meter import TapeMeter
 from src.models import (
     AUTO_FAST_MODEL_ID,
     AUTO_MODEL_ID,
-    MODEL_CATALOG,
+    get_model,
+    model_capability_text,
     model_id_from_label,
     model_label,
     model_requirement_text,
+    ranked_models,
 )
 from src.segments import shift_segments, validate_segments
 from src.settings import SettingsStore, bounded_int, ensure_output_folder
@@ -450,8 +452,8 @@ class ModelSelectorDialog(ctk.CTkToplevel):
         self.cached = parent.engine.cached_model_ids()
         parent.hardware.refresh_resources()
         self.title(self.t("model_requirements"))
-        self.geometry("820x690")
-        self.minsize(720, 560)
+        self.geometry("1040x760")
+        self.minsize(940, 580)
         self.transient(parent)
         self.grab_set()
         self.configure(fg_color=BACKGROUND)
@@ -468,14 +470,14 @@ class ModelSelectorDialog(ctk.CTkToplevel):
             font=("Segoe UI", 13),
             text_color=MUTED,
             justify="left",
-            wraplength=750,
+            wraplength=960,
         ).pack(anchor="w", padx=28, pady=(0, 12))
 
         self.scroll = ctk.CTkScrollableFrame(self, fg_color=PANEL, corner_radius=18)
         self.scroll.pack(fill="both", expand=True, padx=28, pady=4)
         self._add_auto_row()
         self._add_auto_row(AUTO_FAST_MODEL_ID)
-        for spec in MODEL_CATALOG:
+        for spec in ranked_models():
             self._add_model_row(spec.model_id)
 
         ctk.CTkButton(
@@ -505,8 +507,9 @@ class ModelSelectorDialog(ctk.CTkToplevel):
             border_color=ACCENT if selected else "#2A3C5E",
         )
         row.pack(fill="x", padx=8, pady=(8, 5))
+        row.grid_columnconfigure(0, weight=1)
         text = ctk.CTkFrame(row, fg_color="transparent")
-        text.pack(side="left", fill="both", expand=True, padx=15, pady=12)
+        text.grid(row=0, column=0, sticky="nsew", padx=15, pady=12)
         ctk.CTkLabel(
             text,
             text=model_label(profile_id, self.t.language),
@@ -515,10 +518,11 @@ class ModelSelectorDialog(ctk.CTkToplevel):
         ).pack(anchor="w")
         ctk.CTkLabel(
             text,
-            text=self.t("auto_will_use", model=recommended),
+            text=self.t("auto_fast_will_use" if profile_id == AUTO_FAST_MODEL_ID else "auto_will_use", model=recommended),
             font=("Segoe UI", 12),
             text_color=ACCENT if supported else RED,
         ).pack(anchor="w", pady=(3, 0))
+        self._add_scores(row, recommended)
         ctk.CTkButton(
             row,
             text=self.t("selected" if selected else "select"),
@@ -527,7 +531,23 @@ class ModelSelectorDialog(ctk.CTkToplevel):
             fg_color=ACCENT_DARK,
             hover_color=ACCENT,
             command=lambda: self._select(profile_id),
-        ).pack(side="right", padx=14)
+        ).grid(row=0, column=3, padx=14)
+
+    def _add_scores(self, row: ctk.CTkFrame, model_id: str) -> None:
+        spec = get_model(model_id)
+        for column, label, score, color in (
+            (1, self.t("model_precision_score"), spec.multilingual_score, ACCENT),
+            (2, self.t("model_speed_score"), spec.relative_speed_score, BLUE),
+        ):
+            cell = ctk.CTkFrame(row, fg_color="transparent", width=115)
+            cell.grid(row=0, column=column, padx=8, pady=12)
+            ctk.CTkLabel(cell, text=label, font=("Segoe UI", 11), text_color=MUTED).pack()
+            value = f"{score:.1f}/10" if score is not None else self.t("model_english_only_score")
+            ctk.CTkLabel(cell, text=value, font=("Segoe UI", 18, "bold"), text_color=color).pack(pady=(3, 4))
+            if score is not None:
+                bar = ctk.CTkProgressBar(cell, width=100, height=5, progress_color=color)
+                bar.set(score / 10)
+                bar.pack()
 
     def _add_model_row(self, model_id: str) -> None:
         compatibility = self.parent_app.hardware.model_compatibility(
@@ -544,19 +564,30 @@ class ModelSelectorDialog(ctk.CTkToplevel):
             border_color=ACCENT if selected else ("#2A3C5E" if compatibility.supported else "#222C3E"),
         )
         row.pack(fill="x", padx=8, pady=5)
+        row.grid_columnconfigure(0, weight=1)
         text = ctk.CTkFrame(row, fg_color="transparent")
-        text.pack(side="left", fill="both", expand=True, padx=15, pady=11)
+        text.grid(row=0, column=0, sticky="nsew", padx=15, pady=11)
         ctk.CTkLabel(
             text,
             text=model_label(model_id, self.t.language),
             font=("Segoe UI", 14, "bold"),
             text_color=TEXT if compatibility.supported else "#69768B",
+            wraplength=520,
+            justify="left",
         ).pack(anchor="w")
+        ctk.CTkLabel(
+            text,
+            text=model_capability_text(model_id, self.t.language),
+            font=("Segoe UI", 11),
+            text_color=MUTED,
+        ).pack(anchor="w", pady=(2, 0))
         ctk.CTkLabel(
             text,
             text=model_requirement_text(model_id, self.t.language),
             font=("Segoe UI", 11),
             text_color=MUTED if compatibility.supported else "#596579",
+            wraplength=520,
+            justify="left",
         ).pack(anchor="w", pady=(2, 0))
         ctk.CTkLabel(
             text,
@@ -564,6 +595,7 @@ class ModelSelectorDialog(ctk.CTkToplevel):
             font=("Segoe UI", 11, "bold"),
             text_color=ACCENT if compatibility.supported else AMBER,
         ).pack(anchor="w", pady=(3, 0))
+        self._add_scores(row, model_id)
         ctk.CTkButton(
             row,
             text=self.t("selected" if selected else ("select" if compatibility.supported else "unavailable")),
@@ -573,7 +605,7 @@ class ModelSelectorDialog(ctk.CTkToplevel):
             hover_color=ACCENT,
             text_color_disabled="#647084",
             command=lambda value=model_id: self._select(value),
-        ).pack(side="right", padx=14)
+        ).grid(row=0, column=3, padx=14)
 
     def _select(self, model_id: str) -> None:
         self.parent_app._select_model(model_id)

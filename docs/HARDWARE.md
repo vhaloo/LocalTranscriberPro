@@ -52,6 +52,10 @@ These are admission floors, not promises of speed. A 4 GB Windows computer is de
 
 The **Models and minimum requirements** window shows Qwen, Parakeet and the entire official Whisper catalogue. Each row contains its CPU RAM, GPU VRAM and download requirement.
 
+Models are sorted by estimated multilingual accuracy, with English-only variants at the end. Two separate columns show relative accuracy and speed indices from 0 to 10. Automatic defaults to maximum compatible accuracy; speed is an explicit optional profile. The selected Automatic row displays the scores of the model it currently recommends.
+
+These are editorial indices, not measured word accuracy percentages or a universal reliability benchmark. Accuracy normalizes the catalogue's selection priority against Qwen 1.7B (`quality_rank / 120 × 10`), informed by the linked model cards and local sample validation. Speed uses a logarithmic scale of the catalogue's initial processing estimates, with Qwen 1.7B at 1 and Parakeet CPU at 10. Different runtimes and hardware can change that order. Languages covered, noise, domain vocabulary and warm/cold state matter; session-specific ETA calibration remains independent of these indices. English-only models have no multilingual accuracy index.
+
 - safe rows have a **Select** button and state which device will be used
 - unsafe rows are greyed out, disabled and state the exact missing resource
 - temporary pressure is distinguished from a permanent hardware limit
