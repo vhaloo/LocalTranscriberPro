@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import os
 import platform
 import shutil
@@ -14,7 +15,7 @@ from typing import Any
 import psutil
 from platformdirs import user_cache_dir
 
-from src.models import AUTO_MODEL_ID, MODEL_CATALOG, ModelSpec, get_model
+from src.models import AUTO_FAST_MODEL_ID, AUTO_MODEL_ID, MODEL_CATALOG, ModelSpec, get_model
 
 HardwareStatusCallback = Callable[[str, float], None]
 
@@ -38,12 +39,12 @@ class HardwareProfile:
     cpu_name: str
     cpu_threads: int
     ram_gb: float
-    available_ram_gb: float = 0.0
+    available_ram_gb: float | None = None
     swap_gb: float = 0.0
     disk_free_gb: float = 1000.0
     gpu_name: str = ""
     gpu_vram_gb: float = 0.0
-    gpu_vram_free_gb: float = 0.0
+    gpu_vram_free_gb: float | None = None
     nvidia_driver: str = ""
     nvidia_detected: bool = False
     ctranslate_cuda: bool = False
@@ -53,14 +54,19 @@ class HardwareProfile:
     torch_mps: bool = False
     cpu_backend_available: bool = True
     cpu_compute_types: tuple[str, ...] = ()
+    torch_cpu_available: bool = False
+    qwen_available: bool = False
+    parakeet_available: bool = False
+    reclaimable_vram_gb: float = 0.0
 
     @property
     def effective_available_ram_gb(self) -> float:
-        return self.available_ram_gb if self.available_ram_gb > 0 else self.ram_gb
+        return self.ram_gb if self.available_ram_gb is None else self.available_ram_gb
 
     @property
     def effective_free_vram_gb(self) -> float:
-        return self.gpu_vram_free_gb if self.gpu_vram_free_gb > 0 else self.gpu_vram_gb
+        free = self.gpu_vram_gb if self.gpu_vram_free_gb is None else self.gpu_vram_free_gb
+        return min(self.gpu_vram_gb, free + self.reclaimable_vram_gb)
 
     @property
     def gpu_available(self) -> bool:
@@ -106,7 +112,10 @@ class HardwareProfile:
         )
 
     def _cpu_compatibility(self, spec: ModelSpec) -> ModelCompatibility:
-        if not self.cpu_backend_available:
+        runtime = self.torch_cpu_available if spec.family == "qwen" else (
+            self.parakeet_available if spec.family == "parakeet" else self.cpu_backend_available
+        )
+        if not runtime:
             return ModelCompatibility(spec.model_id, False, "cpu", "cpu_runtime")
         if self.ram_gb < spec.ram_gb:
             return ModelCompatibility(
@@ -125,7 +134,8 @@ class HardwareProfile:
         return ModelCompatibility(spec.model_id, True, "cpu")
 
     def _cuda_compatibility(self, spec: ModelSpec) -> ModelCompatibility:
-        if not self.nvidia_detected or not (self.ctranslate_cuda or self.torch_cuda):
+        runtime = self.torch_cuda if spec.family == "qwen" else (self.ctranslate_cuda or self.torch_cuda)
+        if spec.family == "parakeet" or not self.nvidia_detected or not runtime:
             return ModelCompatibility(spec.model_id, False, "cuda", "gpu_runtime")
         if self.ram_gb < spec.gpu_system_ram_gb:
             return ModelCompatibility(
@@ -169,7 +179,8 @@ class HardwareProfile:
         return ModelCompatibility(spec.model_id, True, "cuda")
 
     def _metal_compatibility(self, spec: ModelSpec) -> ModelCompatibility:
-        if not self.apple_silicon or not (self.mlx_available or self.torch_mps):
+        runtime = self.torch_mps if spec.family == "qwen" else (self.mlx_available or self.torch_mps)
+        if spec.family == "parakeet" or not self.apple_silicon or not runtime:
             return ModelCompatibility(spec.model_id, False, "metal", "gpu_runtime")
         if self.ram_gb < spec.ram_gb:
             return ModelCompatibility(
@@ -199,6 +210,10 @@ class HardwareProfile:
         model_downloaded: bool = False,
     ) -> ModelCompatibility:
         spec = get_model(model_id)
+        if spec.family == "qwen" and not self.qwen_available:
+            return ModelCompatibility(spec.model_id, False, "", "model_runtime")
+        if spec.family == "parakeet" and not self.parakeet_available:
+            return ModelCompatibility(spec.model_id, False, "", "model_runtime")
         disk_problem = self._disk_check(spec, model_downloaded)
         if disk_problem:
             return disk_problem
@@ -239,15 +254,20 @@ class HardwareProfile:
         self,
         device_mode: str = "auto",
         cached_model_ids: Iterable[str] = (),
+        language: str | None = None,
+        task: str = "transcribe",
     ) -> str:
         cached = set(cached_model_ids)
         candidates = sorted(
-            (spec for spec in MODEL_CATALOG if spec.multilingual),
+            (spec for spec in MODEL_CATALOG if spec.multilingual and spec.supports(language, task)),
             key=lambda spec: spec.quality_rank,
             reverse=True,
         )
         for spec in candidates:
-            if self.model_compatibility(spec.model_id, device_mode, spec.model_id in cached).supported:
+            compatibility = self.model_compatibility(spec.model_id, device_mode, spec.model_id in cached)
+            if spec.auto_gpu_only and compatibility.device == "cpu":
+                continue
+            if compatibility.supported:
                 return spec.model_id
         return "tiny"
 
@@ -255,12 +275,14 @@ class HardwareProfile:
         self,
         device_mode: str = "auto",
         cached_model_ids: Iterable[str] = (),
+        language: str | None = None,
+        task: str = "transcribe",
     ) -> str:
         cached = set(cached_model_ids)
-        for model_id in ("large-v3-turbo", "medium", "small", "base", "tiny"):
-            if self.model_compatibility(model_id, device_mode, model_id in cached).supported:
+        for model_id in ("parakeet-tdt-0.6b-v3", "large-v3-turbo", "medium", "small", "base", "tiny"):
+            if get_model(model_id).supports(language, task) and self.model_compatibility(model_id, device_mode, model_id in cached).supported:
                 return model_id
-        return self.recommended_model(device_mode, cached)
+        return self.recommended_model(device_mode, cached, language, task)
 
     def has_safe_model(self, device_mode: str = "auto", cached_model_ids: Iterable[str] = ()) -> bool:
         return bool(self.safe_models(device_mode, cached_model_ids))
@@ -270,14 +292,25 @@ class HardwareProfile:
         requested: str,
         device_mode: str = "auto",
         cached_model_ids: Iterable[str] = (),
+        language: str | None = None,
+        task: str = "transcribe",
     ) -> str:
         cached = set(cached_model_ids)
         if requested == AUTO_MODEL_ID:
-            return self.recommended_model(device_mode, cached)
+            return self.recommended_model(device_mode, cached, language, task)
+        if requested == AUTO_FAST_MODEL_ID:
+            return self.fast_recommended_model(device_mode, cached, language, task)
+        try:
+            spec = get_model(requested)
+        except ValueError:
+            return self.recommended_model(device_mode, cached, language, task)
+        if not spec.supports(language, task):
+            return self.recommended_model(device_mode, cached, language, task)
+        requested = spec.model_id
         compatibility = self.model_compatibility(requested, device_mode, requested in cached)
         if compatibility.supported:
             return requested
-        return self.recommended_model(device_mode, cached)
+        return self.recommended_model(device_mode, cached, language, task)
 
     def compute_type(self, device: str) -> str:
         if device == "cuda":
@@ -293,7 +326,7 @@ class HardwareProfile:
             _, total, free, driver = _nvidia_details()
             if total:
                 self.gpu_vram_gb = total
-            if free:
+            if total:
                 self.gpu_vram_free_gb = free
             if driver:
                 self.nvidia_driver = driver
@@ -383,10 +416,17 @@ def detect_hardware(status_callback: HardwareStatusCallback | None = None) -> Ha
     report("hardware_acceleration", 0.62)
     torch_cuda = False
     torch_mps = False
+    torch_cpu_available = False
     try:
         import torch
 
+        torch_cpu_available = True
         torch_cuda = bool(torch.cuda.is_available())
+        if torch_cuda:
+            # A GPU name alone does not prove that this wheel can execute on it.
+            probe = torch.ones(1, device="cuda") + 1
+            torch.cuda.synchronize()
+            del probe
         torch_mps = bool(hasattr(torch.backends, "mps") and torch.backends.mps.is_available())
         if torch_cuda and not gpu_name:
             gpu_name = torch.cuda.get_device_name(0)
@@ -394,7 +434,8 @@ def detect_hardware(status_callback: HardwareStatusCallback | None = None) -> Ha
             gpu_vram = properties.total_memory / 1024**3
             gpu_vram_free = gpu_vram
     except (ImportError, RuntimeError, OSError):
-        pass
+        torch_cuda = False
+        torch_mps = False
 
     mlx_available = False
     if apple_silicon:
@@ -431,4 +472,7 @@ def detect_hardware(status_callback: HardwareStatusCallback | None = None) -> Ha
         torch_mps=torch_mps,
         cpu_backend_available=cpu_backend_available,
         cpu_compute_types=cpu_compute_types,
+        torch_cpu_available=torch_cpu_available,
+        qwen_available=importlib.util.find_spec("qwen_asr") is not None,
+        parakeet_available=importlib.util.find_spec("sherpa_onnx") is not None,
     )

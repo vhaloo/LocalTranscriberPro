@@ -63,21 +63,27 @@ def run_packaged_smoke_test(args: argparse.Namespace) -> int:
 
     payload: dict[str, object] = {"success": False}
     try:
+        source = args.smoke_test
+        if args.youtube_test:
+            from src.youtube_utils import download_youtube_audio
+
+            source = download_youtube_audio(args.youtube_test, Path(args.diagnostic_output).resolve().parent / "youtube-qa")
         hardware = detect_hardware()
         engine = TranscriberEngine(hardware)
-        status = engine.load_model(args.model, args.device)
+        options = TranscriptionOptions(language=args.language, task=args.task, beam_size=5, vad_filter=True)
+        engine.load_model(args.model, args.device, options=options)
         progress: list[float] = []
         result = engine.transcribe_file(
-            args.smoke_test,
-            TranscriptionOptions(language=args.language, beam_size=5, vad_filter=True),
+            source,
+            options,
             progress.append,
         )
         if args.diarize:
-            result["segments"] = Diarizer().process(args.smoke_test, result.get("segments", []))
+            result["segments"] = Diarizer().process(source, result.get("segments", []))
         payload = {
-            "success": bool(result.get("text", "").strip()),
+            "success": not bool(result.get("text", "").strip()) if args.expect_silence else bool(result.get("text", "").strip()),
             "hardware": hardware.as_dict(),
-            "status": status.__dict__,
+            "status": engine.current_status.__dict__,
             "text": result.get("text", ""),
             "segments": result.get("segments", []),
             "language": result.get("language"),
@@ -96,13 +102,16 @@ def run_packaged_smoke_test(args: argparse.Namespace) -> int:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("--smoke-test")
+    parser.add_argument("--youtube-test")
     parser.add_argument("--diagnostic-output")
     parser.add_argument("--model", default="tiny")
     parser.add_argument("--device", default="auto")
     parser.add_argument("--language", default=None)
+    parser.add_argument("--task", choices=("transcribe", "translate"), default="transcribe")
+    parser.add_argument("--expect-silence", action="store_true")
     parser.add_argument("--diarize", action="store_true")
     args, _ = parser.parse_known_args()
-    if args.smoke_test and not args.diagnostic_output:
+    if (args.smoke_test or args.youtube_test) and not args.diagnostic_output:
         parser.error("--diagnostic-output is required with --smoke-test")
     return args
 
@@ -110,7 +119,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     setup_logging()
     args = parse_args()
-    if args.smoke_test:
+    if args.smoke_test or args.youtube_test:
         return run_packaged_smoke_test(args)
 
     # This module only uses the Python standard library, so it can paint a
@@ -136,24 +145,12 @@ def main() -> int:
 
             hardware = detect_hardware(report)
             report("preloading_model", 0.76)
-            from src.models import AUTO_MODEL_ID
-            from src.settings import SettingsStore
             from src.transcriber import TranscriberEngine
 
-            settings = SettingsStore()
-            simple_mode = settings.get("ui_mode", "simple") == "simple"
-            requested_model = AUTO_MODEL_ID if simple_mode else settings.get("model", AUTO_MODEL_ID)
-            requested_device = "auto" if simple_mode else settings.get("device", "auto")
             engine = TranscriberEngine(hardware)
             preloaded_status = None
-            try:
-                preloaded_status = engine.load_model(
-                    requested_model,
-                    requested_device,
-                    lambda *_: report("preloading_model", 0.82),
-                )
-            except Exception:
-                logging.exception("Startup model preload failed; the interface will offer a safe retry")
+            # Downloads and model initialization belong to the cancellable,
+            # visible desktop workflow, never to an uncloseable startup screen.
 
             report("interface", 0.92)
             from src.gui import TranscriberApp

@@ -18,6 +18,6 @@ def test_settings_migrate_old_window_and_keep_new_format_defaults(tmp_path):
 
     settings = SettingsStore(path)
 
-    assert settings.get("schema_version") == 4
+    assert settings.get("schema_version") == 5
     assert settings.get("window_geometry") == "1220x940"
     assert settings.get("transcript_layout") == "blocks"

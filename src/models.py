@@ -21,6 +21,20 @@ class ModelSpec:
     multilingual: bool = True
     translation: bool = True
     quality_rank: int = 0
+    family: str = "whisper"
+    repository: str = ""
+    revision: str = ""
+    languages: tuple[str, ...] = ()
+    auto_gpu_only: bool = False
+
+    def supports(self, language: str | None = None, task: str = "transcribe") -> bool:
+        if task == "translate" and (not self.translation or not self.multilingual):
+            return False
+        if language in {None, "", "auto"}:
+            return True
+        if not self.multilingual and language != "en":
+            return False
+        return not self.languages or language in self.languages
 
     @property
     def download_space_gb(self) -> float:
@@ -36,6 +50,27 @@ class ModelSpec:
 # Every official OpenAI Whisper checkpoint remains represented. The memory
 # floors include headroom for the GUI, decoding and the operating system.
 MODEL_CATALOG: tuple[ModelSpec, ...] = (
+    ModelSpec(
+        "qwen3-asr-1.7b", 6.2, 20.0, 10.0, 7.5, 1.8,
+        translation=False, quality_rank=120, family="qwen",
+        repository="Qwen/Qwen3-ASR-1.7B", revision="7278e1e70fe206f11671096ffdd38061171dd6e5",
+        languages=tuple("zh en yue ar de fr es pt id it ko ru th vi ja tr hi ms nl sv da fi pl cs fil fa el hu mk ro".split()),
+        auto_gpu_only=True,
+    ),
+    ModelSpec(
+        "qwen3-asr-0.6b", 2.9, 12.0, 6.0, 5.5, 0.8,
+        translation=False, quality_rank=105, family="qwen",
+        repository="Qwen/Qwen3-ASR-0.6B", revision="5eb144179a02acc5e5ba31e748d22b0cf3e303b0",
+        languages=tuple("zh en yue ar de fr es pt id it ko ru th vi ja tr hi ms nl sv da fi pl cs fil fa el hu mk ro".split()),
+        auto_gpu_only=True,
+    ),
+    ModelSpec(
+        "parakeet-tdt-0.6b-v3", 0.64, 4.0, 2.0, 0.0, 0.015,
+        translation=False, quality_rank=98, family="parakeet",
+        repository="csukuangfj/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8",
+        revision="2bda32ec70b097a55adaa07d9a7173915b43cc78",
+        languages=tuple("bg hr cs da nl en et fi fr de el hu it lv lt mt pl pt ro ru sk sl es sv uk".split()),
+    ),
     ModelSpec("large-v3", 3.10, 12.0, 5.0, 7.0, 1.00, quality_rank=100),
     ModelSpec("large-v3-turbo", 1.62, 8.0, 3.0, 5.0, 0.22, translation=False, quality_rank=96),
     ModelSpec("large-v2", 3.10, 12.0, 5.0, 7.0, 1.05, quality_rank=94),
@@ -56,17 +91,33 @@ MODEL_CATALOG: tuple[ModelSpec, ...] = (
 
 MODEL_BY_ID = {item.model_id: item for item in MODEL_CATALOG}
 AUTO_MODEL_ID = "auto-best"
+AUTO_FAST_MODEL_ID = "auto-fast"
+ALIGNER_REPOSITORY = "Qwen/Qwen3-ForcedAligner-0.6B"
+ALIGNER_REVISION = "c7cbfc2048c462b0d63a45797104fc9db3ad62b7"
 
 
 def get_model(model_id: str) -> ModelSpec:
-    return MODEL_BY_ID.get(model_id, MODEL_BY_ID["large-v3"])
+    # Auto is a profile, never a downloadable model. Reject invalid saved IDs.
+    if model_id in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, "large"}:
+        return MODEL_BY_ID["large-v3"]
+    if model_id == "turbo":
+        return MODEL_BY_ID["large-v3-turbo"]
+    try:
+        return MODEL_BY_ID[model_id]
+    except KeyError as error:
+        raise ValueError(f"Unknown speech model: {model_id}") from error
 
 
 def model_label(model_id: str, language: str = "en") -> str:
     if model_id == AUTO_MODEL_ID:
         return "Qualité maximale sûre (Auto)" if language == "fr" else "Safest maximum quality (Auto)"
+    if model_id == AUTO_FAST_MODEL_ID:
+        return "Rapidité (Auto)" if language == "fr" else "Fast transcription (Auto)"
     spec = get_model(model_id)
     notes = {
+        "qwen3-asr-1.7b": ("précision multilingue 2026", "2026 multilingual accuracy"),
+        "qwen3-asr-0.6b": ("multilingue compact 2026", "2026 compact multilingual"),
+        "parakeet-tdt-0.6b-v3": ("25 langues, CPU rapide", "25 languages, fast CPU"),
         "large-v3": ("meilleure précision", "best accuracy"),
         "large-v3-turbo": ("très rapide", "very fast"),
         "tiny": ("PC 4 Go", "4 GB PC"),
@@ -92,13 +143,13 @@ def model_requirement_text(model_id: str, language: str = "en") -> str:
 
 
 def model_choices(language: str) -> list[str]:
-    return [model_label(AUTO_MODEL_ID, language)] + [
+    return [model_label(AUTO_MODEL_ID, language), model_label(AUTO_FAST_MODEL_ID, language)] + [
         model_label(item.model_id, language) for item in MODEL_CATALOG
     ]
 
 
 def model_id_from_label(label: str, language: str = "en") -> str:
-    for model_id in (AUTO_MODEL_ID, *MODEL_BY_ID):
+    for model_id in (AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, *MODEL_BY_ID):
         if model_label(model_id, language) == label:
             return model_id
     return label if label in MODEL_BY_ID else AUTO_MODEL_ID

@@ -1,6 +1,6 @@
 # Hardware detection and safe model selection
 
-Local Transcriber Pro 2.2 treats a model as available only after its complete runtime route has passed conservative admission checks. Merely finding a GPU name is never considered proof that GPU inference works.
+Local Transcriber Pro 3.0 treats a model as available only after its complete runtime route has passed conservative admission checks. Merely finding a GPU name is never considered proof that GPU inference works.
 
 ## What is measured at startup
 
@@ -16,7 +16,7 @@ Local Transcriber Pro 2.2 treats a model as available only after its complete ru
 
 The same free-memory and free-storage snapshot is refreshed immediately before a model is loaded. This protects against an old saved setting or another application consuming memory after Local Transcriber Pro started.
 
-The admitted maximum-quality model is preloaded during the startup splash. Changing the model or processor starts a background replacement load immediately. Record therefore uses the already-armed engine in the normal case; the full-window initialization message remains only as a truthful fallback if preloading has not completed or the resource check changed.
+The admitted model is loaded in the background after the interface opens. Changing the model or processor starts a background replacement load immediately. Record therefore uses the already-armed engine in the normal case; the full-window initialization message remains only as a truthful fallback if preloading has not completed or the resource check changed.
 
 ## Device routing
 
@@ -34,6 +34,9 @@ Manual CUDA and Metal choices appear only when their packaged runtime has actual
 
 | Model family | First download | CPU total RAM | CPU free RAM at load | GPU VRAM | Minimum host RAM on GPU |
 |---|---:|---:|---:|---:|---:|
+| Qwen3-ASR 1.7B + aligner | 6.2 GB | 20 GB | 10 GB | 7.5 GB free | 8.0 GB |
+| Qwen3-ASR 0.6B + aligner | 2.9 GB | 12 GB | 6 GB | 5.5 GB free | 6.0 GB |
+| Parakeet TDT 0.6B v3 int8 | 0.64 GB | 4 GB | 2 GB | CPU engine | CPU engine |
 | Large v1/v2/v3 | 3.10 GB | 12 GB | 5.0 GB | 7.0 GB | 8.0 GB |
 | Large v3 Turbo | 1.62 GB | 8 GB | 3.0 GB | 5.0 GB | 5.2 GB |
 | Medium | 1.53 GB | 8 GB | 3.0 GB | 4.0 GB | 5.2 GB |
@@ -47,7 +50,7 @@ These are admission floors, not promises of speed. A 4 GB Windows computer is de
 
 ## What the user sees
 
-The **Models and minimum requirements** window always shows the entire official Whisper catalogue. Each row contains its CPU RAM, GPU VRAM and download requirement.
+The **Models and minimum requirements** window shows Qwen, Parakeet and the entire official Whisper catalogue. Each row contains its CPU RAM, GPU VRAM and download requirement.
 
 - safe rows have a **Select** button and state which device will be used
 - unsafe rows are greyed out, disabled and state the exact missing resource
@@ -65,3 +68,18 @@ An NVIDIA display driver is supplied by the computer/GPU manufacturer, not modif
 ## ETA calibration
 
 Before the first transcription, estimates use conservative real-time factors by model and device. Every successful run stores an exponential moving average of actual processing time divided by audio duration for that exact model/device pair. No audio, text, specification or benchmark is uploaded.
+
+## 3.0 selection policy and source revisions
+
+Accuracy favors Qwen 1.7B, then Qwen 0.6B on admitted CUDA/MPS routes. Automatic never chooses Qwen on CPU because cold inference can be very slow. CPU accuracy retains Whisper; Speed favors the Parakeet CPU engine, then Whisper Turbo. Language/task compatibility takes precedence over model rank. Translation excludes Qwen, Parakeet, English-only Whisper and Whisper Turbo. A manually selected complementary language routes to Whisper. Automatic language detection is bounded by the selected engine's language coverage.
+
+Actual free memory is distinguished from unknown memory. Memory held by the resident model is counted as reclaimable for selection, and that model is unloaded before checking resources for a replacement. Admission reduces allocation failures but cannot guarantee that another application will not consume resources during inference.
+
+| Engine / weights | Pinned revision | Source |
+|---|---|---|
+| Qwen/Qwen3-ASR-1.7B | `7278e1e70fe206f11671096ffdd38061171dd6e5` | [Official model](https://huggingface.co/Qwen/Qwen3-ASR-1.7B) |
+| Qwen/Qwen3-ASR-0.6B | `5eb144179a02acc5e5ba31e748d22b0cf3e303b0` | [Official model](https://huggingface.co/Qwen/Qwen3-ASR-0.6B) |
+| Qwen/Qwen3-ForcedAligner-0.6B | `c7cbfc2048c462b0d63a45797104fc9db3ad62b7` | [Official aligner](https://huggingface.co/Qwen/Qwen3-ForcedAligner-0.6B) |
+| csukuangfj/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8 | `2bda32ec70b097a55adaa07d9a7173915b43cc78` | [Sherpa conversion](https://huggingface.co/csukuangfj/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8), [NVIDIA original](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3) |
+
+Qwen supports 30 languages; word alignment supports 11. Unsupported alignment languages use window timing. Parakeet uses token-derived word timing. Accuracy and latency vary with recording quality and cold/warm state. This is a practical local selection policy, not a universal benchmark ranking. Cohere Transcribe was researched but not integrated: the available model requires an owner-controlled gated-access agreement.

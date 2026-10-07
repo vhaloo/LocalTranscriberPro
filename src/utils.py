@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import datetime as dt
 import logging
+import os
 import re
 import sys
+import tempfile
 from collections.abc import Callable, Iterable
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any
 
@@ -18,10 +21,9 @@ def setup_logging() -> Path:
     log_dir.mkdir(parents=True, exist_ok=True)
     log_path = log_dir / "app.log"
     logging.basicConfig(
-        filename=log_path,
+        handlers=[RotatingFileHandler(log_path, maxBytes=5 * 1024**2, backupCount=3, encoding="utf-8")],
         level=logging.INFO,
         format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
-        encoding="utf-8",
     )
     return log_path
 
@@ -64,12 +66,12 @@ def format_timestamp(seconds: float, decimal: str = ",") -> str:
 
 def create_srt_content(segments: Iterable[dict[str, Any]]) -> str:
     blocks = []
-    for index, segment in enumerate(segments, start=1):
+    for segment in segments:
         text = str(segment.get("text", "")).strip()
         if not text:
             continue
         blocks.append(
-            f"{index}\n{format_timestamp(segment.get('start', 0))} --> "
+            f"{len(blocks) + 1}\n{format_timestamp(segment.get('start', 0))} --> "
             f"{format_timestamp(segment.get('end', 0))}\n{text}"
         )
     return "\n\n".join(blocks) + ("\n" if blocks else "")
@@ -92,8 +94,17 @@ def timestamped_name(prefix: str = "Transcription") -> str:
     return f"{prefix}_{dt.datetime.now():%Y-%m-%d_%H-%M-%S}"
 
 
-def atomic_write_text(path: Path, content: str) -> None:
+def atomic_write_text(path: Path, content: str, encoding: str = "utf-8") -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(content, encoding="utf-8")
-    temporary.replace(path)
+    temporary: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding=encoding, dir=path.parent,
+                                         prefix=f".{path.name}.", suffix=".tmp", delete=False) as handle:
+            temporary = Path(handle.name)
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        temporary.replace(path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)

@@ -4,11 +4,15 @@ from __future__ import annotations
 
 import logging
 import os
+import shutil
+import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
 import imageio_ffmpeg
 import yt_dlp
+
+from src.jobs import check_cancelled
 
 ALLOWED_HOSTS = {
     "youtube.com",
@@ -35,11 +39,26 @@ def is_supported_url(url: str) -> bool:
         return False
 
 
-def download_youtube_audio(url, output_dir, progress_callback=None):
+def javascript_runtimes() -> dict:
+    """Prefer the packaged Node runtime, without downloading executable code."""
+    filename = "node.exe" if os.name == "nt" else "node"
+    root = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parents[1]))
+    bundled = root / "js-runtime" / filename
+    if bundled.is_file():
+        return {"node": {"path": str(bundled)}}
+    for name in ("deno", "node"):
+        path = shutil.which(name)
+        if path:
+            return {name: {"path": path}}
+    return {}
+
+
+def download_youtube_audio(url, output_dir, progress_callback=None, cancel_event=None):
     if not is_supported_url(url):
         raise ValueError("Only valid YouTube URLs are supported")
 
     output_path = Path(output_dir)
+    check_cancelled(cancel_event)
     output_path.mkdir(parents=True, exist_ok=True)
     before = set(output_path.iterdir())
     options = {
@@ -57,11 +76,18 @@ def download_youtube_audio(url, output_dir, progress_callback=None):
         "noplaylist": True,
         "windowsfilenames": os.name == "nt",
         "ffmpeg_location": bundled_ffmpeg(),
+        "socket_timeout": 20,
+        "retries": 3,
+        "js_runtimes": javascript_runtimes(),
+        "remote_components": set(),
     }
 
-    if progress_callback:
+    if progress_callback or cancel_event is not None:
 
         def progress_hook(data):
+            check_cancelled(cancel_event)
+            if progress_callback is None:
+                return
             if data.get("status") == "downloading":
                 total = data.get("total_bytes") or data.get("total_bytes_estimate") or 0
                 downloaded = data.get("downloaded_bytes") or 0
@@ -75,6 +101,7 @@ def download_youtube_audio(url, output_dir, progress_callback=None):
     try:
         with yt_dlp.YoutubeDL(options) as downloader:
             info = downloader.extract_info(url, download=True)
+        check_cancelled(cancel_event)
         candidates = sorted(
             (path for path in output_path.iterdir() if path not in before and path.suffix.lower() == ".wav"),
             key=lambda path: path.stat().st_mtime,

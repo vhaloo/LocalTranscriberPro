@@ -14,7 +14,7 @@ class AudioRecorder:
     def __init__(self):
         self.recording = False
         self.paused = False
-        self.audio_queue = queue.Queue()
+        self.audio_queue = queue.Queue(maxsize=128)
         self.stream = None
         self.monitor_stream = None
         self.monitoring = False
@@ -24,6 +24,8 @@ class AudioRecorder:
         self.audio_buffer = []
         self.buffer_sample_count = 0
         self.chunk_duration_samples = 0
+        self.capture_error = ""
+        self.overflow_chunk = None
         self.lock = threading.Lock()
         self.visual_lock = threading.Lock()
 
@@ -62,8 +64,10 @@ class AudioRecorder:
         self.buffer_sample_count = 0
         # A previous recording can leave a sentinel or unprocessed audio in the
         # queue. Every session must start from a clean boundary.
-        self.audio_queue = queue.Queue()
+        self.audio_queue = queue.Queue(maxsize=128)
         self.recording = True
+        self.capture_error = ""
+        self.overflow_chunk = None
         self.paused = False
         self._clear_visuals()
 
@@ -79,12 +83,16 @@ class AudioRecorder:
             logging.info("Stream started successfully")
         except Exception as e:
             self.recording = False
+            if self.stream is not None:
+                self.stream.close()
+                self.stream = None
             logging.error(f"Error starting stream: {e}")
             raise
 
     def audio_callback(self, indata, frames, time, status):
         if status:
-            pass  # Ignore overflows for UI smoothness
+            # PortAudio drops samples on overflow. Surface it in diagnostics.
+            logging.warning("Microphone capture status: %s", status)
 
         if self.recording and not self.paused:
             self._update_visuals(indata, frames)
@@ -97,7 +105,12 @@ class AudioRecorder:
                     full_data = np.concatenate(self.audio_buffer)
                     chunk = full_data[: self.chunk_duration_samples]
                     remainder = full_data[self.chunk_duration_samples :]
-                    self.audio_queue.put(chunk)
+                    try:
+                        self.audio_queue.put_nowait(chunk)
+                    except queue.Full:
+                        self.overflow_chunk = chunk
+                        self.capture_error = "The transcription engine cannot keep up with the microphone. Captured audio was preserved."
+                        self.recording = False
                     self.audio_buffer = [remainder] if len(remainder) > 0 else []
                     self.buffer_sample_count = len(remainder)
 
@@ -109,20 +122,26 @@ class AudioRecorder:
         self.paused = False
 
     def stop(self):
-        if not self.recording and self.stream is None:
+        if not self.recording and self.stream is None and not self.audio_buffer:
             return
         self.recording = False
         self._clear_visuals()
         if self.stream:
-            self.stream.stop()
-            self.stream.close()
-            self.stream = None
+            stream, self.stream = self.stream, None
+            try:
+                stream.stop()
+            finally:
+                stream.close()
 
         with self.lock:
             if self.audio_buffer:
                 remaining_data = np.concatenate(self.audio_buffer)
                 if len(remaining_data) > int(SAMPLE_RATE * 0.1):
-                    self.audio_queue.put(remaining_data)
+                    try:
+                        self.audio_queue.put_nowait(remaining_data)
+                    except queue.Full:
+                        self.overflow_chunk = (remaining_data if self.overflow_chunk is None else
+                                               np.concatenate((self.overflow_chunk, remaining_data)))
                 self.audio_buffer = []
                 self.buffer_sample_count = 0
 

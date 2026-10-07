@@ -1,8 +1,25 @@
-# Local Transcriber Pro 2.2
+# Local Transcriber Pro 3.0
 
 Private, offline transcription for Windows, macOS and Linux — with a genuinely simple interface when you want it and every professional control when you need it.
 
 > **[↓ PRÉSENTATION COMPLÈTE EN FRANÇAIS ↓](#francais)**
+
+## New in 3.0
+
+- **Qwen3-ASR 1.7B and 0.6B**, with a local forced aligner. Accuracy automatically selects 1.7B when a compatible GPU has sufficient free memory; otherwise it chooses a smaller admitted engine. No cloud transcription.
+- **Parakeet TDT 0.6B v3**, a multilingual int8 ONNX engine for fast CPU transcription. The Speed profile can use it without an NVIDIA GPU.
+- **Every Whisper model remains available**, including speech-to-English translation and languages outside the newer engines' selected-language support. Translation automatically selects a compatible Whisper model; Turbo is excluded for translation.
+- **Updates at startup**, plus a manual ↻ check. A newer official stable release is proposed, never forced. Accepting downloads the installer, verifies its exact size and SHA-256, saves the session, replaces the Windows application for the current user, then relaunches it. Offline startup remains usable. The option can be disabled in Advanced mode.
+- **Safer long sessions**: bounded audio decoding, continuous WAV recording on disk, TXT/JSON checkpoints, serialized model changes, cancellation and safe closing. A corrupt batch file is reported while later files continue.
+- **Useful editing**: corrections propagate to TXT/SRT/VTT/JSON/CSV, a vocabulary/context field guides Qwen and Whisper, and completed exports remain in History.
+
+No model is best for every voice, accent, language or recording. The defaults combine current local engines with conservative resource checks. Qwen supports 30 languages; its word aligner supports 11, including French and English. Other Qwen languages receive approximate window timestamps. Parakeet supports 25 European languages. Select the spoken language explicitly when using languages outside these newer engines' coverage so Automatic can route to Whisper.
+
+**Distribution status:** this branch contains the 3.0 source and Windows build recipe. The download links below intentionally refer to the previously published 2.2.0 release until a maintainer publishes 3.0. Never rename an older installer as 3.0. Windows has been validated locally; macOS and Linux builds require their own runtime validation before release.
+
+**Shortcuts:** Ctrl+O opens files, Ctrl+S exports TXT, Ctrl+Shift+S exports SRT, Ctrl+Shift+R starts/stops dictation, Ctrl+P pauses/resumes, Esc cancels or stops the current task.
+
+See [model selection](docs/HARDWARE.md), [updates](docs/UPDATES.md), and [validation](docs/VALIDATION_3.0.md).
 
 ## Simple interface
 
@@ -69,19 +86,19 @@ The <code>.tar.gz</code> package is a portable alternative: extract it, open the
 4. If your system asks for microphone access, choose **Allow**. File transcription still works without it, but live recording cannot hear you.
 5. Wait until the application says that the model and microphone are ready. Check that the level meter moves when you speak, then choose **Files**, **Conference**, **Dictate** or **Online video**.
 
-Local Transcriber Pro automatically selects the largest model that fits safely. A powerful computer normally receives <code>large-v3</code>; a 4 GB computer falls back to Tiny. Quality and stability take priority over speed.
+Local Transcriber Pro automatically selects the largest model that fits safely. A powerful compatible GPU normally receives <code>qwen3-asr-1.7b</code>; a 4 GB computer falls back to Tiny. Quality and stability take priority over speed.
 
 ### Where your work is saved
 
 - Completed and in-progress transcriptions are saved automatically under <code>Documents/Transcriptions</code>.
 - **History** reopens earlier sessions.
 - Model files are stored in the application cache and reused instead of being downloaded for every transcription.
-- Your audio and transcription stay on this computer. Only a model download or an online-video download that you explicitly request uses the Internet.
+- Your audio and transcription stay on this computer. Model downloads, requested online-video downloads and enabled update checks use the Internet. Audio is never sent for transcription.
 
 ### If the first launch seems slow
 
-- Keep the application open while the startup screen is visible. Loading a large model can take from a few seconds to several minutes on a small CPU.
-- Keep enough free storage for the model: approximately 0.08 GB for Tiny up to 3.1 GB for <code>large-v3</code>, plus temporary working space.
+- The interface opens before the background model download/load finishes. It remains closeable. Loading a large model can take from a few seconds to several minutes on a small CPU.
+- Keep enough free storage for the model: approximately 0.08 GB for Tiny up to 6.2 GB including the Qwen 1.7B aligner, plus temporary working space.
 - If a model cannot run safely, the application disables it and selects a smaller one instead of risking a crash.
 - Installation files are unsigned community builds. Every release includes <code>SHA256SUMS.txt</code> so advanced users can verify the downloads.
 
@@ -118,7 +135,7 @@ Local Transcriber Pro automatically selects the largest model that fits safely. 
 - **Modern sessions.** Conference mode enables speaker labels, dictation runs without a time limit, files can be dropped in batches, online video audio can be downloaded explicitly, and History can reopen earlier work.
 - **Complete exports.** Automatic TXT, SRT, VTT, JSON and CSV copies, editable transcript, one-click clipboard copy, crash recovery and smart subtitles beside videos.
 
-All transcription remains local. The only network operations are the first download of a selected model and an online-video download explicitly requested by the user.
+All transcription remains local. Network operations are model downloads, requested online-video downloads and enabled update checks/downloads.
 
 ## Models and practical requirements
 
@@ -126,7 +143,7 @@ The values below are conservative working targets. Quantization and platform bac
 
 | Model | Typical download | Recommended memory | Use |
 |---|---:|---:|---|
-| <code>large-v3</code>, <code>large-v2</code>, <code>large-v1</code> | ~3.1 GB | CPU: 12 GB RAM / GPU: 7 GB VRAM and 8 GB host RAM | Best local multilingual accuracy; v3 is the default when safe |
+| <code>large-v3</code>, <code>large-v2</code>, <code>large-v1</code> | ~3.1 GB | CPU: 12 GB RAM / GPU: 7 GB VRAM and 8 GB host RAM | Broad language coverage and speech translation; fallback for newer engines |
 | <code>large-v3-turbo</code> | ~1.6 GB | CPU: 8 GB RAM / GPU: 5 GB VRAM and 5.2 GB host RAM | Much faster, small accuracy trade-off; no reliable speech translation |
 | <code>medium</code> / <code>medium.en</code> | ~1.5 GB | CPU: 8 GB RAM / GPU: 4 GB VRAM and 5.2 GB host RAM | Strong quality on mid-range computers |
 | <code>small</code> / <code>small.en</code> | ~0.5 GB | CPU: 5 GB RAM / GPU: 2 GB VRAM and 4 GB host RAM | Balanced quality and speed |
@@ -135,7 +152,7 @@ The values below are conservative working targets. Quantization and platform bac
 
 The gate also requires currently available working memory and enough free space for a first download. Those live values and every decision are visible under **This computer** and **Models and minimum requirements**.
 
-<code>gpt-4o-transcribe</code> is newer and more accurate than Whisper, but OpenAI currently provides it as a hosted API rather than downloadable local weights. Local Transcriber Pro therefore uses the strongest openly downloadable OpenAI checkpoint (<code>large-v3</code>) instead of pretending an API model is offline.
+The OpenAI Whisper catalogue remains included. The new Qwen and NVIDIA Parakeet models are separate local engines, developed by their respective publishers. No OpenAI API key or paid transcription service is required.
 
 See [Hardware and model selection](docs/HARDWARE.md) for exact behavior.
 
@@ -202,11 +219,28 @@ MIT — developed by [Vhaloo](https://github.com/vhaloo).
 
 <a id="francais"></a>
 
-# LOCAL TRANSCRIBER PRO 2.2 — FRANÇAIS
+# LOCAL TRANSCRIBER PRO 3.0 — FRANÇAIS
 
 Transcription privée et hors ligne pour Windows, macOS et Linux — avec une interface réellement simple quand vous le souhaitez et tous les réglages professionnels quand vous en avez besoin.
 
-> **[↑ BACK TO THE ENGLISH VERSION / RETOUR À LA VERSION ANGLAISE ↑](#local-transcriber-pro-22)**
+> **[↑ BACK TO THE ENGLISH VERSION / RETOUR À LA VERSION ANGLAISE ↑](#local-transcriber-pro-30)**
+
+## Nouveautés de la 3.0
+
+- **Qwen3-ASR 1.7B et 0.6B**, avec alignement local des mots. Précision sélectionne automatiquement 1.7B lorsqu'un GPU compatible possède assez de mémoire libre, puis un moteur plus léger si nécessaire.
+- **Parakeet TDT 0.6B v3**, moteur multilingue ONNX int8 pour transcrire rapidement sur CPU. Le profil Rapidité peut l'utiliser sans GPU NVIDIA.
+- **Tous les modèles Whisper sont conservés**, avec traduction vers l'anglais et langues complémentaires. Traduire choisit automatiquement un modèle Whisper compatible ; Turbo est exclu pour cette tâche.
+- **Vérification des mises à jour au démarrage** et bouton ↻. Une nouvelle version stable officielle est proposée. Accepter télécharge l'installateur, vérifie sa taille et son SHA-256, sauvegarde la session, remplace l'application Windows pour ce compte et la relance. Une connexion indisponible ne bloque pas l'application. L'option se désactive en mode Avancé.
+- **Sessions longues plus robustes** : décodage par fenêtres, WAV écrit progressivement sur disque, sauvegardes TXT/JSON, changements de modèle sérialisés, annulation et fermeture avec sauvegarde. Un fichier défectueux n'interrompt plus les fichiers suivants du lot.
+- **Édition pratique** : corrections reprises dans les cinq formats d'export, vocabulaire/contexte pour guider Qwen et Whisper, historique conservé.
+
+Aucun modèle ne gagne sur toutes les voix, langues ou conditions d'enregistrement. Qwen couvre 30 langues ; son alignement précis des mots en couvre 11, dont le français et l'anglais. Les autres langues Qwen reçoivent des heures approximatives par fenêtre. Parakeet couvre 25 langues européennes. Pour les langues complémentaires, sélectionnez explicitement la langue parlée afin que le mode Automatique utilise Whisper.
+
+**Disponibilité :** cette branche contient le code 3.0 et la procédure de construction Windows. Les liens ci-dessous pointent vers la version publique précédente, 2.2.0, tant qu'une release 3.0 n'est pas publiée. La version Windows a été vérifiée localement ; macOS et Linux restent à valider avant publication.
+
+**Raccourcis :** Ctrl+O ouvre des fichiers, Ctrl+S exporte TXT, Ctrl+Shift+S exporte SRT, Ctrl+Shift+R démarre/arrête la dictée, Ctrl+P met en pause/reprend, Échap annule ou arrête la tâche.
+
+Consultez [les modèles](docs/HARDWARE.md), [les mises à jour](docs/UPDATES.md) et [la validation](docs/VALIDATION_3.0.md).
 
 ## Interface simple
 
@@ -273,19 +307,19 @@ Le paquet <code>.tar.gz</code> est une solution portable de remplacement : déco
 4. Si votre système demande l’autorisation d’utiliser le microphone, choisissez **Autoriser**. La transcription de fichiers fonctionne toujours sans cette permission, mais l’enregistrement en direct ne peut pas vous entendre.
 5. Attendez que l’application indique que le modèle et le microphone sont prêts. Vérifiez que le vumètre bouge lorsque vous parlez, puis choisissez **Fichiers**, **Conférence**, **Dicter** ou **Vidéo en ligne**.
 
-Local Transcriber Pro sélectionne automatiquement le plus gros modèle qui peut fonctionner sans risque. Un ordinateur puissant reçoit normalement <code>large-v3</code>; un ordinateur avec 4 Go de RAM se replie sur Tiny. La qualité et la stabilité sont prioritaires sur la vitesse.
+Local Transcriber Pro sélectionne automatiquement le plus gros modèle qui peut fonctionner sans risque. Un GPU puissant et compatible reçoit normalement <code>qwen3-asr-1.7b</code>; un ordinateur avec 4 Go de RAM se replie sur Tiny. La qualité et la stabilité sont prioritaires sur la vitesse.
 
 ### Où votre travail est enregistré
 
 - Les transcriptions terminées et en cours sont enregistrées automatiquement dans <code>Documents/Transcriptions</code>.
 - **Historique** permet de rouvrir les sessions précédentes.
 - Les fichiers des modèles sont conservés dans le cache de l’application et réutilisés au lieu d’être téléchargés à chaque transcription.
-- Votre audio et votre transcription restent sur cet ordinateur. Seuls le téléchargement d’un modèle ou celui d’une vidéo en ligne que vous demandez explicitement utilisent Internet.
+- Votre audio et votre transcription restent sur cet ordinateur. Les téléchargements de modèles, les vidéos demandées et la vérification activée des mises à jour utilisent Internet. L’audio n’est jamais envoyé pour être transcrit.
 
 ### Si le premier lancement semble lent
 
-- Gardez l’application ouverte tant que l’écran de démarrage est visible. Le chargement d’un gros modèle peut demander de quelques secondes à plusieurs minutes sur un petit processeur.
-- Conservez assez d’espace libre pour le modèle : environ 0,08 Go pour Tiny jusqu’à 3,1 Go pour <code>large-v3</code>, en plus de l’espace de travail temporaire.
+- L’interface s’ouvre avant la fin du téléchargement/chargement du modèle en arrière-plan et reste fermable. Le chargement d’un gros modèle peut demander de quelques secondes à plusieurs minutes sur un petit processeur.
+- Conservez assez d’espace libre pour le modèle : environ 0,08 Go pour Tiny jusqu’à 6,2 Go avec l’alignement Qwen 1.7B, en plus de l’espace de travail temporaire.
 - Si un modèle ne peut pas fonctionner sans risque, l’application le désactive et en choisit un plus petit au lieu de risquer un plantage.
 - Les fichiers d’installation sont des versions communautaires non signées. Chaque release comprend <code>SHA256SUMS.txt</code> afin que les utilisateurs avancés puissent vérifier les téléchargements.
 
@@ -322,7 +356,7 @@ Local Transcriber Pro sélectionne automatiquement le plus gros modèle qui peut
 - **Sessions modernes.** Le mode Conférence active les étiquettes de personnes, la dictée fonctionne sans limite de temps, les fichiers peuvent être déposés par lots, l’audio d’une vidéo en ligne peut être téléchargé explicitement et Historique peut rouvrir un ancien travail.
 - **Exports complets.** Copies automatiques TXT, SRT, VTT, JSON et CSV, transcription modifiable, copie dans le presse-papiers en un clic, récupération après plantage et sous-titres intelligents à côté des vidéos.
 
-Toutes les transcriptions restent locales. Les seules opérations réseau sont le premier téléchargement d’un modèle sélectionné et le téléchargement d’une vidéo en ligne explicitement demandé par l’utilisateur.
+Les transcriptions restent locales. Le réseau sert aux modèles, aux vidéos demandées et aux vérifications ou téléchargements de mises à jour activés.
 
 ## Modèles et prérequis pratiques
 
@@ -339,7 +373,7 @@ Les valeurs ci-dessous sont des objectifs de fonctionnement prudents. La quantif
 
 La barrière de sécurité exige également assez de mémoire de travail actuellement disponible et suffisamment d’espace libre pour un premier téléchargement. Ces valeurs en direct et chaque décision sont visibles sous **Cet ordinateur** et **Modèles et prérequis minimums**.
 
-<code>gpt-4o-transcribe</code> est plus récent et plus précis que Whisper, mais OpenAI le fournit actuellement comme API hébergée plutôt que comme poids téléchargeables localement. Local Transcriber Pro utilise donc le meilleur point de contrôle OpenAI ouvertement téléchargeable (<code>large-v3</code>) au lieu de prétendre qu’un modèle d’API fonctionne hors ligne.
+Le catalogue OpenAI Whisper reste inclus. Qwen et NVIDIA Parakeet sont des moteurs locaux distincts, développés par leurs éditeurs respectifs. Aucune clé API OpenAI ni aucun service payant de transcription n’est nécessaire.
 
 Consultez [Matériel et sélection du modèle](docs/HARDWARE.md) pour connaître le comportement exact.
 

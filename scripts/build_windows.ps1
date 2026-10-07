@@ -12,6 +12,8 @@ $env:PATH = "$env:SystemRoot\System32;$(Split-Path -Parent $Python);$env:PATH"
 
 & $Python scripts/generate_brand_assets.py
 if ($LASTEXITCODE -ne 0) { throw "Icon generation failed." }
+& $Python scripts/prepare_js_runtime.py
+if ($LASTEXITCODE -ne 0) { throw "JavaScript runtime preparation failed." }
 
 & $Python -m PyInstaller --clean --noconfirm packaging/LocalTranscriberPro.spec
 if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath "dist\LocalTranscriberPro\LocalTranscriberPro.exe")) {
