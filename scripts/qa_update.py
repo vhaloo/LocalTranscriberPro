@@ -11,6 +11,8 @@ from __future__ import annotations
 import argparse
 import hashlib
 import io
+import json
+import os
 import sys
 from pathlib import Path
 
@@ -61,6 +63,19 @@ def main():
         setup_logging()
         app = TranscriberApp(hardware=detect_hardware(), settings=settings, history=HistoryStore(folder / "history.sqlite3"))
         app.title("Local Transcriber Pro — validation de mise à jour 3.0")
+        (folder / "fixture-context.json").write_text(json.dumps({
+            "installer_sha256": digest, "previous_process_id": os.getpid(),
+            "transport": "local verified installer fixture", "forced_close_delay_seconds": 3.5,
+        }, indent=2), encoding="utf-8")
+        original_close = app.on_close
+
+        def delayed_close():
+            # Force the race observed in the old update flow so the installer
+            # must really wait on this process before it checks AppMutex.
+            app._set_status("Validation du transfert : fermeture dans 3 secondes.")
+            app.after(3500, original_close)
+
+        app.on_close = delayed_close
         app.after(3000, lambda: UpdateDialog(app, info))
         app.mainloop()
     finally:
