@@ -50,7 +50,7 @@ jobs:
           mount="$RUNNER_TEMP/localtranscriberpro-dmg"
           mkdir -p "$mount"
           hdiutil attach -nobrowse -readonly -mountpoint "$mount" "$image"
-          trap 'hdiutil detach "$mount"' EXIT
+          trap 'hdiutil detach "$mount" || hdiutil detach -force "$mount"' EXIT
           app="$mount/Local Transcriber Pro.app"
           codesign --verify --deep --strict --verbose=2 "$app"
           test "$(/usr/bin/lipo -archs "$app/Contents/MacOS/LocalTranscriberPro")" = arm64
