@@ -53,6 +53,8 @@ jobs:
         shell: python {0}
         run: |
           import os
+          import sys
+          sys.path.insert(0, os.environ["GITHUB_WORKSPACE"])
           from src import __version__
           if os.environ.get("GITHUB_REF_TYPE") == "tag":
               assert os.environ["GITHUB_REF_NAME"].removeprefix("v") == __version__
