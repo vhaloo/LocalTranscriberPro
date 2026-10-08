@@ -31,9 +31,11 @@ if __name__ == '__main__':
     ]
     for index, command in enumerate(cases):
         report = folder / f'report-{index}.json'
-        subprocess.run([str(executable), *command, '--diagnostic-output', str(report)], check=True, timeout=300)
+        completed = subprocess.run([str(executable), *command, '--diagnostic-output', str(report)], timeout=300)
+        if not report.is_file():
+            raise RuntimeError(f'Packaged diagnostic {index} exited {completed.returncode} without a report')
         result = json.loads(report.read_text('utf-8'))
-        assert result['success'], result
+        assert completed.returncode == 0 and result['success'], result
         if index == 0:
             assert result['status']['model_id'] == 'tiny' and result['status']['device'] == 'cpu'
             assert result['progress_completed']

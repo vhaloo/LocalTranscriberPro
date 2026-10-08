@@ -2,6 +2,12 @@ name: Build desktop packages
 
 on:
   workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform to build and check
+        type: choice
+        options: [all, windows, macos, linux]
+        default: all
   push:
     tags: ["v2.*", "v3.*"]
 
@@ -13,13 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: windows-latest
-            artifact: windows-x64
-          - os: macos-14
-            artifact: macos
-          - os: ubuntu-24.04
-            artifact: linux-x64
+        os: ${{ fromJSON(inputs.platform == 'windows' && '["windows-latest"]' || inputs.platform == 'macos' && '["macos-14"]' || inputs.platform == 'linux' && '["ubuntu-24.04"]' || '["windows-latest","macos-14","ubuntu-24.04"]') }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -78,8 +78,11 @@ jobs:
         run: |
           python scripts/verify_frozen_source.py dist/${{ env.APP_VERSION }}/LocalTranscriberPro/LocalTranscriberPro.exe
           python scripts/validate_frozen.py dist/${{ env.APP_VERSION }}/LocalTranscriberPro/LocalTranscriberPro.exe
-      - name: Validate frozen application on macOS/Linux
-        if: runner.os != 'Windows'
+      - name: Validate frozen application bundle on macOS
+        if: runner.os == 'macOS'
+        run: python scripts/validate_frozen.py "dist/${{ env.APP_VERSION }}/Local Transcriber Pro.app/Contents/MacOS/LocalTranscriberPro"
+      - name: Validate frozen application on Linux
+        if: runner.os == 'Linux'
         run: python scripts/validate_frozen.py dist/${{ env.APP_VERSION }}/LocalTranscriberPro/LocalTranscriberPro
       - name: Package Windows installer
         if: runner.os == 'Windows'
@@ -124,13 +127,20 @@ jobs:
               assert 0 < path.stat().st_size < 2 * 1024 ** 3, f"GitHub release asset must be under 2 GiB: {path}"
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact }}-package
+          name: ${{ runner.os == 'Windows' && 'windows-x64' || runner.os == 'macOS' && 'macos' || 'linux-x64' }}-package
           path: |
             artifacts/*-Setup.exe
             artifacts/*.dmg
             artifacts/*.AppImage
             artifacts/*.tar.gz
           if-no-files-found: error
+      - name: Keep native diagnostic reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}-native-diagnostics
+          path: artifacts/packaged-smoke/report-*.json
+          if-no-files-found: ignore
 
   release:
     if: startsWith(github.ref, 'refs/tags/v2.') || startsWith(github.ref, 'refs/tags/v3.')
