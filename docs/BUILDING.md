@@ -53,3 +53,5 @@ After building, exercise the real frozen stack with `LocalTranscriberPro.exe --s
 The updater requires the exact asset name `LocalTranscriberPro-X.Y.Z-Windows-x64-Setup.exe` and a same-release `SHA256SUMS.txt`. Pre-releases and draft releases are ignored. Publish only after Windows installation/upgrade/relaunch testing and platform-specific validation. Local packaging does not publish a GitHub release.
 
 Every GitHub asset must be under 2 GiB. Verify the installer size before upload. Do not publish an oversized or renamed older binary. For local builds, `AppSource` can override the Inno source directory when using a fresh output path to avoid stale/locked native files.
+
+Pass the resolved absolute `AppSource` path when the checkout path is long. Unresolved `packaging/windows/../../...` prefixes can push otherwise valid filenames over the compiler's Windows path limit. The native bundle's files must remain complete; shortening the source path is preferable to deleting dependencies.

@@ -91,6 +91,8 @@ Le contrôle des données existantes relit intégralement la session de récupé
 
 L'installation par utilisateur conserve le même AppId et les emplacements de données. Réglages, historique SQLite et récupération sont sauvegardés immédiatement avant remplacement ; leurs contenus sont comparés après installation. Le paquet 3.0 de retour arrière reste disponible localement. Le téléchargement de mise à jour vérifie la taille et le SHA-256 des ressources de la release officielle ; aucune mise à jour silencieuse sans acceptation n'est déclenchée par l'application.
 
+La mise à niveau Windows **3.0.0 vers 3.1.0 a réussi le 8 octobre 2026**, sans redémarrage système. Le registre confirme la version 3.1.0 ; les 7 691 fichiers livrés existent avec leur taille attendue. L'exécutable installé possède le même SHA-256 que le binaire validé, et ses modules/catalogues sont comparés à la source. Avant le premier lancement, les hashes des réglages, de la récupération et de SQLite sont inchangés, ainsi que le contenu logique de l'historique. L'installateur final mesure 2 105 584 291 octets, sous la limite de 2 GiB par ressource GitHub ; son hash est fourni dans `SHA256SUMS.txt` de la release.
+
 ## Reproduire les diagnostics
 
 ```text
