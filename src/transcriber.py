@@ -1,13 +1,14 @@
 """Adaptive local transcription engine.
 
-The preferred backend is faster-whisper/CTranslate2 on NVIDIA GPUs and CPUs.
-Apple Silicon uses MLX when installed. OpenAI Whisper through PyTorch is kept as
-a compatibility fallback, so GPU acceleration does not disappear when a
-CTranslate2 runtime is incomplete.
+Qwen3-ASR provides GPU transcription, Parakeet provides fast CPU transcription,
+and the complete Whisper catalogue preserves translation and language coverage.
+Apple Silicon uses MLX/MPS when installed. Model loading and inference share a
+lock so background replacement cannot invalidate an active job.
 """
 
 from __future__ import annotations
 
+import gc
 import logging
 import os
 import re
@@ -15,15 +16,28 @@ import shutil
 import threading
 import time
 from collections.abc import Callable, Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 from platformdirs import user_cache_dir
 
+from src.confidence import annotate_recognition
 from src.hardware import HardwareProfile, detect_hardware
-from src.models import AUTO_MODEL_ID, MODEL_CATALOG, get_model, mlx_repository
+from src.jobs import check_cancelled
+from src.model_cache import complete_modern_ids
+from src.models import (
+    AUTO_FAST_MODEL_ID,
+    AUTO_MODEL_ID,
+    AUTO_MULTILINGUAL_MODEL_ID,
+    MODEL_CATALOG,
+    get_model,
+    mlx_repository,
+)
+from src.overlap import OverlapSeparator
+from src.translation import TranslationEngine
+from src.translation_languages import normalize_language
 
 ProgressCallback = Callable[[float], None]
 LoadStatusCallback = Callable[[str, str, str], None]
@@ -37,6 +51,15 @@ class TranscriptionOptions:
     vad_filter: bool = True
     word_timestamps: bool = True
     initial_prompt: str | None = None
+    cancel_event: threading.Event | None = None
+    target_language: str | None = None
+    conversation: bool = False
+    partner_language: str | None = None
+    third_language: str | None = None
+    offline: bool = False
+    overlap_separation: bool = False
+    activity_callback: Callable[[str], None] | None = None
+    original_callback: Callable[[dict[str, Any]], None] | None = None
 
 
 @dataclass
@@ -60,6 +83,8 @@ class TranscriberEngine:
         self.compute_type = "int8"
         self.current_status: EngineStatus | None = None
         self._load_lock = threading.RLock()
+        self.translator = TranslationEngine()
+        self.separator = OverlapSeparator()
         self.model_cache = Path(user_cache_dir("LocalTranscriberPro", "Vhaloo")) / "models"
         self.model_cache.mkdir(parents=True, exist_ok=True)
 
@@ -107,15 +132,37 @@ class TranscriberEngine:
         model_id: str,
         device_mode: str = "auto",
         status_callback: LoadStatusCallback | None = None,
+        options: TranscriptionOptions | None = None,
     ) -> EngineStatus:
         with self._load_lock:
-            return self._load_model_unlocked(model_id, device_mode, status_callback)
+            if options and options.target_language:
+                options = replace(options, task="transcribe")
+            if (self.current_status is None or self.current_status.requested_model_id != model_id
+                    or self.current_status.requested_device != self._normalize_device(device_mode)):
+                self.translator.unload()
+            status = self._load_model_unlocked(model_id, device_mode, status_callback, options)
+            if options and options.target_language:
+                if status_callback:
+                    status_callback("translation_prepare", "MADLAD-400", status.device)
+                self.translator.load(self.hardware, allow_download=not options.offline, cancel_event=options.cancel_event)
+            else:
+                self.translator.unload()
+            if options and options.overlap_separation:
+                if status_callback:
+                    status_callback("separation_prepare", "SepFormer · 2", "cpu")
+                self.separator.load(allow_download=not options.offline, cancel_event=options.cancel_event)
+            return status
+
+    def reset_translation_session(self, options: TranscriptionOptions) -> None:
+        if options.target_language:
+            self.translator.reset_conversation(options.target_language, options.partner_language)
 
     def _load_model_unlocked(
         self,
         model_id: str,
         device_mode: str = "auto",
         status_callback: LoadStatusCallback | None = None,
+        options: TranscriptionOptions | None = None,
     ) -> EngineStatus:
         def report(stage: str, selected_model: str, device: str) -> None:
             if status_callback:
@@ -127,14 +174,19 @@ class TranscriberEngine:
             and self.current_status is not None
             and self.current_status.requested_model_id == model_id
             and self.current_status.requested_device == normalized_device
+            and (options is None or get_model(self.current_status.model_id).supports(options.language, options.task))
         ):
             report("model_cached", self.current_status.model_id, self.current_status.device)
             return self.current_status
 
         report("resource_check", model_id, device_mode)
+        self.unload_model()
         self.hardware.refresh_resources()
         cached = self.cached_model_ids()
-        requested_model = self.hardware.resolve_model(model_id, device_mode, cached)
+        requested_model = self.hardware.resolve_model(
+            model_id, device_mode, cached,
+            options.language if options else None, options.task if options else "transcribe",
+        )
         get_model(requested_model)
         requested_device = self._normalize_device(device_mode)
         compatibility = self.hardware.model_compatibility(
@@ -146,10 +198,43 @@ class TranscriberEngine:
                 f"{compatibility.detected:.1f}/{compatibility.required:.1f} GB)."
             )
         target_device = compatibility.device
-        fallback_reason = "" if model_id in {AUTO_MODEL_ID, requested_model} else "hardware_guard"
+        available_before_load = self.hardware.effective_free_vram_gb
+        fallback_reason = "" if model_id in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID, requested_model} else "hardware_or_task_guard"
         report("model_cached" if requested_model in cached else "model_download", requested_model, target_device)
 
-        if target_device == "metal" and self.hardware.mlx_available:
+        if get_model(requested_model).family in {"qwen", "parakeet", "omnilingual"}:
+            from src.modern_backends import ParakeetBackend, QwenBackend
+
+            report("engine_start", requested_model, target_device)
+            try:
+                spec = get_model(requested_model)
+                if spec.family == "qwen":
+                    self.model = QwenBackend(spec, target_device, self.model_cache)
+                    backend, compute = "qwen3-asr", "float32" if target_device == "cpu" else "float16"
+                elif spec.family == "omnilingual":
+                    from src.omnilingual import OmnilingualBackend
+                    self.model = OmnilingualBackend(self.hardware.cpu_threads,
+                        offline=bool(options and options.offline), cancel_event=options.cancel_event if options else None)
+                    backend, compute, target_device = "omnilingual-onnx", "float32", "cpu"
+                else:
+                    self.model = ParakeetBackend(spec, self.model_cache, self.hardware.cpu_threads)
+                    backend, compute, target_device = "parakeet-onnx", "int8", "cpu"
+            except Exception as error:
+                logging.exception("Modern ASR load failed; trying a safe Whisper checkpoint")
+                self.unload_model()
+                self.hardware.refresh_resources()
+                candidates = [spec for spec in MODEL_CATALOG if spec.family == "whisper" and spec.multilingual
+                              and spec.supports(options.language if options else None, options.task if options else "transcribe")]
+                candidate = next((spec for spec in candidates if self.hardware.model_compatibility(
+                    spec.model_id, device_mode, spec.model_id in cached).supported), None)
+                if candidate is None:
+                    raise RuntimeError(f"No local fallback can run safely: {error}") from error
+                report("safe_fallback", candidate.model_id, target_device)
+                status = self._load_model_unlocked(candidate.model_id, device_mode, status_callback, options)
+                status.requested_model_id = model_id
+                status.fallback_reason = f"{get_model(requested_model).family}: {type(error).__name__}: {error}"
+                return status
+        elif target_device == "metal" and self.hardware.mlx_available:
             # MLX loads lazily inside transcribe(); retaining a marker keeps the
             # same lifecycle as the other backends without duplicating memory.
             backend, compute = "mlx", "float16"
@@ -175,7 +260,9 @@ class TranscriberEngine:
                         attempts.append((requested_model, "cpu"))
                 requested_rank = get_model(requested_model).quality_rank
                 for spec in sorted(MODEL_CATALOG, key=lambda item: item.quality_rank, reverse=True):
-                    if not spec.multilingual or spec.quality_rank >= requested_rank:
+                    if spec.family != "whisper" or not spec.multilingual or spec.quality_rank >= requested_rank:
+                        continue
+                    if options and not spec.supports(options.language, options.task):
                         continue
                     check = self.hardware.model_compatibility(
                         spec.model_id, device_mode, spec.model_id in cached
@@ -200,6 +287,7 @@ class TranscriberEngine:
                             compute_type=attempt_compute,
                             cpu_threads=max(1, min(self.hardware.cpu_threads, 12)),
                             download_root=str(self.model_cache),
+                            local_files_only=attempt_model in cached or bool(options and options.offline),
                         )
                         if (attempt_model, attempt_device) != attempts[0]:
                             fallback_reason = "engine_retry"
@@ -241,6 +329,9 @@ class TranscriberEngine:
         self.device = target_device
         self.backend = backend
         self.compute_type = compute
+        if target_device == "cuda":
+            self.hardware.refresh_resources()
+            self.hardware.reclaimable_vram_gb = max(0.0, available_before_load - self.hardware.effective_free_vram_gb)
         logging.info(
             "Loaded model=%s backend=%s device=%s compute=%s",
             requested_model,
@@ -278,9 +369,12 @@ class TranscriberEngine:
         )
 
     def unload_model(self) -> None:
-        self.model = None
-        self.model_name = None
-        self.current_status = None
+        with self._load_lock:
+            self.model = None
+            self.model_name = None
+            self.current_status = None
+            self.hardware.reclaimable_vram_gb = 0.0
+            gc.collect()
         try:
             import torch
 
@@ -314,12 +408,37 @@ class TranscriberEngine:
         options: TranscriptionOptions,
         progress_callback: ProgressCallback | None,
     ) -> dict[str, Any]:
+        # Prevent model replacement while lazy generators are executing.
+        with self._load_lock:
+            check_cancelled(options.cancel_event)
+            if options.target_language:
+                options = replace(options, task="transcribe")
+            if self.model_name and not get_model(self.model_name).supports(options.language, options.task):
+                mode = self.current_status.requested_device if self.current_status else "auto"
+                self._load_model_unlocked(AUTO_MODEL_ID, mode, options=options)
+            return self._transcribe_locked(source, options, progress_callback)
+
+    def _transcribe_locked(
+        self, source: str | np.ndarray, options: TranscriptionOptions,
+        progress_callback: ProgressCallback | None,
+    ) -> dict[str, Any]:
         if self.model is None or not self.model_name:
             raise RuntimeError("Model not loaded")
 
+        if options.overlap_separation:
+            return self._transcribe_overlap(source, options, progress_callback)
+
         duration = self.audio_duration(source)
         started = time.monotonic()
-        if self.backend == "faster-whisper":
+        if options.activity_callback:
+            options.activity_callback("transcribing")
+        if self.backend in {"qwen3-asr", "parakeet-onnx", "omnilingual-onnx"}:
+            from src.modern_backends import transcribe_modern
+
+            result = transcribe_modern(self.model, source, options, duration, progress_callback)
+            if self.backend == "omnilingual-onnx":
+                result["language_probability"] = self.model.language_probability
+        elif self.backend == "faster-whisper":
             result = self._transcribe_faster(source, options, duration, progress_callback)
         elif self.backend == "mlx":
             result = self._transcribe_mlx(source, options, progress_callback)
@@ -332,9 +451,56 @@ class TranscriberEngine:
         result["model"] = self.model_name
         result["device"] = self.device
         result["backend"] = self.backend
+        annotate_recognition(result)
+        if options.target_language:
+            if options.original_callback:
+                options.original_callback(result)
+            if options.activity_callback:
+                options.activity_callback("translating")
+            result = self.translator.translate_result(result, options.target_language, options.conversation,
+                                                      options.third_language, options.cancel_event)
+            result["translation_device"] = self.translator.device
+            result["processing_seconds"] = time.monotonic() - started
+        check_cancelled(options.cancel_event)
         if progress_callback:
             progress_callback(1.0)
         return result
+
+    def _transcribe_overlap(self, source, options, progress_callback):
+        from src.media import iter_audio_chunks
+        from src.segments import shift_segments
+
+        started = time.monotonic()
+        duration = self.audio_duration(source)
+        blocks = ((offset / 16000, source[offset:offset + 6 * 16000]) for offset in range(0, len(source), 6 * 16000)) \
+            if isinstance(source, np.ndarray) else iter_audio_chunks(source, seconds=6)
+        segments = []
+        language = None
+        for offset, audio in blocks:
+            if options.activity_callback:
+                options.activity_callback("separating")
+            sources = self.separator.separate(audio, options.cancel_event)
+            for index, separated in enumerate(sources):
+                check_cancelled(options.cancel_event)
+                if float(np.sqrt(np.mean(separated ** 2))) < 0.001:
+                    continue
+                result = self._transcribe_locked(separated, replace(options, overlap_separation=False, original_callback=None), None)
+                language = result.get("language") or language
+                values = shift_segments(result.get("segments", []), offset)
+                for item in values:
+                    item.update(overlap_experimental=True, separated_source=index + 1,
+                                speaker=f"Separated {index + 1} · {offset:.0f}s")
+                segments.extend(values)
+            if progress_callback and duration:
+                progress_callback(min(0.99, (offset + len(audio) / 16000) / duration))
+        segments.sort(key=lambda item: item["start"])
+        if progress_callback:
+            progress_callback(1.0)
+        return {"text": " ".join(item["text"] for item in segments), "segments": segments, "language": language,
+                "duration": duration, "processing_seconds": time.monotonic() - started, "model": self.model_name,
+                "device": self.device, "backend": self.backend, "overlap_experimental": True,
+                "translation_device": self.translator.device if options.target_language else None,
+                "conversation_pair": list(self.translator.router.pair) if options.conversation and self.translator.router else []}
 
     def _transcribe_faster(
         self,
@@ -344,6 +510,16 @@ class TranscriberEngine:
         progress_callback: ProgressCallback | None,
     ) -> dict[str, Any]:
         language = None if options.language in {None, "", "auto"} else options.language
+        constrained_probability = None
+        pair = self.translator.router.pair if self.translator.router else ()
+        if options.conversation and language is None and len(pair) == 2 and isinstance(source, np.ndarray) and hasattr(self.model, "detect_language"):
+            detected, probability, candidates = self.model.detect_language(audio=source, vad_filter=bool(options.vad_filter))
+            allowed = [item for item in candidates if normalize_language(item[0]) in pair]
+            candidate = max(allowed, key=lambda item: item[1], default=None)
+            # Keep strong evidence of an unexpected language; do not force all
+            # sound into a previously learned pair. Confidence stays absolute.
+            if candidate and candidate[1] >= 0.15 and (probability < 0.65 or normalize_language(detected) in pair):
+                language, constrained_probability = candidate
         segments_iter, info = self.model.transcribe(
             source,
             task=options.task,
@@ -357,6 +533,7 @@ class TranscriberEngine:
         )
         segments: list[dict[str, Any]] = []
         for item in segments_iter:
+            check_cancelled(options.cancel_event)
             words = []
             for word in item.words or []:
                 words.append(
@@ -372,6 +549,8 @@ class TranscriberEngine:
                 "end": float(item.end),
                 "text": item.text.strip(),
                 "words": words,
+                "avg_logprob": getattr(item, "avg_logprob", None),
+                "no_speech_prob": getattr(item, "no_speech_prob", None),
             }
             segments.append(segment)
             if progress_callback and duration > 0:
@@ -380,7 +559,7 @@ class TranscriberEngine:
             "text": " ".join(item["text"] for item in segments).strip(),
             "segments": segments,
             "language": getattr(info, "language", language),
-            "language_probability": getattr(info, "language_probability", None),
+            "language_probability": constrained_probability if constrained_probability is not None else getattr(info, "language_probability", None),
         }
 
     def _transcribe_mlx(
@@ -438,6 +617,7 @@ class TranscriberEngine:
                     "end": float(item.get("end", 0.0)),
                     "text": str(item.get("text", "")).strip(),
                     "words": item.get("words", []),
+                    "avg_logprob": item.get("avg_logprob"),
                 }
             )
         return {
@@ -468,19 +648,8 @@ class TranscriberEngine:
         text = re.sub(r"\s+", " ", text).strip()
         if not text:
             return ""
-        normalized = re.sub(r"[^\w\s]", "", text.lower()).strip()
-        known_silence_hallucinations = {
-            "thank you",
-            "thanks for watching",
-            "subscribe",
-            "sous titres réalisés para la communauté damaraorg",
-        }
-        if normalized in known_silence_hallucinations:
-            return ""
-        words = normalized.split()
-        if len(words) >= 5 and len(set(words)) <= 2:
-            return ""
-        # Collapse an exact phrase repeated three or more times.
+        # Ordinary speech such as "thank you" is valid. Silence is handled by
+        # acoustic VAD, never by deleting a phrase solely because of its words.
         repeated = re.fullmatch(r"(.{3,80}?)(?:\s+\1){2,}", text, flags=re.IGNORECASE)
         return repeated.group(1).strip() if repeated else text
 
@@ -500,19 +669,32 @@ class TranscriberEngine:
 
     def cached_model_ids(self) -> set[str]:
         """Identify cached checkpoints without recursively measuring their size."""
-        names: list[str] = []
+        checkpoints: list[Path] = []
         for root in self.cache_roots():
             if not root.exists():
                 continue
             try:
-                names.extend(path.name.lower().replace("--", "-") for path in root.iterdir())
+                checkpoints.extend(root.iterdir())
             except OSError:
                 continue
-        found: set[str] = set()
+        found: set[str] = complete_modern_ids(self.model_cache)
+        from src.omnilingual import cached_checkpoint
+        if cached_checkpoint():
+            found.add("omnilingual-1b-v2")
         for spec in sorted(MODEL_CATALOG, key=lambda item: len(item.model_id), reverse=True):
+            if spec.family != "whisper":
+                continue
             token = spec.model_id.lower()
-            if any(name.endswith(token) or name == f"{token}.pt" for name in names):
-                found.add(spec.model_id)
+            for path in checkpoints:
+                name = path.name.lower().replace("--", "-")
+                if name == f"{token}.pt" and path.is_file() and path.stat().st_size > 0:
+                    found.add(spec.model_id)
+                elif name.endswith(token) and path.is_dir():
+                    snapshots = [path, *path.glob("snapshots/*")]
+                    if any(all((folder / filename).is_file() and (folder / filename).stat().st_size > 0
+                               for filename in ("model.bin", "config.json", "tokenizer.json"))
+                           for folder in snapshots):
+                        found.add(spec.model_id)
         return found
 
     @staticmethod
@@ -540,14 +722,15 @@ class TranscriberEngine:
                 continue
             candidates: Iterable[Path]
             if root.name == "hub":
-                candidates = root.glob("models--*whisper*")
+                candidates = (path for path in root.glob("models--*") if any(
+                    token in path.name.lower() for token in ("whisper", "qwen3-asr", "forcedaligner", "parakeet")))
             else:
                 candidates = root.iterdir()
             for path in candidates:
                 if path in seen:
                     continue
                 lower = path.name.lower()
-                if "whisper" not in lower and not any(token in lower for token in model_tokens):
+                if not any(token in lower for token in ("whisper", "qwen3-asr", "forcedaligner", "parakeet")) and not any(token in lower for token in model_tokens):
                     continue
                 seen.add(path)
                 size = self._folder_size(path)
@@ -562,13 +745,21 @@ class TranscriberEngine:
         return sorted(found, key=lambda item: item["bytes"], reverse=True)
 
     def delete_model_file(self, path: str | os.PathLike[str]) -> bool:
-        candidate = Path(path).expanduser().resolve()
+        original = Path(path).expanduser()
+        if original.is_symlink() or getattr(original, "is_junction", lambda: False)():
+            return False
+        candidate = original.resolve()
         allowed = False
         for root in self.cache_roots():
             try:
-                candidate.relative_to(root.resolve())
-                allowed = True
-                break
+                relative = candidate.relative_to(root.resolve())
+                # Never accept a cache root itself or a generic subdirectory.
+                allowed = len(relative.parts) == 1 and any(token in relative.parts[0].lower() for token in
+                    ("whisper", "qwen3-asr", "forcedaligner", "parakeet", *(spec.model_id for spec in MODEL_CATALOG)))
+                if candidate.is_symlink():
+                    allowed = False
+                if allowed:
+                    break
             except (OSError, ValueError):
                 continue
         if not allowed or not candidate.exists():

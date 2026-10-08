@@ -33,6 +33,17 @@ def _prefix(start: float, end: float, speaker: str, options: TranscriptFormat) -
 
 
 def format_segment(segment: dict[str, Any], options: TranscriptFormat) -> str:
+    if "source_text" in segment:
+        prefix = _prefix(float(segment.get("start", 0)), float(segment.get("end", 0)),
+                         str(segment.get("speaker", "")), options)
+        lines = [f"{prefix}[{segment.get('source_language', 'und')}] {segment['source_text']}"]
+        if segment.get("target_language") and not segment.get("translation_pending"):
+            lines.append(f"[{segment['target_language']}] {segment.get('text', '')}")
+        if segment.get("third_text") and segment.get("third_language") not in {
+            segment.get("source_language"), segment.get("target_language")
+        }:
+            lines.append(f"[{segment['third_language']}] {segment['third_text']}")
+        return "\n".join(lines)
     text = str(segment.get("text", "")).strip()
     if not text:
         return ""
@@ -73,6 +84,8 @@ def format_transcript(
 ) -> str:
     selected = options or TranscriptFormat()
     values = list(segments)
+    if any("source_text" in item for item in values):
+        return "\n\n".join(format_segment(item, selected) for item in values)
     if selected.mode == "blocks":
         values = _blocks(values)
         separator = "\n\n"

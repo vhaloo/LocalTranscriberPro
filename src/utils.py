@@ -4,13 +4,20 @@ from __future__ import annotations
 
 import datetime as dt
 import logging
+import os
 import re
 import sys
+import tempfile
+import threading
+import time
 from collections.abc import Callable, Iterable
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any
 
 from platformdirs import user_log_dir
+
+_ATOMIC_REPLACE_LOCK = threading.Lock()
 
 
 def setup_logging() -> Path:
@@ -18,10 +25,9 @@ def setup_logging() -> Path:
     log_dir.mkdir(parents=True, exist_ok=True)
     log_path = log_dir / "app.log"
     logging.basicConfig(
-        filename=log_path,
+        handlers=[RotatingFileHandler(log_path, maxBytes=5 * 1024**2, backupCount=3, encoding="utf-8")],
         level=logging.INFO,
         format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
-        encoding="utf-8",
     )
     return log_path
 
@@ -64,12 +70,12 @@ def format_timestamp(seconds: float, decimal: str = ",") -> str:
 
 def create_srt_content(segments: Iterable[dict[str, Any]]) -> str:
     blocks = []
-    for index, segment in enumerate(segments, start=1):
-        text = str(segment.get("text", "")).strip()
+    for segment in segments:
+        text = subtitle_text(segment)
         if not text:
             continue
         blocks.append(
-            f"{index}\n{format_timestamp(segment.get('start', 0))} --> "
+            f"{len(blocks) + 1}\n{format_timestamp(segment.get('start', 0))} --> "
             f"{format_timestamp(segment.get('end', 0))}\n{text}"
         )
     return "\n\n".join(blocks) + ("\n" if blocks else "")
@@ -78,7 +84,7 @@ def create_srt_content(segments: Iterable[dict[str, Any]]) -> str:
 def create_vtt_content(segments: Iterable[dict[str, Any]]) -> str:
     blocks = ["WEBVTT"]
     for segment in segments:
-        text = str(segment.get("text", "")).strip()
+        text = subtitle_text(segment)
         if not text:
             continue
         blocks.append(
@@ -88,12 +94,41 @@ def create_vtt_content(segments: Iterable[dict[str, Any]]) -> str:
     return "\n\n".join(blocks) + "\n"
 
 
+def subtitle_text(segment: dict[str, Any]) -> str:
+    if "source_text" in segment:
+        # Import lazily: transcript_format also uses format_timestamp here.
+        from src.transcript_format import TranscriptFormat, format_segment
+
+        return format_segment(segment, TranscriptFormat(show_timestamps=False, show_duration=False))
+    return str(segment.get("text", "")).strip()
+
+
 def timestamped_name(prefix: str = "Transcription") -> str:
     return f"{prefix}_{dt.datetime.now():%Y-%m-%d_%H-%M-%S}"
 
 
-def atomic_write_text(path: Path, content: str) -> None:
+def atomic_write_text(path: Path, content: str, encoding: str = "utf-8") -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(content, encoding="utf-8")
-    temporary.replace(path)
+    temporary: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding=encoding, dir=path.parent,
+                                         prefix=f".{path.name}.", suffix=".tmp", delete=False) as handle:
+            temporary = Path(handle.name)
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        # Windows can reject concurrent replaces of the same destination, or a
+        # brief antivirus/indexer handle. Keep replacement atomic and retry only
+        # transient sharing/access errors; other failures remain visible.
+        with _ATOMIC_REPLACE_LOCK:
+            for attempt in range(5):
+                try:
+                    temporary.replace(path)
+                    break
+                except PermissionError as error:
+                    if getattr(error, "winerror", None) not in {5, 32, 33} or attempt == 4:
+                        raise
+                    time.sleep(0.02 * 2**attempt)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)

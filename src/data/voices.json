@@ -1,0 +1,2578 @@
+{
+  "voices": {
+    "ar": {
+      "repository": "csukuangfj/vits-piper-ar_JO-kareem-medium",
+      "revision": "d05103ccf42f2b625d36c406da2646edd95ea353",
+      "model": "ar_JO-kareem-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 283,
+          "hash": "5499b54a46815442889e683c2e4fdaa00a4b1109",
+          "algorithm": "git-sha1"
+        },
+        "ar_JO-kareem-medium.onnx": {
+          "size": 63201421,
+          "hash": "f942091e1fdb7221b289256cc2238295b5472d326029532f79bb84836380fe53",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 954,
+          "hash": "c4aa7526c5ad10fc5dcb6a85f665e183d49375d3",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "fr": {
+      "repository": "csukuangfj/vits-piper-fr_FR-siwis-medium",
+      "revision": "6b956227093bc8f9c05e5549508c4a510e97ef26",
+      "model": "fr_FR-siwis-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 284,
+          "hash": "36c73f2fd5e9fab5fe90a8a744d36aa08280c231",
+          "algorithm": "git-sha1"
+        },
+        "fr_FR-siwis-medium.onnx": {
+          "size": 63201421,
+          "hash": "830f55d861ce7c8a442fd5593890ff5ee50c9d5efd4c4f42d24d537fe46d2d52",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 921,
+          "hash": "82449830b618abdb4d2f1a2de38db6c322d906d4",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "en": {
+      "repository": "csukuangfj/vits-piper-en_US-lessac-medium",
+      "revision": "83f7470750b36549037551ef7007fa3b4b8697e0",
+      "model": "en_US-lessac-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 351,
+          "hash": "c0b9a3d60eb5b2e852aedb2a806031f85d02d40b",
+          "algorithm": "git-sha1"
+        },
+        "en_US-lessac-medium.onnx": {
+          "size": 63201425,
+          "hash": "ea793a648ce0370665f99fbf891eae3b3a973565c72b08534bb5b2c04e8f2332",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 921,
+          "hash": "82449830b618abdb4d2f1a2de38db6c322d906d4",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "zh": {
+      "repository": "csukuangfj/vits-piper-zh_CN-huayan-medium",
+      "revision": "8baec97632a57257b09073b7986f4d319efdc29a",
+      "model": "zh_CN-huayan-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 276,
+          "hash": "02b4fba5ae8353637e93af3443ddddacf14c663e",
+          "algorithm": "git-sha1"
+        },
+        "tokens.txt": {
+          "size": 907,
+          "hash": "faf0ab137b386bdfbe74f0b4f1a4c9d839d893f4",
+          "algorithm": "git-sha1"
+        },
+        "zh_CN-huayan-medium.onnx": {
+          "size": 63201423,
+          "hash": "04234ec24907e9efa7e153669e07d4e0cf6d260adc005323aa929386dae53f86",
+          "algorithm": "sha256"
+        }
+      }
+    },
+    "hi": {
+      "repository": "csukuangfj/vits-piper-hi_IN-pratham-medium",
+      "revision": "94517289ea9291e9a76ace527d8c34d6b170aa97",
+      "model": "hi_IN-pratham-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 304,
+          "hash": "e562afe87d24b7b695c8b982743a4b7409b334d3",
+          "algorithm": "git-sha1"
+        },
+        "hi_IN-pratham-medium.onnx": {
+          "size": 63145178,
+          "hash": "1d77908e8ab724c813c5cefaa48feadc9f2670ec5d145f83bade981c428740a0",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 940,
+          "hash": "60a34a759e383bc7f72c2f0848b5c13afb4f80c9",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "fa": {
+      "repository": "csukuangfj/vits-piper-fa_IR-amir-medium",
+      "revision": "e852208889c7cb924b8b43eace4e8bff847b13a1",
+      "model": "fa_IR-amir-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 264,
+          "hash": "a4e9f75147e5a5ee12b7f85bb8d29f4a65dd4a88",
+          "algorithm": "git-sha1"
+        },
+        "fa_IR-amir-medium.onnx": {
+          "size": 63531507,
+          "hash": "5a832803df099857d92cf7ec1e340c7ef6910433f089d9aca9ff1ebf9b7fa6c5",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 940,
+          "hash": "60a34a759e383bc7f72c2f0848b5c13afb4f80c9",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "vi": {
+      "repository": "csukuangfj/vits-piper-vi_VN-vais1000-medium",
+      "revision": "3d92898cf942406c23330da466a831d3d923c2a2",
+      "model": "vi_VN-vais1000-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 361,
+          "hash": "d77035517b7e2e9446d43b2c83769890e14b000c",
+          "algorithm": "git-sha1"
+        },
+        "tokens.txt": {
+          "size": 921,
+          "hash": "82449830b618abdb4d2f1a2de38db6c322d906d4",
+          "algorithm": "git-sha1"
+        },
+        "vi_VN-vais1000-medium.onnx": {
+          "size": 63201425,
+          "hash": "7264e130a2f2e62c2dd586e3790ba054b669f9f72a2bdb2c0d60207136611576",
+          "algorithm": "sha256"
+        }
+      }
+    },
+    "id": {
+      "repository": "csukuangfj/vits-piper-id_ID-news_tts-medium",
+      "revision": "92e236bcdec557d138aaa96bea6944dfa856f4d4",
+      "model": "id_ID-news_tts-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 308,
+          "hash": "d3f5d89c565fb0a6c8d4aaf34385c713ff0bd00f",
+          "algorithm": "git-sha1"
+        },
+        "id_ID-news_tts-medium.onnx": {
+          "size": 62946438,
+          "hash": "3c2e55d7b8485b9c132383f07e6fc6807b54ed8d6f4a8f54d1d4d4740d2b54ff",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 968,
+          "hash": "6f8cddc7df7a436fac9367ac571915868474d170",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "ne": {
+      "repository": "csukuangfj/vits-piper-ne_NP-google-medium",
+      "revision": "0f9c5a81be073c810490427dd3bc5743cca32585",
+      "model": "ne_NP-google-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 283,
+          "hash": "e205115b5d390670e56f3a89c4ad84271589ddb7",
+          "algorithm": "git-sha1"
+        },
+        "ne_NP-google-medium.onnx": {
+          "size": 76766529,
+          "hash": "3793a5acad5a4909b01ab845ff73ee49df4051e5e8742cbc7cbbfc6b6a7e61a4",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 921,
+          "hash": "82449830b618abdb4d2f1a2de38db6c322d906d4",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "es": {
+      "repository": "csukuangfj/vits-piper-es_ES-davefx-medium",
+      "revision": "d5cddb304d484989611c1684db8878d4ef2fc506",
+      "model": "es_ES-davefx-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 275,
+          "hash": "4a7151eef75a6854a8ccf6096af9e7f809c4ae80",
+          "algorithm": "git-sha1"
+        },
+        "es_ES-davefx-medium.onnx": {
+          "size": 63201422,
+          "hash": "329fc723ef304f8688df9ef819eea169a4181f60a77f53e087b19dbca07b09f8",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 907,
+          "hash": "faf0ab137b386bdfbe74f0b4f1a4c9d839d893f4",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "pt": {
+      "repository": "csukuangfj/vits-piper-pt_BR-faber-medium",
+      "revision": "4f385076a8f9d5bc7b4cd9fea4dc77e6e8ca8167",
+      "model": "pt_BR-faber-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 278,
+          "hash": "d20a0a0d7502c64f56c11d1becd2e5bdf3916fa2",
+          "algorithm": "git-sha1"
+        },
+        "pt_BR-faber-medium.onnx": {
+          "size": 63201428,
+          "hash": "39fb6b580d6d40a3230b7a9d0851d282074537b9694892b5b3cd90ff87c6cbb3",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 907,
+          "hash": "faf0ab137b386bdfbe74f0b4f1a4c9d839d893f4",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "de": {
+      "repository": "csukuangfj/vits-piper-de_DE-thorsten-medium",
+      "revision": "da8bed7888b27d17e1aa8fbd53e6703ab939583a",
+      "model": "de_DE-thorsten-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 285,
+          "hash": "4b0095781c1867ad86f561d5b692472fbea25895",
+          "algorithm": "git-sha1"
+        },
+        "de_DE-thorsten-medium.onnx": {
+          "size": 63201421,
+          "hash": "1c305abe13dda2f50a9783da3e7645396833cdf2d09f24fa9a823c91293d65a6",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 907,
+          "hash": "faf0ab137b386bdfbe74f0b4f1a4c9d839d893f4",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "it": {
+      "repository": "csukuangfj/vits-piper-it_IT-paola-medium",
+      "revision": "b2d11ae8ce81120ba05f39fb43ecbff2d6d634ea",
+      "model": "it_IT-paola-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 303,
+          "hash": "0f3907c109a015bb5fce962ad322dbf3ba6aa1dc",
+          "algorithm": "git-sha1"
+        },
+        "it_IT-paola-medium.onnx": {
+          "size": 63511166,
+          "hash": "cbe315465f8a0be7db8b40f922fe906cf202996b0e15d388c540e9ac3d4b7fd7",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 921,
+          "hash": "fb92f00ea171e39d497017930a63f17dfb7e7ab6",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "ru": {
+      "repository": "csukuangfj/vits-piper-ru_RU-irina-medium",
+      "revision": "b095bed45c39813266edf14ffa2bade5ebfc929c",
+      "model": "ru_RU-irina-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 271,
+          "hash": "20d6abef2a7f737b324ede38bf8422b5a5208bdc",
+          "algorithm": "git-sha1"
+        },
+        "ru_RU-irina-medium.onnx": {
+          "size": 63201422,
+          "hash": "c88536aaa9d823b20d1225e19759553bff546bc09cbf186d9d40919665be03bc",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 899,
+          "hash": "544d02ab1abd9aca5bafb16a7ea295c2688731dd",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "uk": {
+      "repository": "csukuangfj/vits-piper-uk_UA-ukrainian_tts-medium",
+      "revision": "4fd40e3e9fc24f8d95cc4dec05fa2ad6bd749c62",
+      "model": "uk_UA-ukrainian_tts-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 266,
+          "hash": "1543557c937670df86ce66e29ecce1ecb462e471",
+          "algorithm": "git-sha1"
+        },
+        "tokens.txt": {
+          "size": 273,
+          "hash": "b4df7724bcc2aafc8fffe5151f8672e13ea910ae",
+          "algorithm": "git-sha1"
+        },
+        "uk_UA-ukrainian_tts-medium.onnx": {
+          "size": 76735793,
+          "hash": "18d3c09ab8be906b240249e52178c089c4be9d1907b873d9066bfadcfef8d6ba",
+          "algorithm": "sha256"
+        }
+      }
+    },
+    "tr": {
+      "repository": "csukuangfj/vits-piper-tr_TR-dfki-medium",
+      "revision": "a802000f81ce62c67b49ea3dbfcc185e8c352b7f",
+      "model": "tr_TR-dfki-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 319,
+          "hash": "b56c295a8eaabd6fd34e1a7ad6eb335cdb902866",
+          "algorithm": "git-sha1"
+        },
+        "tokens.txt": {
+          "size": 921,
+          "hash": "82449830b618abdb4d2f1a2de38db6c322d906d4",
+          "algorithm": "git-sha1"
+        },
+        "tr_TR-dfki-medium.onnx": {
+          "size": 63201422,
+          "hash": "35c924643ba76043184b4b685b468ef8e06492d1c6eb029fbe12cac63b56ff82",
+          "algorithm": "sha256"
+        }
+      }
+    },
+    "sw": {
+      "repository": "csukuangfj/vits-piper-sw_CD-lanfrica-medium",
+      "revision": "627325ced1dfadc02e5e2b6c1b2dbe546e66485f",
+      "model": "sw_CD-lanfrica-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 315,
+          "hash": "13dee66d516c1572d982790c7009be065e8e609c",
+          "algorithm": "git-sha1"
+        },
+        "sw_CD-lanfrica-medium.onnx": {
+          "size": 63201438,
+          "hash": "1476cf51ff6cee33b34b966781abce544cd85b038cfb88171b7cad96f7eecd8b",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 921,
+          "hash": "82449830b618abdb4d2f1a2de38db6c322d906d4",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "kk": {
+      "repository": "csukuangfj/vits-piper-kk_KZ-issai-high",
+      "revision": "22e6357072c742143b1fa7704391386a3756e8a4",
+      "model": "kk_KZ-issai-high.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 237,
+          "hash": "7f44fcb74006d58f244aeceecf68cf139fd73c7e",
+          "algorithm": "git-sha1"
+        },
+        "kk_KZ-issai-high.onnx": {
+          "size": 127864385,
+          "hash": "2a2e21c96f21dae5e160c55f0ab969e9fb71f355b33d81ffd2d6c3927b1c9aef",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 763,
+          "hash": "112a2083f80b8eee7af6ca02e18f036d03ab1495",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "nl": {
+      "repository": "csukuangfj/vits-piper-nl_BE-nathalie-medium",
+      "revision": "1356793b677b4effa325817d758902c88d775709",
+      "model": "nl_BE-nathalie-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 284,
+          "hash": "9874ec439afb104991f1e4c545d163c93744d267",
+          "algorithm": "git-sha1"
+        },
+        "nl_BE-nathalie-medium.onnx": {
+          "size": 63201420,
+          "hash": "d6901ce5548dc4ca2d7f42fd5e53647fdd790b5b6a4350aa8b4e24adc3e903dc",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 921,
+          "hash": "82449830b618abdb4d2f1a2de38db6c322d906d4",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "pl": {
+      "repository": "csukuangfj/vits-piper-pl_PL-gosia-medium",
+      "revision": "bdee685fb766e9f9c97caa75094f9a3d13441521",
+      "model": "pl_PL-gosia-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 274,
+          "hash": "ece4edd11b1ff75e7d67f6258794fe99cf4be2f6",
+          "algorithm": "git-sha1"
+        },
+        "pl_PL-gosia-medium.onnx": {
+          "size": 63201421,
+          "hash": "6e02e04a26ff2a96fe5780dad58df0d5249177ba96a6bbe1fe2ba5a6714d17e4",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 907,
+          "hash": "faf0ab137b386bdfbe74f0b4f1a4c9d839d893f4",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "cs": {
+      "repository": "csukuangfj/vits-piper-cs_CZ-jirka-medium",
+      "revision": "14061e2f0c1b212be50bc32445e77b490c041ef4",
+      "model": "cs_CZ-jirka-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 281,
+          "hash": "14321403a09f23489e252c3280d26423e01a1174",
+          "algorithm": "git-sha1"
+        },
+        "cs_CZ-jirka-medium.onnx": {
+          "size": 63201422,
+          "hash": "d41a2b0a0d488c5796b8eed3403155ee0556b7642268111f655334df97e918b8",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 954,
+          "hash": "c4aa7526c5ad10fc5dcb6a85f665e183d49375d3",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "da": {
+      "repository": "csukuangfj/vits-piper-da_DK-talesyntese-medium",
+      "revision": "f2c1614417beec702b8cb3d28b10ae0bf7a1af1c",
+      "model": "da_DK-talesyntese-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 308,
+          "hash": "baebdac8d20150090bab97b524b04b73573c1193",
+          "algorithm": "git-sha1"
+        },
+        "da_DK-talesyntese-medium.onnx": {
+          "size": 63201421,
+          "hash": "516ef8c4b8104610598bef078114437092d482c36f00e72b0b9b358d8db0916e",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 921,
+          "hash": "82449830b618abdb4d2f1a2de38db6c322d906d4",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "el": {
+      "repository": "csukuangfj/vits-piper-el_GR-rapunzelina-low",
+      "revision": "b16a9198ecb66e5361f3d0c01a181afa0ea28fff",
+      "model": "el_GR-rapunzelina-low.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 303,
+          "hash": "c271b0d3d4d89b2be1c9f9222759f289dd2c40ed",
+          "algorithm": "git-sha1"
+        },
+        "el_GR-rapunzelina-low.onnx": {
+          "size": 63104667,
+          "hash": "5aaa1b1ea2c94e90eed2f0f7f12989df22fa2e1c3b2d781b15e93c210943c20a",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 763,
+          "hash": "112a2083f80b8eee7af6ca02e18f036d03ab1495",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "fi": {
+      "repository": "csukuangfj/vits-piper-fi_FI-harri-medium",
+      "revision": "6c1264e0997582ccdd6c54de1e22698d460c40ea",
+      "model": "fi_FI-harri-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 304,
+          "hash": "90b99487fb101188267dc3000129612b0353f42f",
+          "algorithm": "git-sha1"
+        },
+        "fi_FI-harri-medium.onnx": {
+          "size": 63201422,
+          "hash": "0f57368660befcb6a1c2d25547cff9fcd1fdc2edb3241676f0117c09ecb8e9b6",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 921,
+          "hash": "82449830b618abdb4d2f1a2de38db6c322d906d4",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "hu": {
+      "repository": "csukuangfj/vits-piper-hu_HU-anna-medium",
+      "revision": "dec1dc1120c96916b49c71e3ac199e83beee341a",
+      "model": "hu_HU-anna-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 277,
+          "hash": "37cea5d975a43c0b1d7de6eb7d3dbb4797a941a4",
+          "algorithm": "git-sha1"
+        },
+        "hu_HU-anna-medium.onnx": {
+          "size": 63201424,
+          "hash": "33ec97c272e650e528fb164939bc782517f50c0f0fd3c3ef9235d5b98300c67c",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 954,
+          "hash": "c4aa7526c5ad10fc5dcb6a85f665e183d49375d3",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "ro": {
+      "repository": "csukuangfj/vits-piper-ro_RO-mihai-medium",
+      "revision": "b7955c4f2151846c863e197689ec2bcb74b1de8d",
+      "model": "ro_RO-mihai-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 277,
+          "hash": "abef88293e6eef28f3571250334de87dba756fd2",
+          "algorithm": "git-sha1"
+        },
+        "ro_RO-mihai-medium.onnx": {
+          "size": 63201423,
+          "hash": "bbeedb8a14a28a089c5bc47e689dc6053c6190abbd00d591033de0f4ed6eae8b",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 921,
+          "hash": "82449830b618abdb4d2f1a2de38db6c322d906d4",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "no": {
+      "repository": "csukuangfj/vits-piper-no_NO-talesyntese-medium",
+      "revision": "c9003dc23feabf3579bf390238955ac2e88c179e",
+      "model": "no_NO-talesyntese-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 312,
+          "hash": "31d48e4eaa4ef4988dba357fe1442552e0cd8fd7",
+          "algorithm": "git-sha1"
+        },
+        "no_NO-talesyntese-medium.onnx": {
+          "size": 63201424,
+          "hash": "8027a2c33f6dc30e137a0f7f15022c07ef2d0e56300a5dfc29e38408970a0ddf",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 921,
+          "hash": "82449830b618abdb4d2f1a2de38db6c322d906d4",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "sv": {
+      "repository": "csukuangfj/vits-piper-sv_SE-nst-medium",
+      "revision": "04df2eea5794c14b235bb25f35f69bf4f7d5592d",
+      "model": "sv_SE-nst-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 306,
+          "hash": "2ccd0d637630294f1b09c96cb0df727ad785169d",
+          "algorithm": "git-sha1"
+        },
+        "sv_SE-nst-medium.onnx": {
+          "size": 63104654,
+          "hash": "61dd6f6a45801fb51117a74cff17957428d7156d747b163fa1fbb9c1df26278d",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 763,
+          "hash": "112a2083f80b8eee7af6ca02e18f036d03ab1495",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "sk": {
+      "repository": "csukuangfj/vits-piper-sk_SK-lili-medium",
+      "revision": "e24926b2960bdd9f471d40384adb33558b14e3b5",
+      "model": "sk_SK-lili-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 275,
+          "hash": "9b10f15b1f7a2a904adeadc64ab68572395394c8",
+          "algorithm": "git-sha1"
+        },
+        "sk_SK-lili-medium.onnx": {
+          "size": 63201421,
+          "hash": "4184b6990b4cd832ed7889abbeaff217d96cb1eb168c29231168b0d8c4848993",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 940,
+          "hash": "60a34a759e383bc7f72c2f0848b5c13afb4f80c9",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "sr": {
+      "repository": "csukuangfj/vits-piper-sr_RS-serbski_institut-medium",
+      "revision": "c11ecae3cda764e16fd861ed8ebb44bb2e1191ad",
+      "model": "sr_RS-serbski_institut-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 343,
+          "hash": "7ef78a3c06753d2a3a51acd5b7508ec0b3fae43f",
+          "algorithm": "git-sha1"
+        },
+        "sr_RS-serbski_institut-medium.onnx": {
+          "size": 76733743,
+          "hash": "d692a8f22c68a5294fbd744392f1e213efd171989b935ef7ad72329b2500d2ff",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 940,
+          "hash": "60a34a759e383bc7f72c2f0848b5c13afb4f80c9",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "sl": {
+      "repository": "csukuangfj/vits-piper-sl_SI-artur-medium",
+      "revision": "6d8fe8757edf4d3481543621d645ab87fd09538b",
+      "model": "sl_SI-artur-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 329,
+          "hash": "146d8f03677932e901e5335a3289e2a196e523d6",
+          "algorithm": "git-sha1"
+        },
+        "sl_SI-artur-medium.onnx": {
+          "size": 63200622,
+          "hash": "7e0c703d8cd2577e669e1dcb95d1cf47b06a8abfdd08c50890508d69f6528c70",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 940,
+          "hash": "60a34a759e383bc7f72c2f0848b5c13afb4f80c9",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "ka": {
+      "repository": "csukuangfj/vits-piper-ka_GE-natia-medium",
+      "revision": "5e74711897e753af5ca8e7a8e4c380998d8c788f",
+      "model": "ka_GE-natia-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 288,
+          "hash": "37f2267bd1a925188c7291d8d7b3cde03a29e682",
+          "algorithm": "git-sha1"
+        },
+        "ka_GE-natia-medium.onnx": {
+          "size": 63201423,
+          "hash": "d30263fca3304a79a9cf81bb7454e7670652226ce9d55b2c6e4adb985083212a",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 907,
+          "hash": "faf0ab137b386bdfbe74f0b4f1a4c9d839d893f4",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "is": {
+      "repository": "csukuangfj/vits-piper-is_IS-salka-medium",
+      "revision": "ebaa7cda3a34ab1cb0d748b05e63c1c71a00fc34",
+      "model": "is_IS-salka-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 241,
+          "hash": "c4deaa6c0c78772c862624d124bf08bf131537e1",
+          "algorithm": "git-sha1"
+        },
+        "is_IS-salka-medium.onnx": {
+          "size": 76495595,
+          "hash": "215ed100f058f876eaf6ce1f83845bd14fa3497fd4a261d10079c69f2a59798e",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 763,
+          "hash": "112a2083f80b8eee7af6ca02e18f036d03ab1495",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "ca": {
+      "repository": "csukuangfj/vits-piper-ca_ES-upc_ona-medium",
+      "revision": "814326c793214a358024edcf2d17e6de1acf0280",
+      "model": "ca_ES-upc_ona-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 296,
+          "hash": "f37cccd8c075a014c6affbc29dd5b48d186868a2",
+          "algorithm": "git-sha1"
+        },
+        "ca_ES-upc_ona-medium.onnx": {
+          "size": 63201422,
+          "hash": "94d4f83d80dcbb145004731d4da4335c3e250d6826f6ccf77e125d7cbc2e74cb",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 921,
+          "hash": "82449830b618abdb4d2f1a2de38db6c322d906d4",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "cy": {
+      "repository": "csukuangfj/vits-piper-cy_GB-gwryw_gogleddol-medium",
+      "revision": "33ce1a5f9b8c5dd06eb7d11a061710929c8dd72e",
+      "model": "cy_GB-gwryw_gogleddol-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 337,
+          "hash": "68e61b4365d9e5ae7ba499928fd9ba4f863b8ae3",
+          "algorithm": "git-sha1"
+        },
+        "cy_GB-gwryw_gogleddol-medium.onnx": {
+          "size": 63511164,
+          "hash": "111e6eaabb0152e5a31065bd159ecd91d656b90eec6fee01b7c72440ec674717",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 940,
+          "hash": "60a34a759e383bc7f72c2f0848b5c13afb4f80c9",
+          "algorithm": "git-sha1"
+        }
+      }
+    },
+    "lv": {
+      "repository": "csukuangfj/vits-piper-lv_LV-aivars-medium",
+      "revision": "5dabfb0558f9b4046598c9d50599e6004a9544c6",
+      "model": "lv_LV-aivars-medium.onnx",
+      "files": {
+        "MODEL_CARD": {
+          "size": 257,
+          "hash": "3788fa7333861b43950f097e1038836d2a5c2b57",
+          "algorithm": "git-sha1"
+        },
+        "lv_LV-aivars-medium.onnx": {
+          "size": 63511166,
+          "hash": "a85a008f63feb962cd6631415ad2aa98bb1861cdf5971fc13b8f45d5a3ff366d",
+          "algorithm": "sha256"
+        },
+        "tokens.txt": {
+          "size": 940,
+          "hash": "60a34a759e383bc7f72c2f0848b5c13afb4f80c9",
+          "algorithm": "git-sha1"
+        }
+      }
+    }
+  },
+  "common": {
+    "repository": "csukuangfj/vits-piper-fr_FR-siwis-medium",
+    "revision": "6b956227093bc8f9c05e5549508c4a510e97ef26",
+    "model": "fr_FR-siwis-medium.onnx",
+    "files": {
+      "espeak-ng-data/af_dict": {
+        "size": 121473,
+        "hash": "b6259eff5157e3f14491217ab8838d70be760ddb",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/am_dict": {
+        "size": 63878,
+        "hash": "b2b04422e020d8705bc1a9932ff8eee4b6961789",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/an_dict": {
+        "size": 6691,
+        "hash": "d10d32cefb100a3c4ddbcd232cf2eb22639f6b63",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/ar_dict": {
+        "size": 478165,
+        "hash": "108ff2becba0de921c2ffc1e9208e64623d6b613",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/as_dict": {
+        "size": 5005,
+        "hash": "0bec8d9cf301d3dbf59c7b2cf91046af33591a34",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/az_dict": {
+        "size": 43773,
+        "hash": "77ca0917d2e22701f96bdbef5e6ebacb2e3dd673",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/ba_dict": {
+        "size": 2098,
+        "hash": "f175c683436a0e725b399702f4b3fd206ef4817f",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/be_dict": {
+        "size": 2652,
+        "hash": "39d7434e784cad1cdce9bbd432fa11e223e4c526",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/bg_dict": {
+        "size": 87051,
+        "hash": "ecd7f4a8dfa69fd2fcf4746ba58337e00b7afbd5",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/bn_dict": {
+        "size": 89979,
+        "hash": "604b80f0c3f723843f9b314ba1ec81f60e228e17",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/bpy_dict": {
+        "size": 5226,
+        "hash": "735496ff2f0de96af6bf9f3cc504b34369ba7b08",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/bs_dict": {
+        "size": 47068,
+        "hash": "71a38939fcc52f3af0b7d821b4c7556f65db8f23",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/ca_dict": {
+        "size": 45566,
+        "hash": "f134d4e865516475926501642d31e42d3ca92a05",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/chr_dict": {
+        "size": 2859,
+        "hash": "b48216ce469254f909ee00b038beb2d92e00bd9e",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/cmn_dict": {
+        "size": 1566335,
+        "hash": "109aaa7708d3727382acb3ae41d8e2094a7e2bb9f651a81835be22a6f08071fe",
+        "algorithm": "sha256"
+      },
+      "espeak-ng-data/cs_dict": {
+        "size": 49645,
+        "hash": "cf916dab388320d9ccb9f699041c72bc3753b594",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/cv_dict": {
+        "size": 1344,
+        "hash": "79311d995e9e29fb255207d628944e1ddab389ea",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/cy_dict": {
+        "size": 43130,
+        "hash": "c4f738b51ddf72da4e07b6a00208fd8ac958c1c3",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/da_dict": {
+        "size": 245287,
+        "hash": "23be1ca5f591f7b7f1009b3841443c52c4b4c150",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/de_dict": {
+        "size": 68276,
+        "hash": "6f7697c737b3715a1f42222c811a8d8a92f1baf7",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/el_dict": {
+        "size": 72841,
+        "hash": "e6831f06bf823412350c657779ded7618424f353",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/en_dict": {
+        "size": 166944,
+        "hash": "b05b86152a011739d4cfebe716b43adcc9da76a2",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/eo_dict": {
+        "size": 4666,
+        "hash": "4ea54fe3ea595beb2b12e32cde9cb4c26ee358c9",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/es_dict": {
+        "size": 49252,
+        "hash": "c810ac740686e2dbdbb882f0cf3b2eb6b0fef6f1",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/et_dict": {
+        "size": 44263,
+        "hash": "f336d145bfbfc07088e3985ffea1aac780717aca",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/eu_dict": {
+        "size": 48841,
+        "hash": "ff71e0503760c9ca582634382d0ee23d34772ab7",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/fa_dict": {
+        "size": 292423,
+        "hash": "c67fb89ba0c0b0a9febd9245176a9547fe233d17",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/fi_dict": {
+        "size": 43928,
+        "hash": "a6028472fa331aa6ccd3f058339fd7d202cf1b97",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/fr_dict": {
+        "size": 63727,
+        "hash": "560a8c6fe9ce9a692ece627375a3315c66a78298",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/ga_dict": {
+        "size": 52673,
+        "hash": "65338e22252665f524cc8978a4919f7a0f4da3b6",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/gd_dict": {
+        "size": 49121,
+        "hash": "3ce4b954ff1511957e5f9efd61e8bd4334bc6668",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/gn_dict": {
+        "size": 3248,
+        "hash": "ee7fa4b406cf308a8da6730d2738c96fe73531d7",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/grc_dict": {
+        "size": 3433,
+        "hash": "1d9f3742c317fe8fec3fd1dbb50907a6111fb148",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/gu_dict": {
+        "size": 82480,
+        "hash": "245afbb4773e89bba9436b300182615035bfdda6",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/hak_dict": {
+        "size": 3335,
+        "hash": "38adf87ece01f89ebce7c9b184ef6d3114478683",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/haw_dict": {
+        "size": 2443,
+        "hash": "a78245c2cc3c86163411ef6a9c25cee51b2ceece",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/he_dict": {
+        "size": 6963,
+        "hash": "e1037a6951d6e8181ae12f6bc0ba7217d6d397bd",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/hi_dict": {
+        "size": 92143,
+        "hash": "c612100bc5a6a59e0d6d00341093a9ddc7dd1d88",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/hr_dict": {
+        "size": 49388,
+        "hash": "0ecec2df23ea541523645310f5cc85bd579bf81e",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/ht_dict": {
+        "size": 1803,
+        "hash": "ada2b70587abdf581e62c6c5ed022ec4c470e63e",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/hu_dict": {
+        "size": 153785,
+        "hash": "560dc2a264e240357cd1fcfe8baccc81df4783e1",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/hy_dict": {
+        "size": 62263,
+        "hash": "7fb0fe31e706bc80bcddbf690d49ac43fe580769",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/ia_dict": {
+        "size": 331275,
+        "hash": "2177d15355a1b2eb05dd904a31bee4bb6a435fd5",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/id_dict": {
+        "size": 43458,
+        "hash": "6e71d720cf83326b61d572f00b31e955c1c82e4a",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/intonations": {
+        "size": 2040,
+        "hash": "ca2d4b362c3dc1dac7b5da760c33f7ad9c96047a",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/io_dict": {
+        "size": 2165,
+        "hash": "e690ae89dd5cb5513c97d7b71d5341d780cb33b0",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/is_dict": {
+        "size": 44354,
+        "hash": "935799a4aa1358944a215b665c5c1b02892bc600",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/it_dict": {
+        "size": 152889,
+        "hash": "aef22eb0656145431bd1bf6c6a1ab2bb28545c36",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/ja_dict": {
+        "size": 47652,
+        "hash": "9b29e2d2c803051d71c4838afdb168fae9797ec5",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/jbo_dict": {
+        "size": 2243,
+        "hash": "938b323a35b15f1d902b37894b01ee481d0096c8",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/ka_dict": {
+        "size": 87775,
+        "hash": "a43848b2e3d8364fbf706e2cb740d7bb4dfabf2b",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/kk_dict": {
+        "size": 1859,
+        "hash": "7e02e2202a8713461d6f5b1613c70a3039e2534e",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/kl_dict": {
+        "size": 2838,
+        "hash": "10a0566cd496eec1dbe425c7f03f578a5236edd4",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/kn_dict": {
+        "size": 87828,
+        "hash": "6a41a8d58fc258e79eeea9e8e6d0e9bddfe98906",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/ko_dict": {
+        "size": 47523,
+        "hash": "fd206732baa6eb93a27c784231deca69b682218e",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/kok_dict": {
+        "size": 6394,
+        "hash": "136be4b84245bedc818e58ff7ecdc3b3961db77e",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/ku_dict": {
+        "size": 2265,
+        "hash": "bf3d745cc3af42222a44828ef41bf2a78f33ac22",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/ky_dict": {
+        "size": 64977,
+        "hash": "3ea39d99d53010e3a2f37fe6fd7d7df8e858ba44",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/la_dict": {
+        "size": 3806,
+        "hash": "3f30fd3fb492ef5b376188ff270709bc37de4184",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/aav/vi": {
+        "size": 111,
+        "hash": "7808128d708fb0dcdf0d0b7f87efa4eabad6fd51",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/aav/vi-VN-x-central": {
+        "size": 143,
+        "hash": "0defacaa6e3e0412f44adcd0a0404f73d4b4f6d8",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/aav/vi-VN-x-south": {
+        "size": 142,
+        "hash": "4c32561d6b95b9715753bc50a1d6570bfd887a8d",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/art/eo": {
+        "size": 41,
+        "hash": "e47501faef940e2f935350084f8d49b6a4ff6a32",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/art/ia": {
+        "size": 29,
+        "hash": "6a14728771b428773f11afd28036e82ace24d0b1",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/art/io": {
+        "size": 50,
+        "hash": "c50f9fabaff626a538020de2a85000907fba4913",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/art/jbo": {
+        "size": 69,
+        "hash": "9cf2f3098dcfc611ce96feb498e4b8e82e0305eb",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/art/lfn": {
+        "size": 135,
+        "hash": "d5e43871e3e19da947d7564b4efa59fc52d46585",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/art/piqd": {
+        "size": 56,
+        "hash": "49367cd84d5f92fb3a1b3af582eb4d1b510f5a72",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/art/py": {
+        "size": 140,
+        "hash": "850a34e870bfc384c85c509314dee96fd1529c13",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/art/qdb": {
+        "size": 57,
+        "hash": "eb5ea363bd721d08bbb157f60390c55db556adc7",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/art/qya": {
+        "size": 173,
+        "hash": "2b515813b48ce99fab0a72ac81bc022f1988615d",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/art/sjn": {
+        "size": 175,
+        "hash": "f927bc93b8729011a0e4bae90c79e9b2bb554e7d",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/azc/nci": {
+        "size": 114,
+        "hash": "f1896379e0d0fe63a325d9e49138066d97479a70",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/bat/lt": {
+        "size": 28,
+        "hash": "7cdb1930f20db7a2ed80b4f0adfe41d2821dcbe8",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/bat/ltg": {
+        "size": 312,
+        "hash": "1041d9e3bb94d68595b5962ea78805bf5eb66b8b",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/bat/lv": {
+        "size": 229,
+        "hash": "70eb61dcb5ab1c303f66f3588375d0db0a87e3c8",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/bnt/sw": {
+        "size": 41,
+        "hash": "d1a4db33cc76a2aa53e6cbdef185475706e6b46f",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/bnt/tn": {
+        "size": 42,
+        "hash": "8b484e43647227abd923fb22711f5792c95ecf29",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/ccs/ka": {
+        "size": 124,
+        "hash": "2a789b3c60ebf8b08193926c8d99559836645f09",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/cel/cy": {
+        "size": 37,
+        "hash": "6d0213294bcbee353b58a90ab6fd21926386dfee",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/cel/ga": {
+        "size": 66,
+        "hash": "9fea2ae7dd02a65fe819286022bbdf32b3afa1a4",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/cel/gd": {
+        "size": 51,
+        "hash": "e416f6fa36def26fe7645e65de200c637b75418b",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/cus/om": {
+        "size": 39,
+        "hash": "1d6b396defd28e39a093a234c62d2d5aae29e2f0",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/dra/kn": {
+        "size": 55,
+        "hash": "a32732c4551286acc9203506d6651d2b12a93c46",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/dra/ml": {
+        "size": 57,
+        "hash": "92394bbcb29dcfa4f010467b9f7df9c46678380f",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/dra/ta": {
+        "size": 51,
+        "hash": "aae63348a624705561ec4800990168fbfe03a1e9",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/dra/te": {
+        "size": 70,
+        "hash": "8acbb1879d65664ef24b6ebe0d393250f7d62cee",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/esx/kl": {
+        "size": 30,
+        "hash": "e581b58814d49bfbd060f80a16d2e3758235f480",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/eu": {
+        "size": 54,
+        "hash": "ef132e5b83168f01e7ec76b533e7c9f43abe2b51",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/gmq/da": {
+        "size": 43,
+        "hash": "58f02f15a7047676f47fccd99b78471478101653",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/gmq/is": {
+        "size": 27,
+        "hash": "04bf5ad364789a3833f4d24f56a51de0ec815517",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/gmq/nb": {
+        "size": 87,
+        "hash": "c29117f5308e85aab12aea73c149880b8586a989",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/gmq/sv": {
+        "size": 25,
+        "hash": "bb2d0299e001268aa07e85318b83442cd826b3da",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/gmw/af": {
+        "size": 123,
+        "hash": "64fc96f55bfe2520b30d73fc3bfd01638c2db6e6",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/gmw/de": {
+        "size": 42,
+        "hash": "a43cc1a55385cb2955be6aa501588e8b26585bed",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/gmw/en": {
+        "size": 140,
+        "hash": "f23fb53124eb2a927dd796154f3fdc41c38467fc",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/gmw/en-029": {
+        "size": 335,
+        "hash": "493aae451c7859ed7b27afdc54ee37cf4926f78e",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/gmw/en-GB-scotland": {
+        "size": 295,
+        "hash": "a4655a0e8bf9190e36dbc574d6e4267ea118a35c",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/gmw/en-GB-x-gbclan": {
+        "size": 238,
+        "hash": "f54a06b7c662e1e7b558272f5bdaee8257bc52d9",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/gmw/en-GB-x-gbcwmd": {
+        "size": 188,
+        "hash": "1831f9a9643766087e447184bfb49a4eeba651dd",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/gmw/en-GB-x-rp": {
+        "size": 249,
+        "hash": "fb72cf1f796d2a247121277ed6dad2324aeb094b",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/gmw/en-US": {
+        "size": 257,
+        "hash": "31db652b206219c5b66d6018144a4ff45fd663c9",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/gmw/en-US-nyc": {
+        "size": 271,
+        "hash": "2d76f88a0a8429d754cfeb1470011a7ec6bbd829",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/gmw/lb": {
+        "size": 31,
+        "hash": "79724594261cfe4f2d36b3f05813db963d67af30",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/gmw/nl": {
+        "size": 23,
+        "hash": "a212fbef6256c1414d259aa3c3f3d1e4b2e3563c",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/grk/el": {
+        "size": 23,
+        "hash": "548a01bcf017abbcc46437941f28b108e2a56ec7",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/grk/grc": {
+        "size": 99,
+        "hash": "baa8b2c691a46217c99e3c3d149257fe988ed84a",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/inc/as": {
+        "size": 42,
+        "hash": "23991ad7d3b0d0f31891290b5da62bb5ae2f1169",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/inc/bn": {
+        "size": 25,
+        "hash": "c79180269e431d6116bb97102f6301e881432e36",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/inc/bpy": {
+        "size": 39,
+        "hash": "b63bc8d1c67ae9d71fd53ea622c7ed04b9fcee31",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/inc/gu": {
+        "size": 42,
+        "hash": "fcdacd21e9e98e4ca56adcea3a5c3b8ef61aa58b",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/inc/hi": {
+        "size": 23,
+        "hash": "16ea3892959431fcb901c242525817669042a93f",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/inc/kok": {
+        "size": 26,
+        "hash": "f2b1cc53a8bfb04efb49712f013f615d6307eb4a",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/inc/mr": {
+        "size": 41,
+        "hash": "d9181f908b6dd2a3767e0c89326d767bce3b5293",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/inc/ne": {
+        "size": 37,
+        "hash": "4b64cc2b0a8b934e3e789c3b82f618c178bbe4ae",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/inc/or": {
+        "size": 39,
+        "hash": "95a990ecdc1f4fa0b267e03c32a6840ca0ecafa9",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/inc/pa": {
+        "size": 25,
+        "hash": "0e9552d33dcd14c7cd4f6aa244d1706c8ab2648e",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/inc/sd": {
+        "size": 66,
+        "hash": "51cf8afed21c85194fcbbbb2d253c894655645cd",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/inc/si": {
+        "size": 55,
+        "hash": "3f877191fce068307567db93ed671aec9092613d",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/inc/ur": {
+        "size": 94,
+        "hash": "16e546959d9037457ca27de709b12329f5ae5efd",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/ine/hy": {
+        "size": 61,
+        "hash": "ee0be2fe32c29eb5b7d975eb85e5084a8864d90b",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/ine/hyw": {
+        "size": 365,
+        "hash": "9d5fe86badd04a69dba17abdcee4045c10279d77",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/ine/sq": {
+        "size": 103,
+        "hash": "9ace35766585509e735b71c888926b7c05b23cf0",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/ira/fa": {
+        "size": 90,
+        "hash": "5a0c2b6d05020a9f29a53de0eb225a8852686a85",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/ira/fa-Latn": {
+        "size": 269,
+        "hash": "02c6da6e1a88b492b021ef6f2b504181b2c9e05a",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/ira/ku": {
+        "size": 40,
+        "hash": "b26bca250fc3e03c23c345ad18e49303c6e15551",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/iro/chr": {
+        "size": 569,
+        "hash": "abe29382383b120877a30e5eba19ee1f85362789",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/itc/la": {
+        "size": 297,
+        "hash": "c57270f92de40f4002bcfd7066bbe1b952b816af",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/jpx/ja": {
+        "size": 52,
+        "hash": "20e21a1e9bdb38913ece9d00324add13579988fc",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/ko": {
+        "size": 51,
+        "hash": "f03ba091b68d61453dcdac7e5a6cbc8c88cdc4da",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/map/haw": {
+        "size": 42,
+        "hash": "c0869132769f42249d01d08d01cb5ddbdfff6a33",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/miz/mto": {
+        "size": 183,
+        "hash": "eb0f75ff5b53f51aeadefd08bda1f1ba5330c1c5",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/myn/quc": {
+        "size": 210,
+        "hash": "e8e0ec6bc2d2d70224ca65ab579ca5f9ac7f215e",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/poz/id": {
+        "size": 134,
+        "hash": "d300372fbad3479491f79303c9021445f9c3d096",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/poz/mi": {
+        "size": 367,
+        "hash": "fa1c71eb7dc334e3aaacf83722ea1aecc6c6acc7",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/poz/ms": {
+        "size": 430,
+        "hash": "27a2712af2df7835b414597dd065e3a6d6bf46bb",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/qu": {
+        "size": 88,
+        "hash": "aa717f296f4547dddc289569301231f41ae1c543",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/roa/an": {
+        "size": 27,
+        "hash": "dc75aa8e82ebb38baec6510dc5fb929b9d1880a0",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/roa/ca": {
+        "size": 25,
+        "hash": "54af356f7a222827df6f870679182d12af2e6dde",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/roa/es": {
+        "size": 63,
+        "hash": "dc90e41c64f2e89713bd2e1cf06bd30c31227579",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/roa/es-419": {
+        "size": 167,
+        "hash": "236bef0bf68d7ac1c887295714cefd2164b29a7d",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/roa/fr": {
+        "size": 79,
+        "hash": "9e0b9440c5419b5f26ad9e845b35e7c9cc1b3a94",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/roa/fr-BE": {
+        "size": 84,
+        "hash": "1a0311f94ffc2514ab6128b2e771441bf6eb7464",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/roa/fr-CH": {
+        "size": 86,
+        "hash": "2e45fbd1903431ea4c34fac94d1ae4b9d76f441d",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/roa/ht": {
+        "size": 140,
+        "hash": "8b5722584c03f947ed0eac26f0fd327121576551",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/roa/it": {
+        "size": 109,
+        "hash": "ad7bb50e6016183958c9de74c9205aba749800d7",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/roa/pap": {
+        "size": 62,
+        "hash": "b9e07fe03ecd05f481609a84a38dddfafaf45c86",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/roa/pt": {
+        "size": 95,
+        "hash": "5041b511e1a584c3aabc742c9637ea4f1b20e2a6",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/roa/pt-BR": {
+        "size": 109,
+        "hash": "52b850c38e0751b369fdd108ae411ce6ab9bd6b1",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/roa/ro": {
+        "size": 26,
+        "hash": "94441efe88d71f8f7d3494eed80e78bde348577d",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/sai/gn": {
+        "size": 47,
+        "hash": "6e183e5aea08c2eb43d57ea9e58fcc07bb1e41f7",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/sem/am": {
+        "size": 41,
+        "hash": "87ed65a3a8aaf31050cd221ba1a3e26fdc9d88ce",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/sem/ar": {
+        "size": 50,
+        "hash": "5219808639e8f00f3074c0122b8c9e4941cb7705",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/sem/he": {
+        "size": 40,
+        "hash": "38cce90a6b877a7e0587ff467a2dc595587ecdfc",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/sem/mt": {
+        "size": 41,
+        "hash": "ea8a3fce48af567f0426c8c6aecde0b9748cdf35",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/sit/cmn": {
+        "size": 686,
+        "hash": "451016d7a1354467aa592dc438ebb0d9ce164252",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/sit/cmn-Latn-pinyin": {
+        "size": 161,
+        "hash": "4b63db71687d812168078e5d02341db7381eff74",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/sit/hak": {
+        "size": 128,
+        "hash": "0c3bf14c6008798929d4362b09e0b2abb302c4a2",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/sit/my": {
+        "size": 56,
+        "hash": "3dbc767a878f06e5602f778f2172772e8d784f05",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/sit/yue": {
+        "size": 194,
+        "hash": "d65fac1f0c08dd9bc6990324fdce98ff1078fa6e",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/sit/yue-Latn-jyutping": {
+        "size": 213,
+        "hash": "2324cd7df408adfe2f2355a54019d2a8469c0236",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/tai/shn": {
+        "size": 92,
+        "hash": "8d30384d1d1eb4ecf24e81d19575d08ac1dbd97b",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/tai/th": {
+        "size": 37,
+        "hash": "9b337c1390bf22f8c5aed27c793b32c8b85877aa",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/trk/az": {
+        "size": 45,
+        "hash": "fd9e4f33e8eee103bf5feef32bf8a7f793e5588a",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/trk/ba": {
+        "size": 25,
+        "hash": "09fab4805761e10f099deb423dd5ce4aca17a347",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/trk/cv": {
+        "size": 40,
+        "hash": "44e37f676fc6e4e5a4d904ebf8d0c05740e4bbaf",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/trk/kk": {
+        "size": 40,
+        "hash": "df3b0a0784c307e2eabe389922b08a2c606814bc",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/trk/ky": {
+        "size": 43,
+        "hash": "c031449e81bc81a8dd70031b88ad03939e3de51e",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/trk/nog": {
+        "size": 39,
+        "hash": "691d0310678e3625a64090760b314ae18c94d017",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/trk/tk": {
+        "size": 25,
+        "hash": "795413a3b3a83f58d6035e7b72a6e72898e6af24",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/trk/tr": {
+        "size": 25,
+        "hash": "1d5cbc4955a00a20d5d2444edfa60b861c43ed77",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/trk/tt": {
+        "size": 23,
+        "hash": "10ebba4c1c47d91b99a9f4f0914b9a69bf539325",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/trk/ug": {
+        "size": 24,
+        "hash": "f81b44fc01eee002d8d11cb7eda9a872fb67a5ac",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/trk/uz": {
+        "size": 39,
+        "hash": "b1a7586c0368b48da098d88cfc9185c029089b71",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/urj/et": {
+        "size": 237,
+        "hash": "096565f971760a3d951cd8052f6a257c226e7c76",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/urj/fi": {
+        "size": 237,
+        "hash": "fe2447c897fc16c4e4e5cf1b851c2fec61fbefc0",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/urj/hu": {
+        "size": 73,
+        "hash": "f5bb295851500cfdc971cc93596c1f4b186291ab",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/urj/smj": {
+        "size": 45,
+        "hash": "316559cf378436760a7520902bfb85d9f2bc34f3",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/zle/be": {
+        "size": 52,
+        "hash": "31b14e53dd60db67d99416d420361d77c364a383",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/zle/ru": {
+        "size": 57,
+        "hash": "959754b6505a7e1145b202f4c2e09634a1530e66",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/zle/ru-LV": {
+        "size": 280,
+        "hash": "fc9541baaf612902e3736d5102d4c84a4f7cd4db",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/zle/ru-cl": {
+        "size": 91,
+        "hash": "ad100cafdc6eec479c14d8a57b9a242ab6d7f1c0",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/zle/uk": {
+        "size": 97,
+        "hash": "b318c235d93d4d22d552035079d2ba26aa06ce45",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/zls/bg": {
+        "size": 111,
+        "hash": "870c04240ab42c5612bc95c406dfa6dae916faa5",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/zls/bs": {
+        "size": 230,
+        "hash": "01fd1746e0ca156928f5298484372656e3411c0d",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/zls/hr": {
+        "size": 262,
+        "hash": "d1cae3a3fb7f244adad4f032c8f4d144e4f66d16",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/zls/mk": {
+        "size": 28,
+        "hash": "380c20b6c29d79708915eecd2d796a79ca400add",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/zls/sl": {
+        "size": 43,
+        "hash": "b7bf01f233519061fb6b054ddba2f609105a6248",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/zls/sr": {
+        "size": 250,
+        "hash": "81e339072d93c67752fb72e129ec87158ccf0bc6",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/zlw/cs": {
+        "size": 23,
+        "hash": "5c3bf2ac5b9c7ac39154b6890d8b0641597e6c77",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/zlw/pl": {
+        "size": 38,
+        "hash": "b85f56be3585e926bd8f5c26ce3309e3936904c5",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lang/zlw/sk": {
+        "size": 24,
+        "hash": "e849e61be357d0776423541b59486258019c5c06",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lb_dict": {
+        "size": 687931,
+        "hash": "d0aee674c0a033c8c2b4fe9fc5243d91d569bf34",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lfn_dict": {
+        "size": 2793,
+        "hash": "9a8d4f89e88ae4d7393710888fc10f2d8ef0b8fc",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lt_dict": {
+        "size": 49890,
+        "hash": "d0dd29f6ea77d2b94c36b9166fbb2a22d692c81e",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/lv_dict": {
+        "size": 66337,
+        "hash": "60d70b1b1b54cb8632e35bc36c53fd846ce599c1",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/mi_dict": {
+        "size": 1346,
+        "hash": "b727a301324d4e90fd0740817782e0ed225f1fc0",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/mk_dict": {
+        "size": 63859,
+        "hash": "974626c1cbbb5b8bee5747c21564e78337d123ef",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/ml_dict": {
+        "size": 92345,
+        "hash": "e12f2227eaa41462dc68773a017848077aa53f8d",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/mr_dict": {
+        "size": 87391,
+        "hash": "2cbf14d5fdd463d6d462dcbdebe5cd8f0cc93756",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/ms_dict": {
+        "size": 53541,
+        "hash": "cb6fc297422570bc91527189f21e5934538c9518",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/mt_dict": {
+        "size": 4384,
+        "hash": "8cc965b99b13ded3613a50590619c7221549ec56",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/mto_dict": {
+        "size": 3960,
+        "hash": "280aaa44bb6da6170c5e02976cbf75dfbad03625",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/my_dict": {
+        "size": 95948,
+        "hash": "f60804ec7cd8cb7fcdefaef29c84a2cfb6228940",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/nci_dict": {
+        "size": 1534,
+        "hash": "4f001af82d7471b97f9a776c7633dee7f7bb6269",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/ne_dict": {
+        "size": 95377,
+        "hash": "fa8e29c609530624870c1fdf6b1b1f8713193735",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/nl_dict": {
+        "size": 65979,
+        "hash": "4b371b1c73aec6dd6a3d0080d679617ab4f7d998",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/no_dict": {
+        "size": 4178,
+        "hash": "e1805fac18fbe948e8e4438d8954125878f25ded",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/nog_dict": {
+        "size": 3294,
+        "hash": "0819a517441ad972c5febb7023c2e2da93ffcc3d",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/om_dict": {
+        "size": 2302,
+        "hash": "81fa80d2f63b62c18c8ce10decaee07d6a8c2867",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/or_dict": {
+        "size": 89246,
+        "hash": "ad2d1919f9fadaceaa17095988d133823de2106d",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/pa_dict": {
+        "size": 79953,
+        "hash": "08485ee87895c16e6f4296b325e1f2cc7c16338c",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/pap_dict": {
+        "size": 2128,
+        "hash": "3fccee67864fc213bbd1a57fa9c9a778a201eb17",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/phondata": {
+        "size": 550424,
+        "hash": "5b3c94a570dc3bdc6500dcd92602faa0640503bc",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/phondata-manifest": {
+        "size": 21821,
+        "hash": "e7eac9a723e6382941752716b1ed6f5fbcbc44c7",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/phonindex": {
+        "size": 39074,
+        "hash": "03ba8068e7ab71932d2d1b2d6e55b5d63447b30d",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/phontab": {
+        "size": 55796,
+        "hash": "5c25ca1f9ffd3d80c0bba5a5dea59edfdb9de573",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/piqd_dict": {
+        "size": 1710,
+        "hash": "7924788c97ca7098bf7d790a2e12f450e8ce025b",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/pl_dict": {
+        "size": 76730,
+        "hash": "dcb413212121d06e25f467a6dd5594a0f1e0430c",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/pt_dict": {
+        "size": 67817,
+        "hash": "c80197330f8c63a954cc0ff213197679230d9873",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/py_dict": {
+        "size": 2409,
+        "hash": "47b8123862b329cb8a4bc7f6c7fe2a0b2d3227a9",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/qdb_dict": {
+        "size": 3028,
+        "hash": "18a6895b46092243e36f8673ad486c24e93fe823",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/qu_dict": {
+        "size": 1919,
+        "hash": "afb6dcf0d44d221415f59abb8b7aebc09a689efb",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/quc_dict": {
+        "size": 1450,
+        "hash": "2361f7b5307db1d794bfc133572053b186a7a928",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/qya_dict": {
+        "size": 1939,
+        "hash": "946894306c2d286a58bce52ce81ae11d1d6fd30a",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/ro_dict": {
+        "size": 68538,
+        "hash": "22f7dfba34be2aeb4ff6950404e365447f9f699c",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/ru_dict": {
+        "size": 8532392,
+        "hash": "f0f6181bbbf9e53cd1e8f9d26bde8fc62119c4f78181948f961cb29866e5e585",
+        "algorithm": "sha256"
+      },
+      "espeak-ng-data/sd_dict": {
+        "size": 59928,
+        "hash": "c877d4419625e7e8f415d4d46f5cb53925289b63",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/shn_dict": {
+        "size": 88172,
+        "hash": "625f6858bce5bfa8f1497bdcf5286ba506a630c8",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/si_dict": {
+        "size": 85384,
+        "hash": "9634893c3d783209cef8e8edb0ebdc73d12664fc",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/sjn_dict": {
+        "size": 1783,
+        "hash": "ba76f7c2bcb6cda2eeee21663228fda709a395ee",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/sk_dict": {
+        "size": 50002,
+        "hash": "cd99f8f0bb5d830a17160adffd4546bee69bf4d1",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/sl_dict": {
+        "size": 45047,
+        "hash": "e13eb491873c85d606b597d3d1767c36d9b803ef",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/smj_dict": {
+        "size": 35095,
+        "hash": "203230f56493577b79e3330db08b127b76c37662",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/sq_dict": {
+        "size": 45003,
+        "hash": "fccdbf3f0b699c8b7ebf1f95afbfa6d6b7fd0c9f",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/sr_dict": {
+        "size": 46832,
+        "hash": "63576dd3000c0b8155a8066d77a3008f2ac9ae3a",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/sv_dict": {
+        "size": 47836,
+        "hash": "a4e3f6d80bfa8aef1a09b48cecd692d8b9a2a936",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/sw_dict": {
+        "size": 47804,
+        "hash": "601f310cf01466e9cac43b379aceee256a5a49ef",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/ta_dict": {
+        "size": 209553,
+        "hash": "7e51266d12d6c3d1f88fafb425964dc367e5234c",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/te_dict": {
+        "size": 94837,
+        "hash": "36167c225f507c2268d2db372b2197a75852cd4c",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/th_dict": {
+        "size": 2301,
+        "hash": "f8689fdfb810a3960fd5a6b842a0758962c006bb",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/tk_dict": {
+        "size": 20868,
+        "hash": "e0dace413ebb64e700a24fa5b4ea957401b222c5",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/tn_dict": {
+        "size": 3072,
+        "hash": "ffa39622667b4fc3940cb757df66d8a091905276",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/tr_dict": {
+        "size": 46793,
+        "hash": "69d521fe51930cdcc03845b8a6c5c73440b63a11",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/tt_dict": {
+        "size": 2121,
+        "hash": "ef0b02bf07213d2ce66ec602b74165347f598cd1",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/ug_dict": {
+        "size": 2070,
+        "hash": "25f827fdebd0a278b4a3ee8cfc81c3c67c6a3090",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/uk_dict": {
+        "size": 3492,
+        "hash": "326dc4469f914466e5890b44fa7fbe38dbb09314",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/ur_dict": {
+        "size": 133556,
+        "hash": "cfc9693b70c84acb6fbdb6da0101edbf767cdc08",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/uz_dict": {
+        "size": 2540,
+        "hash": "c58fae50adba17c03470b8452e331c62f5e39832",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/vi_dict": {
+        "size": 52608,
+        "hash": "226a7990e387c3eb2ef0f1a55040b0908871c8db",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Alex": {
+        "size": 128,
+        "hash": "10c6b6e68680440d3b527ffc9416331a240dd159",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Alicia": {
+        "size": 474,
+        "hash": "d33ed3a246bfd0ac7d5f4668c6b6fa11e110e8ce",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Andrea": {
+        "size": 357,
+        "hash": "39fb18667a55a535bb7361d56cc162712664a0d1",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Andy": {
+        "size": 320,
+        "hash": "25582fb550cfbaf5ac8942b699a2c019ba90a6d5",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Annie": {
+        "size": 315,
+        "hash": "3c5b035551b0febe269c4935b41ab6074c35a2aa",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/AnxiousAndy": {
+        "size": 361,
+        "hash": "0ed1f35709eda69a01725cfc120c5dcb7e1f6e9c",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Demonic": {
+        "size": 3858,
+        "hash": "131fe46ad061d60a4829dec5ebdcaeca49b12dd2",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Denis": {
+        "size": 305,
+        "hash": "23c7fb70249820f3e83c7ef1de75309a06997f79",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Diogo": {
+        "size": 379,
+        "hash": "1e51396647e155aad997db6342c458fbbdf93488",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Gene": {
+        "size": 281,
+        "hash": "3db343bca1d8cbf5a6d0c7c4001a43b6d63458fb",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Gene2": {
+        "size": 283,
+        "hash": "20e8f6f334fb978432a5335852989eecc201b56a",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Henrique": {
+        "size": 381,
+        "hash": "d3fa3d745e8104d4c5c287dbc7fa680ad1aa61d3",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Hugo": {
+        "size": 378,
+        "hash": "fe79235caa980c00755824578ac7817e7b00987c",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Jacky": {
+        "size": 267,
+        "hash": "e0884ed07ac35ff0f4f251ea7772a833cf3e351d",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Lee": {
+        "size": 338,
+        "hash": "e0194fa314edeae00019e3c4e134473f3c935cbb",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Marco": {
+        "size": 467,
+        "hash": "455cb2644c138936078ce67921dc0c8b3ef6aa3c",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Mario": {
+        "size": 270,
+        "hash": "3ace369534e2c91b1e4ae44c018af8a35548d185",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Michael": {
+        "size": 270,
+        "hash": "e155ea856bed20290e271243c9522c4e873a2211",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Mike": {
+        "size": 112,
+        "hash": "93ea4d89402c811f0254c169105c5bd5472d8e58",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Mr serious": {
+        "size": 3193,
+        "hash": "4623c8486c714eafa399ff4b9dbc74ff2904ccab",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Nguyen": {
+        "size": 280,
+        "hash": "50c72fc697c24d3297885547883627ac60fc4ba7",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Reed": {
+        "size": 202,
+        "hash": "1ccdf5d4c3bf47bb1c4d51012237db71794058b3",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/RicishayMax": {
+        "size": 233,
+        "hash": "b269b64154a143efddefd5ebcb10c1059178d064",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/RicishayMax2": {
+        "size": 435,
+        "hash": "658513422979ae643cf5af53d5c614826208577c",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/RicishayMax3": {
+        "size": 435,
+        "hash": "f48100279d7db2b92f82af1711a9ae07e4ca9322",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Storm": {
+        "size": 420,
+        "hash": "6fd53bb47a018dcc7eb954996c8359143ac2433e",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/Tweaky": {
+        "size": 3189,
+        "hash": "f391d13b279c2ffce06eb5f0cd42f626b33a1e9c",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/UniRobot": {
+        "size": 417,
+        "hash": "f8892788da1acd19cae5f58c639e1ea08b205a5f",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/adam": {
+        "size": 75,
+        "hash": "a9f3d2ae32ad344b6493a452ed6304039c512c74",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/anika": {
+        "size": 493,
+        "hash": "2413c908c879b780b73edffba00dadf2cadca294",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/anikaRobot": {
+        "size": 512,
+        "hash": "791d2bbbb0c1a59a2a238abd728d0bb53ba3ffd9",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/announcer": {
+        "size": 300,
+        "hash": "71e0795d322ee12a3cc7f7feb984e0b61366a1f1",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/antonio": {
+        "size": 381,
+        "hash": "a41b681be53383ceec7b8da60598f45e0a948680",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/aunty": {
+        "size": 358,
+        "hash": "7d721eec885ad34f33757f9e3eca1c8c7fc62323",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/belinda": {
+        "size": 340,
+        "hash": "9a9e42b97aaf21781d9fff9adf07438d2cf67c1e",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/benjamin": {
+        "size": 201,
+        "hash": "c3006438358a8bdfc3e6f3070966799013835042",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/boris": {
+        "size": 224,
+        "hash": "02e03ced1e87eb7d663fe1051f2c0615ac4bcc2f",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/caleb": {
+        "size": 57,
+        "hash": "9c8a5b9ce9e954db5fd7e31199ab7cf0b5bfe44f",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/croak": {
+        "size": 93,
+        "hash": "ae76a4c4deb77d53e7ee512c3e85f45ba802dd08",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/david": {
+        "size": 112,
+        "hash": "7dc75ddbc558f61e1fb8e62f44236b9a5f86f477",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/ed": {
+        "size": 287,
+        "hash": "7f293fc684f4b27c7e95cf81a7a82e335702bb17",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/edward": {
+        "size": 151,
+        "hash": "303f50518bcc86bd3810eea2b2861a0c95a69f09",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/edward2": {
+        "size": 152,
+        "hash": "abee6aaa4c7d710c67698dd9a54900536b233427",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/f1": {
+        "size": 324,
+        "hash": "8f03a73a4722952860a41ec3800fdcb479806320",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/f2": {
+        "size": 357,
+        "hash": "4122d96b39bf2bc1025a1c57ef01b8b03936773d",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/f3": {
+        "size": 375,
+        "hash": "92a1582817dc2f8256db5a02bed320a05f6e5e43",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/f4": {
+        "size": 350,
+        "hash": "52c5ac93561331143a9caea14d6c0f008216b4e9",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/f5": {
+        "size": 432,
+        "hash": "7fa4f8826ae4d23cfd9770ea51413919e98df27f",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/fast": {
+        "size": 149,
+        "hash": "a2c3da2a9d7656ba8e4c3d2ee025ac03af118396",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/grandma": {
+        "size": 263,
+        "hash": "395ebe2203e880bc9366a1243074258d783906f2",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/grandpa": {
+        "size": 256,
+        "hash": "41a870c3fbc182bef1102e1e7253c651ec836fc4",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/gustave": {
+        "size": 253,
+        "hash": "ce1d71b947d2cf73f80571fe25f5909dd0e0fd0b",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/ian": {
+        "size": 3168,
+        "hash": "3e3d40901bdbd3e19cffc497ad6f7cd7a3e60bc1",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/iven": {
+        "size": 261,
+        "hash": "3b8c120263c6b0f18bd764408d5e79857986c062",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/iven2": {
+        "size": 279,
+        "hash": "e61fd73538ada58b0ea12791fe160d0b75093952",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/iven3": {
+        "size": 262,
+        "hash": "a58e74599e84a95be7c95ddc57b326cf9bed2545",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/iven4": {
+        "size": 261,
+        "hash": "43084c15d1ec12ec4170e886d914c06491c2e01f",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/john": {
+        "size": 3186,
+        "hash": "dce9446a0171b0759a406c8114910e0db96c2fa6",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/kaukovalta": {
+        "size": 361,
+        "hash": "82cda3318cf631d5840890f2f39af46c6274f18f",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/klatt": {
+        "size": 38,
+        "hash": "b739a86e488eeec6f5693b7ee2590f84d6c95191",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/klatt2": {
+        "size": 38,
+        "hash": "01477be5465c04d4cfd46ab95003f17445731d74",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/klatt3": {
+        "size": 39,
+        "hash": "b1a874be65ad7df189c933f4c576475f29d15f67",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/klatt4": {
+        "size": 39,
+        "hash": "65278087cbd1ab1d32164f458d385ec8a61131d0",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/klatt5": {
+        "size": 39,
+        "hash": "9d831fb213106b80bd42497099550cb56ac6e240",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/klatt6": {
+        "size": 39,
+        "hash": "7656ab355205ae2a1cf613f787b3126da659e3d3",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/linda": {
+        "size": 350,
+        "hash": "a56a8b05337ad8f8c5916061e887367aab35c617",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/m1": {
+        "size": 335,
+        "hash": "4cc9a00bf7597081158aad2e9a60ca1571259406",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/m2": {
+        "size": 264,
+        "hash": "c234f46877a761d5c98fda2cbbeb172dc2efc81a",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/m3": {
+        "size": 300,
+        "hash": "00479dc35082ef3724f143d895514567913d7c61",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/m4": {
+        "size": 290,
+        "hash": "7199341c34f93f5fa5219ff479e82edaee5d7936",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/m5": {
+        "size": 262,
+        "hash": "d25865608d7d973e77c77d13bbdbe3ae454d864d",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/m6": {
+        "size": 188,
+        "hash": "bd336a9884877889e2f85ee1849f8a068d2c6279",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/m7": {
+        "size": 254,
+        "hash": "11b49ed2a71db37f9af7c8305ec4006adc84bef3",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/m8": {
+        "size": 284,
+        "hash": "c03ca3eb300cb60e8a84c3fb514695871128bcb5",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/marcelo": {
+        "size": 251,
+        "hash": "8df9651b7a72e811a25e6ec14c578d7e4f9f4c30",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/max": {
+        "size": 225,
+        "hash": "e3c2889b9e8082512f9f280427d2ed5a29232b76",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/michel": {
+        "size": 404,
+        "hash": "b9b5ecbd5aa4b571d56820d72ac10ace83438a5f",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/miguel": {
+        "size": 382,
+        "hash": "53d71e78caea5f6868ee304f7125ea83e733b9af",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/mike2": {
+        "size": 188,
+        "hash": "2715f4d04fb4b2f9f7a91da8f5a74b2a19eea21f",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/norbert": {
+        "size": 3189,
+        "hash": "a210789ab3acacf7d85676e8af8eb221795762b3",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/pablo": {
+        "size": 3142,
+        "hash": "031e5fe7e4526901a3f071d01ee7c72ef7f83c7d",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/paul": {
+        "size": 284,
+        "hash": "9015cd3756624017a0e6ff975ceddc06b75cadb2",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/pedro": {
+        "size": 352,
+        "hash": "5cc34db2c249581d67f2e03d6c455088d70f21c3",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/quincy": {
+        "size": 354,
+        "hash": "dd75dadb81ca340f2e71171eb4d364e3aa22c1de",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/rob": {
+        "size": 265,
+        "hash": "d7c7ae4e16b403549d2c9fcd64d67c132b19183d",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/robert": {
+        "size": 274,
+        "hash": "46f50758e19dc5201baea7eba9b5c2ab4fb276a1",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/robosoft": {
+        "size": 451,
+        "hash": "0668d9ab71bec7f70c7111569daef3dfda956dd2",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/robosoft2": {
+        "size": 454,
+        "hash": "1695414aed649d6ae164e9c3ff543da8f1cd7ad3",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/robosoft3": {
+        "size": 455,
+        "hash": "15bbe347846484ec77b8c53e4cc8b66ee1f15fe8",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/robosoft4": {
+        "size": 447,
+        "hash": "5161a4fea38c8558c0834ad9657fda1124e95db1",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/robosoft5": {
+        "size": 445,
+        "hash": "2420f89c48c64937313049ce6488f54a03c83268",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/robosoft6": {
+        "size": 287,
+        "hash": "d3be1588fa7517e6ac6c6d92689a9029b8b97d64",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/robosoft7": {
+        "size": 410,
+        "hash": "25bf759b738a0262170fbd9f2007506537f82306",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/robosoft8": {
+        "size": 243,
+        "hash": "5c84bd5f18aa3d304828373dac51ce926d245cdc",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/sandro": {
+        "size": 530,
+        "hash": "6dcfe02f7a5b32f6960c23d913d627377ef54207",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/shelby": {
+        "size": 280,
+        "hash": "21292d418f95d73dc4eb1e8eacc6f4ef17deee90",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/steph": {
+        "size": 364,
+        "hash": "e60b0dc6393ffc383705e840a90ebae67a4fbd8c",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/steph2": {
+        "size": 367,
+        "hash": "6ac109be67537a5f525f733c188f3f202df160ad",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/steph3": {
+        "size": 377,
+        "hash": "a92575582d63f0454d78af8857be123fc5546ac7",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/travis": {
+        "size": 383,
+        "hash": "56c22f94020ca3fd164d075b11975f883c6e4ba0",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/victor": {
+        "size": 253,
+        "hash": "fa275e891824d6dc75c0c2c0ec47ed81e9609d0f",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/whisper": {
+        "size": 186,
+        "hash": "4f8f5e88f436d478b126c5c4eccf3568e398c26f",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/whisperf": {
+        "size": 392,
+        "hash": "f239e8a29b79ec17c77dead6ddb1920103ceeec3",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/voices/!v/zac": {
+        "size": 275,
+        "hash": "ca415a660b70d1eec84e6d37a5e89954de80ff88",
+        "algorithm": "git-sha1"
+      },
+      "espeak-ng-data/yue_dict": {
+        "size": 563571,
+        "hash": "ed9cf0761c87b5de4e5ea8b5169d9a1b086a7ed7",
+        "algorithm": "git-sha1"
+      }
+    }
+  }
+}

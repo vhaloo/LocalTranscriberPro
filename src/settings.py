@@ -2,14 +2,19 @@
 
 from __future__ import annotations
 
+import copy
 import json
+import re
+import threading
 from pathlib import Path
 from typing import Any
 
 from platformdirs import user_config_dir, user_data_dir, user_documents_dir
 
 from src.i18n import detect_ui_language
-from src.models import AUTO_MODEL_ID
+from src.models import AUTO_FAST_MODEL_ID, AUTO_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID, MODEL_BY_ID
+from src.translation_languages import LANGUAGE_BY_CODE
+from src.utils import atomic_write_text
 
 
 def default_output_folder() -> Path:
@@ -22,14 +27,26 @@ def ensure_output_folder(value: str | Path | None = None) -> Path:
     for candidate in (preferred, Path(user_data_dir("LocalTranscriberPro", "Vhaloo")) / "Transcriptions"):
         try:
             candidate.mkdir(parents=True, exist_ok=True)
+            # mkdir(exist_ok=True) alone does not prove that a folder is writable.
+            import tempfile
+
+            with tempfile.TemporaryFile(dir=candidate):
+                pass
             return candidate
         except OSError:
             continue
-    return preferred
+    raise OSError("No writable transcription output folder is available")
+
+
+def bounded_int(value: Any, default: int, minimum: int, maximum: int) -> int:
+    try:
+        return max(minimum, min(maximum, int(value)))
+    except (TypeError, ValueError, OverflowError):
+        return default
 
 
 DEFAULTS: dict[str, Any] = {
-    "schema_version": 4,
+    "schema_version": 6,
     "ui_language": detect_ui_language(),
     "ui_mode": "simple",
     "simple_quality": "best",
@@ -39,6 +56,12 @@ DEFAULTS: dict[str, Any] = {
     "device": "auto",
     "spoken_language": "auto",
     "translate": False,
+    "translation_target": "fr" if detect_ui_language() == "fr" else "en",
+    "conversation_partner": "auto",
+    "translation_third": "none",
+    "conversation_font_size": 22,
+    "show_confidence": True,
+    "overlap_separation": False,
     "speaker_detection": False,
     "vad": True,
     "cleanup": True,
@@ -52,13 +75,17 @@ DEFAULTS: dict[str, Any] = {
     "output_folder": str(default_output_folder()),
     "benchmarks": {},
     "window_geometry": "1220x940",
+    "check_updates": True,
+    "keep_recording_audio": True,
+    "vocabulary": "",
 }
 
 
 class SettingsStore:
     def __init__(self, path: Path | None = None):
         self.path = path or Path(user_config_dir("LocalTranscriberPro", "Vhaloo")) / "settings.json"
-        self.data = dict(DEFAULTS)
+        self._lock = threading.RLock()
+        self.data = copy.deepcopy(DEFAULTS)
         self.load()
 
     def load(self) -> None:
@@ -66,27 +93,60 @@ class SettingsStore:
             loaded = json.loads(self.path.read_text(encoding="utf-8"))
             if isinstance(loaded, dict):
                 self.data.update(loaded)
+                if "translation_target" not in loaded and loaded.get("translate") is True:
+                    self.data["translation_target"] = "en"
                 if self.data.get("window_geometry") == "1180x860":
                     self.data["window_geometry"] = "1220x940"
                 self.data["schema_version"] = DEFAULTS["schema_version"]
+                for key, choices in {
+                    "ui_language": {"en", "fr"}, "ui_mode": {"simple", "advanced"},
+                    "simple_quality": {"best", "fast"}, "device": {"auto", "cpu", "cuda", "metal"},
+                    "transcript_layout": {"blocks", "lines"},
+                    "model": {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID, *MODEL_BY_ID},
+                    "preset": {"files", "conference", "dictation", "link", "universal"},
+                    "translation_target": set(LANGUAGE_BY_CODE),
+                    "conversation_partner": {"auto", *LANGUAGE_BY_CODE},
+                    "translation_third": {"none", *LANGUAGE_BY_CODE},
+                }.items():
+                    if not isinstance(self.data.get(key), str) or self.data[key] not in choices:
+                        self.data[key] = DEFAULTS[key]
+                for key, default in DEFAULTS.items():
+                    if isinstance(default, bool) and not isinstance(self.data.get(key), bool):
+                        self.data[key] = default
+                self.data["chunk_seconds"] = bounded_int(self.data.get("chunk_seconds"), 30, 5, 60)
+                self.data["beam_size"] = bounded_int(self.data.get("beam_size"), 8, 1, 10)
+                self.data["conversation_font_size"] = bounded_int(self.data.get("conversation_font_size"), 22, 14, 48)
+                if not isinstance(self.data.get("benchmarks"), dict):
+                    self.data["benchmarks"] = {}
+                if not isinstance(self.data.get("vocabulary"), str):
+                    self.data["vocabulary"] = ""
+                self.data["vocabulary"] = self.data["vocabulary"][:2000]
+                for key in ("output_folder", "microphone", "spoken_language"):
+                    if not isinstance(self.data.get(key), str) or not self.data[key].strip():
+                        self.data[key] = DEFAULTS[key]
+                if not re.fullmatch(r"auto|[a-z]{2,3}", self.data["spoken_language"]):
+                    self.data["spoken_language"] = "auto"
+                geometry = self.data.get("window_geometry")
+                if not isinstance(geometry, str) or not re.fullmatch(r"\d+x\d+(?:[+-]\d+[+-]\d+)?", geometry):
+                    self.data["window_geometry"] = DEFAULTS["window_geometry"]
         except (OSError, ValueError, TypeError):
             return
 
     def save(self) -> None:
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        temp = self.path.with_suffix(".tmp")
-        temp.write_text(json.dumps(self.data, indent=2, ensure_ascii=False), encoding="utf-8")
-        temp.replace(self.path)
+        with self._lock:
+            atomic_write_text(self.path, json.dumps(self.data, indent=2, ensure_ascii=False))
 
     def get(self, key: str, default: Any = None) -> Any:
         return self.data.get(key, DEFAULTS.get(key, default))
 
     def set(self, key: str, value: Any, save: bool = False) -> None:
-        self.data[key] = value
-        if save:
-            self.save()
+        with self._lock:
+            self.data[key] = value
+            if save:
+                self.save()
 
     def update(self, values: dict[str, Any], save: bool = False) -> None:
-        self.data.update(values)
-        if save:
-            self.save()
+        with self._lock:
+            self.data.update(values)
+            if save:
+                self.save()

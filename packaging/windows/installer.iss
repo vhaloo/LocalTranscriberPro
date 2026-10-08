@@ -1,6 +1,9 @@
 #define AppName "Local Transcriber Pro"
 #ifndef AppVersion
-  #define AppVersion "2.2.0"
+  #define AppVersion "3.1.0"
+#endif
+#ifndef AppSource
+  #define AppSource "..\..\dist\" + AppVersion + "\LocalTranscriberPro"
 #endif
 #define AppPublisher "Vhaloo"
 #define AppExeName "LocalTranscriberPro.exe"
@@ -28,6 +31,7 @@ SetupIconFile=..\..\assets\icon.ico
 UninstallDisplayIcon={app}\{#AppExeName}
 Compression=lzma2/ultra64
 SolidCompression=yes
+LZMAUseSeparateProcess=yes
 WizardStyle=modern
 CloseApplications=yes
 RestartApplications=no
@@ -45,22 +49,27 @@ Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 english.PreflightTitle=Ready for this computer
 english.PreflightDescription=The installer checked the essentials before copying anything.
 english.PreflightSubCaption=Local Transcriber Pro is self-contained. No Python, CUDA toolkit or FFmpeg installation is required.
-english.PreflightSummary=Detected RAM: %1 GB%nFree storage: %2 GB%n%nIncluded automatically:%n• Private CPU transcription engine%n• NVIDIA CUDA compatibility runtime and safe CPU fallback%n• FFmpeg audio/video helper%n• Microphone and speaker-identification libraries%n• French and English interfaces%n%nSpeech models are downloaded only when selected (0.08 to 3.10 GB). The application will disable any model this computer cannot run safely.
+english.PreflightSummary=Detected RAM: %1 GB%nFree storage: %2 GB%n%nIncluded automatically:%n• Omnilingual, Qwen3-ASR, Parakeet and Whisper local engines%n• Universal offline translation and conversation tools%n• French and English offline voices; other voices on demand%n• NVIDIA CUDA compatibility runtime and safe CPU fallback%n• FFmpeg audio/video helper%n• Microphone and speaker-identification libraries%n• French and English interfaces%n• Verified updates from the official repository%n%nSpeech models are downloaded when selected (0.08 to 6.2 GB including alignment). Universal translation downloads its additional local model on first use. The application checks resources before loading a model.
 english.RamTooLow=This computer has only %1 GB of RAM. Local Transcriber Pro requires at least 3.5 GB so that Tiny cannot exhaust the system. Installation was stopped safely.
 french.PreflightTitle=Prêt pour cet ordinateur
 french.PreflightDescription=L’installateur a vérifié l’essentiel avant de copier quoi que ce soit.
 french.PreflightSubCaption=Local Transcriber Pro est autonome. Il n’est pas nécessaire d’installer Python, CUDA ou FFmpeg.
-french.PreflightSummary=RAM détectée : %1 Go%nStockage libre : %2 Go%n%nInclus automatiquement :%n• Moteur privé de transcription CPU%n• Moteur de compatibilité NVIDIA CUDA et repli CPU sûr%n• Outil audio/vidéo FFmpeg%n• Bibliothèques pour le microphone et l’identification des personnes%n• Interfaces française et anglaise%n%nLes modèles vocaux sont téléchargés seulement lorsqu’ils sont choisis (0,08 à 3,10 Go). L’application désactivera tout modèle que cet ordinateur ne peut pas lancer sans risque.
+french.PreflightSummary=RAM détectée : %1 Go%nStockage libre : %2 Go%n%nInclus automatiquement :%n• Moteurs locaux Omnilingual, Qwen3-ASR, Parakeet et Whisper%n• Traduction universelle hors ligne et outils de conversation%n• Voix françaises et anglaises hors ligne ; autres voix à la demande%n• Compatibilité NVIDIA CUDA et repli CPU sûr%n• Outil audio/vidéo FFmpeg%n• Microphone et identification des personnes%n• Interfaces française et anglaise%n• Mises à jour vérifiées depuis le dépôt officiel%n%nLes modèles vocaux sont téléchargés lors de leur sélection (0,08 à 6,2 Go avec alignement). La traduction universelle télécharge son modèle local supplémentaire à la première utilisation. L’application vérifie les ressources avant de charger un modèle.
 french.RamTooLow=Cet ordinateur possède seulement %1 Go de RAM. Local Transcriber Pro exige au moins 3,5 Go afin que même Tiny ne puisse pas épuiser le système. L’installation a été arrêtée sans risque.
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 
+[InstallDelete]
+; Remove obsolete dependency DLLs/metadata before copying the new bundle.
+; User settings, history, models and recordings live outside this directory.
+Type: filesandordirs; Name: "{app}\_internal"
+
 [Files]
 #ifdef SyntaxOnly
 Source: "..\..\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 #else
-Source: "..\..\dist\LocalTranscriberPro\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#AppSource}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 #endif
 
 [Icons]
@@ -69,12 +78,25 @@ Name: "{autodesktop}\Local Transcriber Pro"; Filename: "{app}\{#AppExeName}"; Ta
 
 [Run]
 Filename: "{app}\{#AppExeName}"; Description: "{cm:LaunchProgram,Local Transcriber Pro}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#AppExeName}"; Flags: nowait runasoriginaluser; Check: IsAutomaticUpdate
 
 [Code]
+function OpenProcess(Access: LongWord; Inherit: Integer; ProcessId: LongWord): THandle;
+  external 'OpenProcess@kernel32.dll stdcall';
+function WaitForSingleObject(Handle: THandle; Milliseconds: LongWord): LongWord;
+  external 'WaitForSingleObject@kernel32.dll stdcall';
+function CloseHandle(Handle: THandle): Integer;
+  external 'CloseHandle@kernel32.dll stdcall';
+
 var
   PreflightPage: TOutputMsgMemoWizardPage;
   DetectedRamGB: Extended;
   FreeDiskGB: Extended;
+
+function IsAutomaticUpdate(): Boolean;
+begin
+  Result := Pos('/AUTOUPDATE', UpperCase(GetCmdTail)) > 0;
+end;
 
 function DetectRamGB(): Extended;
 var
@@ -104,7 +126,37 @@ begin
 end;
 
 function InitializeSetup(): Boolean;
+var
+  PreviousProcessId: Integer;
+  PreviousProcess: THandle;
+  WaitResult: LongWord;
 begin
+  Result := True;
+  PreviousProcessId := StrToIntDef(ExpandConstant('{param:WAITPID|0}'), 0);
+  if IsAutomaticUpdate() and (PreviousProcessId > 0) then
+  begin
+    { InitializeSetup runs before Inno's AppMutex and file-in-use checks. Wait
+      for the actual process exit, not a guessed delay or an early mutex release. }
+    PreviousProcess := OpenProcess($00100000, 0, PreviousProcessId);
+    if PreviousProcess <> 0 then
+    begin
+      Log(Format('Waiting for previous application process %d to exit.', [PreviousProcessId]));
+      try
+        WaitResult := WaitForSingleObject(PreviousProcess, 600000);
+      finally
+        CloseHandle(PreviousProcess);
+      end;
+      if WaitResult <> 0 then
+      begin
+        Log('Previous application did not exit; update stopped without replacing files.');
+        Result := False;
+        Exit;
+      end;
+      Log('Previous application exited; safe to replace the runtime.');
+    end
+    else
+      Log('Previous application process has already exited.');
+  end;
   DetectedRamGB := DetectRamGB();
   FreeDiskGB := DetectFreeDiskGB();
   Result := True;

@@ -12,6 +12,8 @@ from typing import Any
 
 from platformdirs import user_data_dir
 
+from src.segments import validate_segments
+
 
 @dataclass(frozen=True)
 class SessionRecord:
@@ -148,6 +150,10 @@ class HistoryStore:
                 continue
             if not isinstance(segments, list):
                 continue
+            try:
+                segments = validate_segments(segments)
+            except (ValueError, TypeError):
+                continue
             record = SessionRecord.create(
                 title=text_path.stem,
                 task="legacy",
@@ -166,4 +172,4 @@ class HistoryStore:
         data = json.loads(Path(record.json_path).read_text(encoding="utf-8"))
         if not isinstance(data, list):
             raise ValueError("The history entry does not contain a segment list.")
-        return data
+        return validate_segments(data)

@@ -2,14 +2,24 @@
 
 import os
 import platform
+import shutil
 from pathlib import Path
 
-from PyInstaller.utils.hooks import collect_data_files, collect_submodules
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules, copy_metadata
 
 
 # SPECPATH is the directory containing this spec (repo/packaging).
 ROOT = Path(SPECPATH).resolve().parent
 datas = []
+datas += [(str(ROOT / "packaging/ESPEAK-NG-LICENSE.txt"), "default-voices")]
+datas += [(str(ROOT / "src/data/translation_languages.json"), "src/data")]
+datas += [(str(ROOT / "src/data/voices.json"), "src/data")]
+datas += [(str(ROOT / "src/data/mms_voices.json"), "src/data")]
+datas += [(str(ROOT / "src/data/omnilingual.json"), "src/data")]
+datas += collect_data_files("uroman")
+if not (ROOT / "artifacts/default-voices/fr").is_dir():
+    raise RuntimeError("Run scripts/prepare_default_voices.py before packaging")
+datas += [(str(ROOT / "artifacts/default-voices"), "default-voices")]
 binaries = []
 hiddenimports = [
     "faster_whisper.audio",
@@ -23,6 +33,15 @@ hiddenimports = [
     "whisper",
 ]
 hiddenimports += collect_submodules("speechbrain")
+hiddenimports += collect_submodules("qwen_asr", filter=lambda name: ".cli" not in name)
+hiddenimports += collect_submodules("sherpa_onnx")
+hiddenimports += collect_submodules("nagisa")
+hiddenimports += collect_submodules("yt_dlp_ejs")
+hiddenimports += collect_submodules("transformers.models.qwen2_5_omni")
+hiddenimports += ["transformers.models.qwen2", "transformers.models.whisper", "librosa", "nagisa", "soynlp"]
+hiddenimports += ["transformers.models.vits", "transformers.models.vits.modeling_vits", "transformers.models.vits.tokenization_vits", "fasttext", "fasttext_pybind", "uroman"]
+for distribution in ("qwen-asr", "transformers", "accelerate", "huggingface-hub", "sherpa-onnx", "sherpa-onnx-core", "yt-dlp-ejs"):
+    datas += copy_metadata(distribution)
 
 # Do not let unrelated software earlier on a developer's PATH provide stale
 # Visual C++/Windows debugging DLLs. PyTorch requires a mutually compatible
@@ -53,6 +72,11 @@ for package in (
     "certifi",
     "whisper",
     "speechbrain",
+    "qwen_asr",
+    "nagisa",
+    "sherpa_onnx",
+    "librosa",
+    "yt_dlp_ejs",
 ):
     try:
         datas += collect_data_files(package)
@@ -60,6 +84,17 @@ for package in (
         # MLX/OpenAI compatibility components are platform-specific and the
         # application retains a tested CTranslate2 fallback.
         pass
+
+# YouTube's signature challenges now require an external JS runtime. Ship it
+# and its exact-version license, rather than making end users install Node.
+native_node = shutil.which("node")
+if not native_node:
+    raise RuntimeError("Install Node >=22 for packaging, then run scripts/prepare_js_runtime.py")
+node_license = ROOT / "artifacts" / "vendor" / "node" / "LICENSE.txt"
+if not node_license.is_file():
+    raise RuntimeError("Run scripts/prepare_js_runtime.py before packaging")
+binaries.append((native_node, "js-runtime"))
+datas.append((str(node_license), "js-runtime"))
 
 icon = ROOT / "assets" / ("icon.ico" if platform.system() == "Windows" else "icon.png")
 
@@ -72,10 +107,10 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[str(ROOT / "packaging" / "runtime_hook.py")],
-    excludes=["tensorflow", "jax", "matplotlib", "notebook", "IPython"],
+    excludes=["tensorflow", "jax", "matplotlib", "notebook", "IPython", "gradio", "flask", "vllm", "triton", "torchvision", "pyarrow"],
     noarchive=False,
     optimize=1,
-    module_collection_mode={"speechbrain": "py"},
+    module_collection_mode={"speechbrain": "py", "qwen_asr": "py", "transformers": "py", "librosa": "py", "nagisa": "py"},
 )
 pyz = PYZ(a.pure)
 
@@ -114,7 +149,7 @@ if platform.system() == "Darwin":
         name="Local Transcriber Pro.app",
         icon=str(icon) if icon.exists() else None,
         bundle_identifier="com.vhaloo.localtranscriberpro",
-        version="2.2.0",
+        version="3.1.0",
         info_plist={
             "NSMicrophoneUsageDescription": "Local Transcriber Pro needs microphone access only when you start a recording.",
             "LSMinimumSystemVersion": "12.0",

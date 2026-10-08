@@ -16,7 +16,11 @@ class Estimate:
 
 class TimeEstimator:
     def __init__(self, benchmarks: dict[str, float] | None = None):
-        self.benchmarks = dict(benchmarks or {})
+        self.benchmarks = {
+            key: float(value) for key, value in (benchmarks or {}).items()
+            if isinstance(key, str) and isinstance(value, (int, float))
+            and not isinstance(value, bool) and math.isfinite(value) and value > 0
+        }
 
     @staticmethod
     def key(model_id: str, device: str) -> str:

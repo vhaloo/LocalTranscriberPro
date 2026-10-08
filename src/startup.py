@@ -20,7 +20,7 @@ _ALREADY_EXISTS = 183
 STARTUP_TEXT = {
     "en": {
         "title": "Local Transcriber Pro",
-        "version": "VERSION 2.2  •  PRIVATE AND LOCAL",
+        "version": "VERSION 3.0  •  PRIVATE AND LOCAL",
         "starting": "Opening the application…",
         "libraries": "Loading the private audio engine…",
         "hardware_memory": "Checking memory and available storage…",
@@ -28,7 +28,7 @@ STARTUP_TEXT = {
         "hardware_engine": "Verifying the safe CPU engine…",
         "hardware_acceleration": "Testing GPU acceleration without starting a model…",
         "hardware_ready": "Choosing the safest maximum-quality model…",
-        "preloading_model": "Loading that model now so Record will be ready immediately…",
+        "preloading_model": "Preparing the model cache and the recording engine…",
         "interface": "Preparing the simple and advanced interfaces…",
         "ready": "Everything is ready.",
         "patience": "The first launch can take up to a minute. The application is working.",
@@ -37,7 +37,7 @@ STARTUP_TEXT = {
     },
     "fr": {
         "title": "Local Transcriber Pro",
-        "version": "VERSION 2.2  •  PRIVÉE ET LOCALE",
+        "version": "VERSION 3.0  •  PRIVÉE ET LOCALE",
         "starting": "Ouverture de l’application…",
         "libraries": "Chargement du moteur audio privé…",
         "hardware_memory": "Vérification de la mémoire et de l’espace disponible…",
@@ -45,7 +45,7 @@ STARTUP_TEXT = {
         "hardware_engine": "Vérification du moteur CPU sécurisé…",
         "hardware_acceleration": "Test de l’accélération GPU sans lancer de modèle…",
         "hardware_ready": "Choix du meilleur modèle pouvant fonctionner sans risque…",
-        "preloading_model": "Chargement du modèle maintenant pour que le bouton Enregistrer soit immédiatement prêt…",
+        "preloading_model": "Préparation du cache des modèles et du moteur d’enregistrement…",
         "interface": "Préparation des interfaces simple et avancée…",
         "ready": "Tout est prêt.",
         "patience": "Le premier démarrage peut prendre jusqu’à une minute. L’application travaille.",
@@ -74,6 +74,11 @@ class SingleInstanceLock:
     def acquire(self) -> bool:
         if sys.platform == "win32":
             kernel32 = ctypes.windll.kernel32
+            # Win64 HANDLE is pointer-sized; ctypes defaults to a 32-bit int.
+            kernel32.CreateMutexW.argtypes = (ctypes.c_void_p, ctypes.c_int, ctypes.c_wchar_p)
+            kernel32.CreateMutexW.restype = ctypes.c_void_p
+            kernel32.CloseHandle.argtypes = (ctypes.c_void_p,)
+            kernel32.CloseHandle.restype = ctypes.c_int
             kernel32.SetLastError(0)
             handle = kernel32.CreateMutexW(None, False, "LocalTranscriberPro-Desktop-v2")
             if not handle:

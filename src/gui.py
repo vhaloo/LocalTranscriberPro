@@ -1,15 +1,14 @@
-"""Local Transcriber Pro 2.2 desktop interface."""
+"""Local Transcriber Pro desktop interface."""
 
 from __future__ import annotations
 
-import csv
 import json
 import logging
 import os
 import platform
+import queue
 import sqlite3
 import subprocess
-import tempfile
 import threading
 import time
 import tkinter as tk
@@ -20,7 +19,6 @@ from typing import Any
 
 import customtkinter as ctk
 import numpy as np
-import soundfile as sf
 from platformdirs import user_cache_dir, user_data_dir
 
 try:
@@ -36,33 +34,46 @@ except ImportError:
             pass
 
 
+from src import __version__
 from src.audio import SAMPLE_RATE, AudioRecorder
+from src.conversation_ui import ConversationMixin
 from src.diarizer import Diarizer
+from src.editing import apply_text_edits
 from src.estimator import TimeEstimator, format_duration
+from src.exports import write_bundle, write_export
 from src.hardware import HardwareProfile, ModelCompatibility, detect_hardware
 from src.history import HistoryStore, SessionRecord
 from src.i18n import Translator
+from src.jobs import JobCancelled, check_cancelled
+from src.media import RecordingSpool
 from src.meter import TapeMeter
 from src.models import (
+    AUTO_FAST_MODEL_ID,
     AUTO_MODEL_ID,
-    MODEL_CATALOG,
+    AUTO_MULTILINGUAL_MODEL_ID,
+    get_model,
+    model_capability_text,
     model_id_from_label,
     model_label,
     model_requirement_text,
+    ranked_models,
 )
-from src.settings import SettingsStore, ensure_output_folder
+from src.segments import shift_segments, validate_segments
+from src.settings import SettingsStore, bounded_int, ensure_output_folder
 from src.tooltip import ToolTip
 from src.transcriber import EngineStatus, TranscriberEngine, TranscriptionOptions
 from src.transcript_format import TranscriptFormat, format_transcript
+from src.translation_languages import normalize_language
+from src.translation_ui import TranslationControls, render_conversation
+from src.update_ui import UpdatesMixin
 from src.utils import (
     atomic_write_text,
     create_srt_content,
-    create_vtt_content,
     timestamped_name,
 )
 from src.youtube_utils import download_youtube_audio, is_supported_url
 
-APP_VERSION = "2.2.0"
+APP_VERSION = __version__
 DEV_CREDIT = "Vhaloo"
 
 BACKGROUND = "#08101F"
@@ -102,7 +113,7 @@ VIDEO_EXTENSIONS = {".mp4", ".mkv", ".mov", ".avi", ".webm", ".flv", ".wmv", ".m
 def compatibility_text(t: Translator, compatibility: ModelCompatibility) -> str:
     if compatibility.supported:
         return t("model_ready_on", device=compatibility.device.upper())
-    if compatibility.reason_code in {"cpu_runtime", "gpu_runtime"}:
+    if compatibility.reason_code in {"cpu_runtime", "gpu_runtime", "model_runtime"}:
         return t(f"compat_{compatibility.reason_code}")
     return t(
         f"compat_{compatibility.reason_code}",
@@ -445,8 +456,8 @@ class ModelSelectorDialog(ctk.CTkToplevel):
         self.cached = parent.engine.cached_model_ids()
         parent.hardware.refresh_resources()
         self.title(self.t("model_requirements"))
-        self.geometry("820x690")
-        self.minsize(720, 560)
+        self.geometry(f"{min(1180, parent.winfo_screenwidth() - 40)}x760")
+        self.minsize(min(1040, parent.winfo_screenwidth() - 40), 580)
         self.transient(parent)
         self.grab_set()
         self.configure(fg_color=BACKGROUND)
@@ -463,13 +474,15 @@ class ModelSelectorDialog(ctk.CTkToplevel):
             font=("Segoe UI", 13),
             text_color=MUTED,
             justify="left",
-            wraplength=750,
+            wraplength=960,
         ).pack(anchor="w", padx=28, pady=(0, 12))
 
         self.scroll = ctk.CTkScrollableFrame(self, fg_color=PANEL, corner_radius=18)
         self.scroll.pack(fill="both", expand=True, padx=28, pady=4)
         self._add_auto_row()
-        for spec in MODEL_CATALOG:
+        self._add_auto_row(AUTO_FAST_MODEL_ID)
+        self._add_auto_row(AUTO_MULTILINGUAL_MODEL_ID)
+        for spec in ranked_models():
             self._add_model_row(spec.model_id)
 
         ctk.CTkButton(
@@ -481,14 +494,16 @@ class ModelSelectorDialog(ctk.CTkToplevel):
             width=120,
         ).pack(pady=(12, 20))
 
-    def _add_auto_row(self) -> None:
-        recommended = self.parent_app.hardware.recommended_model(
-            self.parent_app.selected_device, self.cached
+    def _add_auto_row(self, profile_id: str = AUTO_MODEL_ID) -> None:
+        recommended = self.parent_app.hardware.resolve_model(
+            profile_id, self.parent_app.selected_device, self.cached,
+            self.parent_app.selected_language,
+            "transcribe",
         )
         supported = self.parent_app.hardware.has_safe_model(
             self.parent_app.selected_device, self.cached
         )
-        selected = self.parent_app.selected_model_id == AUTO_MODEL_ID
+        selected = self.parent_app.selected_model_id == profile_id
         row = ctk.CTkFrame(
             self.scroll,
             fg_color="#14372F" if selected else PANEL_ALT,
@@ -497,20 +512,23 @@ class ModelSelectorDialog(ctk.CTkToplevel):
             border_color=ACCENT if selected else "#2A3C5E",
         )
         row.pack(fill="x", padx=8, pady=(8, 5))
+        row.grid_columnconfigure(0, weight=1)
         text = ctk.CTkFrame(row, fg_color="transparent")
-        text.pack(side="left", fill="both", expand=True, padx=15, pady=12)
+        text.grid(row=0, column=0, sticky="nsew", padx=15, pady=12)
         ctk.CTkLabel(
             text,
-            text=model_label(AUTO_MODEL_ID, self.t.language),
+            text=model_label(profile_id, self.t.language),
             font=("Segoe UI", 14, "bold"),
             text_color=TEXT,
         ).pack(anchor="w")
         ctk.CTkLabel(
             text,
-            text=self.t("auto_will_use", model=recommended),
+            text=self.t("auto_multilingual_will_use" if profile_id == AUTO_MULTILINGUAL_MODEL_ID else (
+                "auto_fast_will_use" if profile_id == AUTO_FAST_MODEL_ID else "auto_will_use"), model=recommended),
             font=("Segoe UI", 12),
             text_color=ACCENT if supported else RED,
         ).pack(anchor="w", pady=(3, 0))
+        self._add_scores(row, recommended)
         ctk.CTkButton(
             row,
             text=self.t("selected" if selected else "select"),
@@ -518,8 +536,28 @@ class ModelSelectorDialog(ctk.CTkToplevel):
             state="disabled" if selected or not supported else "normal",
             fg_color=ACCENT_DARK,
             hover_color=ACCENT,
-            command=lambda: self._select(AUTO_MODEL_ID),
-        ).pack(side="right", padx=14)
+            command=lambda: self._select(profile_id),
+        ).grid(row=0, column=4, padx=14)
+
+    def _add_scores(self, row: ctk.CTkFrame, model_id: str) -> None:
+        spec = get_model(model_id)
+        for column, label, score, color in (
+            (1, self.t("model_precision_score"), spec.multilingual_score, ACCENT),
+            (2, self.t("model_speed_score"), spec.relative_speed_score, BLUE),
+            (3, self.t("model_coverage_score"), spec.coverage_score, AMBER),
+        ):
+            cell = ctk.CTkFrame(row, fg_color="transparent", width=100)
+            cell.grid(row=0, column=column, padx=5, pady=12)
+            ctk.CTkLabel(cell, text=label, font=("Segoe UI", 11), text_color=MUTED).pack()
+            value = f"{score:.1f}/10" if score is not None else self.t("model_english_only_score")
+            ctk.CTkLabel(cell, text=value, font=("Segoe UI", 18, "bold"), text_color=color).pack(pady=(3, 4))
+            if score is not None:
+                bar = ctk.CTkProgressBar(cell, width=100, height=5, progress_color=color)
+                bar.set(score / 10)
+                bar.pack()
+            if column == 3:
+                ctk.CTkLabel(cell, text=self.t("model_languages", count=spec.language_count),
+                             font=("Segoe UI", 10), text_color=MUTED).pack(pady=(3, 0))
 
     def _add_model_row(self, model_id: str) -> None:
         compatibility = self.parent_app.hardware.model_compatibility(
@@ -536,19 +574,30 @@ class ModelSelectorDialog(ctk.CTkToplevel):
             border_color=ACCENT if selected else ("#2A3C5E" if compatibility.supported else "#222C3E"),
         )
         row.pack(fill="x", padx=8, pady=5)
+        row.grid_columnconfigure(0, weight=1)
         text = ctk.CTkFrame(row, fg_color="transparent")
-        text.pack(side="left", fill="both", expand=True, padx=15, pady=11)
+        text.grid(row=0, column=0, sticky="nsew", padx=15, pady=11)
         ctk.CTkLabel(
             text,
             text=model_label(model_id, self.t.language),
             font=("Segoe UI", 14, "bold"),
             text_color=TEXT if compatibility.supported else "#69768B",
+            wraplength=450,
+            justify="left",
         ).pack(anchor="w")
+        ctk.CTkLabel(
+            text,
+            text=model_capability_text(model_id, self.t.language),
+            font=("Segoe UI", 11),
+            text_color=MUTED,
+        ).pack(anchor="w", pady=(2, 0))
         ctk.CTkLabel(
             text,
             text=model_requirement_text(model_id, self.t.language),
             font=("Segoe UI", 11),
             text_color=MUTED if compatibility.supported else "#596579",
+            wraplength=520,
+            justify="left",
         ).pack(anchor="w", pady=(2, 0))
         ctk.CTkLabel(
             text,
@@ -556,6 +605,7 @@ class ModelSelectorDialog(ctk.CTkToplevel):
             font=("Segoe UI", 11, "bold"),
             text_color=ACCENT if compatibility.supported else AMBER,
         ).pack(anchor="w", pady=(3, 0))
+        self._add_scores(row, model_id)
         ctk.CTkButton(
             row,
             text=self.t("selected" if selected else ("select" if compatibility.supported else "unavailable")),
@@ -565,7 +615,7 @@ class ModelSelectorDialog(ctk.CTkToplevel):
             hover_color=ACCENT,
             text_color_disabled="#647084",
             command=lambda value=model_id: self._select(value),
-        ).pack(side="right", padx=14)
+        ).grid(row=0, column=4, padx=14)
 
     def _select(self, model_id: str) -> None:
         self.parent_app._select_model(model_id)
@@ -631,6 +681,9 @@ class ModelManagerDialog(ctk.CTkToplevel):
             ).pack(side="right", padx=12)
 
     def delete(self, path: str) -> None:
+        if self.parent_app.busy or self.parent_app.recorder.recording or self.parent_app.model_preloading:
+            messagebox.showinfo(self.t("model_manager"), self.t("model_delete_busy"), parent=self)
+            return
         if not messagebox.askyesno(self.t("model_manager"), self.t("confirm_delete"), parent=self):
             return
         if self.parent_app.engine.delete_model_file(path):
@@ -639,19 +692,21 @@ class ModelManagerDialog(ctk.CTkToplevel):
             messagebox.showerror(self.t("error"), self.t("job_error", error=path), parent=self)
 
 
-class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
+class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
     def __init__(
         self,
         hardware: HardwareProfile | None = None,
         engine: TranscriberEngine | None = None,
         preloaded_status: EngineStatus | None = None,
+        settings: SettingsStore | None = None,
+        history: HistoryStore | None = None,
     ):
         super().__init__()
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("blue")
         self.configure(fg_color=BACKGROUND)
 
-        self.settings = SettingsStore()
+        self.settings = settings or SettingsStore()
         self.t = Translator(self.settings.get("ui_language"))
         self.hardware: HardwareProfile = hardware or detect_hardware()
         self.engine = engine or TranscriberEngine(self.hardware)
@@ -660,7 +715,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.diarizer = Diarizer()
         self.output_folder = ensure_output_folder(self.settings.get("output_folder"))
         self.settings.set("output_folder", str(self.output_folder))
-        self.history = HistoryStore()
+        self.history = history or HistoryStore()
         self.history.index_existing(self.output_folder)
 
         self.ui_mode = self.settings.get("ui_mode", "simple")
@@ -680,9 +735,13 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         )
         self.maximum_quality_chunk = 30 if self.hardware.ram_gb >= 6 else 20
         if self.ui_mode == "simple":
-            self.simple_quality = "best"
-            self.selected_model_id = AUTO_MODEL_ID
+            self.selected_model_id = AUTO_FAST_MODEL_ID if self.simple_quality == "fast" else AUTO_MODEL_ID
             self.selected_device = "auto"
+        if self.preset == "universal":
+            self.selected_model_id = self.settings.get("model", AUTO_MULTILINGUAL_MODEL_ID)
+            if self.selected_model_id in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID}:
+                self.selected_model_id = AUTO_MULTILINGUAL_MODEL_ID
+            self.selected_language = "auto"
         available_devices = {"auto", "cpu"}
         if self.hardware.ctranslate_cuda or self.hardware.torch_cuda:
             available_devices.add("cuda")
@@ -691,7 +750,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         if self.selected_device not in available_devices:
             self.selected_device = "auto"
         cached_models = self.engine.cached_model_ids()
-        if self.selected_model_id != AUTO_MODEL_ID and not self.hardware.model_compatibility(
+        if self.selected_model_id not in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID} and not self.hardware.model_compatibility(
             self.selected_model_id,
             self.selected_device,
             self.selected_model_id in cached_models,
@@ -701,9 +760,15 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.hardware_ready = self.hardware.has_safe_model(self.selected_device, cached_models)
         self.pending_files: list[str] = []
         self.transcript_data: list[dict[str, Any]] = []
-        self.full_audio_buffer: list[np.ndarray] = []
+        self.recording_spool: RecordingSpool | None = None
         self.recording_offset = 0.0
         self.running = True
+        self.closing = False
+        self.update_checking = False
+        self.cancel_event = threading.Event()
+        self.ui_tasks: queue.Queue = queue.Queue()
+        self.worker_thread: threading.Thread | None = None
+        self._rendered_text = ""
         self.busy = False
         self.job_started = 0.0
         self.estimated_job_seconds = 0.0
@@ -714,12 +779,19 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.preload_generation = 0
         self.model_preloading = False
         self.active_recording_base: Path | None = None
+        self.translation_target = self.settings.get("translation_target", "fr" if self.t.language == "fr" else "en")
+        self.conversation_partner = self.settings.get("conversation_partner", "auto")
+        self.translation_third = self.settings.get("translation_third", "none")
+        self.conversation_font_size = self.settings.get("conversation_font_size", 22)
+        self.reading_view = False
+        self.pipeline_stage = "waiting"
+        self.pipeline_started = time.monotonic()
 
-        data_dir = Path(user_data_dir("LocalTranscriberPro", "Vhaloo"))
+        data_dir = history.database_path.parent if history is not None else Path(user_data_dir("LocalTranscriberPro", "Vhaloo"))
         data_dir.mkdir(parents=True, exist_ok=True)
         self.backup_file = data_dir / "unsaved_session.json"
 
-        self.translate_var = ctk.BooleanVar(value=bool(self.settings.get("translate")))
+        self.translate_var = ctk.BooleanVar(value=self.preset == "universal" or bool(self.settings.get("translate")))
         self.speaker_var = ctk.BooleanVar(value=bool(self.settings.get("speaker_detection")))
         self.vad_var = ctk.BooleanVar(value=bool(self.settings.get("vad", True)))
         self.cleanup_var = ctk.BooleanVar(value=bool(self.settings.get("cleanup", True)))
@@ -730,17 +802,23 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         if self.ui_mode == "simple":
             self.chunk_var.set(str(self.maximum_quality_chunk))
             self.beam_var.set(str(self.maximum_quality_beam))
+        if self.preset == "universal":
+            self.chunk_var.set("12")
+            self.speaker_var.set(False)
         self.layout_var = ctk.StringVar(value=self.transcript_layout)
         self.show_timestamps_var = ctk.BooleanVar(value=self.show_timestamps)
         self.show_duration_var = ctk.BooleanVar(value=self.show_duration)
 
         self._load_recovery()
         self.title(f"Local Transcriber Pro {APP_VERSION}")
-        self.geometry(self.settings.get("window_geometry", "1220x940"))
-        self.minsize(1000, 760)
+        geometry = self.settings.get("window_geometry", "1220x940").split("+")[0].split("-")[0]
+        width, height = (int(value) for value in geometry.split("x"))
+        self.geometry(f"{min(width, self.winfo_screenwidth() - 40)}x{min(height, self.winfo_screenheight() - 80)}")
+        self.minsize(min(1000, self.winfo_screenwidth() - 40), min(760, self.winfo_screenheight() - 80))
         self.protocol("WM_DELETE_WINDOW", self.on_close)
         self._init_drag_and_drop()
         self.build_ui()
+        self._bind_shortcuts()
         self.render_transcript()
         if preloaded_status is not None:
             self.after(80, self._show_preloaded_model_ready)
@@ -749,6 +827,34 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.after(500, self._tick_clock)
         self.after(350, self._start_microphone_monitor)
         self.after(80, self._update_microphone_meter)
+        self.after(25, self._drain_ui_tasks)
+        self.after(2000, self._autosave_editor)
+        if self.settings.get("check_updates", True):
+            self.after(3500, lambda: self.check_updates(silent=True))
+
+    def _bind_shortcuts(self) -> None:
+        def action(callback):
+            def invoke(_event):
+                callback()
+                return "break"
+            return invoke
+
+        self.bind("<Control-o>", action(self.choose_files))
+        self.bind("<Control-s>", action(lambda: self.export_transcript(".txt")))
+        self.bind("<Control-Shift-S>", action(lambda: self.export_transcript(".srt")))
+        self.bind("<Control-Shift-R>", action(self._recording_shortcut))
+        self.bind("<Control-p>", action(self.toggle_pause))
+        self.bind("<Escape>", action(self._escape_action))
+        self.bind("<F11>", action(self.toggle_reading_view))
+        self.bind("<Control-plus>", action(lambda: self.change_transcript_font(2)))
+        self.bind("<Control-minus>", action(lambda: self.change_transcript_font(-2)))
+
+    def _recording_shortcut(self) -> None:
+        if self.recorder.recording:
+            self.stop_recording()
+        elif not self.busy and not self.closing:
+            self.select_preset("dictation")
+            self.start_recording()
 
     def _init_drag_and_drop(self) -> None:
         self.TkdndVersion = None
@@ -859,6 +965,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
 
     def _build_header(self) -> None:
         header = ctk.CTkFrame(self, fg_color="transparent")
+        self.header_frame = header
         header.grid(row=0, column=0, sticky="ew", padx=28, pady=(22, 12))
         header.grid_columnconfigure(0, weight=1)
 
@@ -925,6 +1032,12 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         )
         self.help_button.pack(side="left", padx=5)
         ToolTip(self.help_button, self.t("tip_help"))
+        self.updates_button = ctk.CTkButton(
+            controls, text="↻", width=36, height=36, fg_color=PANEL, hover_color=PANEL_ALT,
+            font=("Segoe UI", 20), command=self.check_updates,
+        )
+        self.updates_button.pack(side="left", padx=5)
+        ToolTip(self.updates_button, self.t("updates"))
         self.language_button = ctk.CTkButton(
             controls,
             text=self.t("language_name"),
@@ -977,6 +1090,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             ("files", "simple_task_files", "task_files_help"),
             ("conference", "simple_task_conference", "task_conference_help"),
             ("dictation", "simple_task_dictation", "task_dictation_help"),
+            ("universal", "simple_task_universal", "task_universal_help"),
             ("link", "simple_task_link", "task_link_help"),
         ]
         for index, (task_id, title_key, help_key) in enumerate(simple_tasks):
@@ -996,6 +1110,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             self.simple_task_buttons[task_id] = button
 
         choices = ctk.CTkFrame(self.simple_panel, fg_color="transparent")
+        self.simple_choices = choices
         choices.grid(row=2, column=0, sticky="ew", padx=20, pady=(11, 6))
         for column in range(3):
             choices.grid_columnconfigure(column, weight=1)
@@ -1003,21 +1118,14 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         quality_box = ctk.CTkFrame(choices, fg_color="transparent")
         quality_box.grid(row=0, column=0, sticky="ew", padx=(0, 12))
         ctk.CTkLabel(quality_box, text=self.t("simple_quality"), text_color=MUTED).pack(anchor="w")
-        quality_summary = ctk.CTkFrame(
-            quality_box,
-            fg_color="#12392F",
-            corner_radius=18,
-            height=38,
+        self.quality_control = ctk.CTkSegmentedButton(
+            quality_box, values=[self.t("quality_best"), self.t("quality_fast")],
+            height=38, corner_radius=19, selected_color=ACCENT_DARK,
+            unselected_color=PANEL_ALT, command=self._simple_quality_changed,
         )
-        quality_summary.pack(fill="x", pady=(4, 0))
-        quality_summary.pack_propagate(False)
-        ctk.CTkLabel(
-            quality_summary,
-            text=self.t("simple_quality_locked"),
-            text_color=ACCENT,
-            font=("Segoe UI", 11, "bold"),
-        ).pack(expand=True)
-        ToolTip(quality_summary, self.t("tip_quality_automatic"))
+        self.quality_control.pack(fill="x", pady=(4, 0))
+        self.quality_control.set(self.t("quality_fast" if self.simple_quality == "fast" else "quality_best"))
+        ToolTip(self.quality_control, self.t("tip_quality_automatic"))
 
         language_box = ctk.CTkFrame(choices, fg_color="transparent")
         language_box.grid(row=0, column=1, sticky="ew", padx=6)
@@ -1092,6 +1200,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             ("files", "task_files", "task_files_help"),
             ("conference", "task_conference", "task_conference_help"),
             ("dictation", "task_dictation", "task_dictation_help"),
+            ("universal", "task_universal", "task_universal_help"),
             ("link", "task_link", "task_link_help"),
         ]
         for index, (task_id, title_key, help_key) in enumerate(tasks):
@@ -1173,7 +1282,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.microphone_meter.grid(row=0, column=1, sticky="ew", padx=(0, 12), pady=10)
 
         self.file_controls = ctk.CTkFrame(self.source_card, fg_color="transparent")
-        self.file_controls.grid(row=3, column=0, sticky="ew", padx=22, pady=(0, 18))
+        self.file_controls.grid(row=4, column=0, sticky="ew", padx=22, pady=(0, 18))
         self.file_controls.grid_columnconfigure(0, weight=1)
         self.file_hint = ctk.CTkLabel(
             self.file_controls,
@@ -1198,7 +1307,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         ToolTip(self.choose_button, self.t("tip_choose"))
 
         self.record_controls = ctk.CTkFrame(self.source_card, fg_color="transparent")
-        self.record_controls.grid(row=3, column=0, sticky="ew", padx=22, pady=(0, 18))
+        self.record_controls.grid(row=4, column=0, sticky="ew", padx=22, pady=(0, 18))
         self.record_controls.grid_columnconfigure(1, weight=1)
         ctk.CTkLabel(
             self.record_controls,
@@ -1262,7 +1371,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         ToolTip(self.stop_button, self.t("tip_stop"))
 
         self.link_controls = ctk.CTkFrame(self.source_card, fg_color="transparent")
-        self.link_controls.grid(row=3, column=0, sticky="ew", padx=22, pady=(0, 18))
+        self.link_controls.grid(row=4, column=0, sticky="ew", padx=22, pady=(0, 18))
         self.link_controls.grid_columnconfigure(0, weight=1)
         self.url_entry = ctk.CTkEntry(
             self.link_controls,
@@ -1287,6 +1396,12 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         )
         self.link_button.grid(row=0, column=1)
         ToolTip(self.link_button, self.t("tip_link"))
+        self.translation_controls = TranslationControls(self, self.source_card)
+        self.translation_controls.grid(row=3, column=0, sticky="ew", padx=20, pady=(0, 10))
+
+    def open_model_selector(self) -> None:
+        if not self.busy and not self.recorder.recording:
+            ModelSelectorDialog(self)
 
     def _build_advanced_panel(self) -> None:
         self.advanced_panel = ctk.CTkFrame(self, fg_color=PANEL, corner_radius=20)
@@ -1388,10 +1503,18 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                 fg_color=ACCENT_DARK,
                 hover_color=ACCENT,
                 font=("Segoe UI", 12),
-                command=self.persist_settings,
+                command=self._translation_toggled if key == "translate" else self.persist_settings,
             )
             widget.grid(row=index // 4, column=index % 4, sticky="w", padx=6, pady=7)
             ToolTip(widget, self.t(tip_key))
+        self.update_var = ctk.BooleanVar(value=self.settings.get("check_updates", True))
+        ctk.CTkCheckBox(checks, text=self.t("update_automatic"), variable=self.update_var,
+                       font=("Segoe UI", 12), checkbox_width=20, checkbox_height=20,
+                       fg_color=ACCENT_DARK, command=self.persist_settings).grid(row=1, column=2, sticky="w", padx=6, pady=7)
+        self.keep_audio_var = ctk.BooleanVar(value=self.settings.get("keep_recording_audio", True))
+        ctk.CTkCheckBox(checks, text=self.t("keep_audio"), variable=self.keep_audio_var,
+                       font=("Segoe UI", 12), checkbox_width=20, checkbox_height=20,
+                       fg_color=ACCENT_DARK, command=self.persist_settings).grid(row=1, column=3, sticky="w", padx=6, pady=7)
 
         tuning = ctk.CTkFrame(self.advanced_panel, fg_color="transparent")
         tuning.grid(row=3, column=0, columnspan=4, sticky="ew", padx=20, pady=(2, 14))
@@ -1519,6 +1642,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
 
     def _build_output(self) -> None:
         output = ctk.CTkFrame(self, fg_color=PANEL, corner_radius=20)
+        self.output_card = output
         output.grid(row=4, column=0, sticky="nsew", padx=28, pady=(6, 22))
         output.grid_columnconfigure(0, weight=1)
         output.grid_rowconfigure(3, weight=1)
@@ -1540,6 +1664,10 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             text_color=MUTED,
         )
         self.eta_label.grid(row=0, column=1, sticky="e")
+        self.cancel_button = ctk.CTkButton(progress_row, text=self.t("cancel_job"), width=88, height=29,
+                                          fg_color="#5A2430", hover_color=RED, state="disabled",
+                                          command=self.cancel_job)
+        self.cancel_button.grid(row=0, column=2, padx=(12, 0))
         self.progress_bar = ctk.CTkProgressBar(
             output,
             height=8,
@@ -1580,6 +1708,9 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         )
         self.clear_button.grid(row=0, column=2, padx=4)
         ToolTip(self.clear_button, self.t("tip_clear"))
+        self.vocabulary_button = ctk.CTkButton(toolbar, text=self.t("vocabulary"), width=108, height=31,
+                                              fg_color=PANEL_ALT, command=self.edit_vocabulary)
+        self.vocabulary_button.grid(row=0, column=4, padx=(8, 0))
         export_values = [
             self.t("export_txt"),
             self.t("export_srt"),
@@ -1600,6 +1731,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.export_menu.set(self.t("export"))
         self.export_menu.grid(row=0, column=3, padx=(4, 0))
         ToolTip(self.export_menu, self.t("tip_export"))
+        self._build_conversation_toolbar(toolbar)
 
         self.textbox = ctk.CTkTextbox(
             output,
@@ -1633,6 +1765,14 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.hardware_btn.configure(text=self.t("hardware_ready", device=self.hardware.display_device))
 
     def _apply_mode_visibility(self) -> None:
+        if self.reading_view:
+            for frame in (self.header_frame, self.simple_panel, self.task_frame, self.source_card, self.advanced_panel):
+                frame.grid_remove()
+            self.output_card.grid_configure(padx=12, pady=12)
+            return
+        self.header_frame.grid()
+        self.source_card.grid()
+        self.output_card.grid_configure(padx=28, pady=(6, 22))
         if self.ui_mode == "advanced":
             self.simple_panel.grid_remove()
             self.task_frame.grid()
@@ -1650,6 +1790,14 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             self.microphone_meter.configure(height=104)
             self.microphone_privacy_label.pack(anchor="w")
         self.mode_button.configure(text=self.t("advanced" if self.ui_mode == "simple" else "simple"))
+        if self.preset == "universal":
+            self.advanced_panel.grid_remove()
+            self.simple_choices.grid_remove()
+            self.source_title.grid_remove()
+            self.source_help.grid_remove()
+            self.microphone_meter.configure(height=56)
+        else:
+            self.simple_choices.grid()
 
     def _refresh_task_styles(self) -> None:
         for task_id, button in self.task_buttons.items():
@@ -1675,6 +1823,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             "conference": ("task_conference", "task_conference_help"),
             "dictation": ("task_dictation", "task_dictation_help"),
             "link": ("task_link", "task_link_help"),
+            "universal": ("task_universal", "task_universal_help"),
         }
         title_key, help_key = mapping.get(self.preset, mapping["files"])
         if self.ui_mode == "simple":
@@ -1683,6 +1832,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                 "conference": "action_conference",
                 "dictation": "action_dictation",
                 "link": "action_link",
+                "universal": "action_universal",
             }.get(self.preset, "action_files")
             self.source_title.configure(text=self.t("step_two"))
             self.source_help.configure(text=self.t(action_key))
@@ -1694,10 +1844,15 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.link_controls.grid_remove()
         if self.preset == "files":
             self.file_controls.grid()
-        elif self.preset in {"conference", "dictation"}:
+        elif self.preset in {"conference", "dictation", "universal"}:
             self.record_controls.grid()
         else:
             self.link_controls.grid()
+        if self.translate_var.get() or self.preset == "universal":
+            self.translation_controls.grid()
+            self.translation_controls.refresh()
+        else:
+            self.translation_controls.grid_remove()
 
     def _setup_dnd_target(self) -> None:
         if not HAS_DND or not self.TkdndVersion:
@@ -1767,7 +1922,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             pass
 
     def _update_microphone_meter(self) -> None:
-        if not self.running:
+        if not self.running or self.closing:
             return
         amplitude, waveform = self.recorder.get_visual_state()
         try:
@@ -1789,6 +1944,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                     text_color=ACCENT,
                     fg_color="#12392F",
                 )
+            self._update_pipeline_display()
         except (AttributeError, tk.TclError):
             pass
         self.after(60, self._update_microphone_meter)
@@ -1802,14 +1958,27 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             )
             self.language_combo.set(selected)
         self.persist_settings()
+        self._update_model_indicators()
+
+    def _simple_quality_changed(self, label: str) -> None:
+        if self.busy or self.recorder.recording:
+            self.quality_control.set(self.t("quality_fast" if self.simple_quality == "fast" else "quality_best"))
+            return
+        self.simple_quality = "fast" if label == self.t("quality_fast") else "best"
+        self.selected_model_id = AUTO_FAST_MODEL_ID if self.simple_quality == "fast" else AUTO_MODEL_ID
+        self.persist_settings()
+        self._update_model_indicators()
+        self.preload_selected_model()
 
     def _layout_changed(self, label: str) -> None:
+        self._commit_editor_changes()
         self.transcript_layout = self.layout_display_map.get(label, "blocks")
         self.layout_var.set(self.transcript_layout)
         self.persist_settings()
         self.render_transcript()
 
     def _format_options_changed(self) -> None:
+        self._commit_editor_changes()
         self.show_timestamps = bool(self.show_timestamps_var.get())
         self.show_duration = bool(self.show_duration_var.get())
         self.persist_settings()
@@ -1817,8 +1986,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
 
     def _apply_maximum_quality_defaults(self, preset: str) -> None:
         """Make Simple mode choose quality and stability, never speed."""
-        self.simple_quality = "best"
-        self.selected_model_id = AUTO_MODEL_ID
+        self.selected_model_id = AUTO_FAST_MODEL_ID if self.simple_quality == "fast" else AUTO_MODEL_ID
         self.selected_device = "auto"
         self.beam_var.set(str(self.maximum_quality_beam))
         self.chunk_var.set(str(self.maximum_quality_chunk))
@@ -1827,14 +1995,22 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.smart_subtitles_var.set(True)
         self.translate_var.set(False)
         self.speaker_var.set(preset == "conference")
+        if preset == "universal":
+            self.selected_model_id = AUTO_MULTILINGUAL_MODEL_ID
+            self.selected_language = "auto"
+            self.translate_var.set(True)
+            self.chunk_var.set("12")
 
     def toggle_language(self) -> None:
+        self._commit_editor_changes()
         self.t.set_language("fr" if self.t.language == "en" else "en")
         self.settings.set("ui_language", self.t.language, save=True)
         self.build_ui()
         self.render_transcript()
 
     def toggle_mode(self) -> None:
+        if self.busy or self.recorder.recording:
+            return
         self.ui_mode = "advanced" if self.ui_mode == "simple" else "simple"
         if self.ui_mode == "simple":
             self._apply_maximum_quality_defaults(self.preset)
@@ -1851,10 +2027,22 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
     def select_preset(self, preset: str) -> None:
         if self.busy or self.recorder.recording:
             return
+        previous = self.preset
         self.preset = preset
+        if previous == "universal" and preset != "universal":
+            self.translate_var.set(False)
+            self.selected_model_id = AUTO_MODEL_ID
         if self.ui_mode == "simple":
             self._apply_maximum_quality_defaults(preset)
             self._update_model_indicators()
+        elif preset == "universal":
+            self.selected_model_id = AUTO_MULTILINGUAL_MODEL_ID
+            self.selected_device = "auto"
+            self.selected_language = "auto"
+            self.translate_var.set(True)
+            self.speaker_var.set(False)
+            self.vad_var.set(True)
+            self.chunk_var.set("12")
         elif preset == "conference":
             self.speaker_var.set(True)
             self.chunk_var.set("30")
@@ -1864,14 +2052,20 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.settings.set("preset", preset)
         self.persist_settings()
         self._refresh_task_styles()
+        self._apply_mode_visibility()
         self._update_source_context()
+        self._update_model_indicators()
+        self.render_transcript()
+        self.preload_selected_model()
 
     def _model_changed(self, label: str) -> None:
         self._select_model(model_id_from_label(label, self.t.language))
 
     def _select_model(self, model_id: str) -> None:
+        if self.busy or self.recorder.recording:
+            return
         cached = self.engine.cached_model_ids()
-        if model_id != AUTO_MODEL_ID:
+        if model_id not in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID}:
             compatibility = self.hardware.model_compatibility(
                 model_id, self.selected_device, model_id in cached
             )
@@ -1883,6 +2077,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.selected_model_id = model_id
         self.simple_quality = {
             AUTO_MODEL_ID: "best",
+            AUTO_FAST_MODEL_ID: "fast",
             "large-v3-turbo": "fast",
             "tiny": "light",
         }.get(self.selected_model_id, "best")
@@ -1891,9 +2086,11 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.preload_selected_model()
 
     def _device_changed(self, label: str) -> None:
+        if self.busy or self.recorder.recording:
+            return
         self.selected_device = self.device_display_map.get(label, "auto")
         cached = self.engine.cached_model_ids()
-        if self.selected_model_id != AUTO_MODEL_ID and not self.hardware.model_compatibility(
+        if self.selected_model_id not in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID} and not self.hardware.model_compatibility(
             self.selected_model_id,
             self.selected_device,
             self.selected_model_id in cached,
@@ -1915,9 +2112,10 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             )
             self.simple_auto_summary_label.configure(
                 text=self.t(
-                    "simple_automatic_summary",
+                    "universal_automatic_summary" if self.preset == "universal" else "simple_automatic_summary",
                     model=resolved,
                     device=self.hardware.display_device,
+                    count=get_model(resolved).language_count,
                 )
             )
 
@@ -1941,13 +2139,21 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                 "device": self.selected_device,
                 "spoken_language": self.selected_language,
                 "translate": bool(self.translate_var.get()),
+                "translation_target": self.translation_target,
+                "conversation_partner": self.conversation_partner,
+                "translation_third": self.translation_third,
+                "conversation_font_size": self.conversation_font_size,
+                "show_confidence": bool(self.show_confidence_var.get()),
+                "overlap_separation": bool(self.overlap_var.get()),
                 "speaker_detection": bool(self.speaker_var.get()),
                 "vad": bool(self.vad_var.get()),
                 "cleanup": bool(self.cleanup_var.get()),
                 "open_result": bool(self.open_result_var.get()),
                 "smart_subtitles": bool(self.smart_subtitles_var.get()),
-                "chunk_seconds": int(self.chunk_var.get()),
-                "beam_size": int(self.beam_var.get()),
+                "chunk_seconds": bounded_int(self.chunk_var.get(), 30, 5, 60),
+                "beam_size": bounded_int(self.beam_var.get(), 8, 1, 10),
+                "check_updates": bool(self.update_var.get()),
+                "keep_recording_audio": bool(self.keep_audio_var.get()),
                 "transcript_layout": self.transcript_layout,
                 "show_timestamps": self.show_timestamps,
                 "show_duration": self.show_duration,
@@ -1961,15 +2167,22 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         return {
             "model": self.selected_model_id,
             "device": self.selected_device,
-            "language": None if self.selected_language == "auto" else self.selected_language,
-            "task": "translate" if self.translate_var.get() else "transcribe",
-            "speaker": bool(self.speaker_var.get()),
+            "language": None if self.selected_language == "auto" or self.preset == "universal" else self.selected_language,
+            "task": "transcribe",
+            "target_language": self.translation_target if self.translate_var.get() or self.preset == "universal" else None,
+            "conversation": self.preset == "universal",
+            "partner_language": None if self.conversation_partner == "auto" else self.conversation_partner,
+            "third_language": None if self.translation_third == "none" else self.translation_third,
+            "speaker": bool(self.speaker_var.get()) and self.preset != "universal",
             "vad": bool(self.vad_var.get()),
             "cleanup": bool(self.cleanup_var.get()),
             "smart_subtitles": bool(self.smart_subtitles_var.get()),
             "open_result": bool(self.open_result_var.get()),
-            "beam": int(self.beam_var.get()),
-            "chunk": int(self.chunk_var.get()),
+            "beam": bounded_int(self.beam_var.get(), 8, 1, 10),
+            "chunk": 12 if self.preset == "universal" else bounded_int(self.chunk_var.get(), 30, 5, 60),
+            "vocabulary": self.settings.get("vocabulary", ""),
+            "keep_audio": bool(self.settings.get("keep_recording_audio", True)),
+            "overlap_separation": bool(self.overlap_var.get()),
         }
 
     def transcribe_options(self, config: dict[str, Any]) -> TranscriptionOptions:
@@ -1979,6 +2192,16 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             beam_size=config["beam"],
             vad_filter=config["vad"],
             word_timestamps=True,
+            initial_prompt=config.get("vocabulary") or None,
+            cancel_event=self.cancel_event,
+            target_language=config.get("target_language"),
+            conversation=config.get("conversation", False),
+            partner_language=config.get("partner_language"),
+            third_language=config.get("third_language") if config.get("conversation") else None,
+            activity_callback=lambda stage: self._safe_ui(self._pipeline_activity, stage),
+            overlap_separation=config.get("overlap_separation", False),
+            original_callback=(lambda result: self._safe_ui(self._preview_conversation, result, self.recording_offset))
+                if config.get("conversation") else None,
         )
 
     def _engine_load_status(self, stage: str, model: str, device: str) -> None:
@@ -1988,6 +2211,8 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             "model_cached": "load_model_cached",
             "engine_start": "load_engine_start",
             "safe_fallback": "load_safe_fallback",
+            "translation_prepare": "load_translation_prepare",
+            "separation_prepare": "load_separation_prepare",
         }.get(stage, "progress_loading")
         self._safe_ui(
             self._set_status,
@@ -2002,6 +2227,8 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         if self.last_engine_status is None:
             return
         self.model_preloading = False
+        if self.busy or self.recorder.recording or self.closing:
+            return
         self._set_status(
             self.t(
                 "model_armed",
@@ -2010,8 +2237,13 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             )
         )
         self._update_model_indicators()
+        if self.engine.translator.model is not None:
+            self._set_status(self.t("translation_armed", model=self.last_engine_status.model_id,
+                                    device=self.engine.translator.device.upper()))
 
     def preload_selected_model(self) -> None:
+        if self.closing:
+            return
         if self.busy or self.recorder.recording:
             self.after(1000, self.preload_selected_model)
             return
@@ -2019,26 +2251,33 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         generation = self.preload_generation
         model = self.selected_model_id
         device = self.selected_device
+        options = self.transcribe_options(self.job_config())
         self.model_preloading = True
-        resolved = self.hardware.resolve_model(model, device, self.engine.cached_model_ids())
+        resolved = self.hardware.resolve_model(model, device, self.engine.cached_model_ids(),
+                                               options.language, options.task)
         self._set_status(self.t("model_arming", model=resolved))
-        if self.preset in {"conference", "dictation"}:
+        if self.preset in {"conference", "dictation", "universal"}:
             self.record_button.configure(state="disabled", text=self.t("arming"))
 
         threading.Thread(
             target=self._preload_worker,
-            args=(generation, model, device),
+            args=(generation, model, device, options),
             daemon=True,
             name="model-preload",
         ).start()
 
-    def _preload_worker(self, generation: int, model: str, device: str) -> None:
+    def _preload_worker(self, generation: int, model: str, device: str, options: TranscriptionOptions) -> None:
         try:
-            status = self.engine.load_model(model, device, self._engine_load_status)
+            status = self.engine.load_model(model, device,
+                lambda stage, selected, mode: self._safe_ui(self._preload_progress, generation, stage, selected, mode), options)
             self._safe_ui(self._finish_preload, generation, status)
         except Exception as error:
             logging.exception("Background model preload failed")
             self._safe_ui(self._fail_preload, generation, error)
+
+    def _preload_progress(self, generation: int, stage: str, model: str, device: str) -> None:
+        if generation == self.preload_generation and not self.busy and not self.recorder.recording and not self.closing:
+            self._engine_load_status(stage, model, device)
 
     def _finish_preload(self, generation: int, status: EngineStatus) -> None:
         if generation != self.preload_generation:
@@ -2061,7 +2300,8 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         if self.model_preloading:
             return False
         try:
-            return self.engine.is_ready(config["model"], config["device"])
+            return self.engine.is_ready(config["model"], config["device"]) and (
+                not config.get("target_language") or self.engine.translator.model is not None)
         except (OSError, RuntimeError, ValueError):
             return False
 
@@ -2077,6 +2317,8 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         return False
 
     def choose_files(self) -> None:
+        if self.busy or self.recorder.recording or self.closing:
+            return
         paths = filedialog.askopenfilenames(
             parent=self,
             title=self.t("select_files"),
@@ -2115,9 +2357,12 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             messagebox.showwarning(self.t("warning"), self.t("no_files"), parent=self)
 
     def start_batch(self, paths: list[str]) -> None:
+        if self.busy or self.recorder.recording or self.closing:
+            return
         if not self._can_start_safely():
             return
-        valid = [str(Path(path)) for path in paths if Path(path).suffix.lower() in AUDIO_VIDEO_EXTENSIONS]
+        valid = list(dict.fromkeys(str(Path(path).resolve()) for path in paths
+                                   if Path(path).suffix.lower() in AUDIO_VIDEO_EXTENSIONS and Path(path).is_file()))
         if not valid:
             messagebox.showwarning(self.t("warning"), self.t("no_files"), parent=self)
             return
@@ -2132,12 +2377,13 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         resolved_device = compatibility.device
         estimate = self.estimator.estimate(total_audio, resolved_model, resolved_device)
         self._start_job(estimate.seconds)
-        threading.Thread(
+        self.worker_thread = threading.Thread(
             target=self._batch_worker,
             args=(valid, durations, config),
             daemon=True,
             name="batch-transcription",
-        ).start()
+        )
+        self.worker_thread.start()
 
     def _batch_worker(self, paths: list[str], durations: list[float], config: dict[str, Any]) -> None:
         try:
@@ -2146,15 +2392,18 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             )
             self._safe_ui(self._set_status, self.t("progress_loading", model=resolved))
             status = self.engine.load_model(
-                config["model"], config["device"], self._engine_load_status
+                config["model"], config["device"], self._engine_load_status, self.transcribe_options(config)
             )
             self.last_engine_status = status
             session_offset = self.transcript_data[-1].get("end", 0.0) + 1.0 if self.transcript_data else 0.0
             total = len(paths)
             last_saved: Path | None = None
+            failed: list[str] = []
+            done = 0
             for index, (filepath, duration) in enumerate(
                 zip(paths, durations, strict=True), start=1
             ):
+                check_cancelled(self.cancel_event)
                 name = Path(filepath).name
                 self._safe_ui(
                     self._set_status,
@@ -2165,24 +2414,33 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                 def progress(value: float, file_index=index) -> None:
                     self._safe_ui(self._set_progress, ((file_index - 1) + value) / total)
 
-                result = self.engine.transcribe_file(
-                    filepath,
-                    self.transcribe_options(config),
-                    progress_callback=progress,
-                )
-                segments = self._prepare_segments(result.get("segments", []), config["cleanup"])
-                if config["speaker"] and segments:
-                    self._safe_ui(self._set_status, self.t("progress_diarizing"))
-                    segments = self.diarizer.process(filepath, segments, callback=logging.info)
-                file_segments = [dict(item, source=name) for item in segments]
-                display_segments = [
-                    dict(item, start=item["start"] + session_offset, end=item["end"] + session_offset)
-                    for item in file_segments
-                ]
-                self._safe_ui(self._append_segments, display_segments)
-                last_saved = self.save_result_bundle(file_segments, Path(filepath).stem)
-                if config["smart_subtitles"] and Path(filepath).suffix.lower() in VIDEO_EXTENSIONS:
-                    self.save_smart_subtitle(Path(filepath), file_segments)
+                try:
+                    result = self.engine.transcribe_file(
+                        filepath, self.transcribe_options(config), progress_callback=progress,
+                    )
+                    segments = self._prepare_segments(result.get("segments", []), config["cleanup"])
+                    if config["speaker"] and segments:
+                        self._safe_ui(self._set_status, self.t("progress_diarizing"))
+                        segments = self.diarizer.process(filepath, segments, callback=logging.info, cancel_event=self.cancel_event)
+                    file_segments = [dict(item, source=name) for item in segments]
+                    display_segments = shift_segments(file_segments, session_offset)
+                    self._safe_ui(self._append_segments, display_segments)
+                    saved = self.save_result_bundle(file_segments, Path(filepath).stem)
+                    if saved is not None:
+                        last_saved = saved
+                    if config["smart_subtitles"] and Path(filepath).suffix.lower() in VIDEO_EXTENSIONS:
+                        try:
+                            self.save_smart_subtitle(Path(filepath), file_segments)
+                        except OSError:
+                            logging.exception("Could not write subtitle beside %s; output-folder exports were saved", filepath)
+                    done += 1
+                except JobCancelled:
+                    raise
+                except Exception:
+                    logging.exception("Skipping failed batch file: %s", filepath)
+                    failed.append(name)
+                    progress(1.0)
+                    continue
                 observed_audio = duration or result.get("duration", 0.0)
                 self.estimator.observe(
                     observed_audio,
@@ -2191,12 +2449,14 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                     status.device,
                 )
                 session_offset += max((item.get("end", 0.0) for item in file_segments), default=0.0) + 1.0
-            self._safe_ui(self._finish_job, last_saved, status.backend)
+            self._safe_ui(self._finish_batch, last_saved, status.backend, done, failed)
         except Exception as error:
             logging.exception("Batch transcription failed")
             self._safe_ui(self._fail_job, error)
 
     def start_link(self) -> None:
+        if self.busy or self.recorder.recording or self.closing:
+            return
         if not self._can_start_safely():
             return
         url = self.url_entry.get().strip()
@@ -2205,12 +2465,13 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             return
         config = self.job_config()
         self._start_job(0)
-        threading.Thread(
+        self.worker_thread = threading.Thread(
             target=self._link_worker,
             args=(url, config),
             daemon=True,
             name="online-video-transcription",
-        ).start()
+        )
+        self.worker_thread.start()
 
     def _link_worker(self, url: str, config: dict[str, Any]) -> None:
         downloaded: Path | None = None
@@ -2222,6 +2483,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                     url,
                     temp_dir,
                     lambda percent: self._safe_ui(self._set_progress, percent / 400.0),
+                    cancel_event=self.cancel_event,
                 )
             )
             self._safe_ui(self._set_progress, 0.25)
@@ -2230,7 +2492,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             )
             self._safe_ui(self._set_status, self.t("progress_loading", model=resolved))
             status = self.engine.load_model(
-                config["model"], config["device"], self._engine_load_status
+                config["model"], config["device"], self._engine_load_status, self.transcribe_options(config)
             )
             self.last_engine_status = status
             result = self.engine.transcribe_file(
@@ -2241,7 +2503,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             segments = self._prepare_segments(result.get("segments", []), config["cleanup"])
             if config["speaker"] and segments:
                 self._safe_ui(self._set_status, self.t("progress_diarizing"))
-                segments = self.diarizer.process(str(downloaded), segments, callback=logging.info)
+                segments = self.diarizer.process(str(downloaded), segments, callback=logging.info, cancel_event=self.cancel_event)
             self._safe_ui(self._append_segments, segments)
             saved = self.save_result_bundle(segments, downloaded.stem)
             self.estimator.observe(
@@ -2262,10 +2524,11 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                     pass
 
     def start_recording(self) -> None:
-        if self.busy or self.recorder.recording:
+        if self.busy or self.recorder.recording or self.closing:
             return
         if not self._can_start_safely():
             return
+        self.stop_speaking(resume=False)
         config = self.job_config()
         microphone = self.microphone_combo.get()
         try:
@@ -2273,75 +2536,111 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         except ValueError:
             device_index = None
         self.transcript_data = []
-        self.full_audio_buffer = []
         self.recording_offset = 0.0
-        prefix = "Conference" if self.preset == "conference" else "Dictation"
+        prefix = "Conversation" if self.preset == "universal" else ("Conference" if self.preset == "conference" else "Dictation")
         self.active_recording_base = self._new_output_base(prefix)
         self.render_transcript()
         self._start_job(0)
         if not self._model_is_armed(config):
             self._show_recording_initialization()
-        threading.Thread(
+        self.worker_thread = threading.Thread(
             target=self._recording_worker,
             args=(device_index, config),
             daemon=True,
             name="live-transcription",
-        ).start()
+        )
+        self.worker_thread.start()
 
     def _recording_worker(self, device_index: int | None, config: dict[str, Any]) -> None:
+        segments_all: list[dict[str, Any]] = []
+        spool: RecordingSpool | None = None
+        completed = False
         try:
             resolved = self.hardware.resolve_model(
                 config["model"], config["device"], self.engine.cached_model_ids()
             )
             self._safe_ui(self._set_status, self.t("progress_loading", model=resolved))
             status = self.engine.load_model(
-                config["model"], config["device"], self._engine_load_status
+                config["model"], config["device"], self._engine_load_status, self.transcribe_options(config)
             )
             self.last_engine_status = status
-            self.recorder.start(device_index, config["chunk"])
-            self._safe_ui(self._recording_started)
+            check_cancelled(self.cancel_event)
+            spool = RecordingSpool(self.active_recording_base.with_suffix(".wav"))
+            self.recording_spool = spool
             options = self.transcribe_options(config)
-            while self.running:
-                audio = self.recorder.audio_queue.get()
+            self.engine.reset_translation_session(options)
+            if config.get("conversation"):
+                self.recorder.start(device_index, config["chunk"], smart_splits=True)
+            else:
+                self.recorder.start(device_index, config["chunk"])
+            self._safe_ui(self._recording_started)
+            while True:
+                try:
+                    audio = self.recorder.audio_queue.get(timeout=0.25)
+                except queue.Empty:
+                    if not self.recorder.recording and not self.recorder.segmenting:
+                        break
+                    continue
                 if audio is None:
                     break
                 flattened = np.asarray(audio, dtype=np.float32).reshape(-1)
-                self.full_audio_buffer.append(flattened)
+                self.last_audio = flattened.copy()
+                spool.append(flattened)
                 result = self.engine.transcribe_audio(flattened, options)
                 segments = self._prepare_segments(result.get("segments", []), config["cleanup"])
-                shifted = [
-                    dict(
-                        item,
-                        start=item["start"] + self.recording_offset,
-                        end=item["end"] + self.recording_offset,
-                    )
-                    for item in segments
-                ]
+                shifted = shift_segments(segments, self.recording_offset)
+                segments_all.extend(shifted)
                 self.recording_offset += flattened.size / SAMPLE_RATE
-                self._safe_ui(self._append_segments, shifted)
-                self._save_backup()
-            if config["speaker"] and self.full_audio_buffer:
+                if config.get("conversation"):
+                    segments_all = self.engine.translator.complete_conversation(segments_all, self.cancel_event)
+                    self._safe_ui(self._replace_segments, list(segments_all))
+                    self._safe_ui(self.translation_controls.update_pair, result.get("conversation_pair", []))
+                else:
+                    self._safe_ui(self._append_segments, shifted)
+                self._safe_ui(self._pipeline_activity, "waiting")
+                # The worker owns this snapshot. It never depends on whether
+                # the UI has already consumed its queued segment event.
+                write_export(self.active_recording_base.with_suffix(".json"), segments_all)
+                write_export(self.active_recording_base.with_suffix(".txt"), segments_all, self.transcript_format_options())
+                if self.recorder.capture_error:
+                    raise RuntimeError(self.recorder.capture_error)
+            spool.close()
+            if config["speaker"] and segments_all:
                 self._safe_ui(self._set_status, self.t("progress_diarizing"))
-                with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as handle:
-                    temp_path = Path(handle.name)
-                try:
-                    sf.write(temp_path, np.concatenate(self.full_audio_buffer), SAMPLE_RATE)
-                    diarized = self.diarizer.process(
-                        str(temp_path), [dict(item) for item in self.transcript_data], callback=logging.info
-                    )
-                    self.transcript_data = diarized
-                    self._safe_ui(self.render_transcript)
-                finally:
-                    temp_path.unlink(missing_ok=True)
+                segments_all = self.diarizer.process(str(spool.path), segments_all, callback=logging.info, cancel_event=self.cancel_event)
+                self._safe_ui(self._replace_segments, segments_all)
             saved = self.save_result_bundle(
-                self.transcript_data,
-                "Conference" if self.preset == "conference" else "Dictation",
+                segments_all,
+                "Conversation" if config.get("conversation") else ("Conference" if self.preset == "conference" else "Dictation"),
                 base_override=self.active_recording_base,
             )
+            completed = True
             self._safe_ui(self._finish_recording, saved, status.backend)
         except Exception as error:
             logging.exception("Live transcription failed")
             self._safe_ui(self._fail_recording, error)
+        finally:
+            if spool is not None:
+                try:
+                    if not completed:
+                        # Preserve captured backlog after an engine/device failure.
+                        self.recorder.stop()
+                        while True:
+                            try:
+                                pending = self.recorder.audio_queue.get_nowait()
+                            except queue.Empty:
+                                break
+                            if pending is not None:
+                                spool.append(pending)
+                        if self.recorder.overflow_chunk is not None:
+                            spool.append(self.recorder.overflow_chunk)
+                except (OSError, RuntimeError):
+                    logging.exception("Could not flush all pending audio; the existing WAV was preserved")
+                finally:
+                    spool.close()
+                if completed and not config.get("keep_audio", True):
+                    spool.path.unlink(missing_ok=True)
+            self.recording_spool = None
 
     def _recording_started(self) -> None:
         self.busy = False
@@ -2358,8 +2657,10 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             border_color="#FFD7DC",
         )
         self._set_source_buttons_state("disabled")
+        self._pipeline_activity("waiting")
 
     def toggle_pause(self) -> None:
+        self.stop_speaking(resume=False)
         if not self.recorder.recording:
             return
         if self.recorder.paused:
@@ -2372,10 +2673,11 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             self._set_status(self.t("cancelled"))
 
     def stop_recording(self) -> None:
+        self.stop_speaking(resume=False)
         if not self.recorder.recording:
             return
         self.recorder.stop()
-        self.recorder.audio_queue.put(None)
+        self.busy = True
         self.pause_button.configure(state="disabled")
         self.stop_button.configure(state="disabled", text=self.t("processing"))
         self._set_status(self.t("processing"))
@@ -2417,12 +2719,13 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         prepared = []
         for item in segments:
             text = str(item.get("text", "")).strip()
-            if cleanup:
+            if cleanup and "source_text" not in item:
                 text = self.engine.cleanup_text(text)
             if not text:
                 continue
             prepared.append(
                 {
+                    **item,
                     "start": float(item.get("start", 0.0)),
                     "end": float(item.get("end", 0.0)),
                     "text": text,
@@ -2433,8 +2736,26 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         return prepared
 
     def _append_segments(self, segments: list[dict[str, Any]]) -> None:
+        self._commit_editor_changes()
         self.transcript_data.extend(segments)
         self.render_transcript()
+        self._save_backup()
+
+    def _replace_segments(self, segments: list[dict[str, Any]]) -> None:
+        self.transcript_data = segments
+        self.render_transcript()
+        self._save_backup()
+
+    def _preview_conversation(self, result: dict[str, Any], offset: float) -> None:
+        values = result.get("segments", [])
+        if not values:
+            return
+        preview = dict(values[0], end=values[-1].get("end", 0), source_text=result.get("text", ""),
+                       source_language=normalize_language(result.get("language")) or "und", target_language="",
+                       translation_pending=True, translation_pending_reason="processing")
+        self.transcript_data.append(shift_segments([preview], offset)[0])
+        self.render_transcript()
+        self._save_backup()
 
     def transcript_format_options(self) -> TranscriptFormat:
         return TranscriptFormat(
@@ -2446,14 +2767,41 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
     def render_transcript(self) -> None:
         if not hasattr(self, "textbox"):
             return
+        self.textbox.configure(state="normal", font=("Segoe UI", self.conversation_font_size))
         self.textbox.delete("1.0", "end")
         text = format_transcript(self.transcript_data, self.transcript_format_options())
-        if text:
+        self.textbox._speech_lines = {}
+        bilingual = any("source_text" in item for item in self.transcript_data)
+        if bilingual:
+            render_conversation(self.textbox, self.transcript_data, self.transcript_format_options(), self.t,
+                                self.show_confidence_var.get())
+            self.textbox.configure(state="disabled")
+        elif text and self.show_confidence_var.get():
+            from src.confidence import confidence_caption
+            from src.transcript_format import format_segment
+            self.textbox._textbox.tag_configure("confidence", foreground=MUTED, font=("Segoe UI", 10))
+            pieces = []
+            for item in self.transcript_data:
+                line = format_segment(item, self.transcript_format_options())
+                pieces.append(line)
+                row = int(self.textbox._textbox.index("end-1c").split(".")[0])
+                self.textbox._speech_lines[row] = (item["text"], item.get("language") or self.t.language)
+                self.textbox.insert("end", line + "\n")
+                self.textbox.insert("end", confidence_caption(item, self.t) + "\n", "confidence")
+                self.textbox.insert("end", "\n")
+            text = "\n\n".join(pieces)
+        elif text:
             self.textbox.insert("end", text + "\n")
+        self._rendered_text = text
+        self.conversation_legend.configure(text=self.t("translation_legend") if bilingual or self.preset == "universal" else "")
         self.textbox.see("end")
+        self.textbox.bind("<Button-3>", self._transcript_context_menu)
+        self._offer_detected_voice()
 
     def copy_transcript(self) -> None:
-        text = self.textbox.get("1.0", "end-1c").strip()
+        text = (format_transcript(self.transcript_data, self.transcript_format_options())
+                if any("source_text" in item for item in self.transcript_data)
+                else self._editor_text())
         if not text:
             return
         self.clipboard_clear()
@@ -2464,7 +2812,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         if self.busy or self.recorder.recording:
             return
         self.transcript_data = []
-        self.textbox.delete("1.0", "end")
+        self.render_transcript()
         self.backup_file.unlink(missing_ok=True)
 
     def export_selected(self, label: str) -> None:
@@ -2481,6 +2829,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.export_menu.set(self.t("export"))
 
     def export_transcript(self, extension: str) -> None:
+        self._commit_editor_changes()
         if not self.transcript_data and not self.textbox.get("1.0", "end-1c").strip():
             messagebox.showinfo(self.t("export"), self.t("no_text"), parent=self)
             return
@@ -2499,31 +2848,8 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             self.open_file_safe(destination)
 
     def _write_export(self, path: Path, segments: list[dict[str, Any]]) -> None:
-        if path.suffix.lower() == ".txt":
-            atomic_write_text(path, self.textbox.get("1.0", "end-1c").strip() + "\n")
-        elif path.suffix.lower() == ".srt":
-            atomic_write_text(path, create_srt_content(segments))
-        elif path.suffix.lower() == ".vtt":
-            atomic_write_text(path, create_vtt_content(segments))
-        elif path.suffix.lower() == ".json":
-            atomic_write_text(path, json.dumps(segments, ensure_ascii=False, indent=2))
-        elif path.suffix.lower() == ".csv":
-            path.parent.mkdir(parents=True, exist_ok=True)
-            temporary = path.with_suffix(".csv.tmp")
-            with temporary.open("w", newline="", encoding="utf-8-sig") as handle:
-                writer = csv.writer(handle)
-                writer.writerow(["start", "end", "speaker", "source", "text"])
-                for item in segments:
-                    writer.writerow(
-                        [
-                            item.get("start", 0),
-                            item.get("end", 0),
-                            item.get("speaker", ""),
-                            item.get("source", ""),
-                            item.get("text", ""),
-                        ]
-                    )
-            temporary.replace(path)
+        write_export(path, segments, self.transcript_format_options(),
+                     self.textbox.get("1.0", "end-1c").strip() if path.suffix.lower() == ".txt" else None)
 
     def _new_output_base(self, prefix: str) -> Path:
         self.output_folder = ensure_output_folder(self.output_folder)
@@ -2548,29 +2874,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         base = base_override or self._new_output_base(prefix)
         text_path = base.with_suffix(".txt")
         json_path = base.with_suffix(".json")
-        text = format_transcript(segments, self.transcript_format_options()) + "\n"
-        atomic_write_text(text_path, text)
-        atomic_write_text(base.with_suffix(".srt"), create_srt_content(segments))
-        atomic_write_text(base.with_suffix(".vtt"), create_vtt_content(segments))
-        atomic_write_text(json_path, json.dumps(segments, ensure_ascii=False, indent=2))
-        csv_path = base.with_suffix(".csv")
-        temporary = csv_path.with_suffix(".csv.tmp")
-        csv_path.parent.mkdir(parents=True, exist_ok=True)
-        with temporary.open("w", newline="", encoding="utf-8-sig") as handle:
-            writer = csv.writer(handle)
-            writer.writerow(["start", "end", "speaker", "source", "text"])
-            for item in segments:
-                writer.writerow(
-                    [
-                        item.get("start", 0),
-                        item.get("end", 0),
-                        item.get("speaker", ""),
-                        item.get("source", ""),
-                        item.get("text", ""),
-                    ]
-                )
-        temporary.replace(csv_path)
-        self.backup_file.unlink(missing_ok=True)
+        write_bundle(base, segments, self.transcript_format_options())
         status = self.last_engine_status
         try:
             self.history.add(
@@ -2633,6 +2937,9 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
             logging.exception("Could not open result: %s", path)
 
     def _start_job(self, estimated_seconds: float) -> None:
+        self.diarizer.last_warning = ""
+        self._commit_editor_changes()
+        self.cancel_event.clear()
         self.busy = True
         self.job_started = time.monotonic()
         self.estimated_job_seconds = estimated_seconds
@@ -2640,6 +2947,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self._set_progress(0)
         self._set_source_buttons_state("disabled")
         self._set_status(self.t("processing"))
+        self.cancel_button.configure(state="normal")
         self.eta_label.configure(
             text=self.t("remaining", time=format_duration(estimated_seconds))
             if estimated_seconds > 0
@@ -2648,20 +2956,39 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
 
     def _finish_job(self, saved: Path | None, backend: str) -> None:
         self.busy = False
+        self._pipeline_activity("waiting")
         self._set_progress(1.0)
         self._set_source_buttons_state("normal")
+        self.cancel_button.configure(state="disabled")
         self._set_status(f"{self.t('progress_done')} • {self.t('backend', backend=backend)}")
+        if self.diarizer.last_warning:
+            self._set_status(self.t(self.diarizer.last_warning))
         self.eta_label.configure(text=self.t("autosaved") if saved else "")
         self.persist_settings()
         if saved and self.open_result_var.get():
             self.open_file_safe(saved)
 
+    def _finish_batch(self, saved: Path | None, backend: str, done: int, failed: list[str]) -> None:
+        self._finish_job(saved, backend)
+        if failed:
+            self._set_status(self.t("batch_partial", done=done, failed=len(failed)))
+            if not self.closing:
+                messagebox.showwarning(self.t("warning"), self.t("batch_partial", done=done, failed=len(failed))
+                                       + "\n\n" + "\n".join(failed[:20]), parent=self)
+
     def _fail_job(self, error: Exception) -> None:
         self.busy = False
+        self._pipeline_activity("waiting")
         self._set_source_buttons_state("normal")
         self._set_status(self.t("error"))
         self.eta_label.configure(text="")
-        messagebox.showerror(self.t("error"), self.t("job_error", error=str(error)), parent=self)
+        self.cancel_button.configure(state="disabled")
+        if isinstance(error, JobCancelled):
+            self._save_backup()
+            self._set_status(self.t("job_cancelled"))
+            return
+        if not self.closing:
+            messagebox.showerror(self.t("error"), self.t("job_error", error=str(error)), parent=self)
 
     def _set_source_buttons_state(self, state: str) -> None:
         for button in getattr(self, "task_buttons", {}).values():
@@ -2674,6 +3001,7 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
                 widget.configure(state=state)
         if self.recorder.recording:
             self.record_button.configure(state="disabled")
+        self.translation_controls.set_enabled(state == "normal" and not self.recorder.recording)
 
     def _set_status(self, text: str) -> None:
         self.status_label.configure(text=text)
@@ -2699,19 +3027,85 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         self.after(500, self._tick_clock)
 
     def _safe_ui(self, callback: Callable[..., None], *args: Any) -> None:
-        try:
-            self.after(0, callback, *args)
-        except (RuntimeError, tk.TclError):
-            pass
+        if self.running:
+            self.ui_tasks.put((callback, args))
+
+    def _drain_ui_tasks(self) -> None:
+        if not self.running:
+            return
+        for _ in range(100):
+            try:
+                callback, args = self.ui_tasks.get_nowait()
+            except queue.Empty:
+                break
+            try:
+                callback(*args)
+            except tk.TclError:
+                logging.debug("A closed dialog no longer accepts UI updates")
+            except Exception:
+                logging.exception("Background UI task failed")
+        self.after(25, self._drain_ui_tasks)
+
+    def _commit_editor_changes(self) -> None:
+        if not hasattr(self, "textbox"):
+            return
+        if any("source_text" in item for item in self.transcript_data):
+            # Visual RTL shaping is presentation only. Never overwrite logical
+            # originals/translation metadata with the displayed glyph order.
+            return
+        edited = self._editor_text()
+        self.transcript_data = apply_text_edits(self.transcript_data, self._rendered_text, edited)
+        self._rendered_text = edited
+
+    def _editor_text(self):
+        widget = self.textbox._textbox
+        ranges = widget.tag_ranges("confidence")
+        cursor = "1.0"
+        pieces = []
+        for start, end in zip(ranges[::2], ranges[1::2], strict=True):
+            pieces.append(widget.get(cursor, start))
+            cursor = end
+        pieces.append(widget.get(cursor, "end-1c"))
+        return "".join(pieces).strip()
+
+    def _autosave_editor(self) -> None:
+        if not self.running:
+            return
+        self._commit_editor_changes()
+        self._save_backup()
+        self.after(2000, self._autosave_editor)
+
+    def cancel_job(self) -> None:
+        if self.recorder.recording:
+            self.stop_recording()
+        elif self.busy:
+            self.cancel_event.set()
+            self.cancel_button.configure(state="disabled")
+            self._set_status(self.t("job_cancelling"))
+
+    def edit_vocabulary(self) -> None:
+        dialog = ctk.CTkToplevel(self)
+        dialog.title(self.t("vocabulary"))
+        dialog.geometry("600x330")
+        dialog.transient(self)
+        dialog.grab_set()
+        ctk.CTkLabel(dialog, text=self.t("vocabulary_help"), wraplength=530, justify="left").pack(padx=24, pady=18)
+        editor = ctk.CTkTextbox(dialog, height=150)
+        editor.pack(fill="both", expand=True, padx=24, pady=8)
+        editor.insert("1.0", self.settings.get("vocabulary", ""))
+
+        def save():
+            self.settings.set("vocabulary", editor.get("1.0", "end-1c").strip()[:2000], save=True)
+            dialog.destroy()
+
+        ctk.CTkButton(dialog, text=self.t("save"), command=save).pack(pady=18)
 
     def _save_backup(self) -> None:
         if not self.transcript_data:
             return
         try:
             self.backup_file.parent.mkdir(parents=True, exist_ok=True)
-            temporary = self.backup_file.with_suffix(".tmp")
-            temporary.write_text(json.dumps(self.transcript_data, ensure_ascii=False), encoding="utf-8")
-            temporary.replace(self.backup_file)
+            atomic_write_text(self.backup_file, json.dumps(self.transcript_data, ensure_ascii=False))
             if self.active_recording_base is not None:
                 atomic_write_text(
                     self.active_recording_base.with_suffix(".txt"),
@@ -2728,17 +3122,34 @@ class TranscriberApp(ctk.CTk, TkinterDnD.DnDWrapper):
         try:
             data = json.loads(self.backup_file.read_text(encoding="utf-8"))
             if isinstance(data, list):
-                self.transcript_data = data
+                self.transcript_data = validate_segments(data)
         except (OSError, ValueError, TypeError):
             return
 
     def on_close(self) -> None:
-        self.running = False
+        if self.closing:
+            return
+        self.closing = True
+        self.stop_speaking(resume=False)
         if self.recorder.recording:
-            self.recorder.stop()
-            self.recorder.audio_queue.put(None)
+            self.stop_recording()
+        elif self.busy:
+            self.cancel_event.set()
+        self._commit_editor_changes()
         self.recorder.stop_monitor()
         self._save_backup()
+        self._close_when_idle()
+
+    def _close_when_idle(self) -> None:
+        if self.worker_thread is not None and self.worker_thread.is_alive():
+            self._set_status(self.t("closing_safely"))
+            self.after(100, self._close_when_idle)
+            return
+        # Consume the final worker's completion/segment events before saving.
+        self._drain_ui_tasks()
+        self._commit_editor_changes()
+        self._save_backup()
+        self.running = False
         try:
             self.settings.set("window_geometry", self.geometry())
             self.persist_settings()

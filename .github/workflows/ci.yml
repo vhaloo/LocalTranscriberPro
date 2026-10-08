@@ -2,7 +2,7 @@ name: Validate
 
 on:
   push:
-    branches: [main, "agent/**"]
+    branches: [main, "agent/**", "codex/**"]
   pull_request:
 
 permissions:
@@ -29,6 +29,8 @@ jobs:
       - name: Compile
         run: python -m compileall -q main.py src tests
       - name: Lint
-        run: python -m ruff check main.py src tests
+        run: python -m ruff check main.py src tests scripts
+      - name: Check current public release documentation
+        run: python scripts/check_release_docs.py
       - name: Test
         run: python -m pytest
