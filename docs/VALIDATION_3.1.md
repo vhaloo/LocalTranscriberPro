@@ -8,6 +8,8 @@ Windows 11 x64, Ryzen 5800X, 64 Go de RAM, NVIDIA RTX 5070 12 Go. Les chiffres c
 
 La suite couvre les admissions matérielles, les modèles, les réglages/migrations, le cache vérifié, les annulations, les exports, les sauvegardes concurrentes, les queues audio, les limites de diarisation, le découpage de parole, le routage bilingue, les écritures RTL, les indices et les contrôles de mise à jour. **133 tests automatisés passent**, ainsi que Ruff et la compilation Python avant publication.
 
+Après publication, deux tests de décodage réel WAV/FLAC portent la suite à **135 tests**. Ils préviennent une incompatibilité des constructions fraîches : PyAV 19 retire un paramètre encore utilisé par faster-whisper 1.2.1. Les dépendances sont fixées à PyAV 18.0.0, déjà présent dans l'installateur Windows livré ; ce correctif de construction ne modifie pas son exécutable. [Détail du changement PyAV](https://github.com/PyAV-Org/PyAV/releases/tag/v19.0.0).
+
 Le contrôle de l'interface réelle, avec historique/réglages isolés et texte de démonstration, vérifie la sélection logique arabe/français pour la lecture, la copie Unicode, la protection des associations bilingues, F11/Échap, la police 14–48 et le masquage des indices sans altérer le transcript simple. La zone de lecture passe de 187 à 1 139 pixels de haut. Un défaut qui étendait le plein écran sur plusieurs moniteurs a été remplacé par l'agrandissement de la fenêtre sur son écran courant.
 
 Un cas réel de fastText retournant `1.0000100135803223` a motivé une normalisation dans [omnilingual.py](../src/omnilingual.py) et un test de non-régression : ce léger dépassement ne doit pas casser la validation/sauvegarde d'une transcription.

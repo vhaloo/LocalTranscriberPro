@@ -1,6 +1,9 @@
 # Core desktop and transcription runtime (Python 3.11-3.13)
 customtkinter==5.2.2
 faster-whisper==1.2.1
+# PyAV 19 removed metadata_errors, still used by faster-whisper's decoder.
+# Match the audio runtime validated in the Windows 3.1.0 distribution.
+av==18.0.0
 huggingface-hub>=0.34,<1
 imageio-ffmpeg>=0.6,<0.7
 numpy>=1.26,<3
