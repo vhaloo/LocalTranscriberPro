@@ -6,19 +6,21 @@
 
 ![Local Transcriber Pro 3.1.0: Arabic original, French translation and optional English](docs/images/local-transcriber-pro-3.1.0-universal.jpg)
 
-*Real application, illustrative demonstration text. No private conversation is shown.*
+*Real Windows application, illustrative demonstration text. No private conversation is shown.*
 
 Local Transcriber Pro turns microphone recordings, audio/video files and explicitly requested online videos into text on your own computer. Version 3.1 adds **Universal live translation**: original speech in white, translation underneath in green, an optional third language in blue, automatic two-language routing, local speech playback and a large reading view.
 
-No API key, subscription or cloud inference is required. Download speech/translation models once; prepared models work offline. English and French reading voices are included in the Windows installer. Other voices are downloaded individually with your acceptance.
+No API key, subscription or cloud inference is required. Download speech/translation models once; prepared models work offline. English and French reading voices are included in the desktop packages. Other voices are downloaded individually with your acceptance.
 
 ## Install
 
 | Platform | Recommended package | Status |
 |---|---|---|
 | Windows 10/11 x64 | [3.1.0 installer](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.1.0/LocalTranscriberPro-3.1.0-Windows-x64-Setup.exe) | Self-contained, per-user installation; CUDA and CPU runtimes included |
-| macOS | [Previous 2.2.0 release](https://github.com/vhaloo/LocalTranscriberPro/releases/tag/v2.2.0) | 3.1 source/build support; a 3.1 desktop package has not been validated on a Mac |
-| Linux x86-64 | [Previous 2.2.0 release](https://github.com/vhaloo/LocalTranscriberPro/releases/tag/v2.2.0) | 3.1 source/build support; a 3.1 desktop package has not been validated on Linux |
+| macOS, Apple Silicon (arm64) | [3.1.0 experimental DMG](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.1.0/LocalTranscriberPro-3.1.0-macOS-arm64-experimental.dmg) | Experimental; macOS 14 recommended, automated CPU/voice checks; no Intel package |
+| Linux x86-64 | [3.1.0 experimental AppImage](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.1.0/LocalTranscriberPro-3.1.0-Linux-x86_64-experimental.AppImage) · [Portable archive](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.1.0/LocalTranscriberPro-3.1.0-Linux-x86_64-experimental.tar.gz) | Experimental; built and checked on Ubuntu 24.04; other distributions unverified |
+
+**macOS/Linux are experimental distributions.** Native CPU recognition and bundled French/English voices pass automated checks, but physical installation, microphones and GPU acceleration have not been validated on these platforms. The Mac app has an ad-hoc signature and is not Apple-notarized. [Installation, first launch and known limits](docs/EXPERIMENTAL_DESKTOP_3.1.md). Windows retains its validated stable installer.
 
 Run the Windows installer, then choose **Files**, **Conference**, **Dictation**, **Universal live translation**, or **Online video**. Python, FFmpeg and a CUDA toolkit do not need separate installation. An installed NVIDIA driver is still needed for NVIDIA acceleration. Allow storage for the application runtime and selected models. The first download can take several minutes; the interface stays responsive and explains preparation.
 
@@ -39,7 +41,7 @@ The translation catalogue exposes **452 MADLAD language tokens/variants**. This 
 ## Voices, indices and overlapping speech
 
 - **Voice bank:** 47 downloadable local voice choices, plus compatible voices already installed in Windows/macOS/Linux. Auto chooses a prepared matching local voice, then a matching installed system voice; an available missing voice is offered for download. No voice is promised for an unsupported language.
-- **English/French included:** bundled Piper voices need no first-use download in the Windows package. Slow reading, stop playback and selected-line reading are available. Microphone capture pauses during playback to avoid retranscribing the app's voice.
+- **English/French included:** bundled Piper voices need no first-use download in the desktop packages. Slow reading, stop playback and selected-line reading are available. Microphone capture pauses during playback to avoid retranscribing the app's voice.
 - **Optional confidence indices:** small transcription/translation/language captions can be hidden. They are model-derived, uncalibrated indications, **not a probability that the meaning is correct**. A model without a score shows unavailable rather than an invented number.
 - **Two overlapping voices (experimental, off by default):** an optional local SepFormer model attempts two-source separation. Channels are temporary hypotheses, not stable speaker identities; the model was trained on English and can omit or duplicate speech. Taking turns remains the dependable workflow.
 
@@ -102,6 +104,8 @@ py -3.12 -m venv .venv
 ## Français
 
 **Transcrire, traduire et relire à voix haute sur votre ordinateur.** La 3.1.0 conserve les fonctions de transcription existantes et ajoute **Traduction universelle live**. [Installer Windows 3.1.0](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.1.0/LocalTranscriberPro-3.1.0-Windows-x64-Setup.exe).
+
+**Paquets expérimentaux 3.1.0 :** [Mac Apple Silicon](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.1.0/LocalTranscriberPro-3.1.0-macOS-arm64-experimental.dmg), [Linux x86-64 AppImage](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.1.0/LocalTranscriberPro-3.1.0-Linux-x86_64-experimental.AppImage) et [archive Linux](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.1.0/LocalTranscriberPro-3.1.0-Linux-x86_64-experimental.tar.gz). La reconnaissance CPU et les voix livrées passent les contrôles automatisés natifs ; installation réelle, microphone et accélération GPU restent à valider. macOS 14 et Ubuntu 24.04 servent de référence. Le Mac Intel n'est pas couvert, et le paquet Mac n'est pas notarisé par Apple. [Guide d'installation et limites](docs/EXPERIMENTAL_DESKTOP_3.1.md).
 
 Choisissez votre langue, lancez l'enregistrement et parlez chacun votre tour. L'original apparaît en blanc, la traduction juste dessous en vert. Deux langues détectées avec suffisamment de confiance forment automatiquement une paire : chaque interlocuteur est traduit vers l'autre. Vous pouvez fixer l'autre langue et ajouter une troisième traduction en bleu. Les menus permettent une recherche par nom ou code de langue.
 

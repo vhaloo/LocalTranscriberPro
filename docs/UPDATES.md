@@ -12,6 +12,8 @@ The bundled `_internal` runtime is replaced completely to prevent obsolete nativ
 
 Windows supports installation and relaunch. On macOS/Linux the accepted proposal opens the official release page for a platform-appropriate installation. Those platforms do not yet have automated replacement.
 
+The stable 3.1.0 release also carries explicitly labelled **experimental** macOS Apple Silicon and Linux x86-64 assets. This per-platform status does not change the stable Windows updater channel. Mac/Linux users install these packages manually; see [the experimental installation guide](EXPERIMENTAL_DESKTOP_3.1.md).
+
 ## Français
 
 La vérification en arrière-plan est activée par défaut et se désactive dans Avancé. Le bouton ↻ lance une vérification manuelle. Une nouvelle version stable officielle est proposée ; aucune installation ne commence sans accepter. L'audio, le texte, le vocabulaire et les informations matérielles ne sont pas envoyés.
@@ -30,4 +32,4 @@ Checksums over trusted HTTPS provide integrity verification, not an independent 
 
 ## Keeping GitHub current for every release
 
-Version 3.1.0 adds `scripts/check_release_docs.py` to validation and packaging. The README title/download, changelog, platform versions, current guide and screenshot manifest must match the code version. Screenshots are checked for valid image data and SHA-256. Native package CI creates a draft after frozen ASR/voice checks; publication follows actual install validation. Existing verified release assets are preserved. See [BUILDING.md](BUILDING.md).
+Version 3.1.0 adds `scripts/check_release_docs.py` to validation and packaging. The README title/download, changelog, platform versions, current guide and screenshot manifest must match the code version. Screenshots are checked for valid image data and SHA-256. Native package CI creates a draft after frozen ASR/voice checks; stable publication follows actual install validation. Explicitly authorized experimental assets carry their own status and validation limits. Existing verified release assets are preserved. See [BUILDING.md](BUILDING.md).

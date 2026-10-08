@@ -25,9 +25,12 @@ def check(root=ROOT):
         errors.append('README.md: stale title')
     if f'releases/download/v{version}/LocalTranscriberPro-{version}-Windows-x64-Setup.exe' not in readme:
         errors.append('README.md: stale Windows download')
+    for download_version in re.findall(r'releases/download/v([^/\s)]+)/', readme):
+        if download_version != version:
+            errors.append('README.md: stale platform download')
     if not (root / 'CHANGELOG.md').read_text('utf-8').startswith(f'# Changelog\n\n## {version}'):
         errors.append('CHANGELOG.md: missing current release entry')
-    for filename in ('docs/TRANSLATION.md', 'docs/VALIDATION_3.1.md'):
+    for filename in ('docs/TRANSLATION.md', 'docs/VALIDATION_3.1.md', 'docs/EXPERIMENTAL_DESKTOP_3.1.md'):
         if version not in (root / filename).read_text('utf-8'):
             errors.append(filename + ': stale release documentation')
     try:

@@ -8,7 +8,7 @@ from scripts.check_release_docs import ROOT, check
 def fixture_repo(tmp_path):
     for name in ('src/__init__.py', 'pyproject.toml', 'packaging/windows/installer.iss',
                  'packaging/LocalTranscriberPro.spec', 'README.md', 'CHANGELOG.md',
-                 'docs/TRANSLATION.md', 'docs/VALIDATION_3.1.md'):
+                 'docs/TRANSLATION.md', 'docs/VALIDATION_3.1.md', 'docs/EXPERIMENTAL_DESKTOP_3.1.md'):
         target = tmp_path / name
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(ROOT / name, target)
