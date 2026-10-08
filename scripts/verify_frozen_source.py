@@ -31,7 +31,8 @@ if __name__ == '__main__':
     report['modules']['main'] = code == compile((ROOT / 'main.py').read_text('utf-8'), code.co_filename, 'exec', dont_inherit=True, optimize=1)
     for path in sorted((ROOT / 'src/data').glob('*.json')):
         packaged = resource_root / 'src/data' / path.name
-        report['catalogues'][path.name] = packaged.read_bytes() == path.read_bytes()
+        # Git can check out CRLF on Windows and LF on native macOS/Linux builds.
+        report['catalogues'][path.name] = packaged.read_text('utf-8') == path.read_text('utf-8')
     report['success'] = all(report['modules'].values()) and all(report['catalogues'].values())
     report['exe_sha256'] = hashlib.file_digest(args.executable.open('rb'), 'sha256').hexdigest()
     args.output.parent.mkdir(parents=True, exist_ok=True)
