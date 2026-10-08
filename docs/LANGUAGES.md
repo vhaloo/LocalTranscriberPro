@@ -1,5 +1,7 @@
 # Couverture et priorités linguistiques — 3.1.0
 
+La [liste intégrale dans le README](../README.md#langues) comprend les 1 672 entrées langue/écriture/variété Omnilingual (1 650 codes de langue), les 100 identifiants Whisper, les couvertures Qwen/Parakeet, les 452 jetons de traduction et les 47 choix de voix. Chaque entrée indique explicitement l'absence de pourcentage de fiabilité sémantique mesuré. Les taux d'erreur en caractères disponibles pour 35 groupes sont publiés séparément, avec deux extraits par groupe ; ils ne constituent pas des probabilités que le sens soit correct.
+
 ## Priorités pour les échanges au Canada
 
 Les priorités de développement répondent aux besoins d'échanges multilingues au Canada. Elles ne constituent pas un classement officiel des langues parlées par les demandeurs d'asile, et l'application n'attribue jamais une langue à une personne d'après son origine.

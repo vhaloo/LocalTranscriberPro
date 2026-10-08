@@ -31,6 +31,8 @@ jobs:
       - name: Lint
         run: python -m ruff check main.py src tests scripts
       - name: Check current public release documentation
-        run: python scripts/check_release_docs.py
+        run: |
+          python scripts/check_release_docs.py
+          python scripts/generate_language_readme.py --check
       - name: Test
         run: python -m pytest

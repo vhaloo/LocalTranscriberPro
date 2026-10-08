@@ -14,6 +14,7 @@ python -m pip install -r requirements-dev.txt
 python -m compileall -q main.py src tests
 python -m ruff check main.py src tests scripts
 python scripts/check_release_docs.py
+python scripts/generate_language_readme.py --check
 python -m pytest
 ```
 
@@ -41,9 +42,9 @@ The experimental 3.1.0 packages target x86-64 and are built on Ubuntu 24.04 with
 
 ## Release procedure
 
-1. Update the code/project/installer/macOS versions, README download/title, changelog, current validation and conversation guides.
+1. Update the code/project/installer/macOS versions, README download/title, changelog, current validation and conversation guides. After changing language/model/voice catalogues, refresh the sourced documentation snapshots as needed and run `python scripts/generate_language_readme.py` to update every embedded README list. Keep unmeasured reliability explicitly labelled.
 2. Capture the real updated interface with illustrative data, save the screenshot under `docs/images`, and update `current-release.json` with version and SHA-256. Do not publish private transcripts.
-3. Run `scripts/check_release_docs.py`, Ruff and tests. CI rejects stale versions, download links, documentation or screenshot metadata.
+3. Run `scripts/check_release_docs.py`, `scripts/generate_language_readme.py --check`, Ruff and tests. CI rejects stale versions, download links, language inventories, documentation or screenshot metadata.
 4. Build the native package, run `scripts/verify_frozen_source.py` and `scripts/validate_frozen.py`, then test installation/upgrade/relaunch and data preservation on the target OS. Keep reports and a rollback checkpoint.
 5. Create an annotated `v3.x.y` tag. The desktop workflow builds native packages and tests frozen CPU ASR plus bundled voices; it creates a **draft** release with checksums. It preserves an existing verified release rather than overwriting its assets.
 6. Publish stable platform assets after installation and runtime verification. An explicitly authorized experimental platform distribution may be published earlier with `experimental` filenames/labels, architecture, checksums and precise validation limits. Before making a release latest, check exact filenames and hashes, README screenshots and updater discovery. Windows 3.1.0 remains stable; macOS/Linux 3.1.0 are experimental and physical installation validation is not claimed.
