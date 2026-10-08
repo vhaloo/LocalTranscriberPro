@@ -78,8 +78,11 @@ jobs:
         run: |
           python scripts/verify_frozen_source.py dist/${{ env.APP_VERSION }}/LocalTranscriberPro/LocalTranscriberPro.exe
           python scripts/validate_frozen.py dist/${{ env.APP_VERSION }}/LocalTranscriberPro/LocalTranscriberPro.exe
-      - name: Validate frozen application on macOS/Linux
-        if: runner.os != 'Windows'
+      - name: Validate frozen application bundle on macOS
+        if: runner.os == 'macOS'
+        run: python scripts/validate_frozen.py "dist/${{ env.APP_VERSION }}/Local Transcriber Pro.app/Contents/MacOS/LocalTranscriberPro"
+      - name: Validate frozen application on Linux
+        if: runner.os == 'Linux'
         run: python scripts/validate_frozen.py dist/${{ env.APP_VERSION }}/LocalTranscriberPro/LocalTranscriberPro
       - name: Package Windows installer
         if: runner.os == 'Windows'
