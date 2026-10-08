@@ -1,0 +1,543 @@
+{
+  "schema": 1,
+  "date": "2026-10-08",
+  "method": "Normalized character edit distance / reference characters. NFKC, casefold, punctuation/diacritics removed, Arabic orthographic normalization, no spaces. Length-weighted, not calibrated semantic reliability.",
+  "references": "https://github.com/vhaloo/LocalTranscriberPro/blob/main/docs/VALIDATION_3.1.md",
+  "reports": {
+    "whisper_large_v3": {
+      "local_report_sha256": "9f648d7568446b8d3940dd7dec31d0f5c68bc6a331fc23bcdefbbd961bcc1176",
+      "samples": 70
+    },
+    "omnilingual_ctc_1b_v2": {
+      "local_report_sha256": "bf364ab89e99801b4bd5e2d189de3cd7017ddf753004ad84f63249f4ce042ca0",
+      "samples": 70
+    }
+  },
+  "groups": [
+    {
+      "label_fr": "Créole haïtien",
+      "dataset": "phatjmo/cmu_haitian",
+      "config": "default",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 14,
+        "reference_characters": 140
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 33,
+        "reference_characters": 140
+      }
+    },
+    {
+      "label_fr": "Espagnol (Amérique latine)",
+      "dataset": "google/fleurs",
+      "config": "es_419",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 1,
+        "reference_characters": 233
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 2,
+        "reference_characters": 233
+      }
+    },
+    {
+      "label_fr": "Persan (Iran)",
+      "dataset": "google/fleurs",
+      "config": "fa_ir",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 7,
+        "reference_characters": 157
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 3,
+        "reference_characters": 157
+      }
+    },
+    {
+      "label_fr": "Pendjabi (Inde)",
+      "dataset": "google/fleurs",
+      "config": "pa_in",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 31,
+        "reference_characters": 107
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 9,
+        "reference_characters": 107
+      }
+    },
+    {
+      "label_fr": "Lingala (RDC)",
+      "dataset": "google/fleurs",
+      "config": "ln_cd",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 15,
+        "reference_characters": 107
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 7,
+        "reference_characters": 107
+      }
+    },
+    {
+      "label_fr": "Yoruba (Nigeria)",
+      "dataset": "google/fleurs",
+      "config": "yo_ng",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 48,
+        "reference_characters": 134
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 20,
+        "reference_characters": 134
+      }
+    },
+    {
+      "label_fr": "Somali (Somalie)",
+      "dataset": "google/fleurs",
+      "config": "so_so",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 209,
+        "reference_characters": 209
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 19,
+        "reference_characters": 209
+      }
+    },
+    {
+      "label_fr": "Haoussa (Nigeria)",
+      "dataset": "google/fleurs",
+      "config": "ha_ng",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 31,
+        "reference_characters": 131
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 10,
+        "reference_characters": 131
+      }
+    },
+    {
+      "label_fr": "Igbo (Nigeria)",
+      "dataset": "google/fleurs",
+      "config": "ig_ng",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 100,
+        "reference_characters": 168
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 13,
+        "reference_characters": 168
+      }
+    },
+    {
+      "label_fr": "Amharique (Éthiopie)",
+      "dataset": "google/fleurs",
+      "config": "am_et",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 157,
+        "reference_characters": 146
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 13,
+        "reference_characters": 146
+      }
+    },
+    {
+      "label_fr": "Swahili (Kenya)",
+      "dataset": "google/fleurs",
+      "config": "sw_ke",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 6,
+        "reference_characters": 169
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 1,
+        "reference_characters": 169
+      }
+    },
+    {
+      "label_fr": "Turc (Turquie)",
+      "dataset": "google/fleurs",
+      "config": "tr_tr",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 9,
+        "reference_characters": 167
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 10,
+        "reference_characters": 167
+      }
+    },
+    {
+      "label_fr": "Gujarati (Inde)",
+      "dataset": "google/fleurs",
+      "config": "gu_in",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 16,
+        "reference_characters": 130
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 8,
+        "reference_characters": 130
+      }
+    },
+    {
+      "label_fr": "Français (France)",
+      "dataset": "google/fleurs",
+      "config": "fr_fr",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 5,
+        "reference_characters": 229
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 8,
+        "reference_characters": 229
+      }
+    },
+    {
+      "label_fr": "Anglais (États-Unis)",
+      "dataset": "google/fleurs",
+      "config": "en_us",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 4,
+        "reference_characters": 169
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 5,
+        "reference_characters": 169
+      }
+    },
+    {
+      "label_fr": "Arabe - groupe Algérie",
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Algeria",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 15,
+        "reference_characters": 84
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 9,
+        "reference_characters": 84
+      }
+    },
+    {
+      "label_fr": "Arabe - groupe Égypte",
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Egypt",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 37,
+        "reference_characters": 82
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 23,
+        "reference_characters": 82
+      }
+    },
+    {
+      "label_fr": "Arabe - groupe Jordanie",
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Jordan",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 21,
+        "reference_characters": 102
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 22,
+        "reference_characters": 102
+      }
+    },
+    {
+      "label_fr": "Arabe - groupe Mauritanie",
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Mauritania",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 34,
+        "reference_characters": 68
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 42,
+        "reference_characters": 68
+      }
+    },
+    {
+      "label_fr": "Arabe - groupe Maroc",
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Morocco",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 56,
+        "reference_characters": 181
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 46,
+        "reference_characters": 181
+      }
+    },
+    {
+      "label_fr": "Arabe - groupe Palestine",
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Palestine",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 29,
+        "reference_characters": 168
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 16,
+        "reference_characters": 168
+      }
+    },
+    {
+      "label_fr": "Arabe - groupe Émirats arabes unis",
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "UAE",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 34,
+        "reference_characters": 133
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 24,
+        "reference_characters": 133
+      }
+    },
+    {
+      "label_fr": "Arabe - groupe Yémen",
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Yemen",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 31,
+        "reference_characters": 121
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 27,
+        "reference_characters": 121
+      }
+    },
+    {
+      "label_fr": "Mandarin (Chine, simplifié)",
+      "dataset": "google/fleurs",
+      "config": "cmn_hans_cn",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 0,
+        "reference_characters": 44
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 6,
+        "reference_characters": 44
+      }
+    },
+    {
+      "label_fr": "Cantonais (Hong Kong, traditionnel)",
+      "dataset": "google/fleurs",
+      "config": "yue_hant_hk",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 3,
+        "reference_characters": 76
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 9,
+        "reference_characters": 76
+      }
+    },
+    {
+      "label_fr": "Hindi (Inde)",
+      "dataset": "google/fleurs",
+      "config": "hi_in",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 155,
+        "reference_characters": 152
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 4,
+        "reference_characters": 152
+      }
+    },
+    {
+      "label_fr": "Ourdou (Pakistan)",
+      "dataset": "google/fleurs",
+      "config": "ur_pk",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 85,
+        "reference_characters": 221
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 81,
+        "reference_characters": 221
+      }
+    },
+    {
+      "label_fr": "Tamoul (Inde)",
+      "dataset": "google/fleurs",
+      "config": "ta_in",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 12,
+        "reference_characters": 101
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 8,
+        "reference_characters": 101
+      }
+    },
+    {
+      "label_fr": "Bengali (Inde)",
+      "dataset": "google/fleurs",
+      "config": "bn_in",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 15,
+        "reference_characters": 101
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 5,
+        "reference_characters": 101
+      }
+    },
+    {
+      "label_fr": "Pachto (Afghanistan)",
+      "dataset": "google/fleurs",
+      "config": "ps_af",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 94,
+        "reference_characters": 126
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 20,
+        "reference_characters": 126
+      }
+    },
+    {
+      "label_fr": "Thaï (Thaïlande)",
+      "dataset": "google/fleurs",
+      "config": "th_th",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 24,
+        "reference_characters": 163
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 39,
+        "reference_characters": 163
+      }
+    },
+    {
+      "label_fr": "Vietnamien (Vietnam)",
+      "dataset": "google/fleurs",
+      "config": "vi_vn",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 2,
+        "reference_characters": 126
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 14,
+        "reference_characters": 126
+      }
+    },
+    {
+      "label_fr": "Indonésien (Indonésie)",
+      "dataset": "google/fleurs",
+      "config": "id_id",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 0,
+        "reference_characters": 152
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 0,
+        "reference_characters": 152
+      }
+    },
+    {
+      "label_fr": "Japonais (Japon)",
+      "dataset": "google/fleurs",
+      "config": "ja_jp",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 10,
+        "reference_characters": 116
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 31,
+        "reference_characters": 116
+      }
+    },
+    {
+      "label_fr": "Coréen (Corée du Sud)",
+      "dataset": "google/fleurs",
+      "config": "ko_kr",
+      "whisper_large_v3": {
+        "samples": 2,
+        "character_edits": 5,
+        "reference_characters": 94
+      },
+      "omnilingual_ctc_1b_v2": {
+        "samples": 2,
+        "character_edits": 5,
+        "reference_characters": 94
+      }
+    }
+  ]
+}

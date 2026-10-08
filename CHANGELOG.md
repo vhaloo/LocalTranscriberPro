@@ -3,6 +3,7 @@
 ## 3.1.0 — 2026-10-08
 
 - Published experimental Apple Silicon macOS DMG and Linux x86-64 AppImage/portable archive, with native CPU/voice checks, checksums and explicit installation/GPU limitations. Windows remains the validated stable package.
+- Embedded complete language lists in README: 1,672 Omnilingual language/script/variety entries, Whisper/Qwen/Parakeet coverage, 452 translation tokens and 47 local voices. Added sourced aggregate CER percentages for 35 small diagnostic groups; unmeasured semantic reliability remains explicit. CI/builds reject stale generated inventories.
 - Added offline Universal live translation with searchable destinations, automatic two-language reversal, manual pairs and an optional third language.
 - Added Omnilingual CTC 1B v2 (1,600+ recognition languages) and pinned GlotLID v3 text language identification; universal Auto selects it on compatible hardware, with Whisper fallback. General quality Auto and every previous recognizer remain available.
 - Added pinned MADLAD-400 3B int8 translation with 452 language tokens/variants, GPU admission after recognition allocation and local CPU fallback.

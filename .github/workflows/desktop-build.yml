@@ -70,6 +70,7 @@ jobs:
           python -m compileall -q main.py src
           python -m ruff check main.py src tests scripts
           python scripts/check_release_docs.py
+          python scripts/generate_language_readme.py --check
           python -m pytest
       - name: Build application
         run: python -m PyInstaller --clean --noconfirm --distpath dist/${{ env.APP_VERSION }} packaging/LocalTranscriberPro.spec

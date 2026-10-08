@@ -1,0 +1,8483 @@
+{
+  "revision": "a7fb36017a46eee8953f76bd628c174d51aefeef",
+  "url": "https://raw.githubusercontent.com/facebookresearch/omnilingual-asr/a7fb36017a46eee8953f76bd628c174d51aefeef/src/omnilingual_asr/models/wav2vec2_llama/lang_ids.py",
+  "sha256": "675b8a263aed48269020d4e9f06b3063d5b4e0d5399b2c3e0e06160e08d24f8e",
+  "schema": 1,
+  "checked_on": "2026-10-08",
+  "publisher": "Meta Omnilingual ASR",
+  "source_license": "Apache-2.0",
+  "name_source": {
+    "library": "pycountry",
+    "version": "26.2.16",
+    "url": "https://github.com/pycountry/pycountry",
+    "data_license": "LGPL-2.1-or-later"
+  },
+  "export": {
+    "repository": "csukuangfj2/sherpa-onnx-omnilingual-asr-1600-languages-1B-ctc-v2-2026-02-05",
+    "revision": "7b4ba9fecd0d238285353676c21dfeec7a356823"
+  },
+  "whisper_codes": [
+    "af",
+    "am",
+    "ar",
+    "as",
+    "az",
+    "ba",
+    "be",
+    "bg",
+    "bn",
+    "bo",
+    "br",
+    "bs",
+    "ca",
+    "cs",
+    "cy",
+    "da",
+    "de",
+    "el",
+    "en",
+    "es",
+    "et",
+    "eu",
+    "fa",
+    "fi",
+    "fo",
+    "fr",
+    "gl",
+    "gu",
+    "ha",
+    "haw",
+    "he",
+    "hi",
+    "hr",
+    "ht",
+    "hu",
+    "hy",
+    "id",
+    "is",
+    "it",
+    "ja",
+    "jw",
+    "ka",
+    "kk",
+    "km",
+    "kn",
+    "ko",
+    "la",
+    "lb",
+    "ln",
+    "lo",
+    "lt",
+    "lv",
+    "mg",
+    "mi",
+    "mk",
+    "ml",
+    "mn",
+    "mr",
+    "ms",
+    "mt",
+    "my",
+    "ne",
+    "nl",
+    "nn",
+    "no",
+    "oc",
+    "pa",
+    "pl",
+    "ps",
+    "pt",
+    "ro",
+    "ru",
+    "sa",
+    "sd",
+    "si",
+    "sk",
+    "sl",
+    "sn",
+    "so",
+    "sq",
+    "sr",
+    "su",
+    "sv",
+    "sw",
+    "ta",
+    "te",
+    "tg",
+    "th",
+    "tk",
+    "tl",
+    "tr",
+    "tt",
+    "uk",
+    "ur",
+    "uz",
+    "vi",
+    "yi",
+    "yo",
+    "zh",
+    "yue"
+  ],
+  "languages": [
+    {
+      "code": "aae_Latn",
+      "name_en": "Arbëreshë Albanian",
+      "name_fr": "Albanais d'Arbëreshë"
+    },
+    {
+      "code": "aal_Latn",
+      "name_en": "Afade",
+      "name_fr": "Afade"
+    },
+    {
+      "code": "abb_Latn",
+      "name_en": "Bankon",
+      "name_fr": "Bankon"
+    },
+    {
+      "code": "abi_Latn",
+      "name_en": "Abidji",
+      "name_fr": "Abidji"
+    },
+    {
+      "code": "abk_Cyrl",
+      "name_en": "Abkhazian",
+      "name_fr": "Abkhaze"
+    },
+    {
+      "code": "abn_Latn",
+      "name_en": "Abua",
+      "name_fr": "Abua"
+    },
+    {
+      "code": "abp_Latn",
+      "name_en": "Abellen Ayta",
+      "name_fr": "Ayta d'Abellen"
+    },
+    {
+      "code": "abr_Latn",
+      "name_en": "Abron",
+      "name_fr": "Abron"
+    },
+    {
+      "code": "abs_Latn",
+      "name_en": "Ambonese Malay",
+      "name_fr": "Malais ambonais"
+    },
+    {
+      "code": "aca_Latn",
+      "name_en": "Achagua",
+      "name_fr": "Achagua"
+    },
+    {
+      "code": "acd_Latn",
+      "name_en": "Gikyode",
+      "name_fr": "Gikyode"
+    },
+    {
+      "code": "ace_Latn",
+      "name_en": "Achinese",
+      "name_fr": "Aceh"
+    },
+    {
+      "code": "acf_Latn",
+      "name_en": "Saint Lucian Creole French",
+      "name_fr": "Créole français de Sainte-Lucie"
+    },
+    {
+      "code": "ach_Latn",
+      "name_en": "Acoli",
+      "name_fr": "Acoli"
+    },
+    {
+      "code": "acm_Arab",
+      "name_en": "Mesopotamian Arabic",
+      "name_fr": "Arabe mésopotamien"
+    },
+    {
+      "code": "acn_Latn",
+      "name_en": "Achang",
+      "name_fr": "Achang"
+    },
+    {
+      "code": "acr_Latn",
+      "name_en": "Achi",
+      "name_fr": "Achi"
+    },
+    {
+      "code": "acu_Latn",
+      "name_en": "Achuar-Shiwiar",
+      "name_fr": "Achuar-shiwiar"
+    },
+    {
+      "code": "acw_Arab",
+      "name_en": "Hijazi Arabic",
+      "name_fr": "Arabe d'Hijazi"
+    },
+    {
+      "code": "ade_Latn",
+      "name_en": "Adele",
+      "name_fr": "Adele"
+    },
+    {
+      "code": "adh_Latn",
+      "name_en": "Adhola",
+      "name_fr": "Adhola"
+    },
+    {
+      "code": "adj_Latn",
+      "name_en": "Adioukrou",
+      "name_fr": "Adioukrou"
+    },
+    {
+      "code": "adx_Tibt",
+      "name_en": "Amdo Tibetan",
+      "name_fr": "Tibétain d'Amdo"
+    },
+    {
+      "code": "ady_Cyrl",
+      "name_en": "Adyghe",
+      "name_fr": "Adyguéen"
+    },
+    {
+      "code": "aeb_Arab",
+      "name_en": "Tunisian Arabic",
+      "name_fr": "Arabe tunisien"
+    },
+    {
+      "code": "aec_Arab",
+      "name_en": "Saidi Arabic",
+      "name_fr": "Arabe saidi"
+    },
+    {
+      "code": "aeu_Latn",
+      "name_en": "Akeu",
+      "name_fr": "Akeu"
+    },
+    {
+      "code": "afb_Arab",
+      "name_en": "Gulf Arabic",
+      "name_fr": "Arabe du Golfe"
+    },
+    {
+      "code": "afo_Latn",
+      "name_en": "Eloyi",
+      "name_fr": "Eloyi"
+    },
+    {
+      "code": "afr_Latn",
+      "name_en": "Afrikaans",
+      "name_fr": "Afrikaans"
+    },
+    {
+      "code": "agd_Latn",
+      "name_en": "Agarabi",
+      "name_fr": "Agarabi"
+    },
+    {
+      "code": "agg_Latn",
+      "name_en": "Angor",
+      "name_fr": "Angor"
+    },
+    {
+      "code": "agn_Latn",
+      "name_en": "Agutaynen",
+      "name_fr": "Agutaynen"
+    },
+    {
+      "code": "agr_Latn",
+      "name_en": "Aguaruna",
+      "name_fr": "Aguaruna"
+    },
+    {
+      "code": "agu_Latn",
+      "name_en": "Aguacateco",
+      "name_fr": "Aguacatèque"
+    },
+    {
+      "code": "agx_Cyrl",
+      "name_en": "Aghul",
+      "name_fr": "Agul"
+    },
+    {
+      "code": "aha_Latn",
+      "name_en": "Ahanta",
+      "name_fr": "Ahanta"
+    },
+    {
+      "code": "ahk_Latn",
+      "name_en": "Akha",
+      "name_fr": "Akha"
+    },
+    {
+      "code": "ahl_Latn",
+      "name_en": "Igo",
+      "name_fr": "Igo"
+    },
+    {
+      "code": "ahs_Latn",
+      "name_en": "Ashe",
+      "name_fr": "Ashe"
+    },
+    {
+      "code": "aia_Latn",
+      "name_en": "Arosi",
+      "name_fr": "Arosi"
+    },
+    {
+      "code": "ajg_Latn",
+      "name_en": "Aja (Benin)",
+      "name_fr": "Aja-gbe"
+    },
+    {
+      "code": "aka_Latn",
+      "name_en": "Akan",
+      "name_fr": "Akan"
+    },
+    {
+      "code": "akb_Latn",
+      "name_en": "Batak Angkola",
+      "name_fr": "Angkola batak"
+    },
+    {
+      "code": "ake_Latn",
+      "name_en": "Akawaio",
+      "name_fr": "Akawaio"
+    },
+    {
+      "code": "akp_Latn",
+      "name_en": "Siwu",
+      "name_fr": "Siwu"
+    },
+    {
+      "code": "ala_Latn",
+      "name_en": "Alago",
+      "name_fr": "Alago"
+    },
+    {
+      "code": "alj_Latn",
+      "name_en": "Alangan",
+      "name_fr": "Alangan"
+    },
+    {
+      "code": "aln_Latn",
+      "name_en": "Gheg Albanian",
+      "name_fr": "Albanais de Gheg"
+    },
+    {
+      "code": "alo_Latn",
+      "name_en": "Larike-Wakasihu",
+      "name_fr": "Larike-wakasihu"
+    },
+    {
+      "code": "alp_Latn",
+      "name_en": "Alune",
+      "name_fr": "Alune"
+    },
+    {
+      "code": "als_Latn",
+      "name_en": "Tosk Albanian",
+      "name_fr": "Albanais de Tosk"
+    },
+    {
+      "code": "alt_Cyrl",
+      "name_en": "Southern Altai",
+      "name_fr": "Altaï méridional"
+    },
+    {
+      "code": "alz_Latn",
+      "name_en": "Alur",
+      "name_fr": "Alur"
+    },
+    {
+      "code": "ame_Latn",
+      "name_en": "Yanesha'",
+      "name_fr": "Yanesha'"
+    },
+    {
+      "code": "amf_Latn",
+      "name_en": "Hamer-Banna",
+      "name_fr": "Hamer-banna"
+    },
+    {
+      "code": "amh_Ethi",
+      "name_en": "Amharic",
+      "name_fr": "Amharique"
+    },
+    {
+      "code": "ami_Latn",
+      "name_en": "Amis",
+      "name_fr": "Amis"
+    },
+    {
+      "code": "amk_Latn",
+      "name_en": "Ambai",
+      "name_fr": "Ambai"
+    },
+    {
+      "code": "amu_Latn",
+      "name_en": "Guerrero Amuzgo",
+      "name_fr": "Amuzgo de Guerrero"
+    },
+    {
+      "code": "anc_Latn",
+      "name_en": "Ngas",
+      "name_fr": "Ngas"
+    },
+    {
+      "code": "ank_Latn",
+      "name_en": "Goemai",
+      "name_fr": "Ankwé"
+    },
+    {
+      "code": "ann_Latn",
+      "name_en": "Obolo",
+      "name_fr": "Obolo"
+    },
+    {
+      "code": "anp_Deva",
+      "name_en": "Angika",
+      "name_fr": "Angika"
+    },
+    {
+      "code": "anw_Latn",
+      "name_en": "Anaang",
+      "name_fr": "Anaang"
+    },
+    {
+      "code": "any_Latn",
+      "name_en": "Anyin",
+      "name_fr": "Anyin"
+    },
+    {
+      "code": "aom_Latn",
+      "name_en": "Ömie",
+      "name_fr": "ömie"
+    },
+    {
+      "code": "aoz_Latn",
+      "name_en": "Uab Meto",
+      "name_fr": "Uab meto"
+    },
+    {
+      "code": "apb_Latn",
+      "name_en": "Sa'a",
+      "name_fr": "Sa'a"
+    },
+    {
+      "code": "apc_Arab",
+      "name_en": "Levantine Arabic",
+      "name_fr": "Levantine Arabic"
+    },
+    {
+      "code": "apd_Arab",
+      "name_en": "Sudanese Arabic",
+      "name_fr": "Arabe soudanais"
+    },
+    {
+      "code": "apr_Latn",
+      "name_en": "Arop-Lokep",
+      "name_fr": "Arop-lokep"
+    },
+    {
+      "code": "arb_Arab",
+      "name_en": "Standard Arabic",
+      "name_fr": "Arabe standard"
+    },
+    {
+      "code": "arg_Latn",
+      "name_en": "Aragonese",
+      "name_fr": "Aragonais"
+    },
+    {
+      "code": "arl_Latn",
+      "name_en": "Arabela",
+      "name_fr": "Arabela"
+    },
+    {
+      "code": "arq_Arab",
+      "name_en": "Algerian Arabic",
+      "name_fr": "Arabe algérien"
+    },
+    {
+      "code": "ars_Arab",
+      "name_en": "Najdi Arabic",
+      "name_fr": "Arabe Najdi"
+    },
+    {
+      "code": "ary_Arab",
+      "name_en": "Moroccan Arabic",
+      "name_fr": "Arabe marocain"
+    },
+    {
+      "code": "arz_Arab",
+      "name_en": "Egyptian Arabic",
+      "name_fr": "Arabe égyptien"
+    },
+    {
+      "code": "asa_Latn",
+      "name_en": "Asu (Tanzania)",
+      "name_fr": "Asu (Tanzanie)"
+    },
+    {
+      "code": "asg_Latn",
+      "name_en": "Cishingini",
+      "name_fr": "Cichingini"
+    },
+    {
+      "code": "asm_Beng",
+      "name_en": "Assamese",
+      "name_fr": "Assamais"
+    },
+    {
+      "code": "ast_Latn",
+      "name_en": "Asturian",
+      "name_fr": "Asturien"
+    },
+    {
+      "code": "ata_Latn",
+      "name_en": "Pele-Ata",
+      "name_fr": "Pele-ata"
+    },
+    {
+      "code": "atb_Latn",
+      "name_en": "Zaiwa",
+      "name_fr": "Zaiwa"
+    },
+    {
+      "code": "atg_Latn",
+      "name_en": "Ivbie North-Okpela-Arhe",
+      "name_fr": "Ivbie north-okpela-arhe"
+    },
+    {
+      "code": "ati_Latn",
+      "name_en": "Attié",
+      "name_fr": "Attié"
+    },
+    {
+      "code": "atq_Latn",
+      "name_en": "Aralle-Tabulahan",
+      "name_fr": "Aralle-tabulahan"
+    },
+    {
+      "code": "ava_Cyrl",
+      "name_en": "Avaric",
+      "name_fr": "Avar"
+    },
+    {
+      "code": "avn_Latn",
+      "name_en": "Avatime",
+      "name_fr": "Avatime"
+    },
+    {
+      "code": "avu_Latn",
+      "name_en": "Avokaya",
+      "name_fr": "Avokaya"
+    },
+    {
+      "code": "awa_Deva",
+      "name_en": "Awadhi",
+      "name_fr": "Awadhi"
+    },
+    {
+      "code": "awb_Latn",
+      "name_en": "Awa (Papua New Guinea)",
+      "name_fr": "Awa (Papouasie-Nouvelle-Guinée)"
+    },
+    {
+      "code": "awo_Latn",
+      "name_en": "Awak",
+      "name_fr": "Awak"
+    },
+    {
+      "code": "ayl_Arab",
+      "name_en": "Libyan Arabic",
+      "name_fr": "Arabe libyen"
+    },
+    {
+      "code": "ayo_Latn",
+      "name_en": "Ayoreo",
+      "name_fr": "Ayoreo"
+    },
+    {
+      "code": "ayp_Arab",
+      "name_en": "North Mesopotamian Arabic",
+      "name_fr": "Arabe de Mésopotamie du Nord"
+    },
+    {
+      "code": "ayr_Latn",
+      "name_en": "Central Aymara",
+      "name_fr": "Aymara central"
+    },
+    {
+      "code": "ayz_Latn",
+      "name_en": "Mai Brat",
+      "name_fr": "Mai brat"
+    },
+    {
+      "code": "aze_Arab",
+      "name_en": "Azerbaijani",
+      "name_fr": "Azéri"
+    },
+    {
+      "code": "aze_Cyrl",
+      "name_en": "Azerbaijani",
+      "name_fr": "Azéri"
+    },
+    {
+      "code": "aze_Latn",
+      "name_en": "Azerbaijani",
+      "name_fr": "Azéri"
+    },
+    {
+      "code": "azg_Latn",
+      "name_en": "San Pedro Amuzgos Amuzgo",
+      "name_fr": "Amuzgo de San Pedro Amuzgos"
+    },
+    {
+      "code": "azz_Latn",
+      "name_en": "Highland Puebla Nahuatl",
+      "name_fr": "Nahuatl du haut-pays de Puebla"
+    },
+    {
+      "code": "bag_Latn",
+      "name_en": "Tuki",
+      "name_fr": "Tuki"
+    },
+    {
+      "code": "bak_Cyrl",
+      "name_en": "Bashkir",
+      "name_fr": "Bachkir"
+    },
+    {
+      "code": "bam_Latn",
+      "name_en": "Bambara",
+      "name_fr": "Bambara"
+    },
+    {
+      "code": "ban_Latn",
+      "name_en": "Balinese",
+      "name_fr": "Balinais"
+    },
+    {
+      "code": "bao_Latn",
+      "name_en": "Waimaha",
+      "name_fr": "Waimaha"
+    },
+    {
+      "code": "bas_Latn",
+      "name_en": "Basa (Cameroon)",
+      "name_fr": "Basa (Cameroun)"
+    },
+    {
+      "code": "bav_Latn",
+      "name_en": "Vengo",
+      "name_fr": "Vengo"
+    },
+    {
+      "code": "bax_Latn",
+      "name_en": "Bamun",
+      "name_fr": "Bamun"
+    },
+    {
+      "code": "bba_Latn",
+      "name_en": "Baatonum",
+      "name_fr": "Baatonum"
+    },
+    {
+      "code": "bbb_Latn",
+      "name_en": "Barai",
+      "name_fr": "Barai"
+    },
+    {
+      "code": "bbc_Latn",
+      "name_en": "Batak Toba",
+      "name_fr": "Batak Toba"
+    },
+    {
+      "code": "bbj_Latn",
+      "name_en": "Ghomálá'",
+      "name_fr": "Ghomálá'"
+    },
+    {
+      "code": "bbl_Geor",
+      "name_en": "Bats",
+      "name_fr": "Bats"
+    },
+    {
+      "code": "bbo_Latn",
+      "name_en": "Northern Bobo Madaré",
+      "name_fr": "Bobo Madaré septentrional"
+    },
+    {
+      "code": "bbu_Latn",
+      "name_en": "Kulung (Nigeria)",
+      "name_fr": "Kulung (Nigéria)"
+    },
+    {
+      "code": "bcc_Arab",
+      "name_en": "Southern Balochi",
+      "name_fr": "Balochi méridional"
+    },
+    {
+      "code": "bcc_Latn",
+      "name_en": "Southern Balochi",
+      "name_fr": "Balochi méridional"
+    },
+    {
+      "code": "bce_Latn",
+      "name_en": "Bamenyam",
+      "name_fr": "Bamenyam"
+    },
+    {
+      "code": "bci_Latn",
+      "name_en": "Baoulé",
+      "name_fr": "Baoulé"
+    },
+    {
+      "code": "bcl_Latn",
+      "name_en": "Central Bikol",
+      "name_fr": "Bikol central"
+    },
+    {
+      "code": "bcs_Latn",
+      "name_en": "Kohumono",
+      "name_fr": "Kohumono"
+    },
+    {
+      "code": "bcw_Latn",
+      "name_en": "Bana",
+      "name_fr": "Bana"
+    },
+    {
+      "code": "bcy_Latn",
+      "name_en": "Bacama",
+      "name_fr": "Bacama"
+    },
+    {
+      "code": "bcz_Latn",
+      "name_en": "Bainouk-Gunyaamolo",
+      "name_fr": "Bainouk-gunyaamolo"
+    },
+    {
+      "code": "bda_Latn",
+      "name_en": "Bayot",
+      "name_fr": "Bayot"
+    },
+    {
+      "code": "bde_Latn",
+      "name_en": "Bade",
+      "name_fr": "Bade"
+    },
+    {
+      "code": "bdg_Latn",
+      "name_en": "Bonggi",
+      "name_fr": "Bonggi"
+    },
+    {
+      "code": "bdh_Latn",
+      "name_en": "Baka (South Sudan)",
+      "name_fr": "Baka (Soudan du Sud)"
+    },
+    {
+      "code": "bdm_Latn",
+      "name_en": "Buduma",
+      "name_fr": "Buduma"
+    },
+    {
+      "code": "bdq_Latn",
+      "name_en": "Bahnar",
+      "name_fr": "Bahnar"
+    },
+    {
+      "code": "bdu_Latn",
+      "name_en": "Oroko",
+      "name_fr": "Oroko"
+    },
+    {
+      "code": "beb_Latn",
+      "name_en": "Bebele",
+      "name_fr": "Bebele"
+    },
+    {
+      "code": "beh_Latn",
+      "name_en": "Biali",
+      "name_fr": "Biali"
+    },
+    {
+      "code": "bel_Cyrl",
+      "name_en": "Belarusian",
+      "name_fr": "Biélorusse"
+    },
+    {
+      "code": "bem_Latn",
+      "name_en": "Bemba (Zambia)",
+      "name_fr": "Bemba (Zambie)"
+    },
+    {
+      "code": "ben_Beng",
+      "name_en": "Bengali",
+      "name_fr": "Bengali"
+    },
+    {
+      "code": "bep_Latn",
+      "name_en": "Besoa",
+      "name_fr": "Besoa"
+    },
+    {
+      "code": "bew_Latn",
+      "name_en": "Betawi",
+      "name_fr": "Betawi"
+    },
+    {
+      "code": "bex_Latn",
+      "name_en": "Jur Modo",
+      "name_fr": "Jur Modo"
+    },
+    {
+      "code": "bfa_Latn",
+      "name_en": "Bari",
+      "name_fr": "Bari"
+    },
+    {
+      "code": "bfd_Latn",
+      "name_en": "Bafut",
+      "name_fr": "Bafut"
+    },
+    {
+      "code": "bfo_Latn",
+      "name_en": "Malba Birifor",
+      "name_fr": "Birifor de Malba"
+    },
+    {
+      "code": "bft_Arab",
+      "name_en": "Balti",
+      "name_fr": "Balti"
+    },
+    {
+      "code": "bfy_Deva",
+      "name_en": "Bagheli",
+      "name_fr": "Bagheli"
+    },
+    {
+      "code": "bfz_Deva",
+      "name_en": "Mahasu Pahari",
+      "name_fr": "Pahari de Mahasu"
+    },
+    {
+      "code": "bgc_Deva",
+      "name_en": "Haryanvi",
+      "name_fr": "Haryanvi"
+    },
+    {
+      "code": "bgp_Arab",
+      "name_en": "Eastern Balochi",
+      "name_fr": "Baloutchi oriental"
+    },
+    {
+      "code": "bgq_Deva",
+      "name_en": "Bagri",
+      "name_fr": "Bagri"
+    },
+    {
+      "code": "bgr_Latn",
+      "name_en": "Bawm Chin",
+      "name_fr": "Chin de Bawm"
+    },
+    {
+      "code": "bgt_Latn",
+      "name_en": "Bughotu",
+      "name_fr": "Bughotu"
+    },
+    {
+      "code": "bgw_Deva",
+      "name_en": "Bhatri",
+      "name_fr": "Bhatri"
+    },
+    {
+      "code": "bha_Deva",
+      "name_en": "Bharia",
+      "name_fr": "Bharia"
+    },
+    {
+      "code": "bhb_Deva",
+      "name_en": "Bhili",
+      "name_fr": "Bhili"
+    },
+    {
+      "code": "bhh_Cyrl",
+      "name_en": "Bukharic",
+      "name_fr": "Bukharic"
+    },
+    {
+      "code": "bho_Deva",
+      "name_en": "Bhojpuri",
+      "name_fr": "Bhojpuri"
+    },
+    {
+      "code": "bhp_Latn",
+      "name_en": "Bima",
+      "name_fr": "Bima"
+    },
+    {
+      "code": "bht_Deva",
+      "name_en": "Bhattiyali",
+      "name_fr": "Bhattiyali"
+    },
+    {
+      "code": "bhz_Latn",
+      "name_en": "Bada (Indonesia)",
+      "name_fr": "Bada (Indonésie)"
+    },
+    {
+      "code": "bib_Latn",
+      "name_en": "Bissa",
+      "name_fr": "Bissa"
+    },
+    {
+      "code": "bim_Latn",
+      "name_en": "Bimoba",
+      "name_fr": "Bimoba"
+    },
+    {
+      "code": "bis_Latn",
+      "name_en": "Bislama",
+      "name_fr": "Bichelamar"
+    },
+    {
+      "code": "biv_Latn",
+      "name_en": "Southern Birifor",
+      "name_fr": "Birifor méridional"
+    },
+    {
+      "code": "bjj_Deva",
+      "name_en": "Kanauji",
+      "name_fr": "Kanauji"
+    },
+    {
+      "code": "bjk_Latn",
+      "name_en": "Barok",
+      "name_fr": "Barok"
+    },
+    {
+      "code": "bjn_Latn",
+      "name_en": "Banjar",
+      "name_fr": "Banjar"
+    },
+    {
+      "code": "bjr_Latn",
+      "name_en": "Binumarien",
+      "name_fr": "Binumarien"
+    },
+    {
+      "code": "bjt_Latn",
+      "name_en": "Balanta-Ganja",
+      "name_fr": "Balanta-ganja"
+    },
+    {
+      "code": "bjv_Latn",
+      "name_en": "Bedjond",
+      "name_fr": "Bedjond"
+    },
+    {
+      "code": "bjw_Latn",
+      "name_en": "Bakwé",
+      "name_fr": "Bakwé"
+    },
+    {
+      "code": "bjz_Latn",
+      "name_en": "Baruga",
+      "name_fr": "Baruga"
+    },
+    {
+      "code": "bkd_Latn",
+      "name_en": "Binukid",
+      "name_fr": "Binukid"
+    },
+    {
+      "code": "bkh_Latn",
+      "name_en": "Bakoko",
+      "name_fr": "Bakoko"
+    },
+    {
+      "code": "bkm_Latn",
+      "name_en": "Kom (Cameroon)",
+      "name_fr": "Kom (Cameroun)"
+    },
+    {
+      "code": "bkv_Latn",
+      "name_en": "Bekwarra",
+      "name_fr": "Bekwarra"
+    },
+    {
+      "code": "bky_Latn",
+      "name_en": "Bokyi",
+      "name_fr": "Bokyi"
+    },
+    {
+      "code": "ble_Latn",
+      "name_en": "Balanta-Kentohe",
+      "name_fr": "Balanta-kentohe"
+    },
+    {
+      "code": "blh_Latn",
+      "name_en": "Kuwaa",
+      "name_fr": "Kuwaa"
+    },
+    {
+      "code": "blt_Latn",
+      "name_en": "Tai Dam",
+      "name_fr": "Tai Dam"
+    },
+    {
+      "code": "blx_Latn",
+      "name_en": "Mag-Indi Ayta",
+      "name_fr": "Ayta de Mag-Indi"
+    },
+    {
+      "code": "blz_Latn",
+      "name_en": "Balantak",
+      "name_fr": "Balantak"
+    },
+    {
+      "code": "bmm_Latn",
+      "name_en": "Northern Betsimisaraka Malagasy",
+      "name_fr": "Malgache de Betsimisaraka septentrional"
+    },
+    {
+      "code": "bmq_Latn",
+      "name_en": "Bomu",
+      "name_fr": "Bomu"
+    },
+    {
+      "code": "bmr_Latn",
+      "name_en": "Muinane",
+      "name_fr": "Muinane"
+    },
+    {
+      "code": "bmu_Latn",
+      "name_en": "Somba-Siawari",
+      "name_fr": "Somba-siawari"
+    },
+    {
+      "code": "bmv_Latn",
+      "name_en": "Bum",
+      "name_fr": "Bum"
+    },
+    {
+      "code": "bng_Beng",
+      "name_en": "Benga",
+      "name_fr": "Benga"
+    },
+    {
+      "code": "bnm_Latn",
+      "name_en": "Batanga",
+      "name_fr": "Batanga"
+    },
+    {
+      "code": "bnn_Latn",
+      "name_en": "Bunun",
+      "name_fr": "Bunun"
+    },
+    {
+      "code": "bno_Latn",
+      "name_en": "Bantoanon",
+      "name_fr": "Bantoanon"
+    },
+    {
+      "code": "bnp_Latn",
+      "name_en": "Bola",
+      "name_fr": "Bola"
+    },
+    {
+      "code": "bns_Deva",
+      "name_en": "Bundeli",
+      "name_fr": "Bundeli"
+    },
+    {
+      "code": "boa_Latn",
+      "name_en": "Bora",
+      "name_fr": "Bora"
+    },
+    {
+      "code": "bod_Tibt",
+      "name_en": "Tibetan",
+      "name_fr": "Tibétain"
+    },
+    {
+      "code": "boj_Latn",
+      "name_en": "Anjam",
+      "name_fr": "Anjam"
+    },
+    {
+      "code": "bom_Latn",
+      "name_en": "Berom",
+      "name_fr": "Berom"
+    },
+    {
+      "code": "bor_Latn",
+      "name_en": "Borôro",
+      "name_fr": "Borôro"
+    },
+    {
+      "code": "bos_Latn",
+      "name_en": "Bosnian",
+      "name_fr": "Bosniaque"
+    },
+    {
+      "code": "bou_Latn",
+      "name_en": "Bondei",
+      "name_fr": "Bondei"
+    },
+    {
+      "code": "bov_Latn",
+      "name_en": "Tuwuli",
+      "name_fr": "Tuwuli"
+    },
+    {
+      "code": "box_Latn",
+      "name_en": "Buamu",
+      "name_fr": "Buamu"
+    },
+    {
+      "code": "bpr_Latn",
+      "name_en": "Koronadal Blaan",
+      "name_fr": "Blaan de Koronadal"
+    },
+    {
+      "code": "bps_Latn",
+      "name_en": "Sarangani Blaan",
+      "name_fr": "Blaan de Sarangani"
+    },
+    {
+      "code": "bqc_Latn",
+      "name_en": "Boko (Benin)",
+      "name_fr": "Boko (Bénin)"
+    },
+    {
+      "code": "bqg_Latn",
+      "name_en": "Bago-Kusuntu",
+      "name_fr": "Bago-kusuntu"
+    },
+    {
+      "code": "bqi_Arab",
+      "name_en": "Bakhtiari",
+      "name_fr": "Bakhtiare"
+    },
+    {
+      "code": "bqj_Latn",
+      "name_en": "Bandial",
+      "name_fr": "Bandial"
+    },
+    {
+      "code": "bqp_Latn",
+      "name_en": "Busa",
+      "name_fr": "Busa"
+    },
+    {
+      "code": "bra_Deva",
+      "name_en": "Braj",
+      "name_fr": "Braj"
+    },
+    {
+      "code": "bre_Latn",
+      "name_en": "Breton",
+      "name_fr": "Breton"
+    },
+    {
+      "code": "brh_Arab",
+      "name_en": "Brahui",
+      "name_fr": "Brahui"
+    },
+    {
+      "code": "bri_Latn",
+      "name_en": "Mokpwe",
+      "name_fr": "Mokpwe"
+    },
+    {
+      "code": "bru_Latn",
+      "name_en": "Eastern Bru",
+      "name_fr": "Bru oriental"
+    },
+    {
+      "code": "brx_Deva",
+      "name_en": "Bodo (India)",
+      "name_fr": "Bodo (Inde)"
+    },
+    {
+      "code": "bsc_Latn",
+      "name_en": "Bassari",
+      "name_fr": "Bassari"
+    },
+    {
+      "code": "bsh_Arab",
+      "name_en": "Kati",
+      "name_fr": "Kati"
+    },
+    {
+      "code": "bsj_Latn",
+      "name_en": "Bangwinji",
+      "name_fr": "Bangwinji"
+    },
+    {
+      "code": "bsk_Latn",
+      "name_en": "Burushaski",
+      "name_fr": "Burushaski"
+    },
+    {
+      "code": "bsq_Latn",
+      "name_en": "Bassa",
+      "name_fr": "Bassa"
+    },
+    {
+      "code": "bss_Latn",
+      "name_en": "Akoose",
+      "name_fr": "Akoose"
+    },
+    {
+      "code": "bsy_Latn",
+      "name_en": "Sabah Bisaya",
+      "name_fr": "Bisaya de Sabah"
+    },
+    {
+      "code": "btd_Latn",
+      "name_en": "Batak Dairi",
+      "name_fr": "Batak Dairi"
+    },
+    {
+      "code": "btm_Latn",
+      "name_en": "Batak Mandailing",
+      "name_fr": "Batak Mandailing"
+    },
+    {
+      "code": "bts_Latn",
+      "name_en": "Batak Simalungun",
+      "name_fr": "Batak Simalungun"
+    },
+    {
+      "code": "btt_Latn",
+      "name_en": "Bete-Bendi",
+      "name_fr": "Bete-bendi"
+    },
+    {
+      "code": "btv_Arab",
+      "name_en": "Bateri",
+      "name_fr": "Bateri"
+    },
+    {
+      "code": "btx_Latn",
+      "name_en": "Batak Karo",
+      "name_fr": "Batak Karo"
+    },
+    {
+      "code": "bud_Latn",
+      "name_en": "Ntcham",
+      "name_fr": "Ntcham"
+    },
+    {
+      "code": "bug_Latn",
+      "name_en": "Buginese",
+      "name_fr": "Bouguis"
+    },
+    {
+      "code": "bul_Cyrl",
+      "name_en": "Bulgarian",
+      "name_fr": "Bulgare"
+    },
+    {
+      "code": "bum_Latn",
+      "name_en": "Bulu (Cameroon)",
+      "name_fr": "Bulu (Cameroun)"
+    },
+    {
+      "code": "buo_Latn",
+      "name_en": "Terei",
+      "name_fr": "Terei"
+    },
+    {
+      "code": "bus_Latn",
+      "name_en": "Bokobaru",
+      "name_fr": "Bokobaru"
+    },
+    {
+      "code": "bux_Latn",
+      "name_en": "Boghom",
+      "name_fr": "Boghom"
+    },
+    {
+      "code": "bvb_Latn",
+      "name_en": "Bube",
+      "name_fr": "Bube"
+    },
+    {
+      "code": "bvc_Latn",
+      "name_en": "Baelelea",
+      "name_fr": "Baelelea"
+    },
+    {
+      "code": "bvz_Latn",
+      "name_en": "Bauzi",
+      "name_fr": "Bauzi"
+    },
+    {
+      "code": "bwq_Latn",
+      "name_en": "Southern Bobo Madaré",
+      "name_fr": "Bobo Madaré méridional"
+    },
+    {
+      "code": "bwr_Latn",
+      "name_en": "Bura-Pabir",
+      "name_fr": "Bura-pabir"
+    },
+    {
+      "code": "bwu_Latn",
+      "name_en": "Buli (Ghana)",
+      "name_fr": "Buli (Ghana)"
+    },
+    {
+      "code": "bxf_Latn",
+      "name_en": "Bilur",
+      "name_fr": "Bilur"
+    },
+    {
+      "code": "bxk_Latn",
+      "name_en": "Bukusu",
+      "name_fr": "Bukusu"
+    },
+    {
+      "code": "byc_Latn",
+      "name_en": "Ubaghara",
+      "name_fr": "Ubaghara"
+    },
+    {
+      "code": "byr_Latn",
+      "name_en": "Baruya",
+      "name_fr": "Baruya"
+    },
+    {
+      "code": "bys_Latn",
+      "name_en": "Burak",
+      "name_fr": "Burak"
+    },
+    {
+      "code": "byv_Latn",
+      "name_en": "Medumba",
+      "name_fr": "Medumba"
+    },
+    {
+      "code": "byx_Latn",
+      "name_en": "Qaqet",
+      "name_fr": "Qaqet"
+    },
+    {
+      "code": "bzh_Latn",
+      "name_en": "Mapos Buang",
+      "name_fr": "Buang de Mapos"
+    },
+    {
+      "code": "bzi_Thai",
+      "name_en": "Bisu",
+      "name_fr": "Bisu"
+    },
+    {
+      "code": "bzj_Latn",
+      "name_en": "Belize Kriol English",
+      "name_fr": "Créole anglais du Bélize"
+    },
+    {
+      "code": "bzw_Latn",
+      "name_en": "Basa (Nigeria)",
+      "name_fr": "Basa (Nigéria)"
+    },
+    {
+      "code": "caa_Latn",
+      "name_en": "Chortí",
+      "name_fr": "Chortí"
+    },
+    {
+      "code": "cab_Latn",
+      "name_en": "Garifuna",
+      "name_fr": "Garifuna"
+    },
+    {
+      "code": "cac_Latn",
+      "name_en": "Chuj",
+      "name_fr": "Chuj"
+    },
+    {
+      "code": "cak_Latn",
+      "name_en": "Kaqchikel",
+      "name_fr": "Kaqchikel"
+    },
+    {
+      "code": "cap_Latn",
+      "name_en": "Chipaya",
+      "name_fr": "Chipaya"
+    },
+    {
+      "code": "car_Latn",
+      "name_en": "Galibi Carib",
+      "name_fr": "Carib de Galibi"
+    },
+    {
+      "code": "cas_Latn",
+      "name_en": "Tsimané",
+      "name_fr": "Tsimané"
+    },
+    {
+      "code": "cat_Latn",
+      "name_en": "Catalan",
+      "name_fr": "Catalan"
+    },
+    {
+      "code": "cax_Latn",
+      "name_en": "Chiquitano",
+      "name_fr": "Chiquitano"
+    },
+    {
+      "code": "cbc_Latn",
+      "name_en": "Carapana",
+      "name_fr": "Carapana"
+    },
+    {
+      "code": "cbi_Latn",
+      "name_en": "Chachi",
+      "name_fr": "Chachi"
+    },
+    {
+      "code": "cbr_Latn",
+      "name_en": "Cashibo-Cacataibo",
+      "name_fr": "Cachibo-cacataibo"
+    },
+    {
+      "code": "cbs_Latn",
+      "name_en": "Cashinahua",
+      "name_fr": "Cachinahua"
+    },
+    {
+      "code": "cbt_Latn",
+      "name_en": "Chayahuita",
+      "name_fr": "Chayahuita"
+    },
+    {
+      "code": "cbu_Latn",
+      "name_en": "Candoshi-Shapra",
+      "name_fr": "Candochi-shapra"
+    },
+    {
+      "code": "cbv_Latn",
+      "name_en": "Cacua",
+      "name_fr": "Cacua"
+    },
+    {
+      "code": "cce_Latn",
+      "name_en": "Chopi",
+      "name_fr": "Chopi"
+    },
+    {
+      "code": "ccg_Latn",
+      "name_en": "Samba Daka",
+      "name_fr": "Samba Daka"
+    },
+    {
+      "code": "cco_Latn",
+      "name_en": "Comaltepec Chinantec",
+      "name_fr": "Chinantec de Comaltepec"
+    },
+    {
+      "code": "cdj_Deva",
+      "name_en": "Churahi",
+      "name_fr": "Churahi"
+    },
+    {
+      "code": "cdo_Hans",
+      "name_en": "Min Dong Chinese",
+      "name_fr": "Chinois Min Dong"
+    },
+    {
+      "code": "ceb_Latn",
+      "name_en": "Cebuano",
+      "name_fr": "Cebuano"
+    },
+    {
+      "code": "ceg_Latn",
+      "name_en": "Chamacoco",
+      "name_fr": "Chamacoco"
+    },
+    {
+      "code": "cek_Latn",
+      "name_en": "Eastern Khumi Chin",
+      "name_fr": "Khumi chin oriental"
+    },
+    {
+      "code": "cen_Latn",
+      "name_en": "Cen",
+      "name_fr": "Cen"
+    },
+    {
+      "code": "ces_Latn",
+      "name_en": "Czech",
+      "name_fr": "Tchèque"
+    },
+    {
+      "code": "cfa_Latn",
+      "name_en": "Dijim-Bwilim",
+      "name_fr": "Dijim-bwilim"
+    },
+    {
+      "code": "cfm_Latn",
+      "name_en": "Falam Chin",
+      "name_fr": "Chin de Falam"
+    },
+    {
+      "code": "cgc_Latn",
+      "name_en": "Kagayanen",
+      "name_fr": "Kagayanen"
+    },
+    {
+      "code": "cgg_Latn",
+      "name_en": "Chiga",
+      "name_fr": "Chiga"
+    },
+    {
+      "code": "che_Cyrl",
+      "name_en": "Chechen",
+      "name_fr": "Tchétchène"
+    },
+    {
+      "code": "chf_Latn",
+      "name_en": "Tabasco Chontal",
+      "name_fr": "Chontal de Tabasco"
+    },
+    {
+      "code": "chq_Latn",
+      "name_en": "Quiotepec Chinantec",
+      "name_fr": "Chinantec de Quiotepec"
+    },
+    {
+      "code": "chv_Cyrl",
+      "name_en": "Chuvash",
+      "name_fr": "Tchouvache"
+    },
+    {
+      "code": "chz_Latn",
+      "name_en": "Ozumacín Chinantec",
+      "name_fr": "Chinantec d'Ozumacín"
+    },
+    {
+      "code": "cjk_Latn",
+      "name_en": "Chokwe",
+      "name_fr": "Chokwe"
+    },
+    {
+      "code": "cjo_Latn",
+      "name_en": "Ashéninka Pajonal",
+      "name_fr": "Ashéninka Pajonal"
+    },
+    {
+      "code": "cjp_Latn",
+      "name_en": "Cabécar",
+      "name_fr": "Cabécar"
+    },
+    {
+      "code": "cjs_Cyrl",
+      "name_en": "Shor",
+      "name_fr": "Shor"
+    },
+    {
+      "code": "ckb_Arab",
+      "name_en": "Central Kurdish",
+      "name_fr": "Kurde central"
+    },
+    {
+      "code": "ckl_Latn",
+      "name_en": "Cibak",
+      "name_fr": "Cibak"
+    },
+    {
+      "code": "cko_Latn",
+      "name_en": "Anufo",
+      "name_fr": "Anufo"
+    },
+    {
+      "code": "ckr_Latn",
+      "name_en": "Kairak",
+      "name_fr": "Kairak"
+    },
+    {
+      "code": "ckt_Cyrl",
+      "name_en": "Chukot",
+      "name_fr": "Tchoukote"
+    },
+    {
+      "code": "cky_Latn",
+      "name_en": "Cakfem-Mushere",
+      "name_fr": "Cakfem-mushere"
+    },
+    {
+      "code": "cla_Latn",
+      "name_en": "Ron",
+      "name_fr": "Ron"
+    },
+    {
+      "code": "cle_Latn",
+      "name_en": "Lealao Chinantec",
+      "name_fr": "Chinantec de Lealao"
+    },
+    {
+      "code": "cly_Latn",
+      "name_en": "Eastern Highland Chatino",
+      "name_fr": "Chatino de haut-pays oriental"
+    },
+    {
+      "code": "cme_Latn",
+      "name_en": "Cerma",
+      "name_fr": "Cerma"
+    },
+    {
+      "code": "cmn_Hans",
+      "name_en": "Mandarin Chinese",
+      "name_fr": "Chinois mandarin"
+    },
+    {
+      "code": "cmn_Hant",
+      "name_en": "Mandarin Chinese",
+      "name_fr": "Chinois mandarin"
+    },
+    {
+      "code": "cmo_Khmr",
+      "name_en": "Central Mnong",
+      "name_fr": "Mnong central"
+    },
+    {
+      "code": "cmo_Latn",
+      "name_en": "Central Mnong",
+      "name_fr": "Mnong central"
+    },
+    {
+      "code": "cmr_Latn",
+      "name_en": "Mro-Khimi Chin",
+      "name_fr": "Chin de Mro-Khimi"
+    },
+    {
+      "code": "cnh_Latn",
+      "name_en": "Hakha Chin",
+      "name_fr": "Chin d'Hakha"
+    },
+    {
+      "code": "cni_Latn",
+      "name_en": "Asháninka",
+      "name_fr": "Asháninka"
+    },
+    {
+      "code": "cnl_Latn",
+      "name_en": "Lalana Chinantec",
+      "name_fr": "Chinantec de Lalana"
+    },
+    {
+      "code": "cnt_Latn",
+      "name_en": "Tepetotutla Chinantec",
+      "name_fr": "Chinantec de Tepetotutla"
+    },
+    {
+      "code": "coe_Latn",
+      "name_en": "Koreguaje",
+      "name_fr": "Koreguaje"
+    },
+    {
+      "code": "cof_Latn",
+      "name_en": "Colorado",
+      "name_fr": "Colorado"
+    },
+    {
+      "code": "cok_Latn",
+      "name_en": "Santa Teresa Cora",
+      "name_fr": "Cora de Santa Teresa"
+    },
+    {
+      "code": "con_Latn",
+      "name_en": "Cofán",
+      "name_fr": "Cofán"
+    },
+    {
+      "code": "cor_Latn",
+      "name_en": "Cornish",
+      "name_fr": "Cornique"
+    },
+    {
+      "code": "cot_Latn",
+      "name_en": "Caquinte",
+      "name_fr": "Caquinte"
+    },
+    {
+      "code": "cou_Latn",
+      "name_en": "Wamey",
+      "name_fr": "Wamey"
+    },
+    {
+      "code": "cpa_Latn",
+      "name_en": "Palantla Chinantec",
+      "name_fr": "Chinantec de Palantla"
+    },
+    {
+      "code": "cpb_Latn",
+      "name_en": "Ucayali-Yurúa Ashéninka",
+      "name_fr": "Ashéninka d'Ucayali-Yurúa"
+    },
+    {
+      "code": "cpu_Latn",
+      "name_en": "Pichis Ashéninka",
+      "name_fr": "Ashéninka de Pichis"
+    },
+    {
+      "code": "cpx_Hans",
+      "name_en": "Pu-Xian Chinese",
+      "name_fr": "Chinois Pu-Xian"
+    },
+    {
+      "code": "cpy_Latn",
+      "name_en": "South Ucayali Ashéninka",
+      "name_fr": "Ashéninka d'Ucayali méridional"
+    },
+    {
+      "code": "crh_Cyrl",
+      "name_en": "Crimean Tatar",
+      "name_fr": "Tatar de Crimée"
+    },
+    {
+      "code": "crk_Cans",
+      "name_en": "Plains Cree",
+      "name_fr": "Cri des plaines"
+    },
+    {
+      "code": "crk_Latn",
+      "name_en": "Plains Cree",
+      "name_fr": "Cri des plaines"
+    },
+    {
+      "code": "crn_Latn",
+      "name_en": "El Nayar Cora",
+      "name_fr": "Cora d'El Nayar"
+    },
+    {
+      "code": "crq_Latn",
+      "name_en": "Iyo'wujwa Chorote",
+      "name_fr": "Chorote d'Iyo'wujwa"
+    },
+    {
+      "code": "crs_Latn",
+      "name_en": "Seselwa Creole French",
+      "name_fr": "Créole français de Seselwa"
+    },
+    {
+      "code": "crt_Latn",
+      "name_en": "Iyojwa'ja Chorote",
+      "name_fr": "Chorote d'Iyojwa'ja"
+    },
+    {
+      "code": "csk_Latn",
+      "name_en": "Jola-Kasa",
+      "name_fr": "Jola-kasa"
+    },
+    {
+      "code": "cso_Latn",
+      "name_en": "Sochiapam Chinantec",
+      "name_fr": "Chinantec de Sochiapam"
+    },
+    {
+      "code": "ctd_Latn",
+      "name_en": "Tedim Chin",
+      "name_fr": "Chin de Tedim"
+    },
+    {
+      "code": "cte_Latn",
+      "name_en": "Tepinapa Chinantec",
+      "name_fr": "Chinantec de Tepinapa"
+    },
+    {
+      "code": "ctg_Beng",
+      "name_en": "Chittagonian",
+      "name_fr": "Chittagonien"
+    },
+    {
+      "code": "ctl_Latn",
+      "name_en": "Tlacoatzintepec Chinantec",
+      "name_fr": "Chinantec de Tlacoatzintepec"
+    },
+    {
+      "code": "cto_Latn",
+      "name_en": "Emberá-Catío",
+      "name_fr": "Emberá-catío"
+    },
+    {
+      "code": "ctu_Latn",
+      "name_en": "Chol",
+      "name_fr": "Chol"
+    },
+    {
+      "code": "cuc_Latn",
+      "name_en": "Usila Chinantec",
+      "name_fr": "Chinantec d'Usila"
+    },
+    {
+      "code": "cui_Latn",
+      "name_en": "Cuiba",
+      "name_fr": "Cuiba"
+    },
+    {
+      "code": "cuk_Latn",
+      "name_en": "San Blas Kuna",
+      "name_fr": "Kuna de San Blas"
+    },
+    {
+      "code": "cul_Latn",
+      "name_en": "Culina",
+      "name_fr": "Culina"
+    },
+    {
+      "code": "cut_Latn",
+      "name_en": "Teutila Cuicatec",
+      "name_fr": "Cuicatec de Teutila"
+    },
+    {
+      "code": "cux_Latn",
+      "name_en": "Tepeuxila Cuicatec",
+      "name_fr": "Cuicatec de Tepeuxila"
+    },
+    {
+      "code": "cwa_Latn",
+      "name_en": "Kabwa",
+      "name_fr": "Kabwa"
+    },
+    {
+      "code": "cwe_Latn",
+      "name_en": "Kwere",
+      "name_fr": "Kwere"
+    },
+    {
+      "code": "cwt_Latn",
+      "name_en": "Kuwaataay",
+      "name_fr": "Kuwaataay"
+    },
+    {
+      "code": "cya_Latn",
+      "name_en": "Nopala Chatino",
+      "name_fr": "Chatino de Nopala"
+    },
+    {
+      "code": "cym_Latn",
+      "name_en": "Welsh",
+      "name_fr": "Gallois"
+    },
+    {
+      "code": "daa_Latn",
+      "name_en": "Dangaléat",
+      "name_fr": "Dangaléat"
+    },
+    {
+      "code": "dag_Latn",
+      "name_en": "Dagbani",
+      "name_fr": "Dagbani"
+    },
+    {
+      "code": "dah_Latn",
+      "name_en": "Gwahatike",
+      "name_fr": "Gwahatike"
+    },
+    {
+      "code": "dan_Latn",
+      "name_en": "Danish",
+      "name_fr": "Danois"
+    },
+    {
+      "code": "dar_Cyrl",
+      "name_en": "Dargwa",
+      "name_fr": "Dargwa"
+    },
+    {
+      "code": "dav_Latn",
+      "name_en": "Taita",
+      "name_fr": "Taita"
+    },
+    {
+      "code": "dbd_Latn",
+      "name_en": "Dadiya",
+      "name_fr": "Dadiya"
+    },
+    {
+      "code": "dbj_Latn",
+      "name_en": "Ida'an",
+      "name_fr": "Ida'an"
+    },
+    {
+      "code": "dbq_Latn",
+      "name_en": "Daba",
+      "name_fr": "Daba"
+    },
+    {
+      "code": "dcc_Arab",
+      "name_en": "Deccan",
+      "name_fr": "Deccan"
+    },
+    {
+      "code": "ddn_Latn",
+      "name_en": "Dendi (Benin)",
+      "name_fr": "Dendi (Bénin)"
+    },
+    {
+      "code": "ded_Latn",
+      "name_en": "Dedua",
+      "name_fr": "Dedua"
+    },
+    {
+      "code": "deg_Latn",
+      "name_en": "Degema",
+      "name_fr": "Degema"
+    },
+    {
+      "code": "des_Latn",
+      "name_en": "Desano",
+      "name_fr": "Desano"
+    },
+    {
+      "code": "deu_Latn",
+      "name_en": "German",
+      "name_fr": "Allemand"
+    },
+    {
+      "code": "dga_Latn",
+      "name_en": "Southern Dagaare",
+      "name_fr": "Dagaare méridional"
+    },
+    {
+      "code": "dgh_Latn",
+      "name_en": "Dghwede",
+      "name_fr": "Dghwede"
+    },
+    {
+      "code": "dgi_Latn",
+      "name_en": "Northern Dagara",
+      "name_fr": "Dagara septentrional"
+    },
+    {
+      "code": "dgk_Latn",
+      "name_en": "Dagba",
+      "name_fr": "Dagba"
+    },
+    {
+      "code": "dgo_Deva",
+      "name_en": "Dogri (individual language)",
+      "name_fr": "Dogri (langue individuelle)"
+    },
+    {
+      "code": "dgr_Latn",
+      "name_en": "Tlicho",
+      "name_fr": "Tlicho"
+    },
+    {
+      "code": "dhi_Deva",
+      "name_en": "Dhimal",
+      "name_fr": "Dhimal"
+    },
+    {
+      "code": "did_Latn",
+      "name_en": "Didinga",
+      "name_fr": "Didinga"
+    },
+    {
+      "code": "dig_Latn",
+      "name_en": "Digo",
+      "name_fr": "Digo"
+    },
+    {
+      "code": "dik_Latn",
+      "name_en": "Southwestern Dinka",
+      "name_fr": "Dinka du Sud-Ouest"
+    },
+    {
+      "code": "dip_Latn",
+      "name_en": "Northeastern Dinka",
+      "name_fr": "Dinka du Nord-Est"
+    },
+    {
+      "code": "div_Thaa",
+      "name_en": "Divehi",
+      "name_fr": "Divehi"
+    },
+    {
+      "code": "dje_Latn",
+      "name_en": "Zarma",
+      "name_fr": "Zarma"
+    },
+    {
+      "code": "djk_Latn",
+      "name_en": "Eastern Maroon Creole",
+      "name_fr": "Créole marron de l'Est"
+    },
+    {
+      "code": "dmk_Arab",
+      "name_en": "Domaaki",
+      "name_fr": "Domaaki"
+    },
+    {
+      "code": "dml_Arab",
+      "name_en": "Dameli",
+      "name_fr": "Dameli"
+    },
+    {
+      "code": "dnj_Latn",
+      "name_en": "Dan",
+      "name_fr": "Dan"
+    },
+    {
+      "code": "dnt_Latn",
+      "name_en": "Mid Grand Valley Dani",
+      "name_fr": "Dani de la Grande Vallée intermédiaire"
+    },
+    {
+      "code": "dnw_Latn",
+      "name_en": "Western Dani",
+      "name_fr": "Dani occidental"
+    },
+    {
+      "code": "dop_Latn",
+      "name_en": "Lukpa",
+      "name_fr": "Lukpa"
+    },
+    {
+      "code": "dos_Latn",
+      "name_en": "Dogosé",
+      "name_fr": "Dogosé"
+    },
+    {
+      "code": "dru_Latn",
+      "name_en": "Rukai",
+      "name_fr": "Rukai"
+    },
+    {
+      "code": "dsb_Latn",
+      "name_en": "Lower Sorbian",
+      "name_fr": "Bas-Sorabe"
+    },
+    {
+      "code": "dsh_Latn",
+      "name_en": "Daasanach",
+      "name_fr": "Daasanach"
+    },
+    {
+      "code": "dtp_Latn",
+      "name_en": "Kadazan Dusun",
+      "name_fr": "Kadazan dusun"
+    },
+    {
+      "code": "dts_Latn",
+      "name_en": "Toro So Dogon",
+      "name_fr": "Dogon de Toro So"
+    },
+    {
+      "code": "dty_Deva",
+      "name_en": "Dotyali",
+      "name_fr": "Dotyali"
+    },
+    {
+      "code": "dua_Latn",
+      "name_en": "Duala",
+      "name_fr": "Douala"
+    },
+    {
+      "code": "dug_Latn",
+      "name_en": "Duruma",
+      "name_fr": "Duruma"
+    },
+    {
+      "code": "dwr_Latn",
+      "name_en": "Dawro",
+      "name_fr": "Dawro"
+    },
+    {
+      "code": "dyi_Latn",
+      "name_en": "Djimini Senoufo",
+      "name_fr": "Senoufo de Djimini"
+    },
+    {
+      "code": "dyo_Latn",
+      "name_en": "Jola-Fonyi",
+      "name_fr": "Jola-fonyi"
+    },
+    {
+      "code": "dyu_Latn",
+      "name_en": "Dyula",
+      "name_fr": "Dioula"
+    },
+    {
+      "code": "dzg_Latn",
+      "name_en": "Dazaga",
+      "name_fr": "Dazaga"
+    },
+    {
+      "code": "dzo_Tibt",
+      "name_en": "Dzongkha",
+      "name_fr": "Dzongkha"
+    },
+    {
+      "code": "ebu_Latn",
+      "name_en": "Embu",
+      "name_fr": "Embu"
+    },
+    {
+      "code": "ego_Latn",
+      "name_en": "Eggon",
+      "name_fr": "Eggon"
+    },
+    {
+      "code": "eip_Latn",
+      "name_en": "Eipomek",
+      "name_fr": "Eipomek"
+    },
+    {
+      "code": "eiv_Latn",
+      "name_en": "Askopan",
+      "name_fr": "Askopan"
+    },
+    {
+      "code": "eka_Latn",
+      "name_en": "Ekajuk",
+      "name_fr": "Ekajuk"
+    },
+    {
+      "code": "ekk_Latn",
+      "name_en": "Standard Estonian",
+      "name_fr": "Estonien standard"
+    },
+    {
+      "code": "eko_Latn",
+      "name_en": "Koti",
+      "name_fr": "Koti"
+    },
+    {
+      "code": "ekr_Latn",
+      "name_en": "Yace",
+      "name_fr": "Yace"
+    },
+    {
+      "code": "ell_Grek",
+      "name_en": "Modern Greek (1453-)",
+      "name_fr": "Grec moderne (après 1453)"
+    },
+    {
+      "code": "ell_Grek_cypr1249",
+      "name_en": "Modern Greek (1453-)",
+      "name_fr": "Grec moderne (après 1453)"
+    },
+    {
+      "code": "elm_Latn",
+      "name_en": "Eleme",
+      "name_fr": "Eleme"
+    },
+    {
+      "code": "emp_Latn",
+      "name_en": "Northern Emberá",
+      "name_fr": "Emberá septentrional"
+    },
+    {
+      "code": "enb_Latn",
+      "name_en": "Markweeta",
+      "name_fr": "Markweeta"
+    },
+    {
+      "code": "eng_Latn",
+      "name_en": "English",
+      "name_fr": "Anglais"
+    },
+    {
+      "code": "enx_Latn",
+      "name_en": "Enxet",
+      "name_fr": "Enxet"
+    },
+    {
+      "code": "epo_Latn",
+      "name_en": "Esperanto",
+      "name_fr": "Espéranto"
+    },
+    {
+      "code": "ese_Latn",
+      "name_en": "Ese Ejja",
+      "name_fr": "Ese Ejja"
+    },
+    {
+      "code": "ess_Latn",
+      "name_en": "Central Siberian Yupik",
+      "name_fr": "Yupik de Sibérie centrale"
+    },
+    {
+      "code": "esu_Latn",
+      "name_en": "Central Yupik",
+      "name_fr": "Yupik central"
+    },
+    {
+      "code": "eto_Latn",
+      "name_en": "Eton (Cameroon)",
+      "name_fr": "Eton (Cameroun)"
+    },
+    {
+      "code": "ets_Latn",
+      "name_en": "Yekhee",
+      "name_fr": "Yekhee"
+    },
+    {
+      "code": "etu_Latn",
+      "name_en": "Ejagham",
+      "name_fr": "Ejagham"
+    },
+    {
+      "code": "eus_Latn",
+      "name_en": "Basque",
+      "name_fr": "Basque"
+    },
+    {
+      "code": "evn_Cyrl",
+      "name_en": "Evenki",
+      "name_fr": "Evenki"
+    },
+    {
+      "code": "ewe_Latn",
+      "name_en": "Ewe",
+      "name_fr": "Éwé"
+    },
+    {
+      "code": "ewo_Latn",
+      "name_en": "Ewondo",
+      "name_fr": "Éwondo"
+    },
+    {
+      "code": "eyo_Latn",
+      "name_en": "Keiyo",
+      "name_fr": "Keiyo"
+    },
+    {
+      "code": "eza_Latn",
+      "name_en": "Ezaa",
+      "name_fr": "Ezaa"
+    },
+    {
+      "code": "fal_Latn",
+      "name_en": "South Fali",
+      "name_fr": "Fali méridional"
+    },
+    {
+      "code": "fan_Latn",
+      "name_en": "Fang (Equatorial Guinea)",
+      "name_fr": "Fang (Guinée Équatoriale)"
+    },
+    {
+      "code": "fao_Latn",
+      "name_en": "Faroese",
+      "name_fr": "Féroïen"
+    },
+    {
+      "code": "far_Latn",
+      "name_en": "Fataleka",
+      "name_fr": "Fataleka"
+    },
+    {
+      "code": "fas_Arab",
+      "name_en": "Persian",
+      "name_fr": "Persan"
+    },
+    {
+      "code": "fat_Latn",
+      "name_en": "Fanti",
+      "name_fr": "Fanti"
+    },
+    {
+      "code": "fia_Latn",
+      "name_en": "Nobiin",
+      "name_fr": "Nobiin"
+    },
+    {
+      "code": "fij_Latn",
+      "name_en": "Fijian",
+      "name_fr": "Fidjien"
+    },
+    {
+      "code": "fil_Latn",
+      "name_en": "Filipino",
+      "name_fr": "Filipino"
+    },
+    {
+      "code": "fin_Latn",
+      "name_en": "Finnish",
+      "name_fr": "Finnois"
+    },
+    {
+      "code": "fip_Latn",
+      "name_en": "Fipa",
+      "name_fr": "Fipa"
+    },
+    {
+      "code": "fkk_Latn",
+      "name_en": "Kirya-Konzəl",
+      "name_fr": "Kirya-Konzəl"
+    },
+    {
+      "code": "flr_Latn",
+      "name_en": "Fuliiru",
+      "name_fr": "Fuliiru"
+    },
+    {
+      "code": "fmp_Latn",
+      "name_en": "Fe'fe'",
+      "name_fr": "Fe'fe'"
+    },
+    {
+      "code": "fmu_Deva",
+      "name_en": "Far Western Muria",
+      "name_fr": "Muria extrême-occidental"
+    },
+    {
+      "code": "fon_Latn",
+      "name_en": "Fon",
+      "name_fr": "Fon"
+    },
+    {
+      "code": "fra_Latn",
+      "name_en": "French",
+      "name_fr": "Français"
+    },
+    {
+      "code": "frd_Latn",
+      "name_en": "Fordata",
+      "name_fr": "Fordata"
+    },
+    {
+      "code": "fry_Latn",
+      "name_en": "Western Frisian",
+      "name_fr": "Frison occidental"
+    },
+    {
+      "code": "fub_Latn",
+      "name_en": "Adamawa Fulfulde",
+      "name_fr": "Fulfulde d'Adamawa"
+    },
+    {
+      "code": "fuc_Latn",
+      "name_en": "Pulaar",
+      "name_fr": "Pulaar"
+    },
+    {
+      "code": "fue_Latn",
+      "name_en": "Borgu Fulfulde",
+      "name_fr": "Fulfulde de Borgu"
+    },
+    {
+      "code": "ful_Latn",
+      "name_en": "Fulah",
+      "name_fr": "Peul"
+    },
+    {
+      "code": "fuq_Latn",
+      "name_en": "Central-Eastern Niger Fulfulde",
+      "name_fr": "Fulfulde du Niger central oriental"
+    },
+    {
+      "code": "fuv_Latn",
+      "name_en": "Nigerian Fulfulde",
+      "name_fr": "Fulfulde nigérian"
+    },
+    {
+      "code": "gag_Cyrl",
+      "name_en": "Gagauz",
+      "name_fr": "Gagaouze"
+    },
+    {
+      "code": "gag_Latn",
+      "name_en": "Gagauz",
+      "name_fr": "Gagaouze"
+    },
+    {
+      "code": "gai_Latn",
+      "name_en": "Borei",
+      "name_fr": "Borei"
+    },
+    {
+      "code": "gam_Latn",
+      "name_en": "Kandawo",
+      "name_fr": "Kandawo"
+    },
+    {
+      "code": "gau_Telu",
+      "name_en": "Mudhili Gadaba",
+      "name_fr": "Gadaba de Mudhili"
+    },
+    {
+      "code": "gbi_Latn",
+      "name_en": "Galela",
+      "name_fr": "Galela"
+    },
+    {
+      "code": "gbk_Deva",
+      "name_en": "Gaddi",
+      "name_fr": "Gaddi"
+    },
+    {
+      "code": "gbm_Deva",
+      "name_en": "Garhwali",
+      "name_fr": "Garhwali"
+    },
+    {
+      "code": "gbo_Latn",
+      "name_en": "Northern Grebo",
+      "name_fr": "Grebo septentrional"
+    },
+    {
+      "code": "gbr_Latn",
+      "name_en": "Gbagyi",
+      "name_fr": "Gbagyi"
+    },
+    {
+      "code": "gby_Latn",
+      "name_en": "Gbari",
+      "name_fr": "Gbari"
+    },
+    {
+      "code": "gcc_Latn",
+      "name_en": "Mali",
+      "name_fr": "Mali"
+    },
+    {
+      "code": "gde_Latn",
+      "name_en": "Gude",
+      "name_fr": "Gude"
+    },
+    {
+      "code": "gdf_Latn",
+      "name_en": "Guduf-Gava",
+      "name_fr": "Guduf-gava"
+    },
+    {
+      "code": "geb_Latn",
+      "name_en": "Kire",
+      "name_fr": "Kire"
+    },
+    {
+      "code": "gej_Latn",
+      "name_en": "Gen",
+      "name_fr": "Mina"
+    },
+    {
+      "code": "ges_Latn",
+      "name_en": "Geser-Gorom",
+      "name_fr": "Geser-gorom"
+    },
+    {
+      "code": "ggg_Arab",
+      "name_en": "Gurgula",
+      "name_fr": "Gurgula"
+    },
+    {
+      "code": "gid_Latn",
+      "name_en": "Gidar",
+      "name_fr": "Gidar"
+    },
+    {
+      "code": "gig_Arab",
+      "name_en": "Goaria",
+      "name_fr": "Goaria"
+    },
+    {
+      "code": "gil_Latn",
+      "name_en": "Gilbertese",
+      "name_fr": "Gilbertin"
+    },
+    {
+      "code": "giz_Latn",
+      "name_en": "South Giziga",
+      "name_fr": "Giziga méridional"
+    },
+    {
+      "code": "gjk_Arab",
+      "name_en": "Kachi Koli",
+      "name_fr": "Koli de Kachi"
+    },
+    {
+      "code": "gjn_Latn",
+      "name_en": "Gonja",
+      "name_fr": "Gonja"
+    },
+    {
+      "code": "gju_Arab",
+      "name_en": "Gujari",
+      "name_fr": "Gujari"
+    },
+    {
+      "code": "gkn_Latn",
+      "name_en": "Gokana",
+      "name_fr": "Gokana"
+    },
+    {
+      "code": "gld_Cyrl",
+      "name_en": "Nanai",
+      "name_fr": "Nanai"
+    },
+    {
+      "code": "gle_Latn",
+      "name_en": "Irish",
+      "name_fr": "Irlandais"
+    },
+    {
+      "code": "glg_Latn",
+      "name_en": "Galician",
+      "name_fr": "Galicien"
+    },
+    {
+      "code": "glk_Arab",
+      "name_en": "Gilaki",
+      "name_fr": "Gilaki"
+    },
+    {
+      "code": "glv_Latn",
+      "name_en": "Manx",
+      "name_fr": "Mannois"
+    },
+    {
+      "code": "glw_Latn",
+      "name_en": "Glavda",
+      "name_fr": "Glavda"
+    },
+    {
+      "code": "gmv_Latn",
+      "name_en": "Gamo",
+      "name_fr": "Gamo"
+    },
+    {
+      "code": "gna_Latn",
+      "name_en": "Kaansa",
+      "name_fr": "Kaansa"
+    },
+    {
+      "code": "gnd_Latn",
+      "name_en": "Zulgo-Gemzek",
+      "name_fr": "Zulgo-gemzek"
+    },
+    {
+      "code": "gng_Latn",
+      "name_en": "Ngangam",
+      "name_fr": "Ngangam"
+    },
+    {
+      "code": "gof_Latn",
+      "name_en": "Gofa",
+      "name_fr": "Gofa"
+    },
+    {
+      "code": "gog_Latn",
+      "name_en": "Gogo",
+      "name_fr": "Gogo"
+    },
+    {
+      "code": "gol_Latn",
+      "name_en": "Gola",
+      "name_fr": "Gola"
+    },
+    {
+      "code": "gom_Deva",
+      "name_en": "Goan Konkani",
+      "name_fr": "Konkani de Goa"
+    },
+    {
+      "code": "gor_Latn",
+      "name_en": "Gorontalo",
+      "name_fr": "Gorontalo"
+    },
+    {
+      "code": "gqr_Latn",
+      "name_en": "Gor",
+      "name_fr": "Gor"
+    },
+    {
+      "code": "grc_Grek",
+      "name_en": "Ancient Greek (to 1453)",
+      "name_fr": "Grec ancien (jusqu'à 1453)"
+    },
+    {
+      "code": "gri_Latn",
+      "name_en": "Ghari",
+      "name_fr": "Ghari"
+    },
+    {
+      "code": "grn_Latn",
+      "name_en": "Guarani",
+      "name_fr": "Guarani"
+    },
+    {
+      "code": "grt_Beng",
+      "name_en": "Garo",
+      "name_fr": "Garo"
+    },
+    {
+      "code": "gsl_Latn",
+      "name_en": "Gusilay",
+      "name_fr": "Gusilay"
+    },
+    {
+      "code": "gso_Latn",
+      "name_en": "Southwest Gbaya",
+      "name_fr": "Gbaya du Sud-Ouest"
+    },
+    {
+      "code": "gub_Latn",
+      "name_en": "Guajajára",
+      "name_fr": "Guajajára"
+    },
+    {
+      "code": "guc_Latn",
+      "name_en": "Wayuu",
+      "name_fr": "Wayuu"
+    },
+    {
+      "code": "gud_Latn",
+      "name_en": "Yocoboué Dida",
+      "name_fr": "Dida de Yocoboué"
+    },
+    {
+      "code": "gug_Latn",
+      "name_en": "Paraguayan Guaraní",
+      "name_fr": "Guaraní paraguayen"
+    },
+    {
+      "code": "guh_Latn",
+      "name_en": "Guahibo",
+      "name_fr": "Guahibo"
+    },
+    {
+      "code": "gui_Latn",
+      "name_en": "Eastern Bolivian Guaraní",
+      "name_fr": "Guaraní de Bolivie oriental"
+    },
+    {
+      "code": "guj_Gujr",
+      "name_en": "Gujarati",
+      "name_fr": "Goudjarâtî (Gujrâtî)"
+    },
+    {
+      "code": "guk_Ethi",
+      "name_en": "Gumuz",
+      "name_fr": "Gumuz"
+    },
+    {
+      "code": "gum_Latn",
+      "name_en": "Guambiano",
+      "name_fr": "Guambiano"
+    },
+    {
+      "code": "guo_Latn",
+      "name_en": "Guayabero",
+      "name_fr": "Guayabero"
+    },
+    {
+      "code": "guq_Latn",
+      "name_en": "Aché",
+      "name_fr": "Aché"
+    },
+    {
+      "code": "gur_Latn",
+      "name_en": "Farefare",
+      "name_fr": "Farefare"
+    },
+    {
+      "code": "guu_Latn",
+      "name_en": "Yanomamö",
+      "name_fr": "Yanomamö"
+    },
+    {
+      "code": "gux_Latn",
+      "name_en": "Gourmanchéma",
+      "name_fr": "Gourmanchéma"
+    },
+    {
+      "code": "guz_Latn",
+      "name_en": "Gusii",
+      "name_fr": "Gusii"
+    },
+    {
+      "code": "gvc_Latn",
+      "name_en": "Guanano",
+      "name_fr": "Guanano"
+    },
+    {
+      "code": "gvl_Latn",
+      "name_en": "Gulay",
+      "name_fr": "Gulay"
+    },
+    {
+      "code": "gwc_Arab",
+      "name_en": "Gawri",
+      "name_fr": "Gawri"
+    },
+    {
+      "code": "gwe_Latn",
+      "name_en": "Gweno",
+      "name_fr": "Gweno"
+    },
+    {
+      "code": "gwi_Latn",
+      "name_en": "Gwichʼin",
+      "name_fr": "Gwichʼin"
+    },
+    {
+      "code": "gwr_Latn",
+      "name_en": "Gwere",
+      "name_fr": "Gwere"
+    },
+    {
+      "code": "gwt_Arab",
+      "name_en": "Gawar-Bati",
+      "name_fr": "Gawar-bati"
+    },
+    {
+      "code": "gym_Latn",
+      "name_en": "Ngäbere",
+      "name_fr": "Ngäbere"
+    },
+    {
+      "code": "gyr_Latn",
+      "name_en": "Guarayu",
+      "name_fr": "Guarayu"
+    },
+    {
+      "code": "gyz_Latn",
+      "name_en": "Geji",
+      "name_fr": "Geji"
+    },
+    {
+      "code": "had_Latn",
+      "name_en": "Hatam",
+      "name_fr": "Hatam"
+    },
+    {
+      "code": "hag_Latn",
+      "name_en": "Hanga",
+      "name_fr": "Hanga"
+    },
+    {
+      "code": "hah_Latn",
+      "name_en": "Hahon",
+      "name_fr": "Hahon"
+    },
+    {
+      "code": "hak_Latn",
+      "name_en": "Hakka Chinese",
+      "name_fr": "Chinois Hakka"
+    },
+    {
+      "code": "hao_Latn",
+      "name_en": "Hakö",
+      "name_fr": "Hakö"
+    },
+    {
+      "code": "hap_Latn",
+      "name_en": "Hupla",
+      "name_fr": "Hupla"
+    },
+    {
+      "code": "hat_Latn",
+      "name_en": "Haitian",
+      "name_fr": "Haïtien"
+    },
+    {
+      "code": "hau_Latn",
+      "name_en": "Hausa",
+      "name_fr": "Haoussa"
+    },
+    {
+      "code": "haw_Latn",
+      "name_en": "Hawaiian",
+      "name_fr": "Hawaïen"
+    },
+    {
+      "code": "hay_Latn",
+      "name_en": "Haya",
+      "name_fr": "Haya"
+    },
+    {
+      "code": "hbb_Latn",
+      "name_en": "Huba",
+      "name_fr": "Huba"
+    },
+    {
+      "code": "hch_Latn",
+      "name_en": "Huichol",
+      "name_fr": "Huichol"
+    },
+    {
+      "code": "heb_Hebr",
+      "name_en": "Hebrew",
+      "name_fr": "Hébreu"
+    },
+    {
+      "code": "heh_Latn",
+      "name_en": "Hehe",
+      "name_fr": "Hehe"
+    },
+    {
+      "code": "her_Latn",
+      "name_en": "Herero",
+      "name_fr": "Herero"
+    },
+    {
+      "code": "hia_Latn",
+      "name_en": "Lamang",
+      "name_fr": "Lamang"
+    },
+    {
+      "code": "hif_Latn",
+      "name_en": "Fiji Hindi",
+      "name_fr": "Hindi des Fidji"
+    },
+    {
+      "code": "hig_Latn",
+      "name_en": "Kamwe",
+      "name_fr": "Kamwe"
+    },
+    {
+      "code": "hil_Latn",
+      "name_en": "Hiligaynon",
+      "name_fr": "Hiligaynon"
+    },
+    {
+      "code": "hin_Deva",
+      "name_en": "Hindi",
+      "name_fr": "Hindi"
+    },
+    {
+      "code": "hkk_Latn",
+      "name_en": "Hunjara-Kaina Ke",
+      "name_fr": "Hunjara-kaina Ke"
+    },
+    {
+      "code": "hla_Latn",
+      "name_en": "Halia",
+      "name_fr": "Halia"
+    },
+    {
+      "code": "hlb_Deva",
+      "name_en": "Halbi",
+      "name_fr": "Halbi"
+    },
+    {
+      "code": "hlt_Latn",
+      "name_en": "Matu Chin",
+      "name_fr": "Chin de Matu"
+    },
+    {
+      "code": "hne_Deva",
+      "name_en": "Chhattisgarhi",
+      "name_fr": "Chhattisgarhi"
+    },
+    {
+      "code": "hnn_Latn",
+      "name_en": "Hanunoo",
+      "name_fr": "Hanunoo"
+    },
+    {
+      "code": "hno_Arab",
+      "name_en": "Northern Hindko",
+      "name_fr": "Hindko septentrional"
+    },
+    {
+      "code": "hns_Latn",
+      "name_en": "Caribbean Hindustani",
+      "name_fr": "Hindoustani des Caraïbes"
+    },
+    {
+      "code": "hoc_Orya",
+      "name_en": "Ho",
+      "name_fr": "Ho"
+    },
+    {
+      "code": "hrv_Latn",
+      "name_en": "Croatian",
+      "name_fr": "Croate"
+    },
+    {
+      "code": "hsb_Latn",
+      "name_en": "Upper Sorbian",
+      "name_fr": "Haut-sorabe"
+    },
+    {
+      "code": "hto_Latn",
+      "name_en": "Minica Huitoto",
+      "name_fr": "Huitoto de Minica"
+    },
+    {
+      "code": "hub_Latn",
+      "name_en": "Huambisa",
+      "name_fr": "Huambisa"
+    },
+    {
+      "code": "hue_Latn",
+      "name_en": "San Francisco Del Mar Huave",
+      "name_fr": "Huave de San Francisco Del Mar"
+    },
+    {
+      "code": "hui_Latn",
+      "name_en": "Huli",
+      "name_fr": "Huli"
+    },
+    {
+      "code": "hul_Latn",
+      "name_en": "Hula",
+      "name_fr": "Hula"
+    },
+    {
+      "code": "hun_Latn",
+      "name_en": "Hungarian",
+      "name_fr": "Hongrois"
+    },
+    {
+      "code": "hus_Latn",
+      "name_en": "Huastec",
+      "name_fr": "Huastèque"
+    },
+    {
+      "code": "huu_Latn",
+      "name_en": "Murui Huitoto",
+      "name_fr": "Huitoto de Murui"
+    },
+    {
+      "code": "huv_Latn",
+      "name_en": "San Mateo Del Mar Huave",
+      "name_fr": "Huave de San Mateo Del Mar"
+    },
+    {
+      "code": "hux_Latn",
+      "name_en": "Nüpode Huitoto",
+      "name_fr": "Huitoto de Nüpode"
+    },
+    {
+      "code": "hvn_Latn",
+      "name_en": "Sabu",
+      "name_fr": "Sabu"
+    },
+    {
+      "code": "hwc_Latn",
+      "name_en": "Hawai'i Creole English",
+      "name_fr": "Créole anglais d'Hawaï"
+    },
+    {
+      "code": "hwo_Latn",
+      "name_en": "Hwana",
+      "name_fr": "Hwana"
+    },
+    {
+      "code": "hye_Armn",
+      "name_en": "Armenian",
+      "name_fr": "Arménien"
+    },
+    {
+      "code": "hyw_Armn",
+      "name_en": "Western Armenian",
+      "name_fr": "Arménien occidental"
+    },
+    {
+      "code": "iba_Latn",
+      "name_en": "Iban",
+      "name_fr": "Iban"
+    },
+    {
+      "code": "ibb_Latn",
+      "name_en": "Ibibio",
+      "name_fr": "Ibibio"
+    },
+    {
+      "code": "ibo_Latn",
+      "name_en": "Igbo",
+      "name_fr": "Igbo"
+    },
+    {
+      "code": "icr_Latn",
+      "name_en": "Islander Creole English",
+      "name_fr": "Créole anglais des îles"
+    },
+    {
+      "code": "ida_Latn",
+      "name_en": "Idakho-Isukha-Tiriki",
+      "name_fr": "Idakho-isukha-tiriki"
+    },
+    {
+      "code": "idd_Latn",
+      "name_en": "Ede Idaca",
+      "name_fr": "Ede Idaca"
+    },
+    {
+      "code": "idu_Latn",
+      "name_en": "Idoma",
+      "name_fr": "Idoma"
+    },
+    {
+      "code": "ifa_Latn",
+      "name_en": "Amganad Ifugao",
+      "name_fr": "Ifugao d'Amganad"
+    },
+    {
+      "code": "ifb_Latn",
+      "name_en": "Batad Ifugao",
+      "name_fr": "Ifugao de Batad"
+    },
+    {
+      "code": "ife_Latn",
+      "name_en": "Ifè",
+      "name_fr": "Ifè"
+    },
+    {
+      "code": "ifk_Latn",
+      "name_en": "Tuwali Ifugao",
+      "name_fr": "Ifugao de Tuwali"
+    },
+    {
+      "code": "ifu_Latn",
+      "name_en": "Mayoyao Ifugao",
+      "name_fr": "Ifugao de Mayoyao"
+    },
+    {
+      "code": "ify_Latn",
+      "name_en": "Keley-I Kallahan",
+      "name_fr": "Kallahan de Keley-I"
+    },
+    {
+      "code": "igl_Latn",
+      "name_en": "Igala",
+      "name_fr": "Igala"
+    },
+    {
+      "code": "ign_Latn",
+      "name_en": "Ignaciano",
+      "name_fr": "Ignaciano"
+    },
+    {
+      "code": "ijc_Latn",
+      "name_en": "Izon",
+      "name_fr": "Izon"
+    },
+    {
+      "code": "ijn_Latn",
+      "name_en": "Kalabari",
+      "name_fr": "Kalabari"
+    },
+    {
+      "code": "ikk_Latn",
+      "name_en": "Ika",
+      "name_fr": "Ika"
+    },
+    {
+      "code": "ikw_Latn",
+      "name_en": "Ikwere",
+      "name_fr": "Ikwere"
+    },
+    {
+      "code": "ilb_Latn",
+      "name_en": "Ila",
+      "name_fr": "Ila"
+    },
+    {
+      "code": "ilo_Latn",
+      "name_en": "Iloko",
+      "name_fr": "Ilocano"
+    },
+    {
+      "code": "imo_Latn",
+      "name_en": "Imbongu",
+      "name_fr": "Imbongu"
+    },
+    {
+      "code": "ina_Latn",
+      "name_en": "Interlingua (International Auxiliary Language Association)",
+      "name_fr": "Interlingua (International Auxiliary Language Association)"
+    },
+    {
+      "code": "inb_Latn",
+      "name_en": "Inga",
+      "name_fr": "Inga"
+    },
+    {
+      "code": "ind_Latn",
+      "name_en": "Indonesian",
+      "name_fr": "Indonésien"
+    },
+    {
+      "code": "iou_Latn",
+      "name_en": "Tuma-Irumu",
+      "name_fr": "Tuma-irumu"
+    },
+    {
+      "code": "ipi_Latn",
+      "name_en": "Ipili",
+      "name_fr": "Ipili"
+    },
+    {
+      "code": "ipk_Latn",
+      "name_en": "Inupiaq",
+      "name_fr": "Inupiaq"
+    },
+    {
+      "code": "iqw_Latn",
+      "name_en": "Ikwo",
+      "name_fr": "Ikwo"
+    },
+    {
+      "code": "iri_Latn",
+      "name_en": "Rigwe",
+      "name_fr": "Rigwe"
+    },
+    {
+      "code": "irk_Latn",
+      "name_en": "Iraqw",
+      "name_fr": "Iraqw"
+    },
+    {
+      "code": "ish_Latn",
+      "name_en": "Esan",
+      "name_fr": "Esan"
+    },
+    {
+      "code": "isl_Latn",
+      "name_en": "Icelandic",
+      "name_fr": "Islandais"
+    },
+    {
+      "code": "iso_Latn",
+      "name_en": "Isoko",
+      "name_fr": "Isoko"
+    },
+    {
+      "code": "ita_Latn",
+      "name_en": "Italian",
+      "name_fr": "Italien"
+    },
+    {
+      "code": "itl_Cyrl",
+      "name_en": "Itelmen",
+      "name_fr": "Itelmen"
+    },
+    {
+      "code": "its_Latn",
+      "name_en": "Isekiri",
+      "name_fr": "Isekiri"
+    },
+    {
+      "code": "itv_Latn",
+      "name_en": "Itawit",
+      "name_fr": "Itawit"
+    },
+    {
+      "code": "itw_Latn",
+      "name_en": "Ito",
+      "name_fr": "Ito"
+    },
+    {
+      "code": "itz_Latn",
+      "name_en": "Itzá",
+      "name_fr": "Itzá"
+    },
+    {
+      "code": "ixl_Latn",
+      "name_en": "Ixil",
+      "name_fr": "Ixil"
+    },
+    {
+      "code": "izr_Latn",
+      "name_en": "Izere",
+      "name_fr": "Izere"
+    },
+    {
+      "code": "izz_Latn",
+      "name_en": "Izii",
+      "name_fr": "Izii"
+    },
+    {
+      "code": "jac_Latn",
+      "name_en": "Popti'",
+      "name_fr": "Popti'"
+    },
+    {
+      "code": "jal_Latn",
+      "name_en": "Yalahatan",
+      "name_fr": "Yalahatan"
+    },
+    {
+      "code": "jam_Latn",
+      "name_en": "Jamaican Creole English",
+      "name_fr": "Créole anglais de le Jamaïque"
+    },
+    {
+      "code": "jav_Latn",
+      "name_en": "Javanese",
+      "name_fr": "Javanais"
+    },
+    {
+      "code": "jax_Latn",
+      "name_en": "Jambi Malay",
+      "name_fr": "Malais de Jamby"
+    },
+    {
+      "code": "jbu_Latn",
+      "name_en": "Jukun Takum",
+      "name_fr": "Jukun Takum"
+    },
+    {
+      "code": "jen_Latn",
+      "name_en": "Dza",
+      "name_fr": "Dza"
+    },
+    {
+      "code": "jic_Latn",
+      "name_en": "Tol",
+      "name_fr": "Tol"
+    },
+    {
+      "code": "jiv_Latn",
+      "name_en": "Shuar",
+      "name_fr": "Shuar"
+    },
+    {
+      "code": "jmc_Latn",
+      "name_en": "Machame",
+      "name_fr": "Machame"
+    },
+    {
+      "code": "jmd_Latn",
+      "name_en": "Yamdena",
+      "name_fr": "Yamdena"
+    },
+    {
+      "code": "jmx_Latn",
+      "name_en": "Western Juxtlahuaca Mixtec",
+      "name_fr": "Mixtèque du Juxtlahuaca occidental"
+    },
+    {
+      "code": "jpn_Jpan",
+      "name_en": "Japanese",
+      "name_fr": "Japonais"
+    },
+    {
+      "code": "jqr_Latn",
+      "name_en": "Jaqaru",
+      "name_fr": "Jaqaru"
+    },
+    {
+      "code": "juk_Latn",
+      "name_en": "Wapan",
+      "name_fr": "Wapan"
+    },
+    {
+      "code": "jun_Orya",
+      "name_en": "Juang",
+      "name_fr": "Juang"
+    },
+    {
+      "code": "juo_Latn",
+      "name_en": "Jiba",
+      "name_fr": "Jiba"
+    },
+    {
+      "code": "jvn_Latn",
+      "name_en": "Caribbean Javanese",
+      "name_fr": "Javanais des Caraïbes"
+    },
+    {
+      "code": "kaa_Cyrl",
+      "name_en": "Kara-Kalpak",
+      "name_fr": "Karakalpak"
+    },
+    {
+      "code": "kab_Latn",
+      "name_en": "Kabyle",
+      "name_fr": "Kabyle"
+    },
+    {
+      "code": "kac_Latn",
+      "name_en": "Kachin",
+      "name_fr": "Kachin"
+    },
+    {
+      "code": "kai_Latn",
+      "name_en": "Karekare",
+      "name_fr": "Karekare"
+    },
+    {
+      "code": "kaj_Latn",
+      "name_en": "Jju",
+      "name_fr": "Jju"
+    },
+    {
+      "code": "kak_Latn",
+      "name_en": "Kalanguya",
+      "name_fr": "Kalanguya"
+    },
+    {
+      "code": "kam_Latn",
+      "name_en": "Kamba (Kenya)",
+      "name_fr": "Kamba (Kenya)"
+    },
+    {
+      "code": "kan_Knda",
+      "name_en": "Kannada",
+      "name_fr": "Kannara (Canara)"
+    },
+    {
+      "code": "kao_Latn",
+      "name_en": "Xaasongaxango",
+      "name_fr": "Xaasongaxango"
+    },
+    {
+      "code": "kaq_Latn",
+      "name_en": "Capanahua",
+      "name_fr": "Capanahua"
+    },
+    {
+      "code": "kas_Arab",
+      "name_en": "Kashmiri",
+      "name_fr": "Kashmiri"
+    },
+    {
+      "code": "kat_Geor",
+      "name_en": "Georgian",
+      "name_fr": "Géorgien"
+    },
+    {
+      "code": "kay_Latn",
+      "name_en": "Kamayurá",
+      "name_fr": "Kamayurá"
+    },
+    {
+      "code": "kaz_Cyrl",
+      "name_en": "Kazakh",
+      "name_fr": "Kazakh"
+    },
+    {
+      "code": "kbd_Cyrl",
+      "name_en": "Kabardian",
+      "name_fr": "Kabarde"
+    },
+    {
+      "code": "kbl_Latn",
+      "name_en": "Kanembu",
+      "name_fr": "Kanembu"
+    },
+    {
+      "code": "kbo_Latn",
+      "name_en": "Keliko",
+      "name_fr": "Keliko"
+    },
+    {
+      "code": "kbp_Latn",
+      "name_en": "Kabiyè",
+      "name_fr": "Kabiyè"
+    },
+    {
+      "code": "kbq_Latn",
+      "name_en": "Kamano",
+      "name_fr": "Kamano"
+    },
+    {
+      "code": "kbr_Latn",
+      "name_en": "Kafa",
+      "name_fr": "Kafa"
+    },
+    {
+      "code": "kbt_Latn",
+      "name_en": "Abadi",
+      "name_fr": "Abadi"
+    },
+    {
+      "code": "kby_Latn",
+      "name_en": "Manga Kanuri",
+      "name_fr": "Kanouri de Manga"
+    },
+    {
+      "code": "kca_Cyrl",
+      "name_en": "Khanty",
+      "name_fr": "Khanty"
+    },
+    {
+      "code": "kcg_Latn",
+      "name_en": "Tyap",
+      "name_fr": "Tyap"
+    },
+    {
+      "code": "kcn_Latn",
+      "name_en": "Nubi",
+      "name_fr": "Nubi"
+    },
+    {
+      "code": "kcq_Latn",
+      "name_en": "Kamo",
+      "name_fr": "Kamo"
+    },
+    {
+      "code": "kdc_Latn",
+      "name_en": "Kutu",
+      "name_fr": "Kutu"
+    },
+    {
+      "code": "kde_Latn",
+      "name_en": "Makonde",
+      "name_fr": "Makonde"
+    },
+    {
+      "code": "kdh_Latn",
+      "name_en": "Tem",
+      "name_fr": "Tem"
+    },
+    {
+      "code": "kdi_Latn",
+      "name_en": "Kumam",
+      "name_fr": "Kumam"
+    },
+    {
+      "code": "kdj_Latn",
+      "name_en": "Karamojong",
+      "name_fr": "Karamojong"
+    },
+    {
+      "code": "kdl_Latn",
+      "name_en": "Tsikimba",
+      "name_fr": "Tsikimba"
+    },
+    {
+      "code": "kdn_Latn",
+      "name_en": "Kunda",
+      "name_fr": "Kunda"
+    },
+    {
+      "code": "kdt_Khmr",
+      "name_en": "Kuy",
+      "name_fr": "Kuy"
+    },
+    {
+      "code": "kea_Latn",
+      "name_en": "Kabuverdianu",
+      "name_fr": "Kabuverdianu"
+    },
+    {
+      "code": "kek_Latn",
+      "name_en": "Kekchí",
+      "name_fr": "Kekchí"
+    },
+    {
+      "code": "ken_Latn",
+      "name_en": "Kenyang",
+      "name_fr": "Kenyang"
+    },
+    {
+      "code": "keo_Latn",
+      "name_en": "Kakwa",
+      "name_fr": "Kakwa"
+    },
+    {
+      "code": "ker_Latn",
+      "name_en": "Kera",
+      "name_fr": "Kera"
+    },
+    {
+      "code": "keu_Latn",
+      "name_en": "Akebu",
+      "name_fr": "Akebu"
+    },
+    {
+      "code": "key_Telu",
+      "name_en": "Kupia",
+      "name_fr": "Kupia"
+    },
+    {
+      "code": "kez_Latn",
+      "name_en": "Kukele",
+      "name_fr": "Kukele"
+    },
+    {
+      "code": "kfb_Deva",
+      "name_en": "Northwestern Kolami",
+      "name_fr": "Kolami du Nord-Ouest"
+    },
+    {
+      "code": "kff_Telu",
+      "name_en": "Koya",
+      "name_fr": "Koya"
+    },
+    {
+      "code": "kfk_Deva",
+      "name_en": "Kinnauri",
+      "name_fr": "Kinnauri"
+    },
+    {
+      "code": "kfq_Deva",
+      "name_en": "Korku",
+      "name_fr": "Korku"
+    },
+    {
+      "code": "kfr_Gujr",
+      "name_en": "Kachhi",
+      "name_fr": "Kachhi"
+    },
+    {
+      "code": "kfw_Latn",
+      "name_en": "Kharam Naga",
+      "name_fr": "Naga de Kharam"
+    },
+    {
+      "code": "kfx_Deva",
+      "name_en": "Kullu Pahari",
+      "name_fr": "Pahari de Kullu"
+    },
+    {
+      "code": "kha_Latn",
+      "name_en": "Khasi",
+      "name_fr": "Khasi"
+    },
+    {
+      "code": "khg_Tibt",
+      "name_en": "Khams Tibetan",
+      "name_fr": "Tibétain de Khams"
+    },
+    {
+      "code": "khk_Cyrl",
+      "name_en": "Halh Mongolian",
+      "name_fr": "Mongol de Halh"
+    },
+    {
+      "code": "khm_Khmr",
+      "name_en": "Khmer",
+      "name_fr": "Khmer"
+    },
+    {
+      "code": "khq_Latn",
+      "name_en": "Koyra Chiini Songhay",
+      "name_fr": "Songhay de Koyra Chiini"
+    },
+    {
+      "code": "khw_Arab",
+      "name_en": "Khowar",
+      "name_fr": "Khowar"
+    },
+    {
+      "code": "kia_Latn",
+      "name_en": "Kim",
+      "name_fr": "Kim"
+    },
+    {
+      "code": "kij_Latn",
+      "name_en": "Kilivila",
+      "name_fr": "Kilivila"
+    },
+    {
+      "code": "kik_Latn",
+      "name_en": "Kikuyu",
+      "name_fr": "Kikuyu"
+    },
+    {
+      "code": "kin_Latn",
+      "name_en": "Kinyarwanda",
+      "name_fr": "Kinyarwanda"
+    },
+    {
+      "code": "kir_Cyrl",
+      "name_en": "Kirghiz",
+      "name_fr": "Kirghize"
+    },
+    {
+      "code": "kix_Latn",
+      "name_en": "Khiamniungan Naga",
+      "name_fr": "Naga de Khiamniungan"
+    },
+    {
+      "code": "kjb_Latn",
+      "name_en": "Q'anjob'al",
+      "name_fr": "Q'anjob'al"
+    },
+    {
+      "code": "kjc_Latn",
+      "name_en": "Coastal Konjo",
+      "name_fr": "Konjo de la côte"
+    },
+    {
+      "code": "kje_Latn",
+      "name_en": "Kisar",
+      "name_fr": "Kisar"
+    },
+    {
+      "code": "kjg_Latn",
+      "name_en": "Khmu",
+      "name_fr": "Khmu"
+    },
+    {
+      "code": "kjh_Cyrl",
+      "name_en": "Khakas",
+      "name_fr": "Khakas"
+    },
+    {
+      "code": "kjk_Latn",
+      "name_en": "Highland Konjo",
+      "name_fr": "Konjo du haut-pays"
+    },
+    {
+      "code": "kki_Latn",
+      "name_en": "Kagulu",
+      "name_fr": "Kagulu"
+    },
+    {
+      "code": "kkj_Latn",
+      "name_en": "Kako",
+      "name_fr": "Kako"
+    },
+    {
+      "code": "kle_Deva",
+      "name_en": "Kulung (Nepal)",
+      "name_fr": "Kulung (Népal)"
+    },
+    {
+      "code": "kln_Latn",
+      "name_en": "Kalenjin",
+      "name_fr": "Kalenjin"
+    },
+    {
+      "code": "kls_Latn",
+      "name_en": "Kalasha",
+      "name_fr": "Kalasha"
+    },
+    {
+      "code": "klu_Latn",
+      "name_en": "Klao",
+      "name_fr": "Klao"
+    },
+    {
+      "code": "klv_Latn",
+      "name_en": "Maskelynes",
+      "name_fr": "Maskelynes"
+    },
+    {
+      "code": "klw_Latn",
+      "name_en": "Tado",
+      "name_fr": "Tado"
+    },
+    {
+      "code": "kma_Latn",
+      "name_en": "Konni",
+      "name_fr": "Konni"
+    },
+    {
+      "code": "kmd_Latn",
+      "name_en": "Majukayang Kalinga",
+      "name_fr": "Kalinga de Majukayang"
+    },
+    {
+      "code": "kml_Latn",
+      "name_en": "Tanudan Kalinga",
+      "name_fr": "Kalinga du Tanudan"
+    },
+    {
+      "code": "kmr_Arab",
+      "name_en": "Northern Kurdish",
+      "name_fr": "Kurde septentrional"
+    },
+    {
+      "code": "kmr_Cyrl",
+      "name_en": "Northern Kurdish",
+      "name_fr": "Kurde septentrional"
+    },
+    {
+      "code": "kmr_Latn",
+      "name_en": "Northern Kurdish",
+      "name_fr": "Kurde septentrional"
+    },
+    {
+      "code": "kmu_Latn",
+      "name_en": "Kanite",
+      "name_fr": "Kanite"
+    },
+    {
+      "code": "kmy_Latn",
+      "name_en": "Koma",
+      "name_fr": "Koma"
+    },
+    {
+      "code": "kna_Latn",
+      "name_en": "Dera (Nigeria)",
+      "name_fr": "Dera (Nigéria)"
+    },
+    {
+      "code": "knb_Latn",
+      "name_en": "Lubuagan Kalinga",
+      "name_fr": "Kalinga de Lubuagan"
+    },
+    {
+      "code": "knc_Latn",
+      "name_en": "Central Kanuri",
+      "name_fr": "Kanuri central"
+    },
+    {
+      "code": "kne_Latn",
+      "name_en": "Kankanaey",
+      "name_fr": "Kankanaey"
+    },
+    {
+      "code": "knf_Latn",
+      "name_en": "Mankanya",
+      "name_fr": "Mankanya"
+    },
+    {
+      "code": "knj_Latn",
+      "name_en": "Western Kanjobal",
+      "name_fr": "Kanjobal occidental"
+    },
+    {
+      "code": "knk_Latn",
+      "name_en": "Kuranko",
+      "name_fr": "Kuranko"
+    },
+    {
+      "code": "knn_Deva",
+      "name_en": "Konkani (individual language)",
+      "name_fr": "Konkani (langue individuelle)"
+    },
+    {
+      "code": "kno_Latn",
+      "name_en": "Kono (Sierra Leone)",
+      "name_fr": "Kono (Sierra Léone)"
+    },
+    {
+      "code": "kog_Latn",
+      "name_en": "Cogui",
+      "name_fr": "Cogui"
+    },
+    {
+      "code": "kol_Latn",
+      "name_en": "Kol (Papua New Guinea)",
+      "name_fr": "Kol (Papouasie-Nouvelle-Guinée)"
+    },
+    {
+      "code": "koo_Latn",
+      "name_en": "Konzo",
+      "name_fr": "Konzo"
+    },
+    {
+      "code": "kor_Hang",
+      "name_en": "Korean",
+      "name_fr": "Coréen"
+    },
+    {
+      "code": "kpo_Latn",
+      "name_en": "Ikposo",
+      "name_fr": "Ikposo"
+    },
+    {
+      "code": "kpq_Latn",
+      "name_en": "Korupun-Sela",
+      "name_fr": "Korupun-sela"
+    },
+    {
+      "code": "kps_Latn",
+      "name_en": "Tehit",
+      "name_fr": "Tehit"
+    },
+    {
+      "code": "kpv_Cyrl",
+      "name_en": "Komi-Zyrian",
+      "name_fr": "Komi-zyrien"
+    },
+    {
+      "code": "kpy_Cyrl",
+      "name_en": "Koryak",
+      "name_fr": "Koryak"
+    },
+    {
+      "code": "kpz_Latn",
+      "name_en": "Kupsabiny",
+      "name_fr": "Kupsabiny"
+    },
+    {
+      "code": "kqe_Latn",
+      "name_en": "Kalagan",
+      "name_fr": "Kalagan"
+    },
+    {
+      "code": "kqo_Latn",
+      "name_en": "Eastern Krahn",
+      "name_fr": "Krahn oriental"
+    },
+    {
+      "code": "kqp_Latn",
+      "name_en": "Kimré",
+      "name_fr": "Kimré"
+    },
+    {
+      "code": "kqr_Latn",
+      "name_en": "Kimaragang",
+      "name_fr": "Kimaragang"
+    },
+    {
+      "code": "kqy_Ethi",
+      "name_en": "Koorete",
+      "name_fr": "Koorete"
+    },
+    {
+      "code": "krc_Cyrl",
+      "name_en": "Karachay-Balkar",
+      "name_fr": "Karatchaï balkar"
+    },
+    {
+      "code": "kri_Latn",
+      "name_en": "Krio",
+      "name_fr": "Krio"
+    },
+    {
+      "code": "krj_Latn",
+      "name_en": "Kinaray-A",
+      "name_fr": "Kinaray-a"
+    },
+    {
+      "code": "krl_Latn",
+      "name_en": "Karelian",
+      "name_fr": "Carélien"
+    },
+    {
+      "code": "krr_Khmr",
+      "name_en": "Krung",
+      "name_fr": "Krung"
+    },
+    {
+      "code": "krs_Latn",
+      "name_en": "Gbaya (Sudan)",
+      "name_fr": "Gbaya (Soudan)"
+    },
+    {
+      "code": "kru_Deva",
+      "name_en": "Kurukh",
+      "name_fr": "Kurukh"
+    },
+    {
+      "code": "krx_Latn",
+      "name_en": "Karon",
+      "name_fr": "Karon"
+    },
+    {
+      "code": "ksb_Latn",
+      "name_en": "Shambala",
+      "name_fr": "Shambala"
+    },
+    {
+      "code": "ksd_Latn",
+      "name_en": "Kuanua",
+      "name_fr": "Kuanua"
+    },
+    {
+      "code": "ksf_Latn",
+      "name_en": "Bafia",
+      "name_fr": "Bafia"
+    },
+    {
+      "code": "ksr_Latn",
+      "name_en": "Borong",
+      "name_fr": "Borong"
+    },
+    {
+      "code": "kss_Latn",
+      "name_en": "Southern Kisi",
+      "name_fr": "Kisi méridional"
+    },
+    {
+      "code": "ksz_Deva",
+      "name_en": "Kodaku",
+      "name_fr": "Kodaku"
+    },
+    {
+      "code": "ktb_Ethi",
+      "name_en": "Kambaata",
+      "name_fr": "Kambaata"
+    },
+    {
+      "code": "ktj_Latn",
+      "name_en": "Plapo Krumen",
+      "name_fr": "Krumen de Plapo"
+    },
+    {
+      "code": "kto_Latn",
+      "name_en": "Kuot",
+      "name_fr": "Kuot"
+    },
+    {
+      "code": "kua_Latn",
+      "name_en": "Kuanyama",
+      "name_fr": "Kuanyama"
+    },
+    {
+      "code": "kub_Latn",
+      "name_en": "Kutep",
+      "name_fr": "Kutep"
+    },
+    {
+      "code": "kue_Latn",
+      "name_en": "Kuman (Papua New Guinea)",
+      "name_fr": "Kuman (Papouasie-Nouvelle-Guinée)"
+    },
+    {
+      "code": "kuh_Latn",
+      "name_en": "Kushi",
+      "name_fr": "Kuchi"
+    },
+    {
+      "code": "kum_Cyrl",
+      "name_en": "Kumyk",
+      "name_fr": "Koumyk"
+    },
+    {
+      "code": "kur_Arab",
+      "name_en": "Kurdish",
+      "name_fr": "Kurde"
+    },
+    {
+      "code": "kus_Latn",
+      "name_en": "Kusaal",
+      "name_fr": "Kusaal"
+    },
+    {
+      "code": "kvn_Latn",
+      "name_en": "Border Kuna",
+      "name_fr": "Kuna de la frontière"
+    },
+    {
+      "code": "kvw_Latn",
+      "name_en": "Wersing",
+      "name_fr": "Wersing"
+    },
+    {
+      "code": "kvx_Arab",
+      "name_en": "Parkari Koli",
+      "name_fr": "Koli de Parkari"
+    },
+    {
+      "code": "kwd_Latn",
+      "name_en": "Kwaio",
+      "name_fr": "Kwaio"
+    },
+    {
+      "code": "kwf_Latn",
+      "name_en": "Kwara'ae",
+      "name_fr": "Kwara'ae"
+    },
+    {
+      "code": "kwi_Latn",
+      "name_en": "Awa-Cuaiquer",
+      "name_fr": "Awa-cuaiquer"
+    },
+    {
+      "code": "kwm_Latn",
+      "name_en": "Kwambi",
+      "name_fr": "Kwambi"
+    },
+    {
+      "code": "kxc_Ethi",
+      "name_en": "Konso",
+      "name_fr": "Konso"
+    },
+    {
+      "code": "kxf_Latn",
+      "name_en": "Manumanaw Karen",
+      "name_fr": "Karen de Manumanaw"
+    },
+    {
+      "code": "kxm_Thai",
+      "name_en": "Northern Khmer",
+      "name_fr": "Khmer septentrional"
+    },
+    {
+      "code": "kxp_Arab",
+      "name_en": "Wadiyara Koli",
+      "name_fr": "Koli de Wadiyara"
+    },
+    {
+      "code": "kyb_Latn",
+      "name_en": "Butbut Kalinga",
+      "name_fr": "Kalinga de Butbut"
+    },
+    {
+      "code": "kyc_Latn",
+      "name_en": "Kyaka",
+      "name_fr": "Kyaka"
+    },
+    {
+      "code": "kyf_Latn",
+      "name_en": "Kouya",
+      "name_fr": "Kouya"
+    },
+    {
+      "code": "kyg_Latn",
+      "name_en": "Keyagana",
+      "name_fr": "Keyagana"
+    },
+    {
+      "code": "kyo_Latn",
+      "name_en": "Kelon",
+      "name_fr": "Kelon"
+    },
+    {
+      "code": "kyq_Latn",
+      "name_en": "Kenga",
+      "name_fr": "Kenga"
+    },
+    {
+      "code": "kyu_Kali",
+      "name_en": "Western Kayah",
+      "name_fr": "Kayah occidental"
+    },
+    {
+      "code": "kyx_Latn",
+      "name_en": "Rapoisi",
+      "name_fr": "Rapoisi"
+    },
+    {
+      "code": "kyz_Latn",
+      "name_en": "Kayabí",
+      "name_fr": "Kayabí"
+    },
+    {
+      "code": "kzf_Latn",
+      "name_en": "Da'a Kaili",
+      "name_fr": "Kaili de Da'a"
+    },
+    {
+      "code": "kzi_Latn",
+      "name_en": "Kelabit",
+      "name_fr": "Kelabit"
+    },
+    {
+      "code": "lac_Latn",
+      "name_en": "Lacandon",
+      "name_fr": "Lacandon"
+    },
+    {
+      "code": "lag_Latn",
+      "name_en": "Rangi",
+      "name_fr": "Rangi"
+    },
+    {
+      "code": "laj_Latn",
+      "name_en": "Lango (Uganda)",
+      "name_fr": "Lango (Ouganda)"
+    },
+    {
+      "code": "lam_Latn",
+      "name_en": "Lamba",
+      "name_fr": "Lamba"
+    },
+    {
+      "code": "lao_Laoo",
+      "name_en": "Lao",
+      "name_fr": "Laotien"
+    },
+    {
+      "code": "las_Latn",
+      "name_en": "Lama (Togo)",
+      "name_fr": "Lama (Togo)"
+    },
+    {
+      "code": "lat_Latn",
+      "name_en": "Latin",
+      "name_fr": "Latin"
+    },
+    {
+      "code": "lav_Latn",
+      "name_en": "Latvian",
+      "name_fr": "Letton"
+    },
+    {
+      "code": "law_Latn",
+      "name_en": "Lauje",
+      "name_fr": "Lauje"
+    },
+    {
+      "code": "lbj_Tibt",
+      "name_en": "Ladakhi",
+      "name_fr": "Ladakhien"
+    },
+    {
+      "code": "lbw_Latn",
+      "name_en": "Tolaki",
+      "name_fr": "Tolaki"
+    },
+    {
+      "code": "lcm_Latn",
+      "name_en": "Tungag",
+      "name_fr": "Tungag"
+    },
+    {
+      "code": "lcp_Thai",
+      "name_en": "Western Lawa",
+      "name_fr": "Lawa occidental"
+    },
+    {
+      "code": "ldb_Latn",
+      "name_en": "Dũya",
+      "name_fr": "Dũya"
+    },
+    {
+      "code": "led_Latn",
+      "name_en": "Lendu",
+      "name_fr": "Lendu"
+    },
+    {
+      "code": "lee_Latn",
+      "name_en": "Lyélé",
+      "name_fr": "Lyélé"
+    },
+    {
+      "code": "lef_Latn",
+      "name_en": "Lelemi",
+      "name_fr": "Lelemi"
+    },
+    {
+      "code": "lem_Latn",
+      "name_en": "Nomaande",
+      "name_fr": "Nomaande"
+    },
+    {
+      "code": "lew_Latn",
+      "name_en": "Ledo Kaili",
+      "name_fr": "Kaili de Ledo"
+    },
+    {
+      "code": "lex_Latn",
+      "name_en": "Luang",
+      "name_fr": "Luang"
+    },
+    {
+      "code": "lgg_Latn",
+      "name_en": "Lugbara",
+      "name_fr": "Lugbara"
+    },
+    {
+      "code": "lgl_Latn",
+      "name_en": "Wala",
+      "name_fr": "Wala"
+    },
+    {
+      "code": "lhu_Latn",
+      "name_en": "Lahu",
+      "name_fr": "Lahu"
+    },
+    {
+      "code": "lia_Latn",
+      "name_en": "West-Central Limba",
+      "name_fr": "Limba occidental central"
+    },
+    {
+      "code": "lid_Latn",
+      "name_en": "Nyindrou",
+      "name_fr": "Nyindrou"
+    },
+    {
+      "code": "lif_Deva",
+      "name_en": "Limbu",
+      "name_fr": "Limbou"
+    },
+    {
+      "code": "lij_Latn",
+      "name_en": "Ligurian",
+      "name_fr": "Ligurien"
+    },
+    {
+      "code": "lin_Latn",
+      "name_en": "Lingala",
+      "name_fr": "Lingala"
+    },
+    {
+      "code": "lip_Latn",
+      "name_en": "Sekpele",
+      "name_fr": "Sekpele"
+    },
+    {
+      "code": "lir_Latn",
+      "name_en": "Liberian English",
+      "name_fr": "Anglais du Libéria"
+    },
+    {
+      "code": "lis_Lisu",
+      "name_en": "Lisu",
+      "name_fr": "Lisu"
+    },
+    {
+      "code": "lit_Latn",
+      "name_en": "Lithuanian",
+      "name_fr": "Lituanien"
+    },
+    {
+      "code": "lje_Latn",
+      "name_en": "Rampi",
+      "name_fr": "Rampi"
+    },
+    {
+      "code": "ljp_Latn",
+      "name_en": "Lampung Api",
+      "name_fr": "Lampung Api"
+    },
+    {
+      "code": "lkb_Latn",
+      "name_en": "Kabras",
+      "name_fr": "Kabras"
+    },
+    {
+      "code": "lke_Latn",
+      "name_en": "Kenyi",
+      "name_fr": "Kenyi"
+    },
+    {
+      "code": "lla_Latn",
+      "name_en": "Lala-Roba",
+      "name_fr": "Lala-roba"
+    },
+    {
+      "code": "lld_Latn_gherd",
+      "name_en": "Ladin",
+      "name_fr": "Ladin"
+    },
+    {
+      "code": "lld_Latn_valbadia",
+      "name_en": "Ladin",
+      "name_fr": "Ladin"
+    },
+    {
+      "code": "llg_Latn",
+      "name_en": "Lole",
+      "name_fr": "Lole"
+    },
+    {
+      "code": "lln_Latn",
+      "name_en": "Lele (Chad)",
+      "name_fr": "Lele (Tchad)"
+    },
+    {
+      "code": "lme_Latn",
+      "name_en": "Pévé",
+      "name_fr": "Pévé"
+    },
+    {
+      "code": "lnd_Latn",
+      "name_en": "Lundayeh",
+      "name_fr": "Lundayeh"
+    },
+    {
+      "code": "lns_Latn",
+      "name_en": "Lamnso'",
+      "name_fr": "Lamnso'"
+    },
+    {
+      "code": "lnu_Latn",
+      "name_en": "Longuda",
+      "name_fr": "Longuda"
+    },
+    {
+      "code": "loa_Latn",
+      "name_en": "Loloda",
+      "name_fr": "Loloda"
+    },
+    {
+      "code": "lob_Latn",
+      "name_en": "Lobi",
+      "name_fr": "Lobi"
+    },
+    {
+      "code": "lok_Latn",
+      "name_en": "Loko",
+      "name_fr": "Loko"
+    },
+    {
+      "code": "lom_Latn",
+      "name_en": "Loma (Liberia)",
+      "name_fr": "Loma (Libéria)"
+    },
+    {
+      "code": "lon_Latn",
+      "name_en": "Malawi Lomwe",
+      "name_fr": "Lomwe du Malawi"
+    },
+    {
+      "code": "loq_Latn",
+      "name_en": "Lobala",
+      "name_fr": "Lobala"
+    },
+    {
+      "code": "lrk_Arab",
+      "name_en": "Loarki",
+      "name_fr": "Loarki"
+    },
+    {
+      "code": "lsi_Latn",
+      "name_en": "Lashi",
+      "name_fr": "Lachi"
+    },
+    {
+      "code": "lsm_Latn",
+      "name_en": "Saamia",
+      "name_fr": "Saamia"
+    },
+    {
+      "code": "lss_Arab",
+      "name_en": "Lasi",
+      "name_fr": "Lasi"
+    },
+    {
+      "code": "ltg_Latn",
+      "name_en": "Latgalian",
+      "name_fr": "Latgalien"
+    },
+    {
+      "code": "lth_Latn",
+      "name_en": "Thur",
+      "name_fr": "Thur"
+    },
+    {
+      "code": "lto_Latn",
+      "name_en": "Tsotso",
+      "name_fr": "Tsotso"
+    },
+    {
+      "code": "ltz_Latn",
+      "name_en": "Luxembourgish",
+      "name_fr": "Luxembourgeois"
+    },
+    {
+      "code": "lua_Latn",
+      "name_en": "Luba-Lulua",
+      "name_fr": "Luba-lulua"
+    },
+    {
+      "code": "luc_Latn",
+      "name_en": "Aringa",
+      "name_fr": "Aringa"
+    },
+    {
+      "code": "lug_Latn",
+      "name_en": "Ganda",
+      "name_fr": "Ganda"
+    },
+    {
+      "code": "luo_Latn",
+      "name_en": "Luo (Kenya and Tanzania)",
+      "name_fr": "Luo (Kenya et Tanzanie)"
+    },
+    {
+      "code": "lus_Latn",
+      "name_en": "Lushai",
+      "name_fr": "Lushai"
+    },
+    {
+      "code": "lwg_Latn",
+      "name_en": "Wanga",
+      "name_fr": "Wanga"
+    },
+    {
+      "code": "lwo_Latn",
+      "name_en": "Luwo",
+      "name_fr": "Luwo"
+    },
+    {
+      "code": "lww_Latn",
+      "name_en": "Lewo",
+      "name_fr": "Lewo"
+    },
+    {
+      "code": "lzz_Latn",
+      "name_en": "Laz",
+      "name_fr": "Laz"
+    },
+    {
+      "code": "maa_Latn",
+      "name_en": "San Jerónimo Tecóatl Mazatec",
+      "name_fr": "Mazatèque de San Jerónimo Tecóatl"
+    },
+    {
+      "code": "mab_Latn",
+      "name_en": "Yutanduchi Mixtec",
+      "name_fr": "Mixtèque de Yutanduchi"
+    },
+    {
+      "code": "mad_Latn",
+      "name_en": "Madurese",
+      "name_fr": "Madurais"
+    },
+    {
+      "code": "maf_Latn",
+      "name_en": "Mafa",
+      "name_fr": "Mafa"
+    },
+    {
+      "code": "mag_Deva",
+      "name_en": "Magahi",
+      "name_fr": "Magahi"
+    },
+    {
+      "code": "mah_Latn",
+      "name_en": "Marshallese",
+      "name_fr": "Marshallais"
+    },
+    {
+      "code": "mai_Deva",
+      "name_en": "Maithili",
+      "name_fr": "Maithili"
+    },
+    {
+      "code": "maj_Latn",
+      "name_en": "Jalapa De Díaz Mazatec",
+      "name_fr": "Mazatèque de Jalapa De Díaz"
+    },
+    {
+      "code": "mak_Latn",
+      "name_en": "Makasar",
+      "name_fr": "Makassar"
+    },
+    {
+      "code": "mal_Mlym",
+      "name_en": "Malayalam",
+      "name_fr": "Malayalam"
+    },
+    {
+      "code": "mam_Latn",
+      "name_en": "Mam",
+      "name_fr": "Mam"
+    },
+    {
+      "code": "maq_Latn",
+      "name_en": "Chiquihuitlán Mazatec",
+      "name_fr": "Mazatèque de Chiquihuitlán"
+    },
+    {
+      "code": "mar_Deva",
+      "name_en": "Marathi",
+      "name_fr": "Marathe"
+    },
+    {
+      "code": "mau_Latn",
+      "name_en": "Huautla Mazatec",
+      "name_fr": "Mazatèque de Huautla"
+    },
+    {
+      "code": "maw_Latn",
+      "name_en": "Mampruli",
+      "name_fr": "Mampruli"
+    },
+    {
+      "code": "max_Latn",
+      "name_en": "North Moluccan Malay",
+      "name_fr": "Malais des Moluques septentrionales"
+    },
+    {
+      "code": "maz_Latn",
+      "name_en": "Central Mazahua",
+      "name_fr": "Mazahua central"
+    },
+    {
+      "code": "mbb_Latn",
+      "name_en": "Western Bukidnon Manobo",
+      "name_fr": "Manobo du Bukidnon occidental"
+    },
+    {
+      "code": "mbc_Latn",
+      "name_en": "Macushi",
+      "name_fr": "Macuchi"
+    },
+    {
+      "code": "mbh_Latn",
+      "name_en": "Mangseng",
+      "name_fr": "Mangseng"
+    },
+    {
+      "code": "mbj_Latn",
+      "name_en": "Nadëb",
+      "name_fr": "Nadëb"
+    },
+    {
+      "code": "mbt_Latn",
+      "name_en": "Matigsalug Manobo",
+      "name_fr": "Manobo de Matigsalug"
+    },
+    {
+      "code": "mbu_Latn",
+      "name_en": "Mbula-Bwazza",
+      "name_fr": "Mbula-bwazza"
+    },
+    {
+      "code": "mca_Latn",
+      "name_en": "Maca",
+      "name_fr": "Maca"
+    },
+    {
+      "code": "mcb_Latn",
+      "name_en": "Machiguenga",
+      "name_fr": "Machiguenga"
+    },
+    {
+      "code": "mcd_Latn",
+      "name_en": "Sharanahua",
+      "name_fr": "Sharanahua"
+    },
+    {
+      "code": "mcf_Latn",
+      "name_en": "Matsés",
+      "name_fr": "Matsés"
+    },
+    {
+      "code": "mco_Latn",
+      "name_en": "Coatlán Mixe",
+      "name_fr": "Mixe de Coatlán"
+    },
+    {
+      "code": "mcp_Latn",
+      "name_en": "Makaa",
+      "name_fr": "Makaa"
+    },
+    {
+      "code": "mcq_Latn",
+      "name_en": "Ese",
+      "name_fr": "Ese"
+    },
+    {
+      "code": "mcu_Latn",
+      "name_en": "Cameroon Mambila",
+      "name_fr": "Mambila du Cameroun"
+    },
+    {
+      "code": "mcx_Latn",
+      "name_en": "Mpiemo",
+      "name_fr": "Mpiemo"
+    },
+    {
+      "code": "mda_Latn",
+      "name_en": "Mada (Nigeria)",
+      "name_fr": "Mada (Nigéria)"
+    },
+    {
+      "code": "mdd_Latn",
+      "name_en": "Mbum",
+      "name_fr": "Mbum"
+    },
+    {
+      "code": "mdv_Latn",
+      "name_en": "Santa Lucía Monteverde Mixtec",
+      "name_fr": "Mixtèque de Santa Lucía Monteverde"
+    },
+    {
+      "code": "mdy_Ethi",
+      "name_en": "Male (Ethiopia)",
+      "name_fr": "Male (Éthiopie)"
+    },
+    {
+      "code": "med_Latn",
+      "name_en": "Melpa",
+      "name_fr": "Melpa"
+    },
+    {
+      "code": "mee_Latn",
+      "name_en": "Mengen",
+      "name_fr": "Mengen"
+    },
+    {
+      "code": "meh_Latn",
+      "name_en": "Southwestern Tlaxiaco Mixtec",
+      "name_fr": "Mixtèque de Tlaxiaco du Sud-Ouest"
+    },
+    {
+      "code": "mej_Latn",
+      "name_en": "Meyah",
+      "name_fr": "Meyah"
+    },
+    {
+      "code": "mek_Latn",
+      "name_en": "Mekeo",
+      "name_fr": "Mekeo"
+    },
+    {
+      "code": "mel_Latn",
+      "name_en": "Central Melanau",
+      "name_fr": "Melanau central"
+    },
+    {
+      "code": "men_Latn",
+      "name_en": "Mende (Sierra Leone)",
+      "name_fr": "Mende (Sierra Léone)"
+    },
+    {
+      "code": "meq_Latn",
+      "name_en": "Merey",
+      "name_fr": "Merey"
+    },
+    {
+      "code": "mer_Latn",
+      "name_en": "Meru",
+      "name_fr": "Meru"
+    },
+    {
+      "code": "met_Latn",
+      "name_en": "Mato",
+      "name_fr": "Mato"
+    },
+    {
+      "code": "meu_Latn",
+      "name_en": "Motu",
+      "name_fr": "Motu"
+    },
+    {
+      "code": "mev_Latn",
+      "name_en": "Mano",
+      "name_fr": "Mano"
+    },
+    {
+      "code": "mfe_Latn",
+      "name_en": "Morisyen",
+      "name_fr": "Morisyen"
+    },
+    {
+      "code": "mfh_Latn",
+      "name_en": "Matal",
+      "name_fr": "Matal"
+    },
+    {
+      "code": "mfi_Latn",
+      "name_en": "Wandala",
+      "name_fr": "Wandala"
+    },
+    {
+      "code": "mfk_Latn",
+      "name_en": "North Mofu",
+      "name_fr": "Mofu septentrional"
+    },
+    {
+      "code": "mfm_Latn",
+      "name_en": "Marghi South",
+      "name_fr": "Marghi méridional"
+    },
+    {
+      "code": "mfn_Latn",
+      "name_en": "Cross River Mbembe",
+      "name_fr": "Mbembe de Cross River"
+    },
+    {
+      "code": "mfo_Latn",
+      "name_en": "Mbe",
+      "name_fr": "Mbe"
+    },
+    {
+      "code": "mfq_Latn",
+      "name_en": "Moba",
+      "name_fr": "Moba"
+    },
+    {
+      "code": "mfv_Latn",
+      "name_en": "Mandjak",
+      "name_fr": "Mandjak"
+    },
+    {
+      "code": "mfy_Latn",
+      "name_en": "Mayo",
+      "name_fr": "Mayo"
+    },
+    {
+      "code": "mfz_Latn",
+      "name_en": "Mabaan",
+      "name_fr": "Mabaan"
+    },
+    {
+      "code": "mgd_Latn",
+      "name_en": "Moru",
+      "name_fr": "Moru"
+    },
+    {
+      "code": "mge_Latn",
+      "name_en": "Mango",
+      "name_fr": "Mango"
+    },
+    {
+      "code": "mgg_Latn",
+      "name_en": "Mpumpong",
+      "name_fr": "Mpumpong"
+    },
+    {
+      "code": "mgh_Latn",
+      "name_en": "Makhuwa-Meetto",
+      "name_fr": "Makhuwa-meetto"
+    },
+    {
+      "code": "mgi_Latn",
+      "name_en": "Lijili",
+      "name_fr": "Lijili"
+    },
+    {
+      "code": "mgo_Latn",
+      "name_en": "Meta'",
+      "name_fr": "Meta'"
+    },
+    {
+      "code": "mhi_Latn",
+      "name_en": "Ma'di",
+      "name_fr": "Ma'di"
+    },
+    {
+      "code": "mhk_Latn",
+      "name_en": "Mungaka",
+      "name_fr": "Mungaka"
+    },
+    {
+      "code": "mhr_Cyrl",
+      "name_en": "Eastern Mari",
+      "name_fr": "Mari oriental"
+    },
+    {
+      "code": "mhu_Latn",
+      "name_en": "Digaro-Mishmi",
+      "name_fr": "Digaro-mishmi"
+    },
+    {
+      "code": "mhx_Latn",
+      "name_en": "Maru",
+      "name_fr": "Maru"
+    },
+    {
+      "code": "mhy_Latn",
+      "name_en": "Ma'anyan",
+      "name_fr": "Ma'anyan"
+    },
+    {
+      "code": "mib_Latn",
+      "name_en": "Atatláhuca Mixtec",
+      "name_fr": "Mixtèue d'Atatláhuca"
+    },
+    {
+      "code": "mie_Latn",
+      "name_en": "Ocotepec Mixtec",
+      "name_fr": "Mixtèque, Ocotepec"
+    },
+    {
+      "code": "mif_Latn",
+      "name_en": "Mofu-Gudur",
+      "name_fr": "Mofu-gudur"
+    },
+    {
+      "code": "mig_Latn",
+      "name_en": "San Miguel El Grande Mixtec",
+      "name_fr": "Mixtèque de San Miguel El Grande"
+    },
+    {
+      "code": "mih_Latn",
+      "name_en": "Chayuco Mixtec",
+      "name_fr": "Mixtèque de Chayuco"
+    },
+    {
+      "code": "mil_Latn",
+      "name_en": "Peñoles Mixtec",
+      "name_fr": "Mixtèque de Peñoles"
+    },
+    {
+      "code": "mim_Latn",
+      "name_en": "Alacatlatzala Mixtec",
+      "name_fr": "Mixtèque de Alacatlatzala"
+    },
+    {
+      "code": "min_Latn",
+      "name_en": "Minangkabau",
+      "name_fr": "Minangkabau"
+    },
+    {
+      "code": "mio_Latn",
+      "name_en": "Pinotepa Nacional Mixtec",
+      "name_fr": "Mixtèque de Pinotepa Nacional"
+    },
+    {
+      "code": "mip_Latn",
+      "name_en": "Apasco-Apoala Mixtec",
+      "name_fr": "Mixtèque de Apasco-Apoala"
+    },
+    {
+      "code": "miq_Latn",
+      "name_en": "Mískito",
+      "name_fr": "Mískito"
+    },
+    {
+      "code": "mit_Latn",
+      "name_en": "Southern Puebla Mixtec",
+      "name_fr": "Mixtèque du Puebla méridional"
+    },
+    {
+      "code": "miu_Latn",
+      "name_en": "Cacaloxtepec Mixtec",
+      "name_fr": "Mixtèque de Cacaloxtepec"
+    },
+    {
+      "code": "miy_Latn",
+      "name_en": "Ayutla Mixtec",
+      "name_fr": "Mixtèque d'Ayutla"
+    },
+    {
+      "code": "miz_Latn",
+      "name_en": "Coatzospan Mixtec",
+      "name_fr": "Mixtèque de Coatzospan"
+    },
+    {
+      "code": "mjl_Deva",
+      "name_en": "Mandeali",
+      "name_fr": "Mandeali"
+    },
+    {
+      "code": "mjv_Mlym",
+      "name_en": "Mannan",
+      "name_fr": "Mannan"
+    },
+    {
+      "code": "mkd_Cyrl",
+      "name_en": "Macedonian",
+      "name_fr": "Macédonien"
+    },
+    {
+      "code": "mkf_Latn",
+      "name_en": "Miya",
+      "name_fr": "Miya"
+    },
+    {
+      "code": "mki_Arab",
+      "name_en": "Dhatki",
+      "name_fr": "Dhatki"
+    },
+    {
+      "code": "mkl_Latn",
+      "name_en": "Mokole",
+      "name_fr": "Mokole"
+    },
+    {
+      "code": "mkn_Latn",
+      "name_en": "Kupang Malay",
+      "name_fr": "Malais de Kupang"
+    },
+    {
+      "code": "mlg_Latn",
+      "name_en": "Malagasy",
+      "name_fr": "Malgache"
+    },
+    {
+      "code": "mlq_Latn",
+      "name_en": "Western Maninkakan",
+      "name_fr": "Maninkakan occidental"
+    },
+    {
+      "code": "mlt_Latn",
+      "name_en": "Maltese",
+      "name_fr": "Maltais"
+    },
+    {
+      "code": "mmc_Latn",
+      "name_en": "Michoacán Mazahua",
+      "name_fr": "Mazahua de Michoacán"
+    },
+    {
+      "code": "mmg_Latn",
+      "name_en": "North Ambrym",
+      "name_fr": "Ambrym septentrional"
+    },
+    {
+      "code": "mnb_Latn",
+      "name_en": "Muna",
+      "name_fr": "Muna"
+    },
+    {
+      "code": "mne_Latn",
+      "name_en": "Naba",
+      "name_fr": "Naba"
+    },
+    {
+      "code": "mnf_Latn",
+      "name_en": "Mundani",
+      "name_fr": "Mundani"
+    },
+    {
+      "code": "mni_Beng",
+      "name_en": "Manipuri",
+      "name_fr": "Manipuri"
+    },
+    {
+      "code": "mnk_Latn",
+      "name_en": "Mandinka",
+      "name_fr": "Mandinka"
+    },
+    {
+      "code": "mnw_Mymr",
+      "name_en": "Mon",
+      "name_fr": "Mon"
+    },
+    {
+      "code": "mnx_Latn",
+      "name_en": "Manikion",
+      "name_fr": "Manikion"
+    },
+    {
+      "code": "moa_Latn",
+      "name_en": "Mwan",
+      "name_fr": "Mwan"
+    },
+    {
+      "code": "mog_Latn",
+      "name_en": "Mongondow",
+      "name_fr": "Mongondow"
+    },
+    {
+      "code": "mon_Cyrl",
+      "name_en": "Mongolian",
+      "name_fr": "Mongol"
+    },
+    {
+      "code": "mop_Latn",
+      "name_en": "Mopán Maya",
+      "name_fr": "Mopán Maya"
+    },
+    {
+      "code": "mor_Latn",
+      "name_en": "Moro",
+      "name_fr": "Moro"
+    },
+    {
+      "code": "mos_Latn",
+      "name_en": "Mossi",
+      "name_fr": "Moré"
+    },
+    {
+      "code": "mox_Latn",
+      "name_en": "Molima",
+      "name_fr": "Molima"
+    },
+    {
+      "code": "moz_Latn",
+      "name_en": "Mukulu",
+      "name_fr": "Mukulu"
+    },
+    {
+      "code": "mpg_Latn",
+      "name_en": "Marba",
+      "name_fr": "Marba"
+    },
+    {
+      "code": "mpm_Latn",
+      "name_en": "Yosondúa Mixtec",
+      "name_fr": "Mixtèque de Yosondúa"
+    },
+    {
+      "code": "mpp_Latn",
+      "name_en": "Migabac",
+      "name_fr": "Migabac"
+    },
+    {
+      "code": "mpx_Latn",
+      "name_en": "Misima-Panaeati",
+      "name_fr": "Misima-panaeati"
+    },
+    {
+      "code": "mqb_Latn",
+      "name_en": "Mbuko",
+      "name_fr": "Mbuko"
+    },
+    {
+      "code": "mqf_Latn",
+      "name_en": "Momuna",
+      "name_fr": "Momuna"
+    },
+    {
+      "code": "mqj_Latn",
+      "name_en": "Mamasa",
+      "name_fr": "Mamasa"
+    },
+    {
+      "code": "mqn_Latn",
+      "name_en": "Moronene",
+      "name_fr": "Moronene"
+    },
+    {
+      "code": "mqy_Latn",
+      "name_en": "Manggarai",
+      "name_fr": "Manggarai"
+    },
+    {
+      "code": "mri_Latn",
+      "name_en": "Maori",
+      "name_fr": "Maori"
+    },
+    {
+      "code": "mrj_Cyrl",
+      "name_en": "Western Mari",
+      "name_fr": "Mari occidental"
+    },
+    {
+      "code": "mrr_Deva",
+      "name_en": "Maria (India)",
+      "name_fr": "Maria (Inde)"
+    },
+    {
+      "code": "mrt_Latn",
+      "name_en": "Marghi Central",
+      "name_fr": "Marghi central"
+    },
+    {
+      "code": "mrw_Latn",
+      "name_en": "Maranao",
+      "name_fr": "Maranao"
+    },
+    {
+      "code": "msh_Latn",
+      "name_en": "Masikoro Malagasy",
+      "name_fr": "Malgache de Masikoro"
+    },
+    {
+      "code": "msi_Latn",
+      "name_en": "Sabah Malay",
+      "name_fr": "Malais de Sabah"
+    },
+    {
+      "code": "msw_Latn",
+      "name_en": "Mansoanka",
+      "name_fr": "Mansoanka"
+    },
+    {
+      "code": "msy_Latn",
+      "name_en": "Aruamu",
+      "name_fr": "Aruamu"
+    },
+    {
+      "code": "mtd_Latn",
+      "name_en": "Mualang",
+      "name_fr": "Mualang"
+    },
+    {
+      "code": "mtj_Latn",
+      "name_en": "Moskona",
+      "name_fr": "Moskona"
+    },
+    {
+      "code": "mto_Latn",
+      "name_en": "Totontepec Mixe",
+      "name_fr": "Mixe de Totontepec"
+    },
+    {
+      "code": "mtr_Deva",
+      "name_en": "Mewari",
+      "name_fr": "Mewari"
+    },
+    {
+      "code": "mtu_Latn",
+      "name_en": "Tututepec Mixtec",
+      "name_fr": "Mixtèque de Tututepec"
+    },
+    {
+      "code": "mtx_Latn",
+      "name_en": "Tidaá Mixtec",
+      "name_fr": "Mixtèque de Tidaá"
+    },
+    {
+      "code": "mua_Latn",
+      "name_en": "Mundang",
+      "name_fr": "Mundang"
+    },
+    {
+      "code": "mug_Latn",
+      "name_en": "Musgu",
+      "name_fr": "Musgu"
+    },
+    {
+      "code": "muh_Latn",
+      "name_en": "Mündü",
+      "name_fr": "Mündü"
+    },
+    {
+      "code": "mui_Latn",
+      "name_en": "Musi",
+      "name_fr": "Musi"
+    },
+    {
+      "code": "mup_Deva",
+      "name_en": "Malvi",
+      "name_fr": "Malvi"
+    },
+    {
+      "code": "mur_Latn",
+      "name_en": "Murle",
+      "name_fr": "Murle"
+    },
+    {
+      "code": "muv_Mlym",
+      "name_en": "Muthuvan",
+      "name_fr": "Muthuvien"
+    },
+    {
+      "code": "muy_Latn",
+      "name_en": "Muyang",
+      "name_fr": "Muyang"
+    },
+    {
+      "code": "mve_Arab",
+      "name_en": "Marwari (Pakistan)",
+      "name_fr": "Marwari (Pakistan)"
+    },
+    {
+      "code": "mvp_Latn",
+      "name_en": "Duri",
+      "name_fr": "Duri"
+    },
+    {
+      "code": "mvy_Arab",
+      "name_en": "Indus Kohistani",
+      "name_fr": "Kohistani de l'Indus"
+    },
+    {
+      "code": "mwq_Latn",
+      "name_en": "Mün Chin",
+      "name_fr": "Chin de Mün"
+    },
+    {
+      "code": "mwv_Latn",
+      "name_en": "Mentawai",
+      "name_fr": "Mentawai"
+    },
+    {
+      "code": "mxb_Latn",
+      "name_en": "Tezoatlán Mixtec",
+      "name_fr": "Mixtèque de Tezoatlán"
+    },
+    {
+      "code": "mxq_Latn",
+      "name_en": "Juquila Mixe",
+      "name_fr": "Mixe de Juquila"
+    },
+    {
+      "code": "mxs_Latn",
+      "name_en": "Huitepec Mixtec",
+      "name_fr": "Mixtèque de Huitepec"
+    },
+    {
+      "code": "mxt_Latn",
+      "name_en": "Jamiltepec Mixtec",
+      "name_fr": "Mixtèque de Jamiltepec"
+    },
+    {
+      "code": "mxu_Latn",
+      "name_en": "Mada (Cameroon)",
+      "name_fr": "Mada (Cameroun)"
+    },
+    {
+      "code": "mxv_Latn",
+      "name_en": "Metlatónoc Mixtec",
+      "name_fr": "Mixtèque de Metlatónoc"
+    },
+    {
+      "code": "mxy_Latn",
+      "name_en": "Southeastern Nochixtlán Mixtec",
+      "name_fr": "Mixtèque de Nochixtlán du Sud-Est"
+    },
+    {
+      "code": "mya_Mymr",
+      "name_en": "Burmese",
+      "name_fr": "Birman"
+    },
+    {
+      "code": "myb_Latn",
+      "name_en": "Mbay",
+      "name_fr": "Mbay"
+    },
+    {
+      "code": "myk_Latn",
+      "name_en": "Mamara Senoufo",
+      "name_fr": "Senoufo de Mamara"
+    },
+    {
+      "code": "myv_Cyrl",
+      "name_en": "Erzya",
+      "name_fr": "Erzya"
+    },
+    {
+      "code": "myx_Latn",
+      "name_en": "Masaaba",
+      "name_fr": "Masaaba"
+    },
+    {
+      "code": "myy_Latn",
+      "name_en": "Macuna",
+      "name_fr": "Macuna"
+    },
+    {
+      "code": "mza_Latn",
+      "name_en": "Santa María Zacatepec Mixtec",
+      "name_fr": "Mixtèque de Santa María Zacatepec"
+    },
+    {
+      "code": "mzi_Latn",
+      "name_en": "Ixcatlán Mazatec",
+      "name_fr": "Mazatèque d'Ixcatlán"
+    },
+    {
+      "code": "mzj_Latn",
+      "name_en": "Manya",
+      "name_fr": "Manya"
+    },
+    {
+      "code": "mzk_Latn",
+      "name_en": "Nigeria Mambila",
+      "name_fr": "Mambila du Nigéria"
+    },
+    {
+      "code": "mzl_Latn",
+      "name_en": "Mazatlán Mixe",
+      "name_fr": "Mixe de Mazatlán"
+    },
+    {
+      "code": "mzm_Latn",
+      "name_en": "Mumuye",
+      "name_fr": "Mumuye"
+    },
+    {
+      "code": "mzw_Latn",
+      "name_en": "Deg",
+      "name_fr": "Deg"
+    },
+    {
+      "code": "nab_Latn",
+      "name_en": "Southern Nambikuára",
+      "name_fr": "Nambikuára méridional"
+    },
+    {
+      "code": "nag_Latn",
+      "name_en": "Naga Pidgin",
+      "name_fr": "Pidgin Naga"
+    },
+    {
+      "code": "nal_Latn",
+      "name_en": "Nalik",
+      "name_fr": "Nalik"
+    },
+    {
+      "code": "nan_Latn",
+      "name_en": "Min Nan Chinese",
+      "name_fr": "Chinois Min Nan"
+    },
+    {
+      "code": "nap_Latn",
+      "name_en": "Neapolitan",
+      "name_fr": "Napolitain"
+    },
+    {
+      "code": "nas_Latn",
+      "name_en": "Naasioi",
+      "name_fr": "Naasioi"
+    },
+    {
+      "code": "naw_Latn",
+      "name_en": "Nawuri",
+      "name_fr": "Nawuri"
+    },
+    {
+      "code": "nbh_Latn",
+      "name_en": "Ngamo",
+      "name_fr": "Ngamo"
+    },
+    {
+      "code": "nca_Latn",
+      "name_en": "Iyo",
+      "name_fr": "Iyo"
+    },
+    {
+      "code": "ncf_Latn",
+      "name_en": "Notsi",
+      "name_fr": "Notsi"
+    },
+    {
+      "code": "nch_Latn",
+      "name_en": "Central Huasteca Nahuatl",
+      "name_fr": "Nahuatl de Huasteca central"
+    },
+    {
+      "code": "ncj_Latn",
+      "name_en": "Northern Puebla Nahuatl",
+      "name_fr": "Nahuatl de Puebla du Sud-Est"
+    },
+    {
+      "code": "ncl_Latn",
+      "name_en": "Michoacán Nahuatl",
+      "name_fr": "Nahuatl de Michoacán"
+    },
+    {
+      "code": "nco_Latn",
+      "name_en": "Sibe",
+      "name_fr": "Sibe"
+    },
+    {
+      "code": "ncu_Latn",
+      "name_en": "Chumburung",
+      "name_fr": "Chumburung"
+    },
+    {
+      "code": "ncx_Latn",
+      "name_en": "Central Puebla Nahuatl",
+      "name_fr": "Nahuatl de Puebla central"
+    },
+    {
+      "code": "ndi_Latn",
+      "name_en": "Samba Leko",
+      "name_fr": "Samba Leko"
+    },
+    {
+      "code": "ndj_Latn",
+      "name_en": "Ndamba",
+      "name_fr": "Ndamba"
+    },
+    {
+      "code": "ndo_Latn",
+      "name_en": "Ndonga",
+      "name_fr": "Ndonga"
+    },
+    {
+      "code": "ndp_Latn",
+      "name_en": "Ndo",
+      "name_fr": "Ndo"
+    },
+    {
+      "code": "ndv_Latn",
+      "name_en": "Ndut",
+      "name_fr": "Ndut"
+    },
+    {
+      "code": "ndy_Latn",
+      "name_en": "Lutos",
+      "name_fr": "Lutos"
+    },
+    {
+      "code": "ndz_Latn",
+      "name_en": "Ndogo",
+      "name_fr": "Ndogo"
+    },
+    {
+      "code": "neb_Latn",
+      "name_en": "Toura (Côte d'Ivoire)",
+      "name_fr": "Toura (Côte d'Ivoire)"
+    },
+    {
+      "code": "nep_Deva",
+      "name_en": "Nepali (macrolanguage)",
+      "name_fr": "Népalais (macrolangue)"
+    },
+    {
+      "code": "new_Deva",
+      "name_en": "Nepal Bhasa",
+      "name_fr": "Nepal Bhasa"
+    },
+    {
+      "code": "nfa_Latn",
+      "name_en": "Dhao",
+      "name_fr": "Dhao"
+    },
+    {
+      "code": "nfr_Latn",
+      "name_en": "Nafaanra",
+      "name_fr": "Nafaanra"
+    },
+    {
+      "code": "nga_Latn",
+      "name_en": "Ngbaka",
+      "name_fr": "Ngbaka"
+    },
+    {
+      "code": "ngi_Latn",
+      "name_en": "Ngizim",
+      "name_fr": "Ngizim"
+    },
+    {
+      "code": "ngl_Latn",
+      "name_en": "Lomwe",
+      "name_fr": "Lomwe"
+    },
+    {
+      "code": "ngp_Latn",
+      "name_en": "Ngulu",
+      "name_fr": "Ngulu"
+    },
+    {
+      "code": "ngu_Latn",
+      "name_en": "Guerrero Nahuatl",
+      "name_fr": "Nahuatl de Guerrero"
+    },
+    {
+      "code": "nhe_Latn",
+      "name_en": "Eastern Huasteca Nahuatl",
+      "name_fr": "Nahuatl de Huasteca oriental"
+    },
+    {
+      "code": "nhg_Latn",
+      "name_en": "Tetelcingo Nahuatl",
+      "name_fr": "Nahuatl de Tetelcingo"
+    },
+    {
+      "code": "nhi_Latn",
+      "name_en": "Zacatlán-Ahuacatlán-Tepetzintla Nahuatl",
+      "name_fr": "Nahuatl de Zacatlán-Ahuacatlán-Tepetzintla"
+    },
+    {
+      "code": "nhn_Latn",
+      "name_en": "Central Nahuatl",
+      "name_fr": "Nahuatl central"
+    },
+    {
+      "code": "nhq_Latn",
+      "name_en": "Huaxcaleca Nahuatl",
+      "name_fr": "Nahuatl de Huaxcaleca"
+    },
+    {
+      "code": "nhu_Latn",
+      "name_en": "Noone",
+      "name_fr": "Noone"
+    },
+    {
+      "code": "nhw_Latn",
+      "name_en": "Western Huasteca Nahuatl",
+      "name_fr": "Nahuatl du Huasteca occidental"
+    },
+    {
+      "code": "nhx_Latn",
+      "name_en": "Isthmus-Mecayapan Nahuatl",
+      "name_fr": "Nahuatl, Isthme-Mecayapan"
+    },
+    {
+      "code": "nhy_Latn",
+      "name_en": "Northern Oaxaca Nahuatl",
+      "name_fr": "Nahuatl d'Oaxaca septentrional"
+    },
+    {
+      "code": "nia_Latn",
+      "name_en": "Nias",
+      "name_fr": "Nias"
+    },
+    {
+      "code": "nij_Latn",
+      "name_en": "Ngaju",
+      "name_fr": "Ngaju"
+    },
+    {
+      "code": "nim_Latn",
+      "name_en": "Nilamba",
+      "name_fr": "Nilamba"
+    },
+    {
+      "code": "nin_Latn",
+      "name_en": "Ninzo",
+      "name_fr": "Ninzo"
+    },
+    {
+      "code": "nja_Latn",
+      "name_en": "Nzanyi",
+      "name_fr": "Nzanyi"
+    },
+    {
+      "code": "nko_Latn",
+      "name_en": "Nkonya",
+      "name_fr": "Nkonya"
+    },
+    {
+      "code": "nla_Latn",
+      "name_en": "Ngombale",
+      "name_fr": "Ngombale"
+    },
+    {
+      "code": "nlc_Latn",
+      "name_en": "Nalca",
+      "name_fr": "Nalca"
+    },
+    {
+      "code": "nld_Latn",
+      "name_en": "Dutch",
+      "name_fr": "Néerlandais"
+    },
+    {
+      "code": "nlg_Latn",
+      "name_en": "Gela",
+      "name_fr": "Gela"
+    },
+    {
+      "code": "nlk_Latn",
+      "name_en": "Ninia Yali",
+      "name_fr": "Yali de Ninia"
+    },
+    {
+      "code": "nlv_Latn",
+      "name_en": "Orizaba Nahuatl",
+      "name_fr": "Nahuatl de Orizaba"
+    },
+    {
+      "code": "nmg_Latn",
+      "name_en": "Kwasio",
+      "name_fr": "Kwasio"
+    },
+    {
+      "code": "nmz_Latn",
+      "name_en": "Nawdm",
+      "name_fr": "Nawdm"
+    },
+    {
+      "code": "nnb_Latn",
+      "name_en": "Nande",
+      "name_fr": "Nande"
+    },
+    {
+      "code": "nnh_Latn",
+      "name_en": "Ngiemboon",
+      "name_fr": "Ngiemboon"
+    },
+    {
+      "code": "nnq_Latn",
+      "name_en": "Ngindo",
+      "name_fr": "Ngindo"
+    },
+    {
+      "code": "nnw_Latn",
+      "name_en": "Southern Nuni",
+      "name_fr": "Nuni méridional"
+    },
+    {
+      "code": "noa_Latn",
+      "name_en": "Woun Meu",
+      "name_fr": "Woun Meu"
+    },
+    {
+      "code": "nob_Latn",
+      "name_en": "Norwegian Bokmål",
+      "name_fr": "Norvégien bokmål"
+    },
+    {
+      "code": "nod_Thai",
+      "name_en": "Northern Thai",
+      "name_fr": "Thai septentrional"
+    },
+    {
+      "code": "noe_Deva",
+      "name_en": "Nimadi",
+      "name_fr": "Nimadi"
+    },
+    {
+      "code": "nog_Cyrl",
+      "name_en": "Nogai",
+      "name_fr": "Nogaï"
+    },
+    {
+      "code": "not_Latn",
+      "name_en": "Nomatsiguenga",
+      "name_fr": "Nomatsiguenga"
+    },
+    {
+      "code": "npl_Latn",
+      "name_en": "Southeastern Puebla Nahuatl",
+      "name_fr": "Nahuatl de Puebla du Sud-Est"
+    },
+    {
+      "code": "npy_Latn",
+      "name_en": "Napu",
+      "name_fr": "Napu"
+    },
+    {
+      "code": "nso_Latn",
+      "name_en": "Pedi",
+      "name_fr": "Pedi"
+    },
+    {
+      "code": "nst_Latn",
+      "name_en": "Tase Naga",
+      "name_fr": "Naga de Tase"
+    },
+    {
+      "code": "nsu_Latn",
+      "name_en": "Sierra Negra Nahuatl",
+      "name_fr": "Nahuatl de la Sierra Negra"
+    },
+    {
+      "code": "ntm_Latn",
+      "name_en": "Nateni",
+      "name_fr": "Nateni"
+    },
+    {
+      "code": "ntr_Latn",
+      "name_en": "Delo",
+      "name_fr": "Delo"
+    },
+    {
+      "code": "nuj_Latn",
+      "name_en": "Nyole",
+      "name_fr": "Nyole"
+    },
+    {
+      "code": "nup_Latn",
+      "name_en": "Nupe-Nupe-Tako",
+      "name_fr": "Nupe-nupe-tako"
+    },
+    {
+      "code": "nus_Latn",
+      "name_en": "Nuer",
+      "name_fr": "Nuer"
+    },
+    {
+      "code": "nuz_Latn",
+      "name_en": "Tlamacazapa Nahuatl",
+      "name_fr": "Nahuatl de Tlamacazapa"
+    },
+    {
+      "code": "nwb_Latn",
+      "name_en": "Nyabwa",
+      "name_fr": "Nyabwa"
+    },
+    {
+      "code": "nxq_Latn",
+      "name_en": "Naxi",
+      "name_fr": "Naxi"
+    },
+    {
+      "code": "nya_Latn",
+      "name_en": "Chichewa",
+      "name_fr": "Chichewa"
+    },
+    {
+      "code": "nyf_Latn",
+      "name_en": "Giryama",
+      "name_fr": "Giryama"
+    },
+    {
+      "code": "nyn_Latn",
+      "name_en": "Nyankole",
+      "name_fr": "Nyankole"
+    },
+    {
+      "code": "nyo_Latn",
+      "name_en": "Nyoro",
+      "name_fr": "Nyoro"
+    },
+    {
+      "code": "nyu_Latn",
+      "name_en": "Nyungwe",
+      "name_fr": "Nyungwe"
+    },
+    {
+      "code": "nyy_Latn",
+      "name_en": "Nyakyusa-Ngonde",
+      "name_fr": "Nyakyusa-ngonde"
+    },
+    {
+      "code": "nzi_Latn",
+      "name_en": "Nzima",
+      "name_fr": "Nzema"
+    },
+    {
+      "code": "obo_Latn",
+      "name_en": "Obo Manobo",
+      "name_fr": "Manobo d'Obo"
+    },
+    {
+      "code": "oci_Latn",
+      "name_en": "Occitan (post 1500)",
+      "name_fr": "Occitan"
+    },
+    {
+      "code": "odk_Arab",
+      "name_en": "Od",
+      "name_fr": "Od"
+    },
+    {
+      "code": "odu_Latn",
+      "name_en": "Odual",
+      "name_fr": "Odual"
+    },
+    {
+      "code": "ogo_Latn",
+      "name_en": "Khana",
+      "name_fr": "Khana"
+    },
+    {
+      "code": "ojb_Cans",
+      "name_en": "Northwestern Ojibwa",
+      "name_fr": "Ojibwa du Nord-Ouest"
+    },
+    {
+      "code": "ojb_Latn",
+      "name_en": "Northwestern Ojibwa",
+      "name_fr": "Ojibwa du Nord-Ouest"
+    },
+    {
+      "code": "oku_Latn",
+      "name_en": "Oku",
+      "name_fr": "Oku"
+    },
+    {
+      "code": "old_Latn",
+      "name_en": "Mochi",
+      "name_fr": "Mochi"
+    },
+    {
+      "code": "omw_Latn",
+      "name_en": "South Tairora",
+      "name_fr": "Tairora méridional"
+    },
+    {
+      "code": "onb_Latn",
+      "name_en": "Lingao",
+      "name_fr": "Lingao"
+    },
+    {
+      "code": "ood_Latn",
+      "name_en": "Tohono O'odham",
+      "name_fr": "Tohono O'odham"
+    },
+    {
+      "code": "orc_Latn",
+      "name_en": "Orma",
+      "name_fr": "Orma"
+    },
+    {
+      "code": "orm_Latn",
+      "name_en": "Oromo",
+      "name_fr": "Oromo"
+    },
+    {
+      "code": "oru_Arab",
+      "name_en": "Ormuri",
+      "name_fr": "Ormuri"
+    },
+    {
+      "code": "ory_Orya",
+      "name_en": "Odia",
+      "name_fr": "Odia"
+    },
+    {
+      "code": "oss_Cyrl",
+      "name_en": "Ossetian",
+      "name_fr": "Ossétien"
+    },
+    {
+      "code": "ote_Latn",
+      "name_en": "Mezquital Otomi",
+      "name_fr": "Otomi de Mezquital"
+    },
+    {
+      "code": "otq_Latn",
+      "name_en": "Querétaro Otomi",
+      "name_fr": "Otomi de Querétaro"
+    },
+    {
+      "code": "ozm_Latn",
+      "name_en": "Koonzime",
+      "name_fr": "Koonzime"
+    },
+    {
+      "code": "pab_Latn",
+      "name_en": "Parecís",
+      "name_fr": "Parecís"
+    },
+    {
+      "code": "pad_Latn",
+      "name_en": "Paumarí",
+      "name_fr": "Paumarí"
+    },
+    {
+      "code": "pag_Latn",
+      "name_en": "Pangasinan",
+      "name_fr": "Pangasinan"
+    },
+    {
+      "code": "pam_Latn",
+      "name_en": "Pampanga",
+      "name_fr": "Pampangan"
+    },
+    {
+      "code": "pan_Guru",
+      "name_en": "Panjabi",
+      "name_fr": "Pendjabi"
+    },
+    {
+      "code": "pao_Latn",
+      "name_en": "Northern Paiute",
+      "name_fr": "Paiute septentrional"
+    },
+    {
+      "code": "pap_Latn",
+      "name_en": "Papiamento",
+      "name_fr": "Papiamento"
+    },
+    {
+      "code": "pau_Latn",
+      "name_en": "Palauan",
+      "name_fr": "Palau"
+    },
+    {
+      "code": "pbb_Latn",
+      "name_en": "Páez",
+      "name_fr": "Páez"
+    },
+    {
+      "code": "pbc_Latn",
+      "name_en": "Patamona",
+      "name_fr": "Patamona"
+    },
+    {
+      "code": "pbi_Latn",
+      "name_en": "Parkwa",
+      "name_fr": "Parkwa"
+    },
+    {
+      "code": "pbs_Latn",
+      "name_en": "Central Pame",
+      "name_fr": "Pame central"
+    },
+    {
+      "code": "pbt_Arab",
+      "name_en": "Southern Pashto",
+      "name_fr": "Pashto méridional"
+    },
+    {
+      "code": "pbu_Arab",
+      "name_en": "Northern Pashto",
+      "name_fr": "Pashto septentrional"
+    },
+    {
+      "code": "pce_Thai",
+      "name_en": "Ruching Palaung",
+      "name_fr": "Palaung de Ruching"
+    },
+    {
+      "code": "pcm_Latn",
+      "name_en": "Nigerian Pidgin",
+      "name_fr": "Pidgin nigérien"
+    },
+    {
+      "code": "pex_Latn",
+      "name_en": "Petats",
+      "name_fr": "Petats"
+    },
+    {
+      "code": "pez_Latn",
+      "name_en": "Eastern Penan",
+      "name_fr": "Penan oriental"
+    },
+    {
+      "code": "phl_Arab",
+      "name_en": "Phalura",
+      "name_fr": "Phalura"
+    },
+    {
+      "code": "phr_Arab",
+      "name_en": "Pahari-Potwari",
+      "name_fr": "Pahari-potwari"
+    },
+    {
+      "code": "pib_Latn",
+      "name_en": "Yine",
+      "name_fr": "Yine"
+    },
+    {
+      "code": "pil_Latn",
+      "name_en": "Yom",
+      "name_fr": "Yom"
+    },
+    {
+      "code": "pip_Latn",
+      "name_en": "Pero",
+      "name_fr": "Pero"
+    },
+    {
+      "code": "pir_Latn",
+      "name_en": "Piratapuyo",
+      "name_fr": "Piratapuyo"
+    },
+    {
+      "code": "pis_Latn",
+      "name_en": "Pijin",
+      "name_fr": "Pijin"
+    },
+    {
+      "code": "piy_Latn",
+      "name_en": "Piya-Kwonci",
+      "name_fr": "Piya-kwonci"
+    },
+    {
+      "code": "pjt_Latn",
+      "name_en": "Pitjantjatjara",
+      "name_fr": "Pitjantjatjara"
+    },
+    {
+      "code": "pkb_Latn",
+      "name_en": "Pokomo",
+      "name_fr": "Pokomo"
+    },
+    {
+      "code": "pko_Latn",
+      "name_en": "Pökoot",
+      "name_fr": "Pökoot"
+    },
+    {
+      "code": "plk_Arab",
+      "name_en": "Kohistani Shina",
+      "name_fr": "Shina de Kohistani"
+    },
+    {
+      "code": "pls_Latn",
+      "name_en": "San Marcos Tlacoyalco Popoloca",
+      "name_fr": "Popoloca de San Marcos Tlacoyalco"
+    },
+    {
+      "code": "plt_Latn",
+      "name_en": "Plateau Malagasy",
+      "name_fr": "Malgache du plateau"
+    },
+    {
+      "code": "plw_Latn",
+      "name_en": "Brooke's Point Palawano",
+      "name_fr": "Palawano de Brooke's Point"
+    },
+    {
+      "code": "pmf_Latn",
+      "name_en": "Pamona",
+      "name_fr": "Pamona"
+    },
+    {
+      "code": "pmq_Latn",
+      "name_en": "Northern Pame",
+      "name_fr": "Pame septentrional"
+    },
+    {
+      "code": "pms_Latn",
+      "name_en": "Piemontese",
+      "name_fr": "Piémontais"
+    },
+    {
+      "code": "pmy_Latn",
+      "name_en": "Papuan Malay",
+      "name_fr": "Malais de Papua"
+    },
+    {
+      "code": "pnb_Arab",
+      "name_en": "Western Panjabi",
+      "name_fr": "Pendjabi occidental"
+    },
+    {
+      "code": "pne_Latn",
+      "name_en": "Western Penan",
+      "name_fr": "Penan occidental"
+    },
+    {
+      "code": "pny_Latn",
+      "name_en": "Pinyin",
+      "name_fr": "Pinyin"
+    },
+    {
+      "code": "poc_Latn",
+      "name_en": "Poqomam",
+      "name_fr": "Poqomam"
+    },
+    {
+      "code": "poe_Latn",
+      "name_en": "San Juan Atzingo Popoloca",
+      "name_fr": "Popoloca de San Juan Atzingo"
+    },
+    {
+      "code": "poh_Latn",
+      "name_en": "Poqomchi'",
+      "name_fr": "Poqomchi'"
+    },
+    {
+      "code": "poi_Latn",
+      "name_en": "Highland Popoluca",
+      "name_fr": "Popoluca du haut-pays"
+    },
+    {
+      "code": "pol_Latn",
+      "name_en": "Polish",
+      "name_fr": "Polonais"
+    },
+    {
+      "code": "por_Latn",
+      "name_en": "Portuguese",
+      "name_fr": "Portugais"
+    },
+    {
+      "code": "pov_Latn",
+      "name_en": "Upper Guinea Crioulo",
+      "name_fr": "Crioulo de Haute-Guinée"
+    },
+    {
+      "code": "pow_Latn",
+      "name_en": "San Felipe Otlaltepec Popoloca",
+      "name_fr": "Popoloca de San Felipe Otlaltepec"
+    },
+    {
+      "code": "poy_Latn",
+      "name_en": "Pogolo",
+      "name_fr": "Pogolo"
+    },
+    {
+      "code": "ppk_Latn",
+      "name_en": "Uma",
+      "name_fr": "Uma"
+    },
+    {
+      "code": "pps_Latn",
+      "name_en": "San Luís Temalacayuca Popoloca",
+      "name_fr": "Popoloca de San Luís Temalacayuca"
+    },
+    {
+      "code": "prf_Latn",
+      "name_en": "Paranan",
+      "name_fr": "Paranan"
+    },
+    {
+      "code": "prk_Latn",
+      "name_en": "Parauk",
+      "name_fr": "Parauk"
+    },
+    {
+      "code": "prq_Latn",
+      "name_en": "Ashéninka Perené",
+      "name_fr": "Ashéninka Perené"
+    },
+    {
+      "code": "prt_Thai",
+      "name_en": "Phai",
+      "name_fr": "Phai"
+    },
+    {
+      "code": "pse_Latn",
+      "name_en": "Central Malay",
+      "name_fr": "Malais central"
+    },
+    {
+      "code": "pss_Latn",
+      "name_en": "Kaulong",
+      "name_fr": "Kaulong"
+    },
+    {
+      "code": "pst_Arab",
+      "name_en": "Central Pashto",
+      "name_fr": "Pashto central"
+    },
+    {
+      "code": "ptu_Latn",
+      "name_en": "Bambam",
+      "name_fr": "Bambam"
+    },
+    {
+      "code": "pua_Latn",
+      "name_en": "Western Highland Purepecha",
+      "name_fr": "Purepecha du haut-pays occidental"
+    },
+    {
+      "code": "pui_Latn",
+      "name_en": "Puinave",
+      "name_fr": "Puinave"
+    },
+    {
+      "code": "pus_Arab",
+      "name_en": "Pushto",
+      "name_fr": "Pushto"
+    },
+    {
+      "code": "pwg_Latn",
+      "name_en": "Gapapaiwa",
+      "name_fr": "Gapapaiwa"
+    },
+    {
+      "code": "pwn_Latn",
+      "name_en": "Paiwan",
+      "name_fr": "Paiwan"
+    },
+    {
+      "code": "pww_Thai",
+      "name_en": "Pwo Northern Karen",
+      "name_fr": "Karen du Pwo spetentrional"
+    },
+    {
+      "code": "pxm_Latn",
+      "name_en": "Quetzaltepec Mixe",
+      "name_fr": "Mixe de Quetzaltepec"
+    },
+    {
+      "code": "qub_Latn",
+      "name_en": "Huallaga Huánuco Quechua",
+      "name_fr": "Quechua de Huallaga Huánuco"
+    },
+    {
+      "code": "quc_Latn",
+      "name_en": "K'iche'",
+      "name_fr": "K'iche'"
+    },
+    {
+      "code": "quf_Latn",
+      "name_en": "Lambayeque Quechua",
+      "name_fr": "Quechua de Lambayeque"
+    },
+    {
+      "code": "qug_Latn",
+      "name_en": "Chimborazo Highland Quichua",
+      "name_fr": "Quichua du haut-pays du Chimborazo"
+    },
+    {
+      "code": "quh_Latn",
+      "name_en": "South Bolivian Quechua",
+      "name_fr": "Quechua bolivien méridional"
+    },
+    {
+      "code": "qul_Latn",
+      "name_en": "North Bolivian Quechua",
+      "name_fr": "Quechua bolivien septentrional"
+    },
+    {
+      "code": "qum_Latn",
+      "name_en": "Sipacapense",
+      "name_fr": "Sipacapense"
+    },
+    {
+      "code": "qup_Latn",
+      "name_en": "Southern Pastaza Quechua",
+      "name_fr": "Quechua du Pastaza méridional"
+    },
+    {
+      "code": "qur_Latn",
+      "name_en": "Yanahuanca Pasco Quechua",
+      "name_fr": "Quechua du Yanahuanca Pasco"
+    },
+    {
+      "code": "qus_Latn",
+      "name_en": "Santiago del Estero Quichua",
+      "name_fr": "Quichua de Santiago del Estero"
+    },
+    {
+      "code": "quv_Latn",
+      "name_en": "Sacapulteco",
+      "name_fr": "Sacapulteco"
+    },
+    {
+      "code": "quw_Latn",
+      "name_en": "Tena Lowland Quichua",
+      "name_fr": "Quichua du bas-pays de Tena"
+    },
+    {
+      "code": "qux_Latn",
+      "name_en": "Yauyos Quechua",
+      "name_fr": "Quechua de Yauyos"
+    },
+    {
+      "code": "quy_Latn",
+      "name_en": "Ayacucho Quechua",
+      "name_fr": "Quechua d'Ayacucho"
+    },
+    {
+      "code": "quz_Latn",
+      "name_en": "Cusco Quechua",
+      "name_fr": "Quechua de Cuzco"
+    },
+    {
+      "code": "qva_Latn",
+      "name_en": "Ambo-Pasco Quechua",
+      "name_fr": "Quechua d'Ambo-Pasco"
+    },
+    {
+      "code": "qvc_Latn",
+      "name_en": "Cajamarca Quechua",
+      "name_fr": "Quechua de Cajamarca"
+    },
+    {
+      "code": "qve_Latn",
+      "name_en": "Eastern Apurímac Quechua",
+      "name_fr": "Quechua de l'Apurímac oriental"
+    },
+    {
+      "code": "qvh_Latn",
+      "name_en": "Huamalíes-Dos de Mayo Huánuco Quechua",
+      "name_fr": "Quechua de Huamalíes-Dos de Mayo Huánuco"
+    },
+    {
+      "code": "qvi_Latn",
+      "name_en": "Imbabura Highland Quichua",
+      "name_fr": "Quichua du haut-pays d'Imbabura"
+    },
+    {
+      "code": "qvj_Latn",
+      "name_en": "Loja Highland Quichua",
+      "name_fr": "Quichua du haut-pays de Loja"
+    },
+    {
+      "code": "qvl_Latn",
+      "name_en": "Cajatambo North Lima Quechua",
+      "name_fr": "Quechua de Cajatambo Lima Nord"
+    },
+    {
+      "code": "qvm_Latn",
+      "name_en": "Margos-Yarowilca-Lauricocha Quechua",
+      "name_fr": "Quechua de Margos-Yarowilca-Lauricocha"
+    },
+    {
+      "code": "qvn_Latn",
+      "name_en": "North Junín Quechua",
+      "name_fr": "Quechua de Junín septentrional"
+    },
+    {
+      "code": "qvo_Latn",
+      "name_en": "Napo Lowland Quechua",
+      "name_fr": "Quechua du bas-pays de Napo"
+    },
+    {
+      "code": "qvs_Latn",
+      "name_en": "San Martín Quechua",
+      "name_fr": "Quechua de San Martín"
+    },
+    {
+      "code": "qvw_Latn",
+      "name_en": "Huaylla Wanca Quechua",
+      "name_fr": "Quechua de Huaylla Wanca"
+    },
+    {
+      "code": "qvz_Latn",
+      "name_en": "Northern Pastaza Quichua",
+      "name_fr": "Quichua du Pastaza septentrional"
+    },
+    {
+      "code": "qwa_Latn",
+      "name_en": "Corongo Ancash Quechua",
+      "name_fr": "Quechua de Corongo Ancash"
+    },
+    {
+      "code": "qwh_Latn",
+      "name_en": "Huaylas Ancash Quechua",
+      "name_fr": "Quechua de Huaylas Ancash"
+    },
+    {
+      "code": "qws_Latn",
+      "name_en": "Sihuas Ancash Quechua",
+      "name_fr": "Quechua de Sihuas Ancash"
+    },
+    {
+      "code": "qxa_Latn",
+      "name_en": "Chiquián Ancash Quechua",
+      "name_fr": "Quechua de Chiquián Ancash"
+    },
+    {
+      "code": "qxh_Latn",
+      "name_en": "Panao Huánuco Quechua",
+      "name_fr": "Quechua de Panao Huánuco"
+    },
+    {
+      "code": "qxl_Latn",
+      "name_en": "Salasaca Highland Quichua",
+      "name_fr": "Quichua du haut-pays de Salasaca"
+    },
+    {
+      "code": "qxn_Latn",
+      "name_en": "Northern Conchucos Ancash Quechua",
+      "name_fr": "Quechua du Conchucos Ancash septentrional"
+    },
+    {
+      "code": "qxo_Latn",
+      "name_en": "Southern Conchucos Ancash Quechua",
+      "name_fr": "Quechua du Conchucos Ancash méridional"
+    },
+    {
+      "code": "qxp_Latn",
+      "name_en": "Puno Quechua",
+      "name_fr": "Quechua de Puno"
+    },
+    {
+      "code": "qxr_Latn",
+      "name_en": "Cañar Highland Quichua",
+      "name_fr": "Quichua du haut-pays de Cañar"
+    },
+    {
+      "code": "qxt_Latn",
+      "name_en": "Santa Ana de Tusi Pasco Quechua",
+      "name_fr": "Quechua de Santa Ana de Tusi Pasco"
+    },
+    {
+      "code": "qxu_Latn",
+      "name_en": "Arequipa-La Unión Quechua",
+      "name_fr": "Quechua d'Arequipa-La Unión"
+    },
+    {
+      "code": "qxw_Latn",
+      "name_en": "Jauja Wanca Quechua",
+      "name_fr": "Quechua de Jauja Wanca"
+    },
+    {
+      "code": "rag_Latn",
+      "name_en": "Logooli",
+      "name_fr": "Logooli"
+    },
+    {
+      "code": "rah_Beng",
+      "name_en": "Rabha",
+      "name_fr": "Rabha"
+    },
+    {
+      "code": "rai_Latn",
+      "name_en": "Ramoaaina",
+      "name_fr": "Ramoaaina"
+    },
+    {
+      "code": "rap_Latn",
+      "name_en": "Rapanui",
+      "name_fr": "Rapanui"
+    },
+    {
+      "code": "rav_Deva",
+      "name_en": "Sampang",
+      "name_fr": "Sampang"
+    },
+    {
+      "code": "raw_Latn",
+      "name_en": "Rawang",
+      "name_fr": "Rawang"
+    },
+    {
+      "code": "rej_Latn",
+      "name_en": "Rejang",
+      "name_fr": "Rejang"
+    },
+    {
+      "code": "rel_Latn",
+      "name_en": "Rendille",
+      "name_fr": "Rendille"
+    },
+    {
+      "code": "rgu_Latn",
+      "name_en": "Ringgou",
+      "name_fr": "Ringgou"
+    },
+    {
+      "code": "rhg_Latn",
+      "name_en": "Rohingya",
+      "name_fr": "Rohingya"
+    },
+    {
+      "code": "rif_Arab",
+      "name_en": "Tarifit",
+      "name_fr": "Tarifit"
+    },
+    {
+      "code": "rif_Latn",
+      "name_en": "Tarifit",
+      "name_fr": "Tarifit"
+    },
+    {
+      "code": "rim_Latn",
+      "name_en": "Nyaturu",
+      "name_fr": "Nyaturu"
+    },
+    {
+      "code": "rjs_Deva",
+      "name_en": "Rajbanshi",
+      "name_fr": "Rajbanchi"
+    },
+    {
+      "code": "rkt_Beng",
+      "name_en": "Rangpuri",
+      "name_fr": "Rangpuri"
+    },
+    {
+      "code": "rmc_Cyrl",
+      "name_en": "Carpathian Romani",
+      "name_fr": "Romani des Carpathes"
+    },
+    {
+      "code": "rmc_Latn",
+      "name_en": "Carpathian Romani",
+      "name_fr": "Romani des Carpathes"
+    },
+    {
+      "code": "rmo_Latn",
+      "name_en": "Sinte Romani",
+      "name_fr": "Romani, Sinte"
+    },
+    {
+      "code": "rmy_Cyrl",
+      "name_en": "Vlax Romani",
+      "name_fr": "Romani de Vlax"
+    },
+    {
+      "code": "rmy_Latn",
+      "name_en": "Vlax Romani",
+      "name_fr": "Romani de Vlax"
+    },
+    {
+      "code": "rng_Latn",
+      "name_en": "Ronga",
+      "name_fr": "Ronga"
+    },
+    {
+      "code": "rnl_Latn",
+      "name_en": "Ranglong",
+      "name_fr": "Ranglong"
+    },
+    {
+      "code": "rob_Latn",
+      "name_en": "Tae'",
+      "name_fr": "Tae'"
+    },
+    {
+      "code": "rof_Latn",
+      "name_en": "Rombo",
+      "name_fr": "Rombo"
+    },
+    {
+      "code": "roh_Latn_surs1244",
+      "name_en": "Romansh",
+      "name_fr": "Romanche"
+    },
+    {
+      "code": "rol_Latn",
+      "name_en": "Romblomanon",
+      "name_fr": "Romblomanon"
+    },
+    {
+      "code": "ron_Latn",
+      "name_en": "Romanian",
+      "name_fr": "Roumain"
+    },
+    {
+      "code": "roo_Latn",
+      "name_en": "Rotokas",
+      "name_fr": "Rotokas"
+    },
+    {
+      "code": "rop_Latn",
+      "name_en": "Kriol",
+      "name_fr": "Kriol"
+    },
+    {
+      "code": "rro_Latn",
+      "name_en": "Waima",
+      "name_fr": "Waima"
+    },
+    {
+      "code": "rth_Latn",
+      "name_en": "Ratahan",
+      "name_fr": "Ratahan"
+    },
+    {
+      "code": "rub_Latn",
+      "name_en": "Gungu",
+      "name_fr": "Gungu"
+    },
+    {
+      "code": "ruc_Latn",
+      "name_en": "Ruuli",
+      "name_fr": "Ruuli"
+    },
+    {
+      "code": "ruf_Latn",
+      "name_en": "Luguru",
+      "name_fr": "Luguru"
+    },
+    {
+      "code": "rug_Latn",
+      "name_en": "Roviana",
+      "name_fr": "Roviana"
+    },
+    {
+      "code": "run_Latn",
+      "name_en": "Rundi",
+      "name_fr": "Rundi"
+    },
+    {
+      "code": "rus_Cyrl",
+      "name_en": "Russian",
+      "name_fr": "Russe"
+    },
+    {
+      "code": "rwm_Latn",
+      "name_en": "Amba (Uganda)",
+      "name_fr": "Amba (Ouganda)"
+    },
+    {
+      "code": "rwr_Deva",
+      "name_en": "Marwari (India)",
+      "name_fr": "Marwari (Inde)"
+    },
+    {
+      "code": "sab_Latn",
+      "name_en": "Buglere",
+      "name_fr": "Buglere"
+    },
+    {
+      "code": "sag_Latn",
+      "name_en": "Sango",
+      "name_fr": "Sango"
+    },
+    {
+      "code": "sah_Cyrl",
+      "name_en": "Yakut",
+      "name_fr": "Iakoute"
+    },
+    {
+      "code": "saj_Latn",
+      "name_en": "Sahu",
+      "name_fr": "Sahu"
+    },
+    {
+      "code": "saq_Latn",
+      "name_en": "Samburu",
+      "name_fr": "Samburu"
+    },
+    {
+      "code": "sas_Latn",
+      "name_en": "Sasak",
+      "name_fr": "Sasak"
+    },
+    {
+      "code": "sau_Latn",
+      "name_en": "Saleman",
+      "name_fr": "Saleman"
+    },
+    {
+      "code": "say_Latn",
+      "name_en": "Saya",
+      "name_fr": "Saya"
+    },
+    {
+      "code": "sba_Latn",
+      "name_en": "Ngambay",
+      "name_fr": "Ngambay"
+    },
+    {
+      "code": "sbd_Latn",
+      "name_en": "Southern Samo",
+      "name_fr": "Samo méridional"
+    },
+    {
+      "code": "sbl_Latn",
+      "name_en": "Botolan Sambal",
+      "name_fr": "Sambal de Botolan"
+    },
+    {
+      "code": "sbn_Arab",
+      "name_en": "Sindhi Bhil",
+      "name_fr": "Bhil de Sindhi"
+    },
+    {
+      "code": "sbp_Latn",
+      "name_en": "Sangu (Tanzania)",
+      "name_fr": "Sangu (Tanzanie)"
+    },
+    {
+      "code": "sch_Latn",
+      "name_en": "Sakachep",
+      "name_fr": "Sakachep"
+    },
+    {
+      "code": "sck_Deva",
+      "name_en": "Sadri",
+      "name_fr": "Sadri"
+    },
+    {
+      "code": "scl_Arab",
+      "name_en": "Shina",
+      "name_fr": "Shina"
+    },
+    {
+      "code": "scn_Latn",
+      "name_en": "Sicilian",
+      "name_fr": "Sicilien"
+    },
+    {
+      "code": "sco_Latn",
+      "name_en": "Scots",
+      "name_fr": "Écossais"
+    },
+    {
+      "code": "sda_Latn",
+      "name_en": "Toraja-Sa'dan",
+      "name_fr": "Toraja-sa'dan"
+    },
+    {
+      "code": "sdo_Latn",
+      "name_en": "Bukar-Sadung Bidayuh",
+      "name_fr": "Bidayuh de Bukar-Sadung"
+    },
+    {
+      "code": "sea_Latn",
+      "name_en": "Semai",
+      "name_fr": "Semai"
+    },
+    {
+      "code": "seh_Latn",
+      "name_en": "Sena",
+      "name_fr": "Sena"
+    },
+    {
+      "code": "sei_Latn",
+      "name_en": "Seri",
+      "name_fr": "Seri"
+    },
+    {
+      "code": "ses_Latn",
+      "name_en": "Koyraboro Senni Songhai",
+      "name_fr": "Songhai de Koyraboro Senni"
+    },
+    {
+      "code": "sey_Latn",
+      "name_en": "Secoya",
+      "name_fr": "Secoya"
+    },
+    {
+      "code": "sgb_Latn",
+      "name_en": "Mag-antsi Ayta",
+      "name_fr": "Ayta de Mag-antsi"
+    },
+    {
+      "code": "sgj_Deva",
+      "name_en": "Surgujia",
+      "name_fr": "Surgujia"
+    },
+    {
+      "code": "sgw_Ethi",
+      "name_en": "Sebat Bet Gurage",
+      "name_fr": "Sebat Bet Gurage"
+    },
+    {
+      "code": "shi_Latn",
+      "name_en": "Tachelhit",
+      "name_fr": "Tachelhit"
+    },
+    {
+      "code": "shk_Latn",
+      "name_en": "Shilluk",
+      "name_fr": "Shilluk"
+    },
+    {
+      "code": "shn_Mymr",
+      "name_en": "Shan",
+      "name_fr": "Shan"
+    },
+    {
+      "code": "sho_Latn",
+      "name_en": "Shanga",
+      "name_fr": "Shanga"
+    },
+    {
+      "code": "shp_Latn",
+      "name_en": "Shipibo-Conibo",
+      "name_fr": "Shipibo-conibo"
+    },
+    {
+      "code": "sid_Latn",
+      "name_en": "Sidamo",
+      "name_fr": "Sidamo"
+    },
+    {
+      "code": "sig_Latn",
+      "name_en": "Paasaal",
+      "name_fr": "Paasaal"
+    },
+    {
+      "code": "sil_Latn",
+      "name_en": "Tumulung Sisaala",
+      "name_fr": "Sisaala de Tumulung"
+    },
+    {
+      "code": "sin_Sinh",
+      "name_en": "Sinhala",
+      "name_fr": "Singhalais"
+    },
+    {
+      "code": "sip_Tibt",
+      "name_en": "Sikkimese",
+      "name_fr": "Sikkimais"
+    },
+    {
+      "code": "siw_Latn",
+      "name_en": "Siwai",
+      "name_fr": "Siwai"
+    },
+    {
+      "code": "sja_Latn",
+      "name_en": "Epena",
+      "name_fr": "Epena"
+    },
+    {
+      "code": "sjm_Latn",
+      "name_en": "Mapun",
+      "name_fr": "Mapun"
+    },
+    {
+      "code": "sjp_Deva",
+      "name_en": "Surjapuri",
+      "name_fr": "Surjapuri"
+    },
+    {
+      "code": "sjr_Latn",
+      "name_en": "Siar-Lak",
+      "name_fr": "Siar-lak"
+    },
+    {
+      "code": "skg_Latn",
+      "name_en": "Sakalava Malagasy",
+      "name_fr": "Malgache de Sakalava"
+    },
+    {
+      "code": "skr_Arab",
+      "name_en": "Saraiki",
+      "name_fr": "Seraiki"
+    },
+    {
+      "code": "sld_Latn",
+      "name_en": "Sissala",
+      "name_fr": "Sissala"
+    },
+    {
+      "code": "slk_Latn",
+      "name_en": "Slovak",
+      "name_fr": "Slovaque"
+    },
+    {
+      "code": "slu_Latn",
+      "name_en": "Selaru",
+      "name_fr": "Selaru"
+    },
+    {
+      "code": "slv_Latn",
+      "name_en": "Slovenian",
+      "name_fr": "Slovène"
+    },
+    {
+      "code": "sml_Latn",
+      "name_en": "Central Sama",
+      "name_fr": "Sama central"
+    },
+    {
+      "code": "smo_Latn",
+      "name_en": "Samoan",
+      "name_fr": "Samoan"
+    },
+    {
+      "code": "sna_Latn",
+      "name_en": "Shona",
+      "name_fr": "Shona"
+    },
+    {
+      "code": "snc_Latn",
+      "name_en": "Sinaugoro",
+      "name_fr": "Sinaugoro"
+    },
+    {
+      "code": "snd_Arab",
+      "name_en": "Sindhi",
+      "name_fr": "Sindhi"
+    },
+    {
+      "code": "sne_Latn",
+      "name_en": "Bau Bidayuh",
+      "name_fr": "Bidayuh de Bau"
+    },
+    {
+      "code": "snk_Latn",
+      "name_en": "Soninke",
+      "name_fr": "Soninké"
+    },
+    {
+      "code": "snn_Latn",
+      "name_en": "Siona",
+      "name_fr": "Siona"
+    },
+    {
+      "code": "snp_Latn",
+      "name_en": "Siane",
+      "name_fr": "Siane"
+    },
+    {
+      "code": "snv_Latn",
+      "name_en": "Sa'ban",
+      "name_fr": "Sa'ban"
+    },
+    {
+      "code": "snw_Latn",
+      "name_en": "Selee",
+      "name_fr": "Selee"
+    },
+    {
+      "code": "sol_Latn",
+      "name_en": "Solos",
+      "name_fr": "Solos"
+    },
+    {
+      "code": "som_Latn",
+      "name_en": "Somali",
+      "name_fr": "Somali"
+    },
+    {
+      "code": "soy_Latn",
+      "name_en": "Miyobe",
+      "name_fr": "Miyobe"
+    },
+    {
+      "code": "spa_Latn",
+      "name_en": "Spanish",
+      "name_fr": "Espagnol"
+    },
+    {
+      "code": "spp_Latn",
+      "name_en": "Supyire Senoufo",
+      "name_fr": "Senoufo de Supyire"
+    },
+    {
+      "code": "sps_Latn",
+      "name_en": "Saposa",
+      "name_fr": "Saposa"
+    },
+    {
+      "code": "spy_Latn",
+      "name_en": "Sabaot",
+      "name_fr": "Sabaot"
+    },
+    {
+      "code": "src_Latn",
+      "name_en": "Logudorese Sardinian",
+      "name_fr": "Sarde logudorais"
+    },
+    {
+      "code": "srd_Latn",
+      "name_en": "Sardinian",
+      "name_fr": "Sarde"
+    },
+    {
+      "code": "sri_Latn",
+      "name_en": "Siriano",
+      "name_fr": "Siriano"
+    },
+    {
+      "code": "srm_Latn",
+      "name_en": "Saramaccan",
+      "name_fr": "Saramaccan"
+    },
+    {
+      "code": "srn_Latn",
+      "name_en": "Sranan Tongo",
+      "name_fr": "Sranan Tongo"
+    },
+    {
+      "code": "sro_Latn",
+      "name_en": "Campidanese Sardinian",
+      "name_fr": "Sarde campidanais"
+    },
+    {
+      "code": "srp_Cyrl",
+      "name_en": "Serbian",
+      "name_fr": "Serbe"
+    },
+    {
+      "code": "srr_Latn",
+      "name_en": "Serer",
+      "name_fr": "Sérère"
+    },
+    {
+      "code": "srx_Deva",
+      "name_en": "Sirmauri",
+      "name_fr": "Sirmauri"
+    },
+    {
+      "code": "ssi_Arab",
+      "name_en": "Sansi",
+      "name_fr": "Sansi"
+    },
+    {
+      "code": "ste_Latn",
+      "name_en": "Liana-Seti",
+      "name_fr": "Liana-seti"
+    },
+    {
+      "code": "stn_Latn",
+      "name_en": "Owa",
+      "name_fr": "Owa"
+    },
+    {
+      "code": "stp_Latn",
+      "name_en": "Southeastern Tepehuan",
+      "name_fr": "Tepehuan du Sud-Est"
+    },
+    {
+      "code": "sua_Latn",
+      "name_en": "Sulka",
+      "name_fr": "Sulka"
+    },
+    {
+      "code": "suc_Latn",
+      "name_en": "Western Subanon",
+      "name_fr": "Subanon occidental"
+    },
+    {
+      "code": "suk_Latn",
+      "name_en": "Sukuma",
+      "name_fr": "Sukuma"
+    },
+    {
+      "code": "sun_Latn",
+      "name_en": "Sundanese",
+      "name_fr": "Sundanais"
+    },
+    {
+      "code": "sur_Latn",
+      "name_en": "Mwaghavul",
+      "name_fr": "Mwaghavul"
+    },
+    {
+      "code": "sus_Latn",
+      "name_en": "Susu",
+      "name_fr": "Sosso"
+    },
+    {
+      "code": "suv_Latn",
+      "name_en": "Puroik",
+      "name_fr": "Puroik"
+    },
+    {
+      "code": "suz_Deva",
+      "name_en": "Sunwar",
+      "name_fr": "Sunwar"
+    },
+    {
+      "code": "sva_Geor",
+      "name_en": "Svan",
+      "name_fr": "Svan"
+    },
+    {
+      "code": "swe_Latn",
+      "name_en": "Swedish",
+      "name_fr": "Suédois"
+    },
+    {
+      "code": "swh_Latn",
+      "name_en": "Swahili (individual language)",
+      "name_fr": "Swahili (langue individuelle)"
+    },
+    {
+      "code": "swv_Deva",
+      "name_en": "Shekhawati",
+      "name_fr": "Shekhawati"
+    },
+    {
+      "code": "sxb_Latn",
+      "name_en": "Suba",
+      "name_fr": "Suba"
+    },
+    {
+      "code": "sxn_Latn",
+      "name_en": "Sangir",
+      "name_fr": "Sangir"
+    },
+    {
+      "code": "sya_Latn",
+      "name_en": "Siang",
+      "name_fr": "Siang"
+    },
+    {
+      "code": "syl_Latn",
+      "name_en": "Sylheti",
+      "name_fr": "Sylheti"
+    },
+    {
+      "code": "sza_Latn",
+      "name_en": "Semelai",
+      "name_fr": "Semelai"
+    },
+    {
+      "code": "szy_Latn",
+      "name_en": "Sakizaya",
+      "name_fr": "Sakizaya"
+    },
+    {
+      "code": "tac_Latn",
+      "name_en": "Lowland Tarahumara",
+      "name_fr": "Tarahumara du bas-pays"
+    },
+    {
+      "code": "taj_Deva",
+      "name_en": "Eastern Tamang",
+      "name_fr": "Tamang oriental"
+    },
+    {
+      "code": "tam_Taml",
+      "name_en": "Tamil",
+      "name_fr": "Tamoul"
+    },
+    {
+      "code": "tan_Latn",
+      "name_en": "Tangale",
+      "name_fr": "Tangale"
+    },
+    {
+      "code": "tao_Latn",
+      "name_en": "Yami",
+      "name_fr": "Yami"
+    },
+    {
+      "code": "tap_Latn",
+      "name_en": "Taabwa",
+      "name_fr": "Taabwa"
+    },
+    {
+      "code": "taq_Latn",
+      "name_en": "Tamasheq",
+      "name_fr": "Tamasheq"
+    },
+    {
+      "code": "tar_Latn",
+      "name_en": "Central Tarahumara",
+      "name_fr": "Tarahumara central"
+    },
+    {
+      "code": "tat_Cyrl",
+      "name_en": "Tatar",
+      "name_fr": "Tatar"
+    },
+    {
+      "code": "tav_Latn",
+      "name_en": "Tatuyo",
+      "name_fr": "Tatuyo"
+    },
+    {
+      "code": "tay_Latn",
+      "name_en": "Atayal",
+      "name_fr": "Atayal"
+    },
+    {
+      "code": "tbc_Latn",
+      "name_en": "Takia",
+      "name_fr": "Takia"
+    },
+    {
+      "code": "tbf_Latn",
+      "name_en": "Mandara",
+      "name_fr": "Mandara"
+    },
+    {
+      "code": "tbg_Latn",
+      "name_en": "North Tairora",
+      "name_fr": "Tairora septentrional"
+    },
+    {
+      "code": "tbk_Latn",
+      "name_en": "Calamian Tagbanwa",
+      "name_fr": "Tagbanwa calamien"
+    },
+    {
+      "code": "tbl_Latn",
+      "name_en": "Tboli",
+      "name_fr": "Tboli"
+    },
+    {
+      "code": "tby_Latn",
+      "name_en": "Tabaru",
+      "name_fr": "Tabaru"
+    },
+    {
+      "code": "tbz_Latn",
+      "name_en": "Ditammari",
+      "name_fr": "Ditammari"
+    },
+    {
+      "code": "tca_Latn",
+      "name_en": "Ticuna",
+      "name_fr": "Ticuna"
+    },
+    {
+      "code": "tcc_Latn",
+      "name_en": "Datooga",
+      "name_fr": "Datooga"
+    },
+    {
+      "code": "tcf_Latn",
+      "name_en": "Malinaltepec Me'phaa",
+      "name_fr": "Me'phaa de Malinaltepec"
+    },
+    {
+      "code": "tcy_Mlym",
+      "name_en": "Tulu",
+      "name_fr": "Tulu"
+    },
+    {
+      "code": "tcz_Latn",
+      "name_en": "Thado Chin",
+      "name_fr": "Chin de Thado"
+    },
+    {
+      "code": "tdj_Latn",
+      "name_en": "Tajio",
+      "name_fr": "Tajio"
+    },
+    {
+      "code": "tdn_Latn",
+      "name_en": "Tondano",
+      "name_fr": "Tondano"
+    },
+    {
+      "code": "tdx_Latn",
+      "name_en": "Tandroy-Mahafaly Malagasy",
+      "name_fr": "Malgache de Tandroy-Mahafaly"
+    },
+    {
+      "code": "ted_Latn",
+      "name_en": "Tepo Krumen",
+      "name_fr": "Krumen de Tepo"
+    },
+    {
+      "code": "tee_Latn",
+      "name_en": "Huehuetla Tepehua",
+      "name_fr": "Tepehua de Huehuetla"
+    },
+    {
+      "code": "tel_Telu",
+      "name_en": "Telugu",
+      "name_fr": "Télougou"
+    },
+    {
+      "code": "tem_Latn",
+      "name_en": "Timne",
+      "name_fr": "Timné"
+    },
+    {
+      "code": "teo_Latn",
+      "name_en": "Teso",
+      "name_fr": "Teso"
+    },
+    {
+      "code": "ter_Latn",
+      "name_en": "Tereno",
+      "name_fr": "Tereno"
+    },
+    {
+      "code": "tew_Latn",
+      "name_en": "Tewa (USA)",
+      "name_fr": "Tewa (États-Unis d'Amérique)"
+    },
+    {
+      "code": "tex_Latn",
+      "name_en": "Tennet",
+      "name_fr": "Tennet"
+    },
+    {
+      "code": "tfr_Latn",
+      "name_en": "Teribe",
+      "name_fr": "Teribe"
+    },
+    {
+      "code": "tgc_Latn",
+      "name_en": "Tigak",
+      "name_fr": "Tigak"
+    },
+    {
+      "code": "tgj_Latn",
+      "name_en": "Tagin",
+      "name_fr": "Tagin"
+    },
+    {
+      "code": "tgk_Cyrl",
+      "name_en": "Tajik",
+      "name_fr": "Tadjik"
+    },
+    {
+      "code": "tgl_Latn",
+      "name_en": "Tagalog",
+      "name_fr": "Tagalog"
+    },
+    {
+      "code": "tgo_Latn",
+      "name_en": "Sudest",
+      "name_fr": "Sudest"
+    },
+    {
+      "code": "tgp_Latn",
+      "name_en": "Tangoa",
+      "name_fr": "Tangoa"
+    },
+    {
+      "code": "tha_Thai",
+      "name_en": "Thai",
+      "name_fr": "Thaï"
+    },
+    {
+      "code": "the_Deva",
+      "name_en": "Chitwania Tharu",
+      "name_fr": "Tharu de Chitwania"
+    },
+    {
+      "code": "thk_Latn",
+      "name_en": "Tharaka",
+      "name_fr": "Tharaka"
+    },
+    {
+      "code": "thl_Deva",
+      "name_en": "Dangaura Tharu",
+      "name_fr": "Tharu de Dangaura"
+    },
+    {
+      "code": "thq_Deva",
+      "name_en": "Kochila Tharu",
+      "name_fr": "Tharu de Kochila"
+    },
+    {
+      "code": "thr_Deva",
+      "name_en": "Rana Tharu",
+      "name_fr": "Tharu de Rana"
+    },
+    {
+      "code": "thv_Tfng",
+      "name_en": "Tahaggart Tamahaq",
+      "name_fr": "Tamahaq de Tahaggart"
+    },
+    {
+      "code": "tig_Ethi",
+      "name_en": "Tigre",
+      "name_fr": "Tigre"
+    },
+    {
+      "code": "tih_Latn",
+      "name_en": "Timugon Murut",
+      "name_fr": "Murut de Timugon"
+    },
+    {
+      "code": "tik_Latn",
+      "name_en": "Tikar",
+      "name_fr": "Tikar"
+    },
+    {
+      "code": "tio_Latn",
+      "name_en": "Teop",
+      "name_fr": "Teop"
+    },
+    {
+      "code": "tir_Ethi",
+      "name_en": "Tigrinya",
+      "name_fr": "Tigrigna"
+    },
+    {
+      "code": "tkg_Latn",
+      "name_en": "Tesaka Malagasy",
+      "name_fr": "Malgache de Tesaka"
+    },
+    {
+      "code": "tkr_Latn",
+      "name_en": "Tsakhur",
+      "name_fr": "Tsakhur"
+    },
+    {
+      "code": "tkt_Deva",
+      "name_en": "Kathoriya Tharu",
+      "name_fr": "Tharu de Kathoriya"
+    },
+    {
+      "code": "tlb_Latn",
+      "name_en": "Tobelo",
+      "name_fr": "Tobelo"
+    },
+    {
+      "code": "tli_Latn",
+      "name_en": "Tlingit",
+      "name_fr": "Tlingit"
+    },
+    {
+      "code": "tlj_Latn",
+      "name_en": "Talinga-Bwisi",
+      "name_fr": "Talinga-bwisi"
+    },
+    {
+      "code": "tlp_Latn",
+      "name_en": "Filomena Mata-Coahuitlán Totonac",
+      "name_fr": "Totonaque de Filomena Mata-Coahuitlán"
+    },
+    {
+      "code": "tly_Latn",
+      "name_en": "Talysh",
+      "name_fr": "Talyche"
+    },
+    {
+      "code": "tmc_Latn",
+      "name_en": "Tumak",
+      "name_fr": "Tumak"
+    },
+    {
+      "code": "tmf_Latn",
+      "name_en": "Toba-Maskoy",
+      "name_fr": "Toba-maskoy"
+    },
+    {
+      "code": "tna_Latn",
+      "name_en": "Tacana",
+      "name_fr": "Tacana"
+    },
+    {
+      "code": "tng_Latn",
+      "name_en": "Tobanga",
+      "name_fr": "Tobanga"
+    },
+    {
+      "code": "tnk_Latn",
+      "name_en": "Kwamera",
+      "name_fr": "Kwamera"
+    },
+    {
+      "code": "tnn_Latn",
+      "name_en": "North Tanna",
+      "name_fr": "Tanna septentrional"
+    },
+    {
+      "code": "tnp_Latn",
+      "name_en": "Whitesands",
+      "name_fr": "Whitesands"
+    },
+    {
+      "code": "tnr_Latn",
+      "name_en": "Ménik",
+      "name_fr": "Ménik"
+    },
+    {
+      "code": "tnt_Latn",
+      "name_en": "Tontemboan",
+      "name_fr": "Tontemboen"
+    },
+    {
+      "code": "tob_Latn",
+      "name_en": "Toba",
+      "name_fr": "Toba"
+    },
+    {
+      "code": "toc_Latn",
+      "name_en": "Coyutla Totonac",
+      "name_fr": "Totonaque de Coyutla"
+    },
+    {
+      "code": "toh_Latn",
+      "name_en": "Gitonga",
+      "name_fr": "Gitonga"
+    },
+    {
+      "code": "tok_Latn",
+      "name_en": "Toki Pona",
+      "name_fr": "Toki pona"
+    },
+    {
+      "code": "tom_Latn",
+      "name_en": "Tombulu",
+      "name_fr": "Tombulu"
+    },
+    {
+      "code": "top_Latn",
+      "name_en": "Papantla Totonac",
+      "name_fr": "Totonaque de Papantla"
+    },
+    {
+      "code": "tos_Latn",
+      "name_en": "Highland Totonac",
+      "name_fr": "Totonaque du haut-pays"
+    },
+    {
+      "code": "tpi_Latn",
+      "name_en": "Tok Pisin",
+      "name_fr": "Tok pisin"
+    },
+    {
+      "code": "tpl_Latn",
+      "name_en": "Tlacoapa Me'phaa",
+      "name_fr": "Tlacoapa Me'phaa"
+    },
+    {
+      "code": "tpm_Latn",
+      "name_en": "Tampulma",
+      "name_fr": "Tampulma"
+    },
+    {
+      "code": "tpp_Latn",
+      "name_en": "Pisaflores Tepehua",
+      "name_fr": "Tepehua de Pisaflores"
+    },
+    {
+      "code": "tpt_Latn",
+      "name_en": "Tlachichilco Tepehua",
+      "name_fr": "Tepehua de Tlachichilco"
+    },
+    {
+      "code": "tpz_Latn",
+      "name_en": "Tinputz",
+      "name_fr": "Tinputz"
+    },
+    {
+      "code": "tqp_Latn",
+      "name_en": "Tomoip",
+      "name_fr": "Tomoip"
+    },
+    {
+      "code": "trc_Latn",
+      "name_en": "Copala Triqui",
+      "name_fr": "Triqui de Copala"
+    },
+    {
+      "code": "tri_Latn",
+      "name_en": "Trió",
+      "name_fr": "Trió"
+    },
+    {
+      "code": "trn_Latn",
+      "name_en": "Trinitario",
+      "name_fr": "Trinitario"
+    },
+    {
+      "code": "trp_Latn",
+      "name_en": "Kok Borok",
+      "name_fr": "Kok Borok"
+    },
+    {
+      "code": "trq_Latn",
+      "name_en": "San Martín Itunyoso Triqui",
+      "name_fr": "Triqui de San Martín Itunyoso"
+    },
+    {
+      "code": "trs_Latn",
+      "name_en": "Chicahuaxtla Triqui",
+      "name_fr": "Triqui de Chicahuaxtla"
+    },
+    {
+      "code": "trv_Latn",
+      "name_en": "Sediq",
+      "name_fr": "Sediq"
+    },
+    {
+      "code": "trw_Arab",
+      "name_en": "Torwali",
+      "name_fr": "Torwali"
+    },
+    {
+      "code": "tsn_Latn",
+      "name_en": "Tswana",
+      "name_fr": "Tswana"
+    },
+    {
+      "code": "tso_Latn",
+      "name_en": "Tsonga",
+      "name_fr": "Tsonga"
+    },
+    {
+      "code": "tsz_Latn",
+      "name_en": "Purepecha",
+      "name_fr": "Purepecha"
+    },
+    {
+      "code": "ttc_Latn",
+      "name_en": "Tektiteko",
+      "name_fr": "Tektiteko"
+    },
+    {
+      "code": "tte_Latn",
+      "name_en": "Bwanabwana",
+      "name_fr": "Bwanabwana"
+    },
+    {
+      "code": "ttj_Latn",
+      "name_en": "Tooro",
+      "name_fr": "Tooro"
+    },
+    {
+      "code": "ttq_Tfng",
+      "name_en": "Tawallammat Tamajaq",
+      "name_fr": "Tamajaq de Tawallammat"
+    },
+    {
+      "code": "ttr_Latn",
+      "name_en": "Tera",
+      "name_fr": "Tera"
+    },
+    {
+      "code": "ttu_Latn",
+      "name_en": "Torau",
+      "name_fr": "Torau"
+    },
+    {
+      "code": "tue_Latn",
+      "name_en": "Tuyuca",
+      "name_fr": "Tuyuca"
+    },
+    {
+      "code": "tuf_Latn",
+      "name_en": "Central Tunebo",
+      "name_fr": "Tunebo central"
+    },
+    {
+      "code": "tui_Latn",
+      "name_en": "Tupuri",
+      "name_fr": "Tupuri"
+    },
+    {
+      "code": "tuk_Arab",
+      "name_en": "Turkmen",
+      "name_fr": "Turkmène"
+    },
+    {
+      "code": "tuk_Latn",
+      "name_en": "Turkmen",
+      "name_fr": "Turkmène"
+    },
+    {
+      "code": "tul_Latn",
+      "name_en": "Tula",
+      "name_fr": "Tula"
+    },
+    {
+      "code": "tuo_Latn",
+      "name_en": "Tucano",
+      "name_fr": "Tucano"
+    },
+    {
+      "code": "tuq_Latn",
+      "name_en": "Tedaga",
+      "name_fr": "Tedaga"
+    },
+    {
+      "code": "tur_Latn",
+      "name_en": "Turkish",
+      "name_fr": "Turc"
+    },
+    {
+      "code": "tuv_Latn",
+      "name_en": "Turkana",
+      "name_fr": "Turkana"
+    },
+    {
+      "code": "tuy_Latn",
+      "name_en": "Tugen",
+      "name_fr": "Tugen"
+    },
+    {
+      "code": "tvo_Latn",
+      "name_en": "Tidore",
+      "name_fr": "Tidore"
+    },
+    {
+      "code": "tvu_Latn",
+      "name_en": "Tunen",
+      "name_fr": "Tunen"
+    },
+    {
+      "code": "tvw_Latn",
+      "name_en": "Sedoa",
+      "name_fr": "Sedoa"
+    },
+    {
+      "code": "twb_Latn",
+      "name_en": "Western Tawbuid",
+      "name_fr": "Tawbuid occidental"
+    },
+    {
+      "code": "twe_Latn",
+      "name_en": "Tewa (Indonesia)",
+      "name_fr": "Tewa (Indonésie)"
+    },
+    {
+      "code": "twu_Latn",
+      "name_en": "Termanu",
+      "name_fr": "Termanu"
+    },
+    {
+      "code": "txa_Latn",
+      "name_en": "Tombonuo",
+      "name_fr": "Tombonuo"
+    },
+    {
+      "code": "txq_Latn",
+      "name_en": "Tii",
+      "name_fr": "Tii"
+    },
+    {
+      "code": "txs_Latn",
+      "name_en": "Tonsea",
+      "name_fr": "Tonsea"
+    },
+    {
+      "code": "txu_Latn",
+      "name_en": "Kayapó",
+      "name_fr": "Kayapó"
+    },
+    {
+      "code": "txy_Latn",
+      "name_en": "Tanosy Malagasy",
+      "name_fr": "Malgache de Tanosy"
+    },
+    {
+      "code": "tye_Latn",
+      "name_en": "Kyanga",
+      "name_fr": "Kyanga"
+    },
+    {
+      "code": "tzh_Latn",
+      "name_en": "Tzeltal",
+      "name_fr": "Tzeltal"
+    },
+    {
+      "code": "tzj_Latn",
+      "name_en": "Tz'utujil",
+      "name_fr": "Tz'utujil"
+    },
+    {
+      "code": "tzo_Latn",
+      "name_en": "Tzotzil",
+      "name_fr": "Tzotzile"
+    },
+    {
+      "code": "ubl_Latn",
+      "name_en": "Buhi'non Bikol",
+      "name_fr": "Bikol de Buhi'non"
+    },
+    {
+      "code": "ubu_Latn",
+      "name_en": "Umbu-Ungu",
+      "name_fr": "Umbu-ungu"
+    },
+    {
+      "code": "udl_Latn",
+      "name_en": "Wuzlam",
+      "name_fr": "Wuzlam"
+    },
+    {
+      "code": "udm_Cyrl",
+      "name_en": "Udmurt",
+      "name_fr": "Oudmourte"
+    },
+    {
+      "code": "udu_Latn",
+      "name_en": "Uduk",
+      "name_fr": "Uduk"
+    },
+    {
+      "code": "uig_Arab",
+      "name_en": "Uighur",
+      "name_fr": "Ouïghour"
+    },
+    {
+      "code": "uig_Cyrl",
+      "name_en": "Uighur",
+      "name_fr": "Ouïghour"
+    },
+    {
+      "code": "uki_Orya",
+      "name_en": "Kui (India)",
+      "name_fr": "Kui (Inde)"
+    },
+    {
+      "code": "ukr_Cyrl",
+      "name_en": "Ukrainian",
+      "name_fr": "Ukrainien"
+    },
+    {
+      "code": "ukv_Latn",
+      "name_en": "Kuku",
+      "name_fr": "Kuku"
+    },
+    {
+      "code": "umb_Latn",
+      "name_en": "Umbundu",
+      "name_fr": "Umbundu"
+    },
+    {
+      "code": "upv_Latn",
+      "name_en": "Uripiv-Wala-Rano-Atchin",
+      "name_fr": "Uripiv-wala-rano-atchin"
+    },
+    {
+      "code": "ura_Latn",
+      "name_en": "Urarina",
+      "name_fr": "Urarina"
+    },
+    {
+      "code": "urb_Latn",
+      "name_en": "Urubú-Kaapor",
+      "name_fr": "Urubú-kaapor"
+    },
+    {
+      "code": "urd_Arab",
+      "name_en": "Urdu",
+      "name_fr": "Ourdou"
+    },
+    {
+      "code": "urd_Deva",
+      "name_en": "Urdu",
+      "name_fr": "Ourdou"
+    },
+    {
+      "code": "urd_Latn",
+      "name_en": "Urdu",
+      "name_fr": "Ourdou"
+    },
+    {
+      "code": "urh_Latn",
+      "name_en": "Urhobo",
+      "name_fr": "Urhobo"
+    },
+    {
+      "code": "urk_Thai",
+      "name_en": "Urak Lawoi'",
+      "name_fr": "Urak Lawoi'"
+    },
+    {
+      "code": "urt_Latn",
+      "name_en": "Urat",
+      "name_fr": "Urat"
+    },
+    {
+      "code": "ury_Latn",
+      "name_en": "Orya",
+      "name_fr": "Orya"
+    },
+    {
+      "code": "ush_Arab",
+      "name_en": "Ushojo",
+      "name_fr": "Ushojo"
+    },
+    {
+      "code": "usp_Latn",
+      "name_en": "Uspanteco",
+      "name_fr": "Uspanteco"
+    },
+    {
+      "code": "uzb_Cyrl",
+      "name_en": "Uzbek",
+      "name_fr": "Ouszbek"
+    },
+    {
+      "code": "uzb_Latn",
+      "name_en": "Uzbek",
+      "name_fr": "Ouszbek"
+    },
+    {
+      "code": "uzn_Latn",
+      "name_en": "Northern Uzbek",
+      "name_fr": "Ouzbèke septentrional"
+    },
+    {
+      "code": "vag_Latn",
+      "name_en": "Vagla",
+      "name_fr": "Vagla"
+    },
+    {
+      "code": "vah_Deva",
+      "name_en": "Varhadi-Nagpuri",
+      "name_fr": "Varhadi-nagpuri"
+    },
+    {
+      "code": "vai_Latn",
+      "name_en": "Vai",
+      "name_fr": "Vaï"
+    },
+    {
+      "code": "var_Latn",
+      "name_en": "Huarijio",
+      "name_fr": "Huarijio"
+    },
+    {
+      "code": "ver_Latn",
+      "name_en": "Mom Jango",
+      "name_fr": "Mom Jango"
+    },
+    {
+      "code": "vid_Latn",
+      "name_en": "Vidunda",
+      "name_fr": "Vidunda"
+    },
+    {
+      "code": "vie_Latn",
+      "name_en": "Vietnamese",
+      "name_fr": "Vietnamien"
+    },
+    {
+      "code": "vif_Latn",
+      "name_en": "Vili",
+      "name_fr": "Vili"
+    },
+    {
+      "code": "vmc_Latn",
+      "name_en": "Juxtlahuaca Mixtec",
+      "name_fr": "Mixtèque de Juxtlahuaca"
+    },
+    {
+      "code": "vmj_Latn",
+      "name_en": "Ixtayutla Mixtec",
+      "name_fr": "Mixtèque d'Ixtayutla"
+    },
+    {
+      "code": "vmm_Latn",
+      "name_en": "Mitlatongo Mixtec",
+      "name_fr": "Mixtèque de Mitlatongo"
+    },
+    {
+      "code": "vmp_Latn",
+      "name_en": "Soyaltepec Mazatec",
+      "name_fr": "Mazatèque de Soyaltepec"
+    },
+    {
+      "code": "vmw_Latn",
+      "name_en": "Makhuwa",
+      "name_fr": "Makhuwa"
+    },
+    {
+      "code": "vmy_Latn",
+      "name_en": "Ayautla Mazatec",
+      "name_fr": "Mazatèque d'Ayautla"
+    },
+    {
+      "code": "vmz_Latn",
+      "name_en": "Mazatlán Mazatec",
+      "name_fr": "Mazatèque de Mazatlán"
+    },
+    {
+      "code": "vro_Latn",
+      "name_en": "Võro",
+      "name_fr": "Võro"
+    },
+    {
+      "code": "vun_Latn",
+      "name_en": "Vunjo",
+      "name_fr": "Vunjo"
+    },
+    {
+      "code": "vut_Latn",
+      "name_en": "Vute",
+      "name_fr": "Vute"
+    },
+    {
+      "code": "wal_Ethi",
+      "name_en": "Wolaytta",
+      "name_fr": "Wolaytta"
+    },
+    {
+      "code": "wal_Latn",
+      "name_en": "Wolaytta",
+      "name_fr": "Wolaytta"
+    },
+    {
+      "code": "wap_Latn",
+      "name_en": "Wapishana",
+      "name_fr": "Wapishana"
+    },
+    {
+      "code": "war_Latn",
+      "name_en": "Waray (Philippines)",
+      "name_fr": "Waray (Philippines)"
+    },
+    {
+      "code": "waw_Latn",
+      "name_en": "Waiwai",
+      "name_fr": "Waiwai"
+    },
+    {
+      "code": "way_Latn",
+      "name_en": "Wayana",
+      "name_fr": "Wayana"
+    },
+    {
+      "code": "wba_Latn",
+      "name_en": "Warao",
+      "name_fr": "Warao"
+    },
+    {
+      "code": "wbl_Latn",
+      "name_en": "Wakhi",
+      "name_fr": "Wakhi"
+    },
+    {
+      "code": "wbr_Deva",
+      "name_en": "Wagdi",
+      "name_fr": "Wagdi"
+    },
+    {
+      "code": "wci_Latn",
+      "name_en": "Waci Gbe",
+      "name_fr": "Gbe de Waci"
+    },
+    {
+      "code": "weo_Latn",
+      "name_en": "Wemale",
+      "name_fr": "Wemale"
+    },
+    {
+      "code": "wes_Latn",
+      "name_en": "Cameroon Pidgin",
+      "name_fr": "Pidgin du Cameroun"
+    },
+    {
+      "code": "wja_Latn",
+      "name_en": "Waja",
+      "name_fr": "Waja"
+    },
+    {
+      "code": "wji_Latn",
+      "name_en": "Warji",
+      "name_fr": "Warji"
+    },
+    {
+      "code": "wlo_Latn",
+      "name_en": "Wolio",
+      "name_fr": "Wolio"
+    },
+    {
+      "code": "wlx_Latn",
+      "name_en": "Wali (Ghana)",
+      "name_fr": "Wali (Ghana)"
+    },
+    {
+      "code": "wmw_Latn",
+      "name_en": "Mwani",
+      "name_fr": "Mwani"
+    },
+    {
+      "code": "wob_Latn",
+      "name_en": "Wè Northern",
+      "name_fr": "Wè septentrional"
+    },
+    {
+      "code": "wof_Latn",
+      "name_en": "Gambian Wolof",
+      "name_fr": "Wolof gambien"
+    },
+    {
+      "code": "wol_Latn",
+      "name_en": "Wolof",
+      "name_fr": "Wolof"
+    },
+    {
+      "code": "wsg_Telu",
+      "name_en": "Adilabad Gondi",
+      "name_fr": "Adilabad gondî"
+    },
+    {
+      "code": "wwa_Latn",
+      "name_en": "Waama",
+      "name_fr": "Waama"
+    },
+    {
+      "code": "xal_Cyrl",
+      "name_en": "Kalmyk",
+      "name_fr": "Kalmouke"
+    },
+    {
+      "code": "xdy_Latn",
+      "name_en": "Malayic Dayak",
+      "name_fr": "Dayak malayique"
+    },
+    {
+      "code": "xed_Latn",
+      "name_en": "Hdi",
+      "name_fr": "Hdi"
+    },
+    {
+      "code": "xer_Latn",
+      "name_en": "Xerénte",
+      "name_fr": "Xerénte"
+    },
+    {
+      "code": "xhe_Arab",
+      "name_en": "Khetrani",
+      "name_fr": "Khetrani"
+    },
+    {
+      "code": "xho_Latn",
+      "name_en": "Xhosa",
+      "name_fr": "Xhosa"
+    },
+    {
+      "code": "xka_Arab",
+      "name_en": "Kalkoti",
+      "name_fr": "Kalkoti"
+    },
+    {
+      "code": "xkl_Latn",
+      "name_en": "Mainstream Kenyah",
+      "name_fr": "Kenyah principal"
+    },
+    {
+      "code": "xmf_Geor",
+      "name_en": "Mingrelian",
+      "name_fr": "Mingrelian"
+    },
+    {
+      "code": "xmm_Latn",
+      "name_en": "Manado Malay",
+      "name_fr": "Malais de Manado"
+    },
+    {
+      "code": "xmv_Latn",
+      "name_en": "Antankarana Malagasy",
+      "name_fr": "Malgache de Tankarana"
+    },
+    {
+      "code": "xnj_Latn",
+      "name_en": "Ngoni (Tanzania)",
+      "name_fr": "Ngoni (Tanzanie)"
+    },
+    {
+      "code": "xnr_Deva",
+      "name_en": "Kangri",
+      "name_fr": "Kangri"
+    },
+    {
+      "code": "xog_Latn",
+      "name_en": "Soga",
+      "name_fr": "Soga"
+    },
+    {
+      "code": "xon_Latn",
+      "name_en": "Konkomba",
+      "name_fr": "Konkomba"
+    },
+    {
+      "code": "xpe_Latn",
+      "name_en": "Liberia Kpelle",
+      "name_fr": "Kpelle du Libéria"
+    },
+    {
+      "code": "xrb_Latn",
+      "name_en": "Eastern Karaboro",
+      "name_fr": "Karaboro oriental"
+    },
+    {
+      "code": "xsb_Latn",
+      "name_en": "Sambal",
+      "name_fr": "Sambal"
+    },
+    {
+      "code": "xsm_Latn",
+      "name_en": "Kasem",
+      "name_fr": "Kasem"
+    },
+    {
+      "code": "xsr_Deva",
+      "name_en": "Sherpa",
+      "name_fr": "Sherpa"
+    },
+    {
+      "code": "xsu_Latn",
+      "name_en": "Sanumá",
+      "name_fr": "Sanumá"
+    },
+    {
+      "code": "xta_Latn",
+      "name_en": "Alcozauca Mixtec",
+      "name_fr": "Mixtèque d'Alcozauca"
+    },
+    {
+      "code": "xtd_Latn",
+      "name_en": "Diuxi-Tilantongo Mixtec",
+      "name_fr": "Mixtèque de Diuxi-Tilantongo"
+    },
+    {
+      "code": "xte_Latn",
+      "name_en": "Ketengban",
+      "name_fr": "Ketengban"
+    },
+    {
+      "code": "xti_Latn",
+      "name_en": "Sinicahua Mixtec",
+      "name_fr": "Mixtèque de Sinicahua"
+    },
+    {
+      "code": "xtm_Latn",
+      "name_en": "Magdalena Peñasco Mixtec",
+      "name_fr": "Mixtèque de Magdalena Peñasco"
+    },
+    {
+      "code": "xtn_Latn",
+      "name_en": "Northern Tlaxiaco Mixtec",
+      "name_fr": "Mixtèque du Tlaxiaco septentrional"
+    },
+    {
+      "code": "xtu_Latn",
+      "name_en": "Cuyamecalco Mixtec",
+      "name_fr": "Mixtèque de Cuyamecalco"
+    },
+    {
+      "code": "xua_Taml",
+      "name_en": "Alu Kurumba",
+      "name_fr": "Kurumba d'Alu"
+    },
+    {
+      "code": "xuo_Latn",
+      "name_en": "Kuo",
+      "name_fr": "Kuo"
+    },
+    {
+      "code": "yaa_Latn",
+      "name_en": "Yaminahua",
+      "name_fr": "Yaminahua"
+    },
+    {
+      "code": "yad_Latn",
+      "name_en": "Yagua",
+      "name_fr": "Yagua"
+    },
+    {
+      "code": "yal_Latn",
+      "name_en": "Yalunka",
+      "name_fr": "Yalunka"
+    },
+    {
+      "code": "yam_Latn",
+      "name_en": "Yamba",
+      "name_fr": "Yamba"
+    },
+    {
+      "code": "yao_Latn",
+      "name_en": "Yao",
+      "name_fr": "Yao"
+    },
+    {
+      "code": "yaq_Latn",
+      "name_en": "Yaqui",
+      "name_fr": "Yaqui"
+    },
+    {
+      "code": "yas_Latn",
+      "name_en": "Nugunu (Cameroon)",
+      "name_fr": "Nugunu (Cameroun)"
+    },
+    {
+      "code": "yat_Latn",
+      "name_en": "Yambeta",
+      "name_fr": "Yambeta"
+    },
+    {
+      "code": "yav_Latn",
+      "name_en": "Yangben",
+      "name_fr": "Yangben"
+    },
+    {
+      "code": "yay_Latn",
+      "name_en": "Agwagwune",
+      "name_fr": "Agwagwune"
+    },
+    {
+      "code": "yaz_Latn",
+      "name_en": "Lokaa",
+      "name_fr": "Lokaa"
+    },
+    {
+      "code": "yba_Latn",
+      "name_en": "Yala",
+      "name_fr": "Yala"
+    },
+    {
+      "code": "ybb_Latn",
+      "name_en": "Yemba",
+      "name_fr": "Yemba"
+    },
+    {
+      "code": "ycl_Latn",
+      "name_en": "Lolopo",
+      "name_fr": "Lolopo"
+    },
+    {
+      "code": "ycn_Latn",
+      "name_en": "Yucuna",
+      "name_fr": "Yucuna"
+    },
+    {
+      "code": "ydd_Hebr",
+      "name_en": "Eastern Yiddish",
+      "name_fr": "Yiddish oriental"
+    },
+    {
+      "code": "ydg_Arab",
+      "name_en": "Yidgha",
+      "name_fr": "Yidgha"
+    },
+    {
+      "code": "yea_Mlym",
+      "name_en": "Ravula",
+      "name_fr": "Ravula"
+    },
+    {
+      "code": "yer_Latn",
+      "name_en": "Tarok",
+      "name_fr": "Tarok"
+    },
+    {
+      "code": "yes_Latn",
+      "name_en": "Nyankpa",
+      "name_fr": "Nyankpa"
+    },
+    {
+      "code": "yka_Latn",
+      "name_en": "Yakan",
+      "name_fr": "Yakan"
+    },
+    {
+      "code": "yli_Latn",
+      "name_en": "Angguruk Yali",
+      "name_fr": "Yali d'Angguruk"
+    },
+    {
+      "code": "yor_Latn",
+      "name_en": "Yoruba",
+      "name_fr": "Yoruba"
+    },
+    {
+      "code": "yre_Latn",
+      "name_en": "Yaouré",
+      "name_fr": "Yaouré"
+    },
+    {
+      "code": "yua_Latn",
+      "name_en": "Yucateco",
+      "name_fr": "Yucateco"
+    },
+    {
+      "code": "yue_Hans",
+      "name_en": "Yue Chinese",
+      "name_fr": "Chinois Yue"
+    },
+    {
+      "code": "yue_Hant",
+      "name_en": "Yue Chinese",
+      "name_fr": "Chinois Yue"
+    },
+    {
+      "code": "yuz_Latn",
+      "name_en": "Yuracare",
+      "name_fr": "Yuracare"
+    },
+    {
+      "code": "yva_Latn",
+      "name_en": "Yawa",
+      "name_fr": "Yawa"
+    },
+    {
+      "code": "zaa_Latn",
+      "name_en": "Sierra de Juárez Zapotec",
+      "name_fr": "Zapotèque de Sierra de Juárez"
+    },
+    {
+      "code": "zab_Latn",
+      "name_en": "Western Tlacolula Valley Zapotec",
+      "name_fr": "Zapotec de la vallée occidentale de Tlacolula"
+    },
+    {
+      "code": "zac_Latn",
+      "name_en": "Ocotlán Zapotec",
+      "name_fr": "Zapotèque d'Ocotlán"
+    },
+    {
+      "code": "zad_Latn",
+      "name_en": "Cajonos Zapotec",
+      "name_fr": "Zapotèque d'Ocotlán"
+    },
+    {
+      "code": "zae_Latn",
+      "name_en": "Yareni Zapotec",
+      "name_fr": "Zapotèque de Yareni"
+    },
+    {
+      "code": "zai_Latn",
+      "name_en": "Isthmus Zapotec",
+      "name_fr": "Zapotèque de l'iIsthme"
+    },
+    {
+      "code": "zam_Latn",
+      "name_en": "Miahuatlán Zapotec",
+      "name_fr": "Zapotèque de Miahuatlán"
+    },
+    {
+      "code": "zao_Latn",
+      "name_en": "Ozolotepec Zapotec",
+      "name_fr": "Zapotèque d'Ozolotepec"
+    },
+    {
+      "code": "zaq_Latn",
+      "name_en": "Aloápam Zapotec",
+      "name_fr": "Zapotèque d'Aloápam"
+    },
+    {
+      "code": "zar_Latn",
+      "name_en": "Rincón Zapotec",
+      "name_fr": "Zapotèque de Rincón"
+    },
+    {
+      "code": "zas_Latn",
+      "name_en": "Santo Domingo Albarradas Zapotec",
+      "name_fr": "Zapotèque de Santo Domingo Albarradas"
+    },
+    {
+      "code": "zav_Latn",
+      "name_en": "Yatzachi Zapotec",
+      "name_fr": "Zapotèque de Yatzachi"
+    },
+    {
+      "code": "zaw_Latn",
+      "name_en": "Mitla Zapotec",
+      "name_fr": "Zapotèque de Mitla"
+    },
+    {
+      "code": "zca_Latn",
+      "name_en": "Coatecas Altas Zapotec",
+      "name_fr": "Zapotèque de Coatecas Altas"
+    },
+    {
+      "code": "zga_Latn",
+      "name_en": "Kinga",
+      "name_fr": "Kinga"
+    },
+    {
+      "code": "zim_Latn",
+      "name_en": "Mesme",
+      "name_fr": "Mesme"
+    },
+    {
+      "code": "ziw_Latn",
+      "name_en": "Zigula",
+      "name_fr": "Zigula"
+    },
+    {
+      "code": "zmz_Latn",
+      "name_en": "Mbandja",
+      "name_fr": "Mbandja"
+    },
+    {
+      "code": "zne_Latn",
+      "name_en": "Zande (individual language)",
+      "name_fr": "Zande (langue individuelle)"
+    },
+    {
+      "code": "zoc_Latn",
+      "name_en": "Copainalá Zoque",
+      "name_fr": "Zoque de Copainalá"
+    },
+    {
+      "code": "zoh_Latn",
+      "name_en": "Chimalapa Zoque",
+      "name_fr": "Zoque de Chimalapa"
+    },
+    {
+      "code": "zor_Latn",
+      "name_en": "Rayón Zoque",
+      "name_fr": "Zoque de Rayón"
+    },
+    {
+      "code": "zos_Latn",
+      "name_en": "Francisco León Zoque",
+      "name_fr": "Zoque de Francisco León"
+    },
+    {
+      "code": "zpc_Latn",
+      "name_en": "Choapan Zapotec",
+      "name_fr": "Zapotèque de Choapan"
+    },
+    {
+      "code": "zpg_Latn",
+      "name_en": "Guevea De Humboldt Zapotec",
+      "name_fr": "Zapotèque de Guevea De Humboldt"
+    },
+    {
+      "code": "zpi_Latn",
+      "name_en": "Santa María Quiegolani Zapotec",
+      "name_fr": "Zapotèque de Santa María Quiegolani"
+    },
+    {
+      "code": "zpl_Latn",
+      "name_en": "Lachixío Zapotec",
+      "name_fr": "Zapotèque de Lachixío"
+    },
+    {
+      "code": "zpm_Latn",
+      "name_en": "Mixtepec Zapotec",
+      "name_fr": "Zapotèque de Mixtepec"
+    },
+    {
+      "code": "zpo_Latn",
+      "name_en": "Amatlán Zapotec",
+      "name_fr": "Zapotèque d'Amatlán"
+    },
+    {
+      "code": "zpt_Latn",
+      "name_en": "San Vicente Coatlán Zapotec",
+      "name_fr": "Zapotèque de San Vicente Coatlán"
+    },
+    {
+      "code": "zpu_Latn",
+      "name_en": "Yalálag Zapotec",
+      "name_fr": "Zapotèque de Yalálag"
+    },
+    {
+      "code": "zpv_Latn",
+      "name_en": "Chichicapan Zapotec",
+      "name_fr": "Zapotèque de Chichicapan"
+    },
+    {
+      "code": "zpy_Latn",
+      "name_en": "Mazaltepec Zapotec",
+      "name_fr": "Zapotèque de Mazaltepec"
+    },
+    {
+      "code": "zpz_Latn",
+      "name_en": "Texmelucan Zapotec",
+      "name_fr": "Zapotèque de Texmelucan"
+    },
+    {
+      "code": "zsm_Latn",
+      "name_en": "Standard Malay",
+      "name_fr": "Malais standard"
+    },
+    {
+      "code": "ztg_Latn",
+      "name_en": "Xanaguía Zapotec",
+      "name_fr": "Zapotèque de Xanaguía"
+    },
+    {
+      "code": "ztn_Latn",
+      "name_en": "Santa Catarina Albarradas Zapotec",
+      "name_fr": "Zapotèque de Santa Catarina Albarradas"
+    },
+    {
+      "code": "ztp_Latn",
+      "name_en": "Loxicha Zapotec",
+      "name_fr": "Zapotèque de Loxicha"
+    },
+    {
+      "code": "ztq_Latn",
+      "name_en": "Quioquitani-Quierí Zapotec",
+      "name_fr": "Zapotèque de Quioquitani-Quierí"
+    },
+    {
+      "code": "zts_Latn",
+      "name_en": "Tilquiapan Zapotec",
+      "name_fr": "Zapotèque de Tilquiapan"
+    },
+    {
+      "code": "ztu_Latn",
+      "name_en": "Güilá Zapotec",
+      "name_fr": "Zapotèque de Güilá"
+    },
+    {
+      "code": "zty_Latn",
+      "name_en": "Yatee Zapotec",
+      "name_fr": "Zapotèque de Yatee"
+    },
+    {
+      "code": "zul_Latn",
+      "name_en": "Zulu",
+      "name_fr": "Zoulou"
+    },
+    {
+      "code": "zyb_Latn",
+      "name_en": "Yongbei Zhuang",
+      "name_fr": "Zhuang de Yongbei"
+    },
+    {
+      "code": "zyp_Latn",
+      "name_en": "Zyphe Chin",
+      "name_fr": "Zyphe chin"
+    },
+    {
+      "code": "zza_Latn",
+      "name_en": "Zaza",
+      "name_fr": "Zaza"
+    }
+  ]
+}
