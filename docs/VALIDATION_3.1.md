@@ -85,6 +85,10 @@ Le second mélange montre une faible amélioration, avec un canal légèrement d
 
 Les diagnostics du véritable exécutable Windows vérifient le backend déclaré, les sorties et les métadonnées, séparément des tests de code source. Le binaire final et les fichiers de modèles/catalogues sont contrôlés contre la source publiée avant installation. La validation de livraison conserve les rapports locaux et les sommes SHA-256.
 
+Le 8 octobre 2026, **14 diagnostics du binaire final passent** sur Windows 11, Ryzen 5800X, 64 Go de RAM et RTX 5070 12 Go : Tiny sur CPU ; voix françaises et anglaises livrées ; conversation français vers arabe et arabe marocain vers français avec traduction anglaise supplémentaire ; Whisper large-v3 sur CUDA ; Parakeet sur CPU ; Qwen3-ASR 1.7B sur CUDA avec parole puis silence ; identification des personnes ; séparation de deux voix ; voix locales arabe, créole haïtien et bengali. Les modèles sont préparés, puis l'exécutable reçoit `--offline`. Chaque diagnostic vérifie le moteur réellement chargé, pour éviter qu'un repli silencieux ne masque un problème. Les deux conversations utilisent Omnilingual/GlotLID sur CPU et MADLAD sur CUDA.
+
+Le contrôle des données existantes relit intégralement la session de récupération et l'historique, sans modification. La migration de réglages ne change que la version du schéma. La détection réelle des voix Windows retrouve les voix anglaises et française installées.
+
 L'installation par utilisateur conserve le même AppId et les emplacements de données. Réglages, historique SQLite et récupération sont sauvegardés immédiatement avant remplacement ; leurs contenus sont comparés après installation. Le paquet 3.0 de retour arrière reste disponible localement. Le téléchargement de mise à jour vérifie la taille et le SHA-256 des ressources de la release officielle ; aucune mise à jour silencieuse sans acceptation n'est déclenchée par l'application.
 
 ## Reproduire les diagnostics

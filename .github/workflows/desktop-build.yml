@@ -73,7 +73,9 @@ jobs:
         run: python -m PyInstaller --clean --noconfirm --distpath dist/${{ env.APP_VERSION }} packaging/LocalTranscriberPro.spec
       - name: Validate frozen application on Windows
         if: runner.os == 'Windows'
-        run: python scripts/validate_frozen.py dist/${{ env.APP_VERSION }}/LocalTranscriberPro/LocalTranscriberPro.exe
+        run: |
+          python scripts/verify_frozen_source.py dist/${{ env.APP_VERSION }}/LocalTranscriberPro/LocalTranscriberPro.exe
+          python scripts/validate_frozen.py dist/${{ env.APP_VERSION }}/LocalTranscriberPro/LocalTranscriberPro.exe
       - name: Validate frozen application on macOS/Linux
         if: runner.os != 'Windows'
         run: python scripts/validate_frozen.py dist/${{ env.APP_VERSION }}/LocalTranscriberPro/LocalTranscriberPro
@@ -109,6 +111,15 @@ jobs:
           chmod +x appimagetool
           ARCH=x86_64 ./appimagetool --appimage-extract-and-run AppDir "artifacts/LocalTranscriberPro-${VERSION}-Linux-x86_64.AppImage"
           tar -C "dist/${APP_VERSION}" -czf "artifacts/LocalTranscriberPro-${VERSION}-Linux-x86_64.tar.gz" LocalTranscriberPro
+      - name: Check release asset size limit
+        shell: python {0}
+        run: |
+          from pathlib import Path
+          assets = [path for path in Path("artifacts").iterdir()
+                    if path.name.endswith(("-Setup.exe", ".dmg", ".AppImage", ".tar.gz"))]
+          assert assets, "No installer produced"
+          for path in assets:
+              assert 0 < path.stat().st_size < 2 * 1024 ** 3, f"GitHub release asset must be under 2 GiB: {path}"
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}-package
