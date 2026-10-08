@@ -21,6 +21,8 @@ python -m pytest
 
 ## Windows
 
+Keep the tested `av==18.0.0` pin from `requirements.txt`. [PyAV 19 removed `metadata_errors`](https://github.com/PyAV-Org/PyAV/releases/tag/v19.0.0), which faster-whisper 1.2.1 still passes when decoding audio. Unconstrained fresh installations failed frozen transcription checks on macOS/Linux; the delivered Windows 3.1.0 installer already contains PyAV 18.0.0. Real WAV/FLAC decoder tests now catch this dependency break before packaging.
+
 `scripts/build_windows.ps1` creates the PyInstaller application folder. Inno Setup 6 then compiles `packaging/windows/installer.iss` into a per-user installer.
 
 For direct PyInstaller builds, run `python scripts/prepare_js_runtime.py` and `python scripts/prepare_default_voices.py` first. The installer includes Node and the yt-dlp EJS solver, so online-video users need no separate JavaScript setup. [yt-dlp's official EJS guide](https://github.com/yt-dlp/yt-dlp/wiki/EJS) documents this dependency. Public video access can still depend on YouTube's availability, regional restrictions and server policies.
