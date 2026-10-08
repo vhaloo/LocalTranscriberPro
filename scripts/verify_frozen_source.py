@@ -19,6 +19,9 @@ if __name__ == '__main__':
     archive = CArchiveReader(str(args.executable))
     pyz = archive.open_embedded_archive('PYZ.pyz')
     report = {'success': True, 'modules': {}, 'catalogues': {}}
+    resource_root = args.executable.parent / '_internal'
+    if args.executable.parent.name == 'MacOS' and args.executable.parent.parent.name == 'Contents':
+        resource_root = args.executable.parent.parent / 'Resources'
     for path in sorted((ROOT / 'src').glob('*.py')):
         name = 'src' if path.name == '__init__.py' else 'src.' + path.stem
         code = pyz.extract(name)
@@ -27,8 +30,9 @@ if __name__ == '__main__':
     code = marshal.loads(archive.extract('main'))
     report['modules']['main'] = code == compile((ROOT / 'main.py').read_text('utf-8'), code.co_filename, 'exec', dont_inherit=True, optimize=1)
     for path in sorted((ROOT / 'src/data').glob('*.json')):
-        packaged = args.executable.parent / '_internal/src/data' / path.name
-        report['catalogues'][path.name] = packaged.read_bytes() == path.read_bytes()
+        packaged = resource_root / 'src/data' / path.name
+        # Git can check out CRLF on Windows and LF on native macOS/Linux builds.
+        report['catalogues'][path.name] = packaged.read_text('utf-8') == path.read_text('utf-8')
     report['success'] = all(report['modules'].values()) and all(report['catalogues'].values())
     report['exe_sha256'] = hashlib.file_digest(args.executable.open('rb'), 'sha256').hexdigest()
     args.output.parent.mkdir(parents=True, exist_ok=True)

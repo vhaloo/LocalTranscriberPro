@@ -2,7 +2,7 @@
 
 ## Périmètre
 
-Windows 11 x64, Ryzen 5800X, 64 Go de RAM, NVIDIA RTX 5070 12 Go. Les chiffres ci-dessous décrivent cette validation locale et un petit échantillon diagnostique. Ils ne certifient aucune langue, aucun dialecte, aucun niveau de littératie ni un usage d'interprétation professionnel. macOS/Linux conservent le support source et les constructions CI ; aucun essai physique de la 3.1 sur ces systèmes n'est revendiqué.
+Windows 11 x64, Ryzen 5800X, 64 Go de RAM, NVIDIA RTX 5070 12 Go. Les chiffres ci-dessous décrivent cette validation locale et un petit échantillon diagnostique. Ils ne certifient aucune langue, aucun dialecte, aucun niveau de littératie ni un usage d'interprétation professionnel. Les paquets macOS Apple Silicon et Linux x86-64 sont publiés comme expérimentaux ; aucun essai physique de leur installation, microphone ou GPU n'est revendiqué.
 
 ## Contrôles logiciels et interface
 
@@ -94,6 +94,12 @@ Le contrôle des données existantes relit intégralement la session de récupé
 L'installation par utilisateur conserve le même AppId et les emplacements de données. Réglages, historique SQLite et récupération sont sauvegardés immédiatement avant remplacement ; leurs contenus sont comparés après installation. Le paquet 3.0 de retour arrière reste disponible localement. Le téléchargement de mise à jour vérifie la taille et le SHA-256 des ressources de la release officielle ; aucune mise à jour silencieuse sans acceptation n'est déclenchée par l'application.
 
 La mise à niveau Windows **3.0.0 vers 3.1.0 a réussi le 8 octobre 2026**, sans redémarrage système. Le registre confirme la version 3.1.0 ; les 7 691 fichiers livrés existent avec leur taille attendue. L'exécutable installé possède le même SHA-256 que le binaire validé, et ses modules/catalogues sont comparés à la source. Avant le premier lancement, les hashes des réglages, de la récupération et de SQLite sont inchangés, ainsi que le contenu logique de l'historique. L'installateur final mesure 2 105 584 291 octets, sous la limite de 2 GiB par ressource GitHub ; son hash est fourni dans `SHA256SUMS.txt` de la release.
+
+## Paquets macOS/Linux expérimentaux
+
+Les constructions natives du 8 octobre 2026 passent sur [macOS 14 arm64](https://github.com/vhaloo/LocalTranscriberPro/actions/runs/37839097443) et [Ubuntu 24.04 x86-64](https://github.com/vhaloo/LocalTranscriberPro/actions/runs/37839102632). Chaque exécutable traite un extrait public avec Whisper Tiny sur CPU, puis synthétise les voix française et anglaise livrées, avec `--offline` après préparation du modèle. Les rapports JSON vérifient le moteur, la progression et les sorties. Le DMG Mac possède une signature ad-hoc, sans notarisation Apple ; le runtime Linux PyTorch est CPU.
+
+Ces contrôles ne sont pas des essais physiques d'installation ni une validation du microphone, de l'interface sur toutes les résolutions, de l'accélération GPU ou de tous les modèles. Les fichiers portent `experimental` dans leur nom et disposent de sommes SHA-256. [Installation et limites](EXPERIMENTAL_DESKTOP_3.1.md).
 
 ## Reproduire les diagnostics
 

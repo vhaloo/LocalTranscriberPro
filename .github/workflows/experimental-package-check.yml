@@ -1,0 +1,83 @@
+name: Check experimental desktop packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      macos_run_id:
+        description: Successful desktop build run containing macos-package
+        required: true
+        default: "37839097443"
+      linux_run_id:
+        description: Successful desktop build run containing linux-x64-package
+        required: true
+        default: "37839102632"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-14, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    env:
+      HF_HUB_DISABLE_TELEMETRY: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package verification tools
+        run: python -m pip install faster-whisper==1.2.1 av==18.0.0 requests platformdirs "pyinstaller>=6.20,<7"
+      - name: Install Linux audio runtime
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libportaudio2
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ runner.os == 'macOS' && inputs.macos_run_id || inputs.linux_run_id }}
+          name: ${{ runner.os == 'macOS' && 'macos-package' || 'linux-x64-package' }}
+          path: packages
+      - name: Verify mounted macOS disk image and bundled application
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          image="$(find packages -maxdepth 1 -name '*.dmg' -print -quit)"
+          hdiutil verify "$image"
+          mount="$RUNNER_TEMP/localtranscriberpro-dmg"
+          mkdir -p "$mount"
+          hdiutil attach -nobrowse -readonly -mountpoint "$mount" "$image"
+          trap 'hdiutil detach "$mount"' EXIT
+          app="$mount/Local Transcriber Pro.app"
+          codesign --verify --deep --strict --verbose=2 "$app"
+          test "$(/usr/bin/lipo -archs "$app/Contents/MacOS/LocalTranscriberPro")" = arm64
+          python scripts/verify_frozen_source.py "$app/Contents/MacOS/LocalTranscriberPro"
+          python scripts/validate_frozen.py "$app/Contents/MacOS/LocalTranscriberPro"
+      - name: Verify extracted Linux AppImage and portable archive
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          image="$(realpath "$(find packages -maxdepth 1 -name '*.AppImage' -print -quit)")"
+          chmod +x "$image"
+          cd "$RUNNER_TEMP"
+          "$image" --appimage-extract > appimage-extraction.log
+          cd "$GITHUB_WORKSPACE"
+          portable="$RUNNER_TEMP/localtranscriberpro-portable"
+          mkdir -p "$portable"
+          tar -xzf "$(find packages -maxdepth 1 -name '*.tar.gz' -print -quit)" -C "$portable"
+          binary="$RUNNER_TEMP/squashfs-root/usr/bin/LocalTranscriberPro/LocalTranscriberPro"
+          cmp "$binary" "$portable/LocalTranscriberPro/LocalTranscriberPro"
+          python scripts/verify_frozen_source.py "$binary"
+          python scripts/validate_frozen.py "$RUNNER_TEMP/squashfs-root/AppRun"
+      - name: Keep package verification reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}-experimental-package-verification
+          path: |
+            artifacts/packaged-smoke/report-*.json
+            artifacts/frozen-source-proof.json
+          if-no-files-found: ignore

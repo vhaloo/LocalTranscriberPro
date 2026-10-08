@@ -31,9 +31,13 @@ For direct PyInstaller builds, run `python scripts/prepare_js_runtime.py` and `p
 
 The build workflow creates `Local Transcriber Pro.app`, adds the microphone usage description, applies an ad-hoc signature for artifact integrity, and packages it in a DMG. Production distribution should replace ad-hoc signing with Developer ID signing and notarization.
 
+The experimental 3.1.0 DMG is arm64 for Apple Silicon, built on macOS 14. No Intel package is provided. See [experimental distribution instructions](EXPERIMENTAL_DESKTOP_3.1.md).
+
 ## Linux
 
 The build workflow creates an AppImage and a portable tar archive. The AppImage contains the application runtime; model files remain external and are downloaded to the user's cache on first use.
+
+The experimental 3.1.0 packages target x86-64 and are built on Ubuntu 24.04 with a CPU PyTorch runtime. Other distributions and GPU inference are unverified.
 
 ## Release procedure
 
@@ -42,7 +46,9 @@ The build workflow creates an AppImage and a portable tar archive. The AppImage 
 3. Run `scripts/check_release_docs.py`, Ruff and tests. CI rejects stale versions, download links, documentation or screenshot metadata.
 4. Build the native package, run `scripts/verify_frozen_source.py` and `scripts/validate_frozen.py`, then test installation/upgrade/relaunch and data preservation on the target OS. Keep reports and a rollback checkpoint.
 5. Create an annotated `v3.x.y` tag. The desktop workflow builds native packages and tests frozen CPU ASR plus bundled voices; it creates a **draft** release with checksums. It preserves an existing verified release rather than overwriting its assets.
-6. Publish only the platform assets whose install and runtime behavior have been verified. Before making the release latest, check exact filenames and hashes, README screenshots and updater discovery. The local Windows 3.1.0 release is validated separately; macOS/Linux 3.1 installer validation is not claimed.
+6. Publish stable platform assets after installation and runtime verification. An explicitly authorized experimental platform distribution may be published earlier with `experimental` filenames/labels, architecture, checksums and precise validation limits. Before making a release latest, check exact filenames and hashes, README screenshots and updater discovery. Windows 3.1.0 remains stable; macOS/Linux 3.1.0 are experimental and physical installation validation is not claimed.
+
+`experimental-package-check.yml` can check successful desktop-build artifacts directly: mount and verify the final Mac DMG/signature, extract the Linux AppImage, compare its executable to the portable archive, verify packaged source/catalogues and run offline CPU ASR plus bundled voices. These checks improve experimental release confidence without claiming GUI, microphone, GPU or physical installation validation.
 
 The version 1 rollback point is the immutable `archive-v1.1-before-v2.0` tag.
 
