@@ -8,6 +8,8 @@ from pathlib import Path
 
 import certifi
 
+os.environ.setdefault("HF_HUB_DISABLE_TELEMETRY", "1")
+
 from src.utils import setup_logging
 
 # --- Fix 0: macOS Finder Crash Fix (Redirect Stdout/Stderr) ---
@@ -70,8 +72,12 @@ def run_packaged_smoke_test(args: argparse.Namespace) -> int:
             source = download_youtube_audio(args.youtube_test, Path(args.diagnostic_output).resolve().parent / "youtube-qa")
         hardware = detect_hardware()
         engine = TranscriberEngine(hardware)
-        options = TranscriptionOptions(language=args.language, task=args.task, beam_size=5, vad_filter=True)
+        options = TranscriptionOptions(language=args.language, task=args.task, beam_size=5, vad_filter=True,
+                                       target_language=args.target_language, conversation=args.conversation,
+                                       partner_language=args.partner_language, third_language=args.third_language,
+                                       offline=args.offline, overlap_separation=args.overlap)
         engine.load_model(args.model, args.device, options=options)
+        engine.reset_translation_session(options)
         progress: list[float] = []
         result = engine.transcribe_file(
             source,
@@ -89,6 +95,8 @@ def run_packaged_smoke_test(args: argparse.Namespace) -> int:
             "language": result.get("language"),
             "duration": result.get("duration"),
             "processing_seconds": result.get("processing_seconds"),
+            "translation_device": result.get("translation_device"),
+            "conversation_pair": result.get("conversation_pair", []),
             "progress_completed": bool(progress and progress[-1] == 1.0),
         }
     except Exception as exc:  # The JSON report is the frozen-app diagnostic surface.
@@ -97,6 +105,27 @@ def run_packaged_smoke_test(args: argparse.Namespace) -> int:
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     return 0 if payload.get("success") else 2
+
+
+def run_voice_smoke_test(args: argparse.Namespace) -> int:
+    import numpy as np
+    import soundfile as sf
+
+    from src.speech_output import LocalSpeechOutput
+
+    output = Path(args.diagnostic_output).expanduser().resolve()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    payload = {"success": False, "language": args.voice_test}
+    try:
+        audio, rate = LocalSpeechOutput().synthesize(
+            args.voice_text, args.voice_test, allow_download=not args.offline)
+        payload.update(success=bool(len(audio) and np.isfinite(audio).all() and np.max(np.abs(audio)) > 0),
+                       sample_rate=rate, samples=len(audio), duration=len(audio) / rate)
+        sf.write(str(output.with_suffix(".wav")), audio, rate)
+    except Exception as error:
+        payload["error"] = f"{type(error).__name__}: {error}"
+    output.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return 0 if payload["success"] else 2
 
 
 def parse_args() -> argparse.Namespace:
@@ -108,10 +137,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--device", default="auto")
     parser.add_argument("--language", default=None)
     parser.add_argument("--task", choices=("transcribe", "translate"), default="transcribe")
+    parser.add_argument("--target-language")
+    parser.add_argument("--conversation", action="store_true")
+    parser.add_argument("--partner-language")
+    parser.add_argument("--third-language")
+    parser.add_argument("--offline", action="store_true")
+    parser.add_argument("--overlap", action="store_true")
+    parser.add_argument("--voice-test")
+    parser.add_argument("--voice-text", default="Bonjour. Hello.")
     parser.add_argument("--expect-silence", action="store_true")
     parser.add_argument("--diarize", action="store_true")
     args, _ = parser.parse_known_args()
-    if (args.smoke_test or args.youtube_test) and not args.diagnostic_output:
+    if (args.smoke_test or args.youtube_test or args.voice_test) and not args.diagnostic_output:
         parser.error("--diagnostic-output is required with --smoke-test")
     return args
 
@@ -119,6 +156,8 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     setup_logging()
     args = parse_args()
+    if args.voice_test:
+        return run_voice_smoke_test(args)
     if args.smoke_test or args.youtube_test:
         return run_packaged_smoke_test(args)
 

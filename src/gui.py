@@ -36,6 +36,7 @@ except ImportError:
 
 from src import __version__
 from src.audio import SAMPLE_RATE, AudioRecorder
+from src.conversation_ui import ConversationMixin
 from src.diarizer import Diarizer
 from src.editing import apply_text_edits
 from src.estimator import TimeEstimator, format_duration
@@ -49,6 +50,7 @@ from src.meter import TapeMeter
 from src.models import (
     AUTO_FAST_MODEL_ID,
     AUTO_MODEL_ID,
+    AUTO_MULTILINGUAL_MODEL_ID,
     get_model,
     model_capability_text,
     model_id_from_label,
@@ -61,6 +63,8 @@ from src.settings import SettingsStore, bounded_int, ensure_output_folder
 from src.tooltip import ToolTip
 from src.transcriber import EngineStatus, TranscriberEngine, TranscriptionOptions
 from src.transcript_format import TranscriptFormat, format_transcript
+from src.translation_languages import normalize_language
+from src.translation_ui import TranslationControls, render_conversation
 from src.update_ui import UpdatesMixin
 from src.utils import (
     atomic_write_text,
@@ -452,8 +456,8 @@ class ModelSelectorDialog(ctk.CTkToplevel):
         self.cached = parent.engine.cached_model_ids()
         parent.hardware.refresh_resources()
         self.title(self.t("model_requirements"))
-        self.geometry("1040x760")
-        self.minsize(940, 580)
+        self.geometry(f"{min(1180, parent.winfo_screenwidth() - 40)}x760")
+        self.minsize(min(1040, parent.winfo_screenwidth() - 40), 580)
         self.transient(parent)
         self.grab_set()
         self.configure(fg_color=BACKGROUND)
@@ -477,6 +481,7 @@ class ModelSelectorDialog(ctk.CTkToplevel):
         self.scroll.pack(fill="both", expand=True, padx=28, pady=4)
         self._add_auto_row()
         self._add_auto_row(AUTO_FAST_MODEL_ID)
+        self._add_auto_row(AUTO_MULTILINGUAL_MODEL_ID)
         for spec in ranked_models():
             self._add_model_row(spec.model_id)
 
@@ -493,7 +498,7 @@ class ModelSelectorDialog(ctk.CTkToplevel):
         recommended = self.parent_app.hardware.resolve_model(
             profile_id, self.parent_app.selected_device, self.cached,
             self.parent_app.selected_language,
-            "translate" if self.parent_app.translate_var.get() else "transcribe",
+            "transcribe",
         )
         supported = self.parent_app.hardware.has_safe_model(
             self.parent_app.selected_device, self.cached
@@ -518,7 +523,8 @@ class ModelSelectorDialog(ctk.CTkToplevel):
         ).pack(anchor="w")
         ctk.CTkLabel(
             text,
-            text=self.t("auto_fast_will_use" if profile_id == AUTO_FAST_MODEL_ID else "auto_will_use", model=recommended),
+            text=self.t("auto_multilingual_will_use" if profile_id == AUTO_MULTILINGUAL_MODEL_ID else (
+                "auto_fast_will_use" if profile_id == AUTO_FAST_MODEL_ID else "auto_will_use"), model=recommended),
             font=("Segoe UI", 12),
             text_color=ACCENT if supported else RED,
         ).pack(anchor="w", pady=(3, 0))
@@ -531,16 +537,17 @@ class ModelSelectorDialog(ctk.CTkToplevel):
             fg_color=ACCENT_DARK,
             hover_color=ACCENT,
             command=lambda: self._select(profile_id),
-        ).grid(row=0, column=3, padx=14)
+        ).grid(row=0, column=4, padx=14)
 
     def _add_scores(self, row: ctk.CTkFrame, model_id: str) -> None:
         spec = get_model(model_id)
         for column, label, score, color in (
             (1, self.t("model_precision_score"), spec.multilingual_score, ACCENT),
             (2, self.t("model_speed_score"), spec.relative_speed_score, BLUE),
+            (3, self.t("model_coverage_score"), spec.coverage_score, AMBER),
         ):
-            cell = ctk.CTkFrame(row, fg_color="transparent", width=115)
-            cell.grid(row=0, column=column, padx=8, pady=12)
+            cell = ctk.CTkFrame(row, fg_color="transparent", width=100)
+            cell.grid(row=0, column=column, padx=5, pady=12)
             ctk.CTkLabel(cell, text=label, font=("Segoe UI", 11), text_color=MUTED).pack()
             value = f"{score:.1f}/10" if score is not None else self.t("model_english_only_score")
             ctk.CTkLabel(cell, text=value, font=("Segoe UI", 18, "bold"), text_color=color).pack(pady=(3, 4))
@@ -548,6 +555,9 @@ class ModelSelectorDialog(ctk.CTkToplevel):
                 bar = ctk.CTkProgressBar(cell, width=100, height=5, progress_color=color)
                 bar.set(score / 10)
                 bar.pack()
+            if column == 3:
+                ctk.CTkLabel(cell, text=self.t("model_languages", count=spec.language_count),
+                             font=("Segoe UI", 10), text_color=MUTED).pack(pady=(3, 0))
 
     def _add_model_row(self, model_id: str) -> None:
         compatibility = self.parent_app.hardware.model_compatibility(
@@ -572,7 +582,7 @@ class ModelSelectorDialog(ctk.CTkToplevel):
             text=model_label(model_id, self.t.language),
             font=("Segoe UI", 14, "bold"),
             text_color=TEXT if compatibility.supported else "#69768B",
-            wraplength=520,
+            wraplength=450,
             justify="left",
         ).pack(anchor="w")
         ctk.CTkLabel(
@@ -605,7 +615,7 @@ class ModelSelectorDialog(ctk.CTkToplevel):
             hover_color=ACCENT,
             text_color_disabled="#647084",
             command=lambda value=model_id: self._select(value),
-        ).grid(row=0, column=3, padx=14)
+        ).grid(row=0, column=4, padx=14)
 
     def _select(self, model_id: str) -> None:
         self.parent_app._select_model(model_id)
@@ -682,7 +692,7 @@ class ModelManagerDialog(ctk.CTkToplevel):
             messagebox.showerror(self.t("error"), self.t("job_error", error=path), parent=self)
 
 
-class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
+class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
     def __init__(
         self,
         hardware: HardwareProfile | None = None,
@@ -727,6 +737,11 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         if self.ui_mode == "simple":
             self.selected_model_id = AUTO_FAST_MODEL_ID if self.simple_quality == "fast" else AUTO_MODEL_ID
             self.selected_device = "auto"
+        if self.preset == "universal":
+            self.selected_model_id = self.settings.get("model", AUTO_MULTILINGUAL_MODEL_ID)
+            if self.selected_model_id in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID}:
+                self.selected_model_id = AUTO_MULTILINGUAL_MODEL_ID
+            self.selected_language = "auto"
         available_devices = {"auto", "cpu"}
         if self.hardware.ctranslate_cuda or self.hardware.torch_cuda:
             available_devices.add("cuda")
@@ -735,7 +750,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         if self.selected_device not in available_devices:
             self.selected_device = "auto"
         cached_models = self.engine.cached_model_ids()
-        if self.selected_model_id not in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID} and not self.hardware.model_compatibility(
+        if self.selected_model_id not in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID} and not self.hardware.model_compatibility(
             self.selected_model_id,
             self.selected_device,
             self.selected_model_id in cached_models,
@@ -764,12 +779,19 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         self.preload_generation = 0
         self.model_preloading = False
         self.active_recording_base: Path | None = None
+        self.translation_target = self.settings.get("translation_target", "fr" if self.t.language == "fr" else "en")
+        self.conversation_partner = self.settings.get("conversation_partner", "auto")
+        self.translation_third = self.settings.get("translation_third", "none")
+        self.conversation_font_size = self.settings.get("conversation_font_size", 22)
+        self.reading_view = False
+        self.pipeline_stage = "waiting"
+        self.pipeline_started = time.monotonic()
 
         data_dir = history.database_path.parent if history is not None else Path(user_data_dir("LocalTranscriberPro", "Vhaloo"))
         data_dir.mkdir(parents=True, exist_ok=True)
         self.backup_file = data_dir / "unsaved_session.json"
 
-        self.translate_var = ctk.BooleanVar(value=bool(self.settings.get("translate")))
+        self.translate_var = ctk.BooleanVar(value=self.preset == "universal" or bool(self.settings.get("translate")))
         self.speaker_var = ctk.BooleanVar(value=bool(self.settings.get("speaker_detection")))
         self.vad_var = ctk.BooleanVar(value=bool(self.settings.get("vad", True)))
         self.cleanup_var = ctk.BooleanVar(value=bool(self.settings.get("cleanup", True)))
@@ -780,6 +802,9 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         if self.ui_mode == "simple":
             self.chunk_var.set(str(self.maximum_quality_chunk))
             self.beam_var.set(str(self.maximum_quality_beam))
+        if self.preset == "universal":
+            self.chunk_var.set("12")
+            self.speaker_var.set(False)
         self.layout_var = ctk.StringVar(value=self.transcript_layout)
         self.show_timestamps_var = ctk.BooleanVar(value=self.show_timestamps)
         self.show_duration_var = ctk.BooleanVar(value=self.show_duration)
@@ -819,7 +844,10 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         self.bind("<Control-Shift-S>", action(lambda: self.export_transcript(".srt")))
         self.bind("<Control-Shift-R>", action(self._recording_shortcut))
         self.bind("<Control-p>", action(self.toggle_pause))
-        self.bind("<Escape>", action(self.cancel_job))
+        self.bind("<Escape>", action(self._escape_action))
+        self.bind("<F11>", action(self.toggle_reading_view))
+        self.bind("<Control-plus>", action(lambda: self.change_transcript_font(2)))
+        self.bind("<Control-minus>", action(lambda: self.change_transcript_font(-2)))
 
     def _recording_shortcut(self) -> None:
         if self.recorder.recording:
@@ -937,6 +965,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
 
     def _build_header(self) -> None:
         header = ctk.CTkFrame(self, fg_color="transparent")
+        self.header_frame = header
         header.grid(row=0, column=0, sticky="ew", padx=28, pady=(22, 12))
         header.grid_columnconfigure(0, weight=1)
 
@@ -1061,6 +1090,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
             ("files", "simple_task_files", "task_files_help"),
             ("conference", "simple_task_conference", "task_conference_help"),
             ("dictation", "simple_task_dictation", "task_dictation_help"),
+            ("universal", "simple_task_universal", "task_universal_help"),
             ("link", "simple_task_link", "task_link_help"),
         ]
         for index, (task_id, title_key, help_key) in enumerate(simple_tasks):
@@ -1080,6 +1110,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
             self.simple_task_buttons[task_id] = button
 
         choices = ctk.CTkFrame(self.simple_panel, fg_color="transparent")
+        self.simple_choices = choices
         choices.grid(row=2, column=0, sticky="ew", padx=20, pady=(11, 6))
         for column in range(3):
             choices.grid_columnconfigure(column, weight=1)
@@ -1169,6 +1200,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
             ("files", "task_files", "task_files_help"),
             ("conference", "task_conference", "task_conference_help"),
             ("dictation", "task_dictation", "task_dictation_help"),
+            ("universal", "task_universal", "task_universal_help"),
             ("link", "task_link", "task_link_help"),
         ]
         for index, (task_id, title_key, help_key) in enumerate(tasks):
@@ -1250,7 +1282,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         self.microphone_meter.grid(row=0, column=1, sticky="ew", padx=(0, 12), pady=10)
 
         self.file_controls = ctk.CTkFrame(self.source_card, fg_color="transparent")
-        self.file_controls.grid(row=3, column=0, sticky="ew", padx=22, pady=(0, 18))
+        self.file_controls.grid(row=4, column=0, sticky="ew", padx=22, pady=(0, 18))
         self.file_controls.grid_columnconfigure(0, weight=1)
         self.file_hint = ctk.CTkLabel(
             self.file_controls,
@@ -1275,7 +1307,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         ToolTip(self.choose_button, self.t("tip_choose"))
 
         self.record_controls = ctk.CTkFrame(self.source_card, fg_color="transparent")
-        self.record_controls.grid(row=3, column=0, sticky="ew", padx=22, pady=(0, 18))
+        self.record_controls.grid(row=4, column=0, sticky="ew", padx=22, pady=(0, 18))
         self.record_controls.grid_columnconfigure(1, weight=1)
         ctk.CTkLabel(
             self.record_controls,
@@ -1339,7 +1371,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         ToolTip(self.stop_button, self.t("tip_stop"))
 
         self.link_controls = ctk.CTkFrame(self.source_card, fg_color="transparent")
-        self.link_controls.grid(row=3, column=0, sticky="ew", padx=22, pady=(0, 18))
+        self.link_controls.grid(row=4, column=0, sticky="ew", padx=22, pady=(0, 18))
         self.link_controls.grid_columnconfigure(0, weight=1)
         self.url_entry = ctk.CTkEntry(
             self.link_controls,
@@ -1364,6 +1396,12 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         )
         self.link_button.grid(row=0, column=1)
         ToolTip(self.link_button, self.t("tip_link"))
+        self.translation_controls = TranslationControls(self, self.source_card)
+        self.translation_controls.grid(row=3, column=0, sticky="ew", padx=20, pady=(0, 10))
+
+    def open_model_selector(self) -> None:
+        if not self.busy and not self.recorder.recording:
+            ModelSelectorDialog(self)
 
     def _build_advanced_panel(self) -> None:
         self.advanced_panel = ctk.CTkFrame(self, fg_color=PANEL, corner_radius=20)
@@ -1465,7 +1503,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
                 fg_color=ACCENT_DARK,
                 hover_color=ACCENT,
                 font=("Segoe UI", 12),
-                command=self.persist_settings,
+                command=self._translation_toggled if key == "translate" else self.persist_settings,
             )
             widget.grid(row=index // 4, column=index % 4, sticky="w", padx=6, pady=7)
             ToolTip(widget, self.t(tip_key))
@@ -1604,6 +1642,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
 
     def _build_output(self) -> None:
         output = ctk.CTkFrame(self, fg_color=PANEL, corner_radius=20)
+        self.output_card = output
         output.grid(row=4, column=0, sticky="nsew", padx=28, pady=(6, 22))
         output.grid_columnconfigure(0, weight=1)
         output.grid_rowconfigure(3, weight=1)
@@ -1692,6 +1731,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         self.export_menu.set(self.t("export"))
         self.export_menu.grid(row=0, column=3, padx=(4, 0))
         ToolTip(self.export_menu, self.t("tip_export"))
+        self._build_conversation_toolbar(toolbar)
 
         self.textbox = ctk.CTkTextbox(
             output,
@@ -1725,6 +1765,14 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         self.hardware_btn.configure(text=self.t("hardware_ready", device=self.hardware.display_device))
 
     def _apply_mode_visibility(self) -> None:
+        if self.reading_view:
+            for frame in (self.header_frame, self.simple_panel, self.task_frame, self.source_card, self.advanced_panel):
+                frame.grid_remove()
+            self.output_card.grid_configure(padx=12, pady=12)
+            return
+        self.header_frame.grid()
+        self.source_card.grid()
+        self.output_card.grid_configure(padx=28, pady=(6, 22))
         if self.ui_mode == "advanced":
             self.simple_panel.grid_remove()
             self.task_frame.grid()
@@ -1742,6 +1790,14 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
             self.microphone_meter.configure(height=104)
             self.microphone_privacy_label.pack(anchor="w")
         self.mode_button.configure(text=self.t("advanced" if self.ui_mode == "simple" else "simple"))
+        if self.preset == "universal":
+            self.advanced_panel.grid_remove()
+            self.simple_choices.grid_remove()
+            self.source_title.grid_remove()
+            self.source_help.grid_remove()
+            self.microphone_meter.configure(height=56)
+        else:
+            self.simple_choices.grid()
 
     def _refresh_task_styles(self) -> None:
         for task_id, button in self.task_buttons.items():
@@ -1767,6 +1823,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
             "conference": ("task_conference", "task_conference_help"),
             "dictation": ("task_dictation", "task_dictation_help"),
             "link": ("task_link", "task_link_help"),
+            "universal": ("task_universal", "task_universal_help"),
         }
         title_key, help_key = mapping.get(self.preset, mapping["files"])
         if self.ui_mode == "simple":
@@ -1775,6 +1832,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
                 "conference": "action_conference",
                 "dictation": "action_dictation",
                 "link": "action_link",
+                "universal": "action_universal",
             }.get(self.preset, "action_files")
             self.source_title.configure(text=self.t("step_two"))
             self.source_help.configure(text=self.t(action_key))
@@ -1786,10 +1844,15 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         self.link_controls.grid_remove()
         if self.preset == "files":
             self.file_controls.grid()
-        elif self.preset in {"conference", "dictation"}:
+        elif self.preset in {"conference", "dictation", "universal"}:
             self.record_controls.grid()
         else:
             self.link_controls.grid()
+        if self.translate_var.get() or self.preset == "universal":
+            self.translation_controls.grid()
+            self.translation_controls.refresh()
+        else:
+            self.translation_controls.grid_remove()
 
     def _setup_dnd_target(self) -> None:
         if not HAS_DND or not self.TkdndVersion:
@@ -1881,6 +1944,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
                     text_color=ACCENT,
                     fg_color="#12392F",
                 )
+            self._update_pipeline_display()
         except (AttributeError, tk.TclError):
             pass
         self.after(60, self._update_microphone_meter)
@@ -1931,6 +1995,11 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         self.smart_subtitles_var.set(True)
         self.translate_var.set(False)
         self.speaker_var.set(preset == "conference")
+        if preset == "universal":
+            self.selected_model_id = AUTO_MULTILINGUAL_MODEL_ID
+            self.selected_language = "auto"
+            self.translate_var.set(True)
+            self.chunk_var.set("12")
 
     def toggle_language(self) -> None:
         self._commit_editor_changes()
@@ -1940,6 +2009,8 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         self.render_transcript()
 
     def toggle_mode(self) -> None:
+        if self.busy or self.recorder.recording:
+            return
         self.ui_mode = "advanced" if self.ui_mode == "simple" else "simple"
         if self.ui_mode == "simple":
             self._apply_maximum_quality_defaults(self.preset)
@@ -1956,10 +2027,22 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
     def select_preset(self, preset: str) -> None:
         if self.busy or self.recorder.recording:
             return
+        previous = self.preset
         self.preset = preset
+        if previous == "universal" and preset != "universal":
+            self.translate_var.set(False)
+            self.selected_model_id = AUTO_MODEL_ID
         if self.ui_mode == "simple":
             self._apply_maximum_quality_defaults(preset)
             self._update_model_indicators()
+        elif preset == "universal":
+            self.selected_model_id = AUTO_MULTILINGUAL_MODEL_ID
+            self.selected_device = "auto"
+            self.selected_language = "auto"
+            self.translate_var.set(True)
+            self.speaker_var.set(False)
+            self.vad_var.set(True)
+            self.chunk_var.set("12")
         elif preset == "conference":
             self.speaker_var.set(True)
             self.chunk_var.set("30")
@@ -1969,7 +2052,11 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         self.settings.set("preset", preset)
         self.persist_settings()
         self._refresh_task_styles()
+        self._apply_mode_visibility()
         self._update_source_context()
+        self._update_model_indicators()
+        self.render_transcript()
+        self.preload_selected_model()
 
     def _model_changed(self, label: str) -> None:
         self._select_model(model_id_from_label(label, self.t.language))
@@ -1978,7 +2065,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         if self.busy or self.recorder.recording:
             return
         cached = self.engine.cached_model_ids()
-        if model_id not in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID}:
+        if model_id not in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID}:
             compatibility = self.hardware.model_compatibility(
                 model_id, self.selected_device, model_id in cached
             )
@@ -2003,7 +2090,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
             return
         self.selected_device = self.device_display_map.get(label, "auto")
         cached = self.engine.cached_model_ids()
-        if self.selected_model_id not in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID} and not self.hardware.model_compatibility(
+        if self.selected_model_id not in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID} and not self.hardware.model_compatibility(
             self.selected_model_id,
             self.selected_device,
             self.selected_model_id in cached,
@@ -2025,9 +2112,10 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
             )
             self.simple_auto_summary_label.configure(
                 text=self.t(
-                    "simple_automatic_summary",
+                    "universal_automatic_summary" if self.preset == "universal" else "simple_automatic_summary",
                     model=resolved,
                     device=self.hardware.display_device,
+                    count=get_model(resolved).language_count,
                 )
             )
 
@@ -2051,6 +2139,12 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
                 "device": self.selected_device,
                 "spoken_language": self.selected_language,
                 "translate": bool(self.translate_var.get()),
+                "translation_target": self.translation_target,
+                "conversation_partner": self.conversation_partner,
+                "translation_third": self.translation_third,
+                "conversation_font_size": self.conversation_font_size,
+                "show_confidence": bool(self.show_confidence_var.get()),
+                "overlap_separation": bool(self.overlap_var.get()),
                 "speaker_detection": bool(self.speaker_var.get()),
                 "vad": bool(self.vad_var.get()),
                 "cleanup": bool(self.cleanup_var.get()),
@@ -2073,17 +2167,22 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         return {
             "model": self.selected_model_id,
             "device": self.selected_device,
-            "language": None if self.selected_language == "auto" else self.selected_language,
-            "task": "translate" if self.translate_var.get() else "transcribe",
-            "speaker": bool(self.speaker_var.get()),
+            "language": None if self.selected_language == "auto" or self.preset == "universal" else self.selected_language,
+            "task": "transcribe",
+            "target_language": self.translation_target if self.translate_var.get() or self.preset == "universal" else None,
+            "conversation": self.preset == "universal",
+            "partner_language": None if self.conversation_partner == "auto" else self.conversation_partner,
+            "third_language": None if self.translation_third == "none" else self.translation_third,
+            "speaker": bool(self.speaker_var.get()) and self.preset != "universal",
             "vad": bool(self.vad_var.get()),
             "cleanup": bool(self.cleanup_var.get()),
             "smart_subtitles": bool(self.smart_subtitles_var.get()),
             "open_result": bool(self.open_result_var.get()),
             "beam": bounded_int(self.beam_var.get(), 8, 1, 10),
-            "chunk": bounded_int(self.chunk_var.get(), 30, 5, 60),
+            "chunk": 12 if self.preset == "universal" else bounded_int(self.chunk_var.get(), 30, 5, 60),
             "vocabulary": self.settings.get("vocabulary", ""),
             "keep_audio": bool(self.settings.get("keep_recording_audio", True)),
+            "overlap_separation": bool(self.overlap_var.get()),
         }
 
     def transcribe_options(self, config: dict[str, Any]) -> TranscriptionOptions:
@@ -2095,6 +2194,14 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
             word_timestamps=True,
             initial_prompt=config.get("vocabulary") or None,
             cancel_event=self.cancel_event,
+            target_language=config.get("target_language"),
+            conversation=config.get("conversation", False),
+            partner_language=config.get("partner_language"),
+            third_language=config.get("third_language") if config.get("conversation") else None,
+            activity_callback=lambda stage: self._safe_ui(self._pipeline_activity, stage),
+            overlap_separation=config.get("overlap_separation", False),
+            original_callback=(lambda result: self._safe_ui(self._preview_conversation, result, self.recording_offset))
+                if config.get("conversation") else None,
         )
 
     def _engine_load_status(self, stage: str, model: str, device: str) -> None:
@@ -2104,6 +2211,8 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
             "model_cached": "load_model_cached",
             "engine_start": "load_engine_start",
             "safe_fallback": "load_safe_fallback",
+            "translation_prepare": "load_translation_prepare",
+            "separation_prepare": "load_separation_prepare",
         }.get(stage, "progress_loading")
         self._safe_ui(
             self._set_status,
@@ -2128,6 +2237,9 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
             )
         )
         self._update_model_indicators()
+        if self.engine.translator.model is not None:
+            self._set_status(self.t("translation_armed", model=self.last_engine_status.model_id,
+                                    device=self.engine.translator.device.upper()))
 
     def preload_selected_model(self) -> None:
         if self.closing:
@@ -2144,7 +2256,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         resolved = self.hardware.resolve_model(model, device, self.engine.cached_model_ids(),
                                                options.language, options.task)
         self._set_status(self.t("model_arming", model=resolved))
-        if self.preset in {"conference", "dictation"}:
+        if self.preset in {"conference", "dictation", "universal"}:
             self.record_button.configure(state="disabled", text=self.t("arming"))
 
         threading.Thread(
@@ -2188,7 +2300,8 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         if self.model_preloading:
             return False
         try:
-            return self.engine.is_ready(config["model"], config["device"])
+            return self.engine.is_ready(config["model"], config["device"]) and (
+                not config.get("target_language") or self.engine.translator.model is not None)
         except (OSError, RuntimeError, ValueError):
             return False
 
@@ -2415,6 +2528,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
             return
         if not self._can_start_safely():
             return
+        self.stop_speaking(resume=False)
         config = self.job_config()
         microphone = self.microphone_combo.get()
         try:
@@ -2423,7 +2537,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
             device_index = None
         self.transcript_data = []
         self.recording_offset = 0.0
-        prefix = "Conference" if self.preset == "conference" else "Dictation"
+        prefix = "Conversation" if self.preset == "universal" else ("Conference" if self.preset == "conference" else "Dictation")
         self.active_recording_base = self._new_output_base(prefix)
         self.render_transcript()
         self._start_job(0)
@@ -2453,26 +2567,37 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
             check_cancelled(self.cancel_event)
             spool = RecordingSpool(self.active_recording_base.with_suffix(".wav"))
             self.recording_spool = spool
-            self.recorder.start(device_index, config["chunk"])
-            self._safe_ui(self._recording_started)
             options = self.transcribe_options(config)
+            self.engine.reset_translation_session(options)
+            if config.get("conversation"):
+                self.recorder.start(device_index, config["chunk"], smart_splits=True)
+            else:
+                self.recorder.start(device_index, config["chunk"])
+            self._safe_ui(self._recording_started)
             while True:
                 try:
                     audio = self.recorder.audio_queue.get(timeout=0.25)
                 except queue.Empty:
-                    if not self.recorder.recording:
+                    if not self.recorder.recording and not self.recorder.segmenting:
                         break
                     continue
                 if audio is None:
                     break
                 flattened = np.asarray(audio, dtype=np.float32).reshape(-1)
+                self.last_audio = flattened.copy()
                 spool.append(flattened)
                 result = self.engine.transcribe_audio(flattened, options)
                 segments = self._prepare_segments(result.get("segments", []), config["cleanup"])
                 shifted = shift_segments(segments, self.recording_offset)
                 segments_all.extend(shifted)
                 self.recording_offset += flattened.size / SAMPLE_RATE
-                self._safe_ui(self._append_segments, shifted)
+                if config.get("conversation"):
+                    segments_all = self.engine.translator.complete_conversation(segments_all, self.cancel_event)
+                    self._safe_ui(self._replace_segments, list(segments_all))
+                    self._safe_ui(self.translation_controls.update_pair, result.get("conversation_pair", []))
+                else:
+                    self._safe_ui(self._append_segments, shifted)
+                self._safe_ui(self._pipeline_activity, "waiting")
                 # The worker owns this snapshot. It never depends on whether
                 # the UI has already consumed its queued segment event.
                 write_export(self.active_recording_base.with_suffix(".json"), segments_all)
@@ -2486,7 +2611,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
                 self._safe_ui(self._replace_segments, segments_all)
             saved = self.save_result_bundle(
                 segments_all,
-                "Conference" if self.preset == "conference" else "Dictation",
+                "Conversation" if config.get("conversation") else ("Conference" if self.preset == "conference" else "Dictation"),
                 base_override=self.active_recording_base,
             )
             completed = True
@@ -2532,8 +2657,10 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
             border_color="#FFD7DC",
         )
         self._set_source_buttons_state("disabled")
+        self._pipeline_activity("waiting")
 
     def toggle_pause(self) -> None:
+        self.stop_speaking(resume=False)
         if not self.recorder.recording:
             return
         if self.recorder.paused:
@@ -2546,6 +2673,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
             self._set_status(self.t("cancelled"))
 
     def stop_recording(self) -> None:
+        self.stop_speaking(resume=False)
         if not self.recorder.recording:
             return
         self.recorder.stop()
@@ -2591,12 +2719,13 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         prepared = []
         for item in segments:
             text = str(item.get("text", "")).strip()
-            if cleanup:
+            if cleanup and "source_text" not in item:
                 text = self.engine.cleanup_text(text)
             if not text:
                 continue
             prepared.append(
                 {
+                    **item,
                     "start": float(item.get("start", 0.0)),
                     "end": float(item.get("end", 0.0)),
                     "text": text,
@@ -2617,6 +2746,17 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         self.render_transcript()
         self._save_backup()
 
+    def _preview_conversation(self, result: dict[str, Any], offset: float) -> None:
+        values = result.get("segments", [])
+        if not values:
+            return
+        preview = dict(values[0], end=values[-1].get("end", 0), source_text=result.get("text", ""),
+                       source_language=normalize_language(result.get("language")) or "und", target_language="",
+                       translation_pending=True, translation_pending_reason="processing")
+        self.transcript_data.append(shift_segments([preview], offset)[0])
+        self.render_transcript()
+        self._save_backup()
+
     def transcript_format_options(self) -> TranscriptFormat:
         return TranscriptFormat(
             mode=self.transcript_layout,
@@ -2627,15 +2767,41 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
     def render_transcript(self) -> None:
         if not hasattr(self, "textbox"):
             return
+        self.textbox.configure(state="normal", font=("Segoe UI", self.conversation_font_size))
         self.textbox.delete("1.0", "end")
         text = format_transcript(self.transcript_data, self.transcript_format_options())
-        if text:
+        self.textbox._speech_lines = {}
+        bilingual = any("source_text" in item for item in self.transcript_data)
+        if bilingual:
+            render_conversation(self.textbox, self.transcript_data, self.transcript_format_options(), self.t,
+                                self.show_confidence_var.get())
+            self.textbox.configure(state="disabled")
+        elif text and self.show_confidence_var.get():
+            from src.confidence import confidence_caption
+            from src.transcript_format import format_segment
+            self.textbox._textbox.tag_configure("confidence", foreground=MUTED, font=("Segoe UI", 10))
+            pieces = []
+            for item in self.transcript_data:
+                line = format_segment(item, self.transcript_format_options())
+                pieces.append(line)
+                row = int(self.textbox._textbox.index("end-1c").split(".")[0])
+                self.textbox._speech_lines[row] = (item["text"], item.get("language") or self.t.language)
+                self.textbox.insert("end", line + "\n")
+                self.textbox.insert("end", confidence_caption(item, self.t) + "\n", "confidence")
+                self.textbox.insert("end", "\n")
+            text = "\n\n".join(pieces)
+        elif text:
             self.textbox.insert("end", text + "\n")
         self._rendered_text = text
+        self.conversation_legend.configure(text=self.t("translation_legend") if bilingual or self.preset == "universal" else "")
         self.textbox.see("end")
+        self.textbox.bind("<Button-3>", self._transcript_context_menu)
+        self._offer_detected_voice()
 
     def copy_transcript(self) -> None:
-        text = self.textbox.get("1.0", "end-1c").strip()
+        text = (format_transcript(self.transcript_data, self.transcript_format_options())
+                if any("source_text" in item for item in self.transcript_data)
+                else self._editor_text())
         if not text:
             return
         self.clipboard_clear()
@@ -2646,7 +2812,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         if self.busy or self.recorder.recording:
             return
         self.transcript_data = []
-        self.textbox.delete("1.0", "end")
+        self.render_transcript()
         self.backup_file.unlink(missing_ok=True)
 
     def export_selected(self, label: str) -> None:
@@ -2771,6 +2937,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
             logging.exception("Could not open result: %s", path)
 
     def _start_job(self, estimated_seconds: float) -> None:
+        self.diarizer.last_warning = ""
         self._commit_editor_changes()
         self.cancel_event.clear()
         self.busy = True
@@ -2789,10 +2956,13 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
 
     def _finish_job(self, saved: Path | None, backend: str) -> None:
         self.busy = False
+        self._pipeline_activity("waiting")
         self._set_progress(1.0)
         self._set_source_buttons_state("normal")
         self.cancel_button.configure(state="disabled")
         self._set_status(f"{self.t('progress_done')} • {self.t('backend', backend=backend)}")
+        if self.diarizer.last_warning:
+            self._set_status(self.t(self.diarizer.last_warning))
         self.eta_label.configure(text=self.t("autosaved") if saved else "")
         self.persist_settings()
         if saved and self.open_result_var.get():
@@ -2808,6 +2978,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
 
     def _fail_job(self, error: Exception) -> None:
         self.busy = False
+        self._pipeline_activity("waiting")
         self._set_source_buttons_state("normal")
         self._set_status(self.t("error"))
         self.eta_label.configure(text="")
@@ -2830,6 +3001,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
                 widget.configure(state=state)
         if self.recorder.recording:
             self.record_button.configure(state="disabled")
+        self.translation_controls.set_enabled(state == "normal" and not self.recorder.recording)
 
     def _set_status(self, text: str) -> None:
         self.status_label.configure(text=text)
@@ -2877,9 +3049,24 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
     def _commit_editor_changes(self) -> None:
         if not hasattr(self, "textbox"):
             return
-        edited = self.textbox.get("1.0", "end-1c").strip()
+        if any("source_text" in item for item in self.transcript_data):
+            # Visual RTL shaping is presentation only. Never overwrite logical
+            # originals/translation metadata with the displayed glyph order.
+            return
+        edited = self._editor_text()
         self.transcript_data = apply_text_edits(self.transcript_data, self._rendered_text, edited)
         self._rendered_text = edited
+
+    def _editor_text(self):
+        widget = self.textbox._textbox
+        ranges = widget.tag_ranges("confidence")
+        cursor = "1.0"
+        pieces = []
+        for start, end in zip(ranges[::2], ranges[1::2], strict=True):
+            pieces.append(widget.get(cursor, start))
+            cursor = end
+        pieces.append(widget.get(cursor, "end-1c"))
+        return "".join(pieces).strip()
 
     def _autosave_editor(self) -> None:
         if not self.running:
@@ -2943,6 +3130,7 @@ class TranscriberApp(UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
         if self.closing:
             return
         self.closing = True
+        self.stop_speaking(resume=False)
         if self.recorder.recording:
             self.stop_recording()
         elif self.busy:

@@ -1,0 +1,2368 @@
+{
+  "repository": "santhosh/madlad400-3b-ct2",
+  "revision": "c32ad0cf118807ea6258d14be137547155842723",
+  "kind": "Language and script/region variants; control tokens excluded",
+  "languages": [
+    {
+      "code": "ace",
+      "en": "Acehnese",
+      "fr": "Aceh"
+    },
+    {
+      "code": "ace_Arab",
+      "en": "Acehnese (Arab)",
+      "fr": "Aceh (Arab)"
+    },
+    {
+      "code": "af",
+      "en": "Afrikaans",
+      "fr": "Afrikaans"
+    },
+    {
+      "code": "am",
+      "en": "Amharic",
+      "fr": "Amharique"
+    },
+    {
+      "code": "an",
+      "en": "Aragonese",
+      "fr": "Aragonais"
+    },
+    {
+      "code": "ar",
+      "en": "Arabic",
+      "fr": "Arabe"
+    },
+    {
+      "code": "ary",
+      "en": "Moroccan Arabic",
+      "fr": "Arabe marocain"
+    },
+    {
+      "code": "arz",
+      "en": "Egyptian Arabic",
+      "fr": "Arabe égyptien"
+    },
+    {
+      "code": "as",
+      "en": "Assamese",
+      "fr": "Assamais"
+    },
+    {
+      "code": "az",
+      "en": "Azerbaijani",
+      "fr": "Azerbaïdjanais"
+    },
+    {
+      "code": "ba",
+      "en": "Bashkir",
+      "fr": "Bachkir"
+    },
+    {
+      "code": "ban",
+      "en": "Balinese",
+      "fr": "Balinais"
+    },
+    {
+      "code": "bar",
+      "en": "Bavarian",
+      "fr": "Bavarois"
+    },
+    {
+      "code": "be",
+      "en": "Belarusian",
+      "fr": "Biélorusse"
+    },
+    {
+      "code": "bg",
+      "en": "Bulgarian",
+      "fr": "Bulgare"
+    },
+    {
+      "code": "bho",
+      "en": "Bhojpuri",
+      "fr": "Bhodjpouri"
+    },
+    {
+      "code": "bjn",
+      "en": "Banjar",
+      "fr": "Banjar"
+    },
+    {
+      "code": "bjn_Arab",
+      "en": "Banjar (Arab)",
+      "fr": "Banjar (Arab)"
+    },
+    {
+      "code": "bm",
+      "en": "Bambara",
+      "fr": "Bambara"
+    },
+    {
+      "code": "bn",
+      "en": "Bangla",
+      "fr": "Bengali"
+    },
+    {
+      "code": "br",
+      "en": "Breton",
+      "fr": "Breton"
+    },
+    {
+      "code": "bs",
+      "en": "Bosnian",
+      "fr": "Bosniaque"
+    },
+    {
+      "code": "bug",
+      "en": "Buginese",
+      "fr": "Bugi"
+    },
+    {
+      "code": "ca",
+      "en": "Catalan",
+      "fr": "Catalan"
+    },
+    {
+      "code": "ceb",
+      "en": "Cebuano",
+      "fr": "Cebuano"
+    },
+    {
+      "code": "crh_Latn",
+      "en": "Crimean Tatar (Latn)",
+      "fr": "Tatar de Crimée (Latn)"
+    },
+    {
+      "code": "cs",
+      "en": "Czech",
+      "fr": "Tchèque"
+    },
+    {
+      "code": "cy",
+      "en": "Welsh",
+      "fr": "Gallois"
+    },
+    {
+      "code": "da",
+      "en": "Danish",
+      "fr": "Danois"
+    },
+    {
+      "code": "de",
+      "en": "German",
+      "fr": "Allemand"
+    },
+    {
+      "code": "din",
+      "en": "Dinka",
+      "fr": "Dinka"
+    },
+    {
+      "code": "dv",
+      "en": "Divehi",
+      "fr": "Maldivien"
+    },
+    {
+      "code": "dz",
+      "en": "Dzongkha",
+      "fr": "Dzongkha"
+    },
+    {
+      "code": "el",
+      "en": "Greek",
+      "fr": "Grec"
+    },
+    {
+      "code": "en",
+      "en": "English",
+      "fr": "Anglais"
+    },
+    {
+      "code": "eo",
+      "en": "Esperanto",
+      "fr": "Espéranto"
+    },
+    {
+      "code": "es",
+      "en": "Spanish",
+      "fr": "Espagnol"
+    },
+    {
+      "code": "et",
+      "en": "Estonian",
+      "fr": "Estonien"
+    },
+    {
+      "code": "eu",
+      "en": "Basque",
+      "fr": "Basque"
+    },
+    {
+      "code": "fa",
+      "en": "Persian",
+      "fr": "Persan"
+    },
+    {
+      "code": "fi",
+      "en": "Finnish",
+      "fr": "Finnois"
+    },
+    {
+      "code": "fo",
+      "en": "Faroese",
+      "fr": "Féroïen"
+    },
+    {
+      "code": "fr",
+      "en": "French",
+      "fr": "Français"
+    },
+    {
+      "code": "fr_CA",
+      "en": "French (Canada)",
+      "fr": "Français (Canada)"
+    },
+    {
+      "code": "fur",
+      "en": "Friulian",
+      "fr": "Frioulan"
+    },
+    {
+      "code": "fuv",
+      "en": "Nigerian Fulfulde",
+      "fr": "Nigerian Fulfulde"
+    },
+    {
+      "code": "fy",
+      "en": "Western Frisian",
+      "fr": "Frison occidental"
+    },
+    {
+      "code": "ga",
+      "en": "Irish",
+      "fr": "Irlandais"
+    },
+    {
+      "code": "gd",
+      "en": "Scottish Gaelic",
+      "fr": "Gaélique écossais"
+    },
+    {
+      "code": "gl",
+      "en": "Galician",
+      "fr": "Galicien"
+    },
+    {
+      "code": "gn",
+      "en": "Guarani",
+      "fr": "Guarani"
+    },
+    {
+      "code": "gu",
+      "en": "Gujarati",
+      "fr": "Goudjarati"
+    },
+    {
+      "code": "ha",
+      "en": "Hausa",
+      "fr": "Haoussa"
+    },
+    {
+      "code": "he",
+      "en": "Hebrew",
+      "fr": "Hébreu"
+    },
+    {
+      "code": "hi",
+      "en": "Hindi",
+      "fr": "Hindi"
+    },
+    {
+      "code": "hne",
+      "en": "Chhattisgarhi",
+      "fr": "Chhattisgarhi"
+    },
+    {
+      "code": "hr",
+      "en": "Croatian",
+      "fr": "Croate"
+    },
+    {
+      "code": "hu",
+      "en": "Hungarian",
+      "fr": "Hongrois"
+    },
+    {
+      "code": "hy",
+      "en": "Armenian",
+      "fr": "Arménien"
+    },
+    {
+      "code": "id",
+      "en": "Indonesian",
+      "fr": "Indonésien"
+    },
+    {
+      "code": "ig",
+      "en": "Igbo",
+      "fr": "Igbo"
+    },
+    {
+      "code": "io",
+      "en": "Ido",
+      "fr": "Ido"
+    },
+    {
+      "code": "is",
+      "en": "Icelandic",
+      "fr": "Islandais"
+    },
+    {
+      "code": "it",
+      "en": "Italian",
+      "fr": "Italien"
+    },
+    {
+      "code": "iu",
+      "en": "Inuktitut",
+      "fr": "Inuktitut"
+    },
+    {
+      "code": "ja",
+      "en": "Japanese",
+      "fr": "Japonais"
+    },
+    {
+      "code": "jv",
+      "en": "Javanese",
+      "fr": "Javanais"
+    },
+    {
+      "code": "ka",
+      "en": "Georgian",
+      "fr": "Géorgien"
+    },
+    {
+      "code": "kk",
+      "en": "Kazakh",
+      "fr": "Kazakh"
+    },
+    {
+      "code": "km",
+      "en": "Khmer",
+      "fr": "Khmer"
+    },
+    {
+      "code": "kn",
+      "en": "Kannada",
+      "fr": "Kannada"
+    },
+    {
+      "code": "ko",
+      "en": "Korean",
+      "fr": "Coréen"
+    },
+    {
+      "code": "kr",
+      "en": "Kanuri",
+      "fr": "Kanouri"
+    },
+    {
+      "code": "kr_Arab",
+      "en": "Kanuri (Arab)",
+      "fr": "Kanouri (Arab)"
+    },
+    {
+      "code": "ks",
+      "en": "Kashmiri",
+      "fr": "Cachemiri"
+    },
+    {
+      "code": "ks_Deva",
+      "en": "Kashmiri (Devanagari)",
+      "fr": "Cachemiri (dévanagari)"
+    },
+    {
+      "code": "ku",
+      "en": "Kurdish",
+      "fr": "Kurde"
+    },
+    {
+      "code": "ky",
+      "en": "Kyrgyz",
+      "fr": "Kirghize"
+    },
+    {
+      "code": "la",
+      "en": "Latin",
+      "fr": "Latin"
+    },
+    {
+      "code": "lb",
+      "en": "Luxembourgish",
+      "fr": "Luxembourgeois"
+    },
+    {
+      "code": "li",
+      "en": "Limburgish",
+      "fr": "Limbourgeois"
+    },
+    {
+      "code": "lij",
+      "en": "Ligurian",
+      "fr": "Ligure"
+    },
+    {
+      "code": "lmo",
+      "en": "Lombard",
+      "fr": "Lombard"
+    },
+    {
+      "code": "lt",
+      "en": "Lithuanian",
+      "fr": "Lituanien"
+    },
+    {
+      "code": "ltg",
+      "en": "Latgalian",
+      "fr": "Latgalien"
+    },
+    {
+      "code": "lv",
+      "en": "Latvian",
+      "fr": "Letton"
+    },
+    {
+      "code": "mag",
+      "en": "Magahi",
+      "fr": "Magahi"
+    },
+    {
+      "code": "mg",
+      "en": "Malagasy",
+      "fr": "Malgache"
+    },
+    {
+      "code": "mi",
+      "en": "Māori",
+      "fr": "Maori"
+    },
+    {
+      "code": "mk",
+      "en": "Macedonian",
+      "fr": "Macédonien"
+    },
+    {
+      "code": "ml",
+      "en": "Malayalam",
+      "fr": "Malayalam"
+    },
+    {
+      "code": "mn",
+      "en": "Mongolian",
+      "fr": "Mongol"
+    },
+    {
+      "code": "mni",
+      "en": "Manipuri",
+      "fr": "Manipuri"
+    },
+    {
+      "code": "mr",
+      "en": "Marathi",
+      "fr": "Marathi"
+    },
+    {
+      "code": "ms",
+      "en": "Malay",
+      "fr": "Malais"
+    },
+    {
+      "code": "mt",
+      "en": "Maltese",
+      "fr": "Maltais"
+    },
+    {
+      "code": "mwl",
+      "en": "Mirandese",
+      "fr": "Mirandais"
+    },
+    {
+      "code": "my",
+      "en": "Burmese",
+      "fr": "Birman"
+    },
+    {
+      "code": "nds",
+      "en": "Low German",
+      "fr": "Bas-allemand"
+    },
+    {
+      "code": "nds_NL",
+      "en": "Low German (Netherlands)",
+      "fr": "Bas-allemand (Pays-Bas)"
+    },
+    {
+      "code": "ne",
+      "en": "Nepali",
+      "fr": "Népalais"
+    },
+    {
+      "code": "nl",
+      "en": "Dutch",
+      "fr": "Néerlandais"
+    },
+    {
+      "code": "nn",
+      "en": "Norwegian Nynorsk",
+      "fr": "Norvégien nynorsk"
+    },
+    {
+      "code": "no",
+      "en": "Norwegian",
+      "fr": "Norvégien"
+    },
+    {
+      "code": "nus",
+      "en": "Nuer",
+      "fr": "Nuer"
+    },
+    {
+      "code": "oc",
+      "en": "Occitan",
+      "fr": "Occitan"
+    },
+    {
+      "code": "or",
+      "en": "Odia",
+      "fr": "Odia"
+    },
+    {
+      "code": "pa",
+      "en": "Punjabi",
+      "fr": "Pendjabi"
+    },
+    {
+      "code": "pl",
+      "en": "Polish",
+      "fr": "Polonais"
+    },
+    {
+      "code": "prs",
+      "en": "Dari",
+      "fr": "Dari"
+    },
+    {
+      "code": "ps",
+      "en": "Pashto",
+      "fr": "Pachto"
+    },
+    {
+      "code": "pt",
+      "en": "Portuguese",
+      "fr": "Portugais"
+    },
+    {
+      "code": "ro",
+      "en": "Romanian",
+      "fr": "Roumain"
+    },
+    {
+      "code": "ru",
+      "en": "Russian",
+      "fr": "Russe"
+    },
+    {
+      "code": "rw",
+      "en": "Kinyarwanda",
+      "fr": "Kinyarwanda"
+    },
+    {
+      "code": "sc",
+      "en": "Sardinian",
+      "fr": "Sarde"
+    },
+    {
+      "code": "scn",
+      "en": "Sicilian",
+      "fr": "Sicilien"
+    },
+    {
+      "code": "sd",
+      "en": "Sindhi",
+      "fr": "Sindhi"
+    },
+    {
+      "code": "se",
+      "en": "Northern Sami",
+      "fr": "Same du Nord"
+    },
+    {
+      "code": "sh",
+      "en": "Serbo-Croatian",
+      "fr": "Serbo-croate"
+    },
+    {
+      "code": "shn",
+      "en": "Shan",
+      "fr": "Shan"
+    },
+    {
+      "code": "si",
+      "en": "Sinhala",
+      "fr": "Cingalais"
+    },
+    {
+      "code": "sk",
+      "en": "Slovak",
+      "fr": "Slovaque"
+    },
+    {
+      "code": "sl",
+      "en": "Slovenian",
+      "fr": "Slovène"
+    },
+    {
+      "code": "so",
+      "en": "Somali",
+      "fr": "Somali"
+    },
+    {
+      "code": "sq",
+      "en": "Albanian",
+      "fr": "Albanais"
+    },
+    {
+      "code": "sr",
+      "en": "Serbian",
+      "fr": "Serbe"
+    },
+    {
+      "code": "sv",
+      "en": "Swedish",
+      "fr": "Suédois"
+    },
+    {
+      "code": "sw",
+      "en": "Swahili",
+      "fr": "Swahili"
+    },
+    {
+      "code": "szl",
+      "en": "Silesian",
+      "fr": "Silésien"
+    },
+    {
+      "code": "ta",
+      "en": "Tamil",
+      "fr": "Tamoul"
+    },
+    {
+      "code": "taq",
+      "en": "Tamasheq",
+      "fr": "Tamasheq"
+    },
+    {
+      "code": "taq_Tfng",
+      "en": "Tamasheq (Tfng)",
+      "fr": "Tamasheq (Tfng)"
+    },
+    {
+      "code": "te",
+      "en": "Telugu",
+      "fr": "Télougou"
+    },
+    {
+      "code": "tg",
+      "en": "Tajik",
+      "fr": "Tadjik"
+    },
+    {
+      "code": "th",
+      "en": "Thai",
+      "fr": "Thaï"
+    },
+    {
+      "code": "tk",
+      "en": "Turkmen",
+      "fr": "Turkmène"
+    },
+    {
+      "code": "fil",
+      "en": "Filipino",
+      "fr": "Filipino"
+    },
+    {
+      "code": "tr",
+      "en": "Turkish",
+      "fr": "Turc"
+    },
+    {
+      "code": "tt",
+      "en": "Tatar",
+      "fr": "Tatar"
+    },
+    {
+      "code": "tzm",
+      "en": "Central Atlas Tamazight",
+      "fr": "Amazighe de l’Atlas central"
+    },
+    {
+      "code": "ug",
+      "en": "Uyghur",
+      "fr": "Ouïghour"
+    },
+    {
+      "code": "uk",
+      "en": "Ukrainian",
+      "fr": "Ukrainien"
+    },
+    {
+      "code": "ur",
+      "en": "Urdu",
+      "fr": "Ourdou"
+    },
+    {
+      "code": "uz",
+      "en": "Uzbek",
+      "fr": "Ouzbek"
+    },
+    {
+      "code": "vec",
+      "en": "Venetian",
+      "fr": "Vénitien"
+    },
+    {
+      "code": "vi",
+      "en": "Vietnamese",
+      "fr": "Vietnamien"
+    },
+    {
+      "code": "wa",
+      "en": "Walloon",
+      "fr": "Wallon"
+    },
+    {
+      "code": "wuu",
+      "en": "Wu Chinese",
+      "fr": "Wu"
+    },
+    {
+      "code": "xh",
+      "en": "Xhosa",
+      "fr": "Xhosa"
+    },
+    {
+      "code": "yi",
+      "en": "Yiddish",
+      "fr": "Yiddish"
+    },
+    {
+      "code": "yo",
+      "en": "Yoruba",
+      "fr": "Yoruba"
+    },
+    {
+      "code": "zh",
+      "en": "Chinese",
+      "fr": "Chinois"
+    },
+    {
+      "code": "zh_Hant",
+      "en": "Chinese (Traditional)",
+      "fr": "Chinois (traditionnel)"
+    },
+    {
+      "code": "zu",
+      "en": "Zulu",
+      "fr": "Zoulou"
+    },
+    {
+      "code": "abt",
+      "en": "Ambulas",
+      "fr": "Ambulas"
+    },
+    {
+      "code": "acf",
+      "en": "Saint Lucian Creole French",
+      "fr": "Saint Lucian Creole French"
+    },
+    {
+      "code": "ada",
+      "en": "Adangme",
+      "fr": "Adangme"
+    },
+    {
+      "code": "adh",
+      "en": "Adhola",
+      "fr": "Adhola"
+    },
+    {
+      "code": "ady",
+      "en": "Adyghe",
+      "fr": "Adyguéen"
+    },
+    {
+      "code": "agr",
+      "en": "Aguaruna",
+      "fr": "Aguaruna"
+    },
+    {
+      "code": "ahk",
+      "en": "Akha",
+      "fr": "Akha"
+    },
+    {
+      "code": "ak",
+      "en": "Akan",
+      "fr": "Akan"
+    },
+    {
+      "code": "akb",
+      "en": "Batak Angkola",
+      "fr": "Batak Angkola"
+    },
+    {
+      "code": "alt",
+      "en": "Southern Altai",
+      "fr": "Altaï du Sud"
+    },
+    {
+      "code": "alz",
+      "en": "Alur",
+      "fr": "Alur"
+    },
+    {
+      "code": "amu",
+      "en": "Guerrero Amuzgo",
+      "fr": "Guerrero Amuzgo"
+    },
+    {
+      "code": "ang",
+      "en": "Old English",
+      "fr": "Ancien anglais"
+    },
+    {
+      "code": "ann",
+      "en": "Obolo",
+      "fr": "Obolo"
+    },
+    {
+      "code": "ape",
+      "en": "Bukiyip",
+      "fr": "Bukiyip"
+    },
+    {
+      "code": "arn",
+      "en": "Mapuche",
+      "fr": "Mapuche"
+    },
+    {
+      "code": "av",
+      "en": "Avaric",
+      "fr": "Avar"
+    },
+    {
+      "code": "awa",
+      "en": "Awadhi",
+      "fr": "Awadhi"
+    },
+    {
+      "code": "ay",
+      "en": "Aymara",
+      "fr": "Aymara"
+    },
+    {
+      "code": "az_RU",
+      "en": "Azerbaijani (RU)",
+      "fr": "Azerbaïdjanais (RU)"
+    },
+    {
+      "code": "bas",
+      "en": "Basaa",
+      "fr": "Bassa"
+    },
+    {
+      "code": "bbc",
+      "en": "Batak Toba",
+      "fr": "Batak toba"
+    },
+    {
+      "code": "bci",
+      "en": "Baoulé",
+      "fr": "Baoulé"
+    },
+    {
+      "code": "ber",
+      "en": "Ber",
+      "fr": "Ber"
+    },
+    {
+      "code": "ber_Latn",
+      "en": "Ber (Latn)",
+      "fr": "Ber (Latn)"
+    },
+    {
+      "code": "bew",
+      "en": "Betawi",
+      "fr": "Betawi"
+    },
+    {
+      "code": "bg_Latn",
+      "en": "Bulgarian",
+      "fr": "Bulgare"
+    },
+    {
+      "code": "bgp",
+      "en": "Eastern Balochi",
+      "fr": "Eastern Balochi"
+    },
+    {
+      "code": "bi",
+      "en": "Bislama",
+      "fr": "Bichelamar"
+    },
+    {
+      "code": "bik",
+      "en": "Bikol",
+      "fr": "Bikol"
+    },
+    {
+      "code": "bim",
+      "en": "Bimoba",
+      "fr": "Bimoba"
+    },
+    {
+      "code": "bn_Latn",
+      "en": "Bangla",
+      "fr": "Bengali"
+    },
+    {
+      "code": "bo",
+      "en": "Tibetan",
+      "fr": "Tibétain"
+    },
+    {
+      "code": "bqc",
+      "en": "Boko (Benin)",
+      "fr": "Boko (Benin)"
+    },
+    {
+      "code": "bru",
+      "en": "Eastern Bru",
+      "fr": "Eastern Bru"
+    },
+    {
+      "code": "brx",
+      "en": "Bodo",
+      "fr": "Bodo"
+    },
+    {
+      "code": "bts",
+      "en": "Batak Simalungun",
+      "fr": "Batak Simalungun"
+    },
+    {
+      "code": "btx",
+      "en": "Batak Karo",
+      "fr": "Batak Karo"
+    },
+    {
+      "code": "bua",
+      "en": "Buriat",
+      "fr": "Bouriate"
+    },
+    {
+      "code": "bus",
+      "en": "Bokobaru",
+      "fr": "Bokobaru"
+    },
+    {
+      "code": "bzj",
+      "en": "Belize Kriol English",
+      "fr": "Belize Kriol English"
+    },
+    {
+      "code": "cab",
+      "en": "Garifuna",
+      "fr": "Garifuna"
+    },
+    {
+      "code": "cac",
+      "en": "Chuj",
+      "fr": "Chuj"
+    },
+    {
+      "code": "cak",
+      "en": "Kaqchikel",
+      "fr": "Kaqchikel"
+    },
+    {
+      "code": "cbk",
+      "en": "Chavacano",
+      "fr": "Chavacano"
+    },
+    {
+      "code": "cce",
+      "en": "Chopi",
+      "fr": "Chopi"
+    },
+    {
+      "code": "ce",
+      "en": "Chechen",
+      "fr": "Tchétchène"
+    },
+    {
+      "code": "cfm",
+      "en": "Falam Chin",
+      "fr": "Falam Chin"
+    },
+    {
+      "code": "ch",
+      "en": "Chamorro",
+      "fr": "Chamorro"
+    },
+    {
+      "code": "chk",
+      "en": "Chuukese",
+      "fr": "Chuuk"
+    },
+    {
+      "code": "chm",
+      "en": "Mari",
+      "fr": "Mari"
+    },
+    {
+      "code": "chr",
+      "en": "Cherokee",
+      "fr": "Cherokee"
+    },
+    {
+      "code": "ckb",
+      "en": "Central Kurdish",
+      "fr": "Sorani"
+    },
+    {
+      "code": "cnh",
+      "en": "Hakha Chin",
+      "fr": "Hakha Chin"
+    },
+    {
+      "code": "co",
+      "en": "Corsican",
+      "fr": "Corse"
+    },
+    {
+      "code": "cr_Latn",
+      "en": "Cree (Latn)",
+      "fr": "Cree (Latn)"
+    },
+    {
+      "code": "crh",
+      "en": "Crimean Tatar",
+      "fr": "Tatar de Crimée"
+    },
+    {
+      "code": "crs",
+      "en": "Seselwa Creole French",
+      "fr": "Créole seychellois"
+    },
+    {
+      "code": "ctd_Latn",
+      "en": "Tedim Chin (Latn)",
+      "fr": "Tedim Chin (Latn)"
+    },
+    {
+      "code": "ctu",
+      "en": "Chol",
+      "fr": "Chol"
+    },
+    {
+      "code": "cuk",
+      "en": "San Blas Kuna",
+      "fr": "San Blas Kuna"
+    },
+    {
+      "code": "cv",
+      "en": "Chuvash",
+      "fr": "Tchouvache"
+    },
+    {
+      "code": "dje",
+      "en": "Zarma",
+      "fr": "Zarma"
+    },
+    {
+      "code": "djk",
+      "en": "Eastern Maroon Creole",
+      "fr": "Eastern Maroon Creole"
+    },
+    {
+      "code": "dln",
+      "en": "Darlong",
+      "fr": "Darlong"
+    },
+    {
+      "code": "doi",
+      "en": "Dogri",
+      "fr": "Dogri"
+    },
+    {
+      "code": "dov",
+      "en": "Dombe",
+      "fr": "Dombe"
+    },
+    {
+      "code": "dtp",
+      "en": "Central Dusun",
+      "fr": "Dusun central"
+    },
+    {
+      "code": "dwr",
+      "en": "Dawro",
+      "fr": "Dawro"
+    },
+    {
+      "code": "dyu",
+      "en": "Dyula",
+      "fr": "Dioula"
+    },
+    {
+      "code": "ee",
+      "en": "Ewe",
+      "fr": "Éwé"
+    },
+    {
+      "code": "el_Latn",
+      "en": "Greek",
+      "fr": "Grec"
+    },
+    {
+      "code": "emp",
+      "en": "Northern Emberá",
+      "fr": "Northern Emberá"
+    },
+    {
+      "code": "enq",
+      "en": "Enga",
+      "fr": "Enga"
+    },
+    {
+      "code": "bum",
+      "en": "Bulu",
+      "fr": "Boulou"
+    },
+    {
+      "code": "ff",
+      "en": "Fula",
+      "fr": "Peul"
+    },
+    {
+      "code": "ffm",
+      "en": "Maasina Fulfulde",
+      "fr": "Maasina Fulfulde"
+    },
+    {
+      "code": "fip",
+      "en": "Fipa",
+      "fr": "Fipa"
+    },
+    {
+      "code": "fj",
+      "en": "Fijian",
+      "fr": "Fidjien"
+    },
+    {
+      "code": "fon",
+      "en": "Fon",
+      "fr": "Fon"
+    },
+    {
+      "code": "frp",
+      "en": "Arpitan",
+      "fr": "Francoprovençal"
+    },
+    {
+      "code": "gag",
+      "en": "Gagauz",
+      "fr": "Gagaouze"
+    },
+    {
+      "code": "gbm",
+      "en": "Garhwali",
+      "fr": "Garhwali"
+    },
+    {
+      "code": "gof",
+      "en": "Gofa",
+      "fr": "Gofa"
+    },
+    {
+      "code": "gom",
+      "en": "Konkani (Devanagari, India)",
+      "fr": "Konkani (dévanagari, Inde)"
+    },
+    {
+      "code": "gom_Latn",
+      "en": "Konkani (Devanagari)",
+      "fr": "Konkani (dévanagari)"
+    },
+    {
+      "code": "gor",
+      "en": "Gorontalo",
+      "fr": "Gorontalo"
+    },
+    {
+      "code": "grc",
+      "en": "Ancient Greek",
+      "fr": "Grec ancien"
+    },
+    {
+      "code": "gsw",
+      "en": "Swiss German",
+      "fr": "Suisse allemand"
+    },
+    {
+      "code": "gu_Latn",
+      "en": "Gujarati",
+      "fr": "Goudjarati"
+    },
+    {
+      "code": "gub",
+      "en": "Guajajára",
+      "fr": "Guajajára"
+    },
+    {
+      "code": "guc",
+      "en": "Wayuu",
+      "fr": "Wayuu"
+    },
+    {
+      "code": "guh",
+      "en": "Guahibo",
+      "fr": "Guahibo"
+    },
+    {
+      "code": "gui",
+      "en": "Eastern Bolivian Guaraní",
+      "fr": "Eastern Bolivian Guaraní"
+    },
+    {
+      "code": "gv",
+      "en": "Manx",
+      "fr": "Mannois"
+    },
+    {
+      "code": "gvl",
+      "en": "Gulay",
+      "fr": "Gulay"
+    },
+    {
+      "code": "gym",
+      "en": "Ngäbere",
+      "fr": "Ngäbere"
+    },
+    {
+      "code": "haw",
+      "en": "Hawaiian",
+      "fr": "Hawaïen"
+    },
+    {
+      "code": "hi_Latn",
+      "en": "Hindi (Latin)",
+      "fr": "Hindi (latin)"
+    },
+    {
+      "code": "hif",
+      "en": "Fiji Hindi",
+      "fr": "Hindi fidjien"
+    },
+    {
+      "code": "hil",
+      "en": "Hiligaynon",
+      "fr": "Hiligaynon"
+    },
+    {
+      "code": "hmn",
+      "en": "Hmong",
+      "fr": "Hmong"
+    },
+    {
+      "code": "ho",
+      "en": "Hiri Motu",
+      "fr": "Hiri motu"
+    },
+    {
+      "code": "ht",
+      "en": "Haitian Creole",
+      "fr": "Créole haïtien"
+    },
+    {
+      "code": "hui",
+      "en": "Huli",
+      "fr": "Huli"
+    },
+    {
+      "code": "hus",
+      "en": "Huastec",
+      "fr": "Huastec"
+    },
+    {
+      "code": "hvn",
+      "en": "Sabu",
+      "fr": "Sabu"
+    },
+    {
+      "code": "iba",
+      "en": "Iban",
+      "fr": "Iban"
+    },
+    {
+      "code": "ibb",
+      "en": "Ibibio",
+      "fr": "Ibibio"
+    },
+    {
+      "code": "ify",
+      "en": "Keley-I Kallahan",
+      "fr": "Keley-I Kallahan"
+    },
+    {
+      "code": "ilo",
+      "en": "Iloko",
+      "fr": "Ilocano"
+    },
+    {
+      "code": "inb",
+      "en": "Inga",
+      "fr": "Inga"
+    },
+    {
+      "code": "iso",
+      "en": "Isoko",
+      "fr": "Isoko"
+    },
+    {
+      "code": "ium",
+      "en": "Iu Mien",
+      "fr": "Iu Mien"
+    },
+    {
+      "code": "izz",
+      "en": "Izii",
+      "fr": "Izii"
+    },
+    {
+      "code": "jac",
+      "en": "Popti'",
+      "fr": "Popti'"
+    },
+    {
+      "code": "jam",
+      "en": "Jamaican Creole English",
+      "fr": "Créole jamaïcain"
+    },
+    {
+      "code": "jiv",
+      "en": "Shuar",
+      "fr": "Shuar"
+    },
+    {
+      "code": "jvn",
+      "en": "Caribbean Javanese",
+      "fr": "Caribbean Javanese"
+    },
+    {
+      "code": "kaa",
+      "en": "Kara-Kalpak",
+      "fr": "Karakalpak"
+    },
+    {
+      "code": "kaa_Latn",
+      "en": "Kara-Kalpak (Latin)",
+      "fr": "Karakalpak (latin)"
+    },
+    {
+      "code": "kac",
+      "en": "Kachin",
+      "fr": "Kachin"
+    },
+    {
+      "code": "kbd",
+      "en": "Kabardian",
+      "fr": "Kabarde"
+    },
+    {
+      "code": "kbp",
+      "en": "Kabiyè",
+      "fr": "Kabiyè"
+    },
+    {
+      "code": "kek",
+      "en": "Kekchí",
+      "fr": "Kekchí"
+    },
+    {
+      "code": "kg",
+      "en": "Kongo",
+      "fr": "Kikongo"
+    },
+    {
+      "code": "kha",
+      "en": "Khasi",
+      "fr": "Khasi"
+    },
+    {
+      "code": "kj",
+      "en": "Kuanyama",
+      "fr": "Kuanyama"
+    },
+    {
+      "code": "kjg",
+      "en": "Khmu",
+      "fr": "Khmu"
+    },
+    {
+      "code": "kjh",
+      "en": "Khakas",
+      "fr": "Khakas"
+    },
+    {
+      "code": "kl",
+      "en": "Kalaallisut",
+      "fr": "Groenlandais"
+    },
+    {
+      "code": "kmb",
+      "en": "Kimbundu",
+      "fr": "Kimboundou"
+    },
+    {
+      "code": "kmz_Latn",
+      "en": "Khorasani Turkish (Latn)",
+      "fr": "Khorasani Turkish (Latn)"
+    },
+    {
+      "code": "kn_Latn",
+      "en": "Kannada",
+      "fr": "Kannada"
+    },
+    {
+      "code": "knj",
+      "en": "Western Kanjobal",
+      "fr": "Western Kanjobal"
+    },
+    {
+      "code": "koi",
+      "en": "Komi-Permyak",
+      "fr": "Komi-permiak"
+    },
+    {
+      "code": "kos",
+      "en": "Kosraean",
+      "fr": "Kosraéen"
+    },
+    {
+      "code": "krc",
+      "en": "Karachay-Balkar",
+      "fr": "Karatchaï balkar"
+    },
+    {
+      "code": "kri",
+      "en": "Krio",
+      "fr": "Krio"
+    },
+    {
+      "code": "ksd",
+      "en": "Kuanua",
+      "fr": "Kuanua"
+    },
+    {
+      "code": "ksw",
+      "en": "S'gaw Karen",
+      "fr": "S'gaw Karen"
+    },
+    {
+      "code": "ktu",
+      "en": "Kituba (Democratic Republic of Congo)",
+      "fr": "Kituba (Democratic Republic of Congo)"
+    },
+    {
+      "code": "kum",
+      "en": "Kumyk",
+      "fr": "Koumyk"
+    },
+    {
+      "code": "kv",
+      "en": "Komi",
+      "fr": "Komi"
+    },
+    {
+      "code": "kw",
+      "en": "Cornish",
+      "fr": "Cornique"
+    },
+    {
+      "code": "kwi",
+      "en": "Awa-Cuaiquer",
+      "fr": "Awa-Cuaiquer"
+    },
+    {
+      "code": "laj",
+      "en": "Lango (Uganda)",
+      "fr": "Lango (Uganda)"
+    },
+    {
+      "code": "lg",
+      "en": "Ganda",
+      "fr": "Ganda"
+    },
+    {
+      "code": "lhu",
+      "en": "Lahu",
+      "fr": "Lahu"
+    },
+    {
+      "code": "ln",
+      "en": "Lingala",
+      "fr": "Lingala"
+    },
+    {
+      "code": "lo",
+      "en": "Lao",
+      "fr": "Lao"
+    },
+    {
+      "code": "lrc",
+      "en": "Northern Luri",
+      "fr": "Lori du Nord"
+    },
+    {
+      "code": "lu",
+      "en": "Luba-Katanga",
+      "fr": "Luba-katanga (kiluba)"
+    },
+    {
+      "code": "lus",
+      "en": "Mizo",
+      "fr": "Lushaï"
+    },
+    {
+      "code": "mad",
+      "en": "Madurese",
+      "fr": "Madurais"
+    },
+    {
+      "code": "mai",
+      "en": "Maithili",
+      "fr": "Maïthili"
+    },
+    {
+      "code": "mak",
+      "en": "Makasar",
+      "fr": "Makassar"
+    },
+    {
+      "code": "mam",
+      "en": "Mam",
+      "fr": "Mam"
+    },
+    {
+      "code": "mas",
+      "en": "Masai",
+      "fr": "Maasaï"
+    },
+    {
+      "code": "maz",
+      "en": "Central Mazahua",
+      "fr": "Central Mazahua"
+    },
+    {
+      "code": "mbt",
+      "en": "Matigsalug Manobo",
+      "fr": "Matigsalug Manobo"
+    },
+    {
+      "code": "mdf",
+      "en": "Moksha",
+      "fr": "Mokcha"
+    },
+    {
+      "code": "meo",
+      "en": "Kedah Malay",
+      "fr": "Kedah Malay"
+    },
+    {
+      "code": "meu",
+      "en": "Motu",
+      "fr": "Motu"
+    },
+    {
+      "code": "mfe",
+      "en": "Morisyen",
+      "fr": "Créole mauricien"
+    },
+    {
+      "code": "mgh",
+      "en": "Makhuwa-Meetto",
+      "fr": "Makua"
+    },
+    {
+      "code": "mh",
+      "en": "Marshallese",
+      "fr": "Marshallais"
+    },
+    {
+      "code": "min",
+      "en": "Minangkabau",
+      "fr": "Minangkabau"
+    },
+    {
+      "code": "miq",
+      "en": "Mískito",
+      "fr": "Mískito"
+    },
+    {
+      "code": "mkn",
+      "en": "Kupang Malay",
+      "fr": "Kupang Malay"
+    },
+    {
+      "code": "ml_Latn",
+      "en": "Malayalam",
+      "fr": "Malayalam"
+    },
+    {
+      "code": "mps",
+      "en": "Dadibi",
+      "fr": "Dadibi"
+    },
+    {
+      "code": "mqy",
+      "en": "Manggarai",
+      "fr": "Manggarai"
+    },
+    {
+      "code": "mrj",
+      "en": "Western Mari",
+      "fr": "Mari occidental"
+    },
+    {
+      "code": "mrw",
+      "en": "Maranao",
+      "fr": "Maranao"
+    },
+    {
+      "code": "ms_Arab",
+      "en": "Malay (Arabic)",
+      "fr": "Malais (arabe)"
+    },
+    {
+      "code": "ms_Arab_BN",
+      "en": "Malay (Arabic, Brunei)",
+      "fr": "Malais (arabe, Brunei)"
+    },
+    {
+      "code": "msb",
+      "en": "Masbatenyo",
+      "fr": "Masbatenyo"
+    },
+    {
+      "code": "msi",
+      "en": "Sabah Malay",
+      "fr": "Sabah Malay"
+    },
+    {
+      "code": "msm",
+      "en": "Agusan Manobo",
+      "fr": "Agusan Manobo"
+    },
+    {
+      "code": "myv",
+      "en": "Erzya",
+      "fr": "Erzya"
+    },
+    {
+      "code": "nan_Latn_TW",
+      "en": "Min Nan Chinese (Latn_TW)",
+      "fr": "Minnan (Latn_TW)"
+    },
+    {
+      "code": "ndc_ZW",
+      "en": "Ndau (ZW)",
+      "fr": "Ndau (ZW)"
+    },
+    {
+      "code": "new",
+      "en": "Newari",
+      "fr": "Newari"
+    },
+    {
+      "code": "ngu",
+      "en": "Guerrero Nahuatl",
+      "fr": "Guerrero Nahuatl"
+    },
+    {
+      "code": "nhe",
+      "en": "Eastern Huasteca Nahuatl",
+      "fr": "Eastern Huasteca Nahuatl"
+    },
+    {
+      "code": "nia",
+      "en": "Nias",
+      "fr": "Niha"
+    },
+    {
+      "code": "nij",
+      "en": "Ngaju",
+      "fr": "Ngaju"
+    },
+    {
+      "code": "niq",
+      "en": "Nandi",
+      "fr": "Nandi"
+    },
+    {
+      "code": "nnb",
+      "en": "Nande",
+      "fr": "Nande"
+    },
+    {
+      "code": "noa",
+      "en": "Woun Meu",
+      "fr": "Woun Meu"
+    },
+    {
+      "code": "nog",
+      "en": "Nogai",
+      "fr": "Nogaï"
+    },
+    {
+      "code": "nr",
+      "en": "South Ndebele",
+      "fr": "Ndébélé du Sud"
+    },
+    {
+      "code": "nso",
+      "en": "Northern Sotho",
+      "fr": "Sotho du Nord"
+    },
+    {
+      "code": "nut",
+      "en": "Nung (Viet Nam)",
+      "fr": "Nung (Viet Nam)"
+    },
+    {
+      "code": "nv",
+      "en": "Navajo",
+      "fr": "Navajo"
+    },
+    {
+      "code": "ny",
+      "en": "Nyanja",
+      "fr": "Chewa"
+    },
+    {
+      "code": "nyu",
+      "en": "Nyungwe",
+      "fr": "Nyungwe"
+    },
+    {
+      "code": "nzi",
+      "en": "Nzima",
+      "fr": "Nzema"
+    },
+    {
+      "code": "oj",
+      "en": "Ojibwa",
+      "fr": "Ojibwa"
+    },
+    {
+      "code": "om",
+      "en": "Oromo",
+      "fr": "Oromo"
+    },
+    {
+      "code": "os",
+      "en": "Ossetic",
+      "fr": "Ossète"
+    },
+    {
+      "code": "otq",
+      "en": "Querétaro Otomi",
+      "fr": "Querétaro Otomi"
+    },
+    {
+      "code": "pag",
+      "en": "Pangasinan",
+      "fr": "Pangasinan"
+    },
+    {
+      "code": "pap",
+      "en": "Papiamento",
+      "fr": "Papiamento"
+    },
+    {
+      "code": "pau",
+      "en": "Palauan",
+      "fr": "Palau"
+    },
+    {
+      "code": "pck",
+      "en": "Paite Chin",
+      "fr": "Paite Chin"
+    },
+    {
+      "code": "pis",
+      "en": "Pijin",
+      "fr": "Pijin"
+    },
+    {
+      "code": "pon",
+      "en": "Pohnpeian",
+      "fr": "Pohnpei"
+    },
+    {
+      "code": "ppk",
+      "en": "Uma",
+      "fr": "Uma"
+    },
+    {
+      "code": "qu",
+      "en": "Quechua",
+      "fr": "Quechua"
+    },
+    {
+      "code": "qub",
+      "en": "Huallaga Huánuco Quechua",
+      "fr": "Huallaga Huánuco Quechua"
+    },
+    {
+      "code": "quc",
+      "en": "Kʼicheʼ",
+      "fr": "Quiché"
+    },
+    {
+      "code": "quf",
+      "en": "Lambayeque Quechua",
+      "fr": "Lambayeque Quechua"
+    },
+    {
+      "code": "quh",
+      "en": "South Bolivian Quechua",
+      "fr": "South Bolivian Quechua"
+    },
+    {
+      "code": "qup",
+      "en": "Southern Pastaza Quechua",
+      "fr": "Southern Pastaza Quechua"
+    },
+    {
+      "code": "quy",
+      "en": "Ayacucho Quechua",
+      "fr": "Ayacucho Quechua"
+    },
+    {
+      "code": "qvc",
+      "en": "Cajamarca Quechua",
+      "fr": "Cajamarca Quechua"
+    },
+    {
+      "code": "qvi",
+      "en": "Imbabura Highland Quichua",
+      "fr": "Imbabura Highland Quichua"
+    },
+    {
+      "code": "qvz",
+      "en": "Northern Pastaza Quichua",
+      "fr": "Northern Pastaza Quichua"
+    },
+    {
+      "code": "qxr",
+      "en": "Cañar Highland Quichua",
+      "fr": "Cañar Highland Quichua"
+    },
+    {
+      "code": "raj",
+      "en": "Rajasthani",
+      "fr": "Rajasthani"
+    },
+    {
+      "code": "rcf",
+      "en": "Réunion Creole French",
+      "fr": "Réunion Creole French"
+    },
+    {
+      "code": "rki",
+      "en": "Rakhine",
+      "fr": "Rakhine"
+    },
+    {
+      "code": "rm",
+      "en": "Romansh",
+      "fr": "Romanche"
+    },
+    {
+      "code": "rmc",
+      "en": "Carpathian Romani",
+      "fr": "Carpathian Romani"
+    },
+    {
+      "code": "rn",
+      "en": "Rundi",
+      "fr": "Roundi"
+    },
+    {
+      "code": "rom",
+      "en": "Romany",
+      "fr": "Romani"
+    },
+    {
+      "code": "ru_Latn",
+      "en": "Russian",
+      "fr": "Russe"
+    },
+    {
+      "code": "rwo",
+      "en": "Rawa",
+      "fr": "Rawa"
+    },
+    {
+      "code": "sa",
+      "en": "Sanskrit",
+      "fr": "Sanskrit"
+    },
+    {
+      "code": "sah",
+      "en": "Yakut",
+      "fr": "Iakoute"
+    },
+    {
+      "code": "sat_Latn",
+      "en": "Santali (Ol Chiki)",
+      "fr": "Santali (ol-chiki)"
+    },
+    {
+      "code": "sda",
+      "en": "Toraja-Sa'dan",
+      "fr": "Toraja-Sa'dan"
+    },
+    {
+      "code": "seh",
+      "en": "Sena",
+      "fr": "Cisena"
+    },
+    {
+      "code": "sg",
+      "en": "Sango",
+      "fr": "Sango"
+    },
+    {
+      "code": "shp",
+      "en": "Shipibo-Conibo",
+      "fr": "Shipibo-Conibo"
+    },
+    {
+      "code": "sja",
+      "en": "Epena",
+      "fr": "Epena"
+    },
+    {
+      "code": "skr",
+      "en": "Saraiki",
+      "fr": "Saraiki"
+    },
+    {
+      "code": "sm",
+      "en": "Samoan",
+      "fr": "Samoan"
+    },
+    {
+      "code": "smt",
+      "en": "Simte",
+      "fr": "Simte"
+    },
+    {
+      "code": "sn",
+      "en": "Shona",
+      "fr": "Shona"
+    },
+    {
+      "code": "spp",
+      "en": "Supyire Senoufo",
+      "fr": "Supyire Senoufo"
+    },
+    {
+      "code": "srm",
+      "en": "Saramaccan",
+      "fr": "Saramaccan"
+    },
+    {
+      "code": "srn",
+      "en": "Sranan Tongo",
+      "fr": "Sranan tongo"
+    },
+    {
+      "code": "ss",
+      "en": "Swati",
+      "fr": "Swati"
+    },
+    {
+      "code": "st",
+      "en": "Southern Sotho",
+      "fr": "Sotho du Sud"
+    },
+    {
+      "code": "stq",
+      "en": "Saterland Frisian",
+      "fr": "Saterlandais"
+    },
+    {
+      "code": "su",
+      "en": "Sundanese",
+      "fr": "Soundanais"
+    },
+    {
+      "code": "sus",
+      "en": "Susu",
+      "fr": "Soussou"
+    },
+    {
+      "code": "suz",
+      "en": "Sunwar",
+      "fr": "Sunwar"
+    },
+    {
+      "code": "sxn",
+      "en": "Sangir",
+      "fr": "Sangir"
+    },
+    {
+      "code": "syr",
+      "en": "Syriac",
+      "fr": "Syriaque"
+    },
+    {
+      "code": "ta_Latn",
+      "en": "Tamil",
+      "fr": "Tamoul"
+    },
+    {
+      "code": "tab",
+      "en": "Tabassaran",
+      "fr": "Tabassaran"
+    },
+    {
+      "code": "taj",
+      "en": "Eastern Tamang",
+      "fr": "Eastern Tamang"
+    },
+    {
+      "code": "tbz",
+      "en": "Ditammari",
+      "fr": "Ditammari"
+    },
+    {
+      "code": "tca",
+      "en": "Ticuna",
+      "fr": "Ticuna"
+    },
+    {
+      "code": "tcy",
+      "en": "Tulu",
+      "fr": "Toulou"
+    },
+    {
+      "code": "tdx",
+      "en": "Tandroy-Mahafaly Malagasy",
+      "fr": "Tandroy-Mahafaly Malagasy"
+    },
+    {
+      "code": "te_Latn",
+      "en": "Telugu",
+      "fr": "Télougou"
+    },
+    {
+      "code": "teo",
+      "en": "Teso",
+      "fr": "Teso"
+    },
+    {
+      "code": "tet",
+      "en": "Tetum",
+      "fr": "Tétoum"
+    },
+    {
+      "code": "ti",
+      "en": "Tigrinya",
+      "fr": "Tigrigna"
+    },
+    {
+      "code": "tiv",
+      "en": "Tiv",
+      "fr": "Tiv"
+    },
+    {
+      "code": "tks",
+      "en": "Takestani",
+      "fr": "Takestani"
+    },
+    {
+      "code": "tlh",
+      "en": "Klingon",
+      "fr": "Klingon"
+    },
+    {
+      "code": "tll",
+      "en": "Tetela",
+      "fr": "Tetela"
+    },
+    {
+      "code": "tly_IR",
+      "en": "Talysh (IR)",
+      "fr": "Talysh (IR)"
+    },
+    {
+      "code": "tn",
+      "en": "Tswana",
+      "fr": "Tswana"
+    },
+    {
+      "code": "to",
+      "en": "Tongan",
+      "fr": "Tongien"
+    },
+    {
+      "code": "toj",
+      "en": "Tojolabal",
+      "fr": "Tojolabal"
+    },
+    {
+      "code": "trp",
+      "en": "Kok Borok",
+      "fr": "Kok Borok"
+    },
+    {
+      "code": "ts",
+      "en": "Tsonga",
+      "fr": "Tsonga"
+    },
+    {
+      "code": "tsc",
+      "en": "Tswa",
+      "fr": "Tswa"
+    },
+    {
+      "code": "tsg",
+      "en": "Tausug",
+      "fr": "Tausug"
+    },
+    {
+      "code": "tuc",
+      "en": "Mutu",
+      "fr": "Mutu"
+    },
+    {
+      "code": "tvl",
+      "en": "Tuvalu",
+      "fr": "Tuvalu"
+    },
+    {
+      "code": "twu",
+      "en": "Termanu",
+      "fr": "Termanu"
+    },
+    {
+      "code": "tyv",
+      "en": "Tuvinian",
+      "fr": "Touvain"
+    },
+    {
+      "code": "tyz",
+      "en": "Tày",
+      "fr": "Tày"
+    },
+    {
+      "code": "tzh",
+      "en": "Tzeltal",
+      "fr": "Tzeltal"
+    },
+    {
+      "code": "tzj",
+      "en": "Tz'utujil",
+      "fr": "Tz'utujil"
+    },
+    {
+      "code": "tzo",
+      "en": "Tzotzil",
+      "fr": "Tzotzil"
+    },
+    {
+      "code": "ubu",
+      "en": "Umbu-Ungu",
+      "fr": "Umbu-Ungu"
+    },
+    {
+      "code": "udm",
+      "en": "Udmurt",
+      "fr": "Oudmourte"
+    },
+    {
+      "code": "ve",
+      "en": "Venda",
+      "fr": "Venda"
+    },
+    {
+      "code": "wal",
+      "en": "Wolaytta",
+      "fr": "Walamo"
+    },
+    {
+      "code": "war",
+      "en": "Waray",
+      "fr": "Waray"
+    },
+    {
+      "code": "wo",
+      "en": "Wolof",
+      "fr": "Wolof"
+    },
+    {
+      "code": "xal",
+      "en": "Kalmyk",
+      "fr": "Kalmouk"
+    },
+    {
+      "code": "yap",
+      "en": "Yapese",
+      "fr": "Yapois"
+    },
+    {
+      "code": "yua",
+      "en": "Yucateco",
+      "fr": "Yucateco"
+    },
+    {
+      "code": "zap",
+      "en": "Zapotec",
+      "fr": "Zapotèque"
+    },
+    {
+      "code": "zh_Latn",
+      "en": "Chinese (Latin)",
+      "fr": "Chinois (latin)"
+    },
+    {
+      "code": "zne",
+      "en": "Zande (individual language)",
+      "fr": "Zande (individual language)"
+    },
+    {
+      "code": "zza",
+      "en": "Zaza",
+      "fr": "Zazaki"
+    }
+  ],
+  "asr_languages": [
+    "af",
+    "am",
+    "ar",
+    "as",
+    "az",
+    "ba",
+    "be",
+    "bg",
+    "bn",
+    "bo",
+    "br",
+    "bs",
+    "ca",
+    "cs",
+    "cy",
+    "da",
+    "de",
+    "el",
+    "en",
+    "es",
+    "et",
+    "eu",
+    "fa",
+    "fi",
+    "fil",
+    "fo",
+    "fr",
+    "gl",
+    "gu",
+    "ha",
+    "haw",
+    "he",
+    "hi",
+    "hr",
+    "ht",
+    "hu",
+    "hy",
+    "id",
+    "is",
+    "it",
+    "ja",
+    "jv",
+    "ka",
+    "kk",
+    "km",
+    "kn",
+    "ko",
+    "la",
+    "lb",
+    "ln",
+    "lo",
+    "lt",
+    "lv",
+    "mg",
+    "mi",
+    "mk",
+    "ml",
+    "mn",
+    "mr",
+    "ms",
+    "mt",
+    "my",
+    "ne",
+    "nl",
+    "nn",
+    "no",
+    "oc",
+    "pa",
+    "pl",
+    "ps",
+    "pt",
+    "ro",
+    "ru",
+    "sa",
+    "sd",
+    "si",
+    "sk",
+    "sl",
+    "sn",
+    "so",
+    "sq",
+    "sr",
+    "su",
+    "sv",
+    "sw",
+    "ta",
+    "te",
+    "tg",
+    "th",
+    "tk",
+    "tr",
+    "tt",
+    "uk",
+    "ur",
+    "uz",
+    "vi",
+    "yi",
+    "yo",
+    "zh"
+  ]
+}

@@ -16,17 +16,28 @@ import shutil
 import threading
 import time
 from collections.abc import Callable, Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 from platformdirs import user_cache_dir
 
+from src.confidence import annotate_recognition
 from src.hardware import HardwareProfile, detect_hardware
 from src.jobs import check_cancelled
 from src.model_cache import complete_modern_ids
-from src.models import AUTO_FAST_MODEL_ID, AUTO_MODEL_ID, MODEL_CATALOG, get_model, mlx_repository
+from src.models import (
+    AUTO_FAST_MODEL_ID,
+    AUTO_MODEL_ID,
+    AUTO_MULTILINGUAL_MODEL_ID,
+    MODEL_CATALOG,
+    get_model,
+    mlx_repository,
+)
+from src.overlap import OverlapSeparator
+from src.translation import TranslationEngine
+from src.translation_languages import normalize_language
 
 ProgressCallback = Callable[[float], None]
 LoadStatusCallback = Callable[[str, str, str], None]
@@ -41,6 +52,14 @@ class TranscriptionOptions:
     word_timestamps: bool = True
     initial_prompt: str | None = None
     cancel_event: threading.Event | None = None
+    target_language: str | None = None
+    conversation: bool = False
+    partner_language: str | None = None
+    third_language: str | None = None
+    offline: bool = False
+    overlap_separation: bool = False
+    activity_callback: Callable[[str], None] | None = None
+    original_callback: Callable[[dict[str, Any]], None] | None = None
 
 
 @dataclass
@@ -64,6 +83,8 @@ class TranscriberEngine:
         self.compute_type = "int8"
         self.current_status: EngineStatus | None = None
         self._load_lock = threading.RLock()
+        self.translator = TranslationEngine()
+        self.separator = OverlapSeparator()
         self.model_cache = Path(user_cache_dir("LocalTranscriberPro", "Vhaloo")) / "models"
         self.model_cache.mkdir(parents=True, exist_ok=True)
 
@@ -114,7 +135,27 @@ class TranscriberEngine:
         options: TranscriptionOptions | None = None,
     ) -> EngineStatus:
         with self._load_lock:
-            return self._load_model_unlocked(model_id, device_mode, status_callback, options)
+            if options and options.target_language:
+                options = replace(options, task="transcribe")
+            if (self.current_status is None or self.current_status.requested_model_id != model_id
+                    or self.current_status.requested_device != self._normalize_device(device_mode)):
+                self.translator.unload()
+            status = self._load_model_unlocked(model_id, device_mode, status_callback, options)
+            if options and options.target_language:
+                if status_callback:
+                    status_callback("translation_prepare", "MADLAD-400", status.device)
+                self.translator.load(self.hardware, allow_download=not options.offline, cancel_event=options.cancel_event)
+            else:
+                self.translator.unload()
+            if options and options.overlap_separation:
+                if status_callback:
+                    status_callback("separation_prepare", "SepFormer · 2", "cpu")
+                self.separator.load(allow_download=not options.offline, cancel_event=options.cancel_event)
+            return status
+
+    def reset_translation_session(self, options: TranscriptionOptions) -> None:
+        if options.target_language:
+            self.translator.reset_conversation(options.target_language, options.partner_language)
 
     def _load_model_unlocked(
         self,
@@ -158,10 +199,10 @@ class TranscriberEngine:
             )
         target_device = compatibility.device
         available_before_load = self.hardware.effective_free_vram_gb
-        fallback_reason = "" if model_id in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, requested_model} else "hardware_or_task_guard"
+        fallback_reason = "" if model_id in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID, requested_model} else "hardware_or_task_guard"
         report("model_cached" if requested_model in cached else "model_download", requested_model, target_device)
 
-        if get_model(requested_model).family in {"qwen", "parakeet"}:
+        if get_model(requested_model).family in {"qwen", "parakeet", "omnilingual"}:
             from src.modern_backends import ParakeetBackend, QwenBackend
 
             report("engine_start", requested_model, target_device)
@@ -170,6 +211,11 @@ class TranscriberEngine:
                 if spec.family == "qwen":
                     self.model = QwenBackend(spec, target_device, self.model_cache)
                     backend, compute = "qwen3-asr", "float32" if target_device == "cpu" else "float16"
+                elif spec.family == "omnilingual":
+                    from src.omnilingual import OmnilingualBackend
+                    self.model = OmnilingualBackend(self.hardware.cpu_threads,
+                        offline=bool(options and options.offline), cancel_event=options.cancel_event if options else None)
+                    backend, compute, target_device = "omnilingual-onnx", "float32", "cpu"
                 else:
                     self.model = ParakeetBackend(spec, self.model_cache, self.hardware.cpu_threads)
                     backend, compute, target_device = "parakeet-onnx", "int8", "cpu"
@@ -241,6 +287,7 @@ class TranscriberEngine:
                             compute_type=attempt_compute,
                             cpu_threads=max(1, min(self.hardware.cpu_threads, 12)),
                             download_root=str(self.model_cache),
+                            local_files_only=attempt_model in cached or bool(options and options.offline),
                         )
                         if (attempt_model, attempt_device) != attempts[0]:
                             fallback_reason = "engine_retry"
@@ -364,6 +411,8 @@ class TranscriberEngine:
         # Prevent model replacement while lazy generators are executing.
         with self._load_lock:
             check_cancelled(options.cancel_event)
+            if options.target_language:
+                options = replace(options, task="transcribe")
             if self.model_name and not get_model(self.model_name).supports(options.language, options.task):
                 mode = self.current_status.requested_device if self.current_status else "auto"
                 self._load_model_unlocked(AUTO_MODEL_ID, mode, options=options)
@@ -376,12 +425,19 @@ class TranscriberEngine:
         if self.model is None or not self.model_name:
             raise RuntimeError("Model not loaded")
 
+        if options.overlap_separation:
+            return self._transcribe_overlap(source, options, progress_callback)
+
         duration = self.audio_duration(source)
         started = time.monotonic()
-        if self.backend in {"qwen3-asr", "parakeet-onnx"}:
+        if options.activity_callback:
+            options.activity_callback("transcribing")
+        if self.backend in {"qwen3-asr", "parakeet-onnx", "omnilingual-onnx"}:
             from src.modern_backends import transcribe_modern
 
             result = transcribe_modern(self.model, source, options, duration, progress_callback)
+            if self.backend == "omnilingual-onnx":
+                result["language_probability"] = self.model.language_probability
         elif self.backend == "faster-whisper":
             result = self._transcribe_faster(source, options, duration, progress_callback)
         elif self.backend == "mlx":
@@ -395,10 +451,56 @@ class TranscriberEngine:
         result["model"] = self.model_name
         result["device"] = self.device
         result["backend"] = self.backend
+        annotate_recognition(result)
+        if options.target_language:
+            if options.original_callback:
+                options.original_callback(result)
+            if options.activity_callback:
+                options.activity_callback("translating")
+            result = self.translator.translate_result(result, options.target_language, options.conversation,
+                                                      options.third_language, options.cancel_event)
+            result["translation_device"] = self.translator.device
+            result["processing_seconds"] = time.monotonic() - started
         check_cancelled(options.cancel_event)
         if progress_callback:
             progress_callback(1.0)
         return result
+
+    def _transcribe_overlap(self, source, options, progress_callback):
+        from src.media import iter_audio_chunks
+        from src.segments import shift_segments
+
+        started = time.monotonic()
+        duration = self.audio_duration(source)
+        blocks = ((offset / 16000, source[offset:offset + 6 * 16000]) for offset in range(0, len(source), 6 * 16000)) \
+            if isinstance(source, np.ndarray) else iter_audio_chunks(source, seconds=6)
+        segments = []
+        language = None
+        for offset, audio in blocks:
+            if options.activity_callback:
+                options.activity_callback("separating")
+            sources = self.separator.separate(audio, options.cancel_event)
+            for index, separated in enumerate(sources):
+                check_cancelled(options.cancel_event)
+                if float(np.sqrt(np.mean(separated ** 2))) < 0.001:
+                    continue
+                result = self._transcribe_locked(separated, replace(options, overlap_separation=False, original_callback=None), None)
+                language = result.get("language") or language
+                values = shift_segments(result.get("segments", []), offset)
+                for item in values:
+                    item.update(overlap_experimental=True, separated_source=index + 1,
+                                speaker=f"Separated {index + 1} · {offset:.0f}s")
+                segments.extend(values)
+            if progress_callback and duration:
+                progress_callback(min(0.99, (offset + len(audio) / 16000) / duration))
+        segments.sort(key=lambda item: item["start"])
+        if progress_callback:
+            progress_callback(1.0)
+        return {"text": " ".join(item["text"] for item in segments), "segments": segments, "language": language,
+                "duration": duration, "processing_seconds": time.monotonic() - started, "model": self.model_name,
+                "device": self.device, "backend": self.backend, "overlap_experimental": True,
+                "translation_device": self.translator.device if options.target_language else None,
+                "conversation_pair": list(self.translator.router.pair) if options.conversation and self.translator.router else []}
 
     def _transcribe_faster(
         self,
@@ -408,6 +510,16 @@ class TranscriberEngine:
         progress_callback: ProgressCallback | None,
     ) -> dict[str, Any]:
         language = None if options.language in {None, "", "auto"} else options.language
+        constrained_probability = None
+        pair = self.translator.router.pair if self.translator.router else ()
+        if options.conversation and language is None and len(pair) == 2 and isinstance(source, np.ndarray) and hasattr(self.model, "detect_language"):
+            detected, probability, candidates = self.model.detect_language(audio=source, vad_filter=bool(options.vad_filter))
+            allowed = [item for item in candidates if normalize_language(item[0]) in pair]
+            candidate = max(allowed, key=lambda item: item[1], default=None)
+            # Keep strong evidence of an unexpected language; do not force all
+            # sound into a previously learned pair. Confidence stays absolute.
+            if candidate and candidate[1] >= 0.15 and (probability < 0.65 or normalize_language(detected) in pair):
+                language, constrained_probability = candidate
         segments_iter, info = self.model.transcribe(
             source,
             task=options.task,
@@ -437,6 +549,8 @@ class TranscriberEngine:
                 "end": float(item.end),
                 "text": item.text.strip(),
                 "words": words,
+                "avg_logprob": getattr(item, "avg_logprob", None),
+                "no_speech_prob": getattr(item, "no_speech_prob", None),
             }
             segments.append(segment)
             if progress_callback and duration > 0:
@@ -445,7 +559,7 @@ class TranscriberEngine:
             "text": " ".join(item["text"] for item in segments).strip(),
             "segments": segments,
             "language": getattr(info, "language", language),
-            "language_probability": getattr(info, "language_probability", None),
+            "language_probability": constrained_probability if constrained_probability is not None else getattr(info, "language_probability", None),
         }
 
     def _transcribe_mlx(
@@ -503,6 +617,7 @@ class TranscriberEngine:
                     "end": float(item.get("end", 0.0)),
                     "text": str(item.get("text", "")).strip(),
                     "words": item.get("words", []),
+                    "avg_logprob": item.get("avg_logprob"),
                 }
             )
         return {
@@ -563,6 +678,9 @@ class TranscriberEngine:
             except OSError:
                 continue
         found: set[str] = complete_modern_ids(self.model_cache)
+        from src.omnilingual import cached_checkpoint
+        if cached_checkpoint():
+            found.add("omnilingual-1b-v2")
         for spec in sorted(MODEL_CATALOG, key=lambda item: len(item.model_id), reverse=True):
             if spec.family != "whisper":
                 continue

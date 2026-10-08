@@ -71,7 +71,7 @@ def format_timestamp(seconds: float, decimal: str = ",") -> str:
 def create_srt_content(segments: Iterable[dict[str, Any]]) -> str:
     blocks = []
     for segment in segments:
-        text = str(segment.get("text", "")).strip()
+        text = subtitle_text(segment)
         if not text:
             continue
         blocks.append(
@@ -84,7 +84,7 @@ def create_srt_content(segments: Iterable[dict[str, Any]]) -> str:
 def create_vtt_content(segments: Iterable[dict[str, Any]]) -> str:
     blocks = ["WEBVTT"]
     for segment in segments:
-        text = str(segment.get("text", "")).strip()
+        text = subtitle_text(segment)
         if not text:
             continue
         blocks.append(
@@ -92,6 +92,15 @@ def create_vtt_content(segments: Iterable[dict[str, Any]]) -> str:
             f"{format_timestamp(segment.get('end', 0), '.')}\n{text}"
         )
     return "\n\n".join(blocks) + "\n"
+
+
+def subtitle_text(segment: dict[str, Any]) -> str:
+    if "source_text" in segment:
+        # Import lazily: transcript_format also uses format_timestamp here.
+        from src.transcript_format import TranscriptFormat, format_segment
+
+        return format_segment(segment, TranscriptFormat(show_timestamps=False, show_duration=False))
+    return str(segment.get("text", "")).strip()
 
 
 def timestamped_name(prefix: str = "Transcription") -> str:

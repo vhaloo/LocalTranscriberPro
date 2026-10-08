@@ -26,6 +26,14 @@ class AudioRecorder:
         self.chunk_duration_samples = 0
         self.capture_error = ""
         self.overflow_chunk = None
+        self.smart_splits = False
+        self.segmenting = False
+        self.segmenter = None
+        self.segment_thread = None
+        self.raw_queue = queue.Queue(maxsize=128)
+        self.raw_overflow = None
+        self.segment_stop = threading.Event()
+        self.segment_snapshot = {}
         self.lock = threading.Lock()
         self.visual_lock = threading.Lock()
 
@@ -51,7 +59,7 @@ class AudioRecorder:
             logging.error(f"Failed to query devices: {e}")
             return [], None
 
-    def start(self, device_index, chunk_duration):
+    def start(self, device_index, chunk_duration, smart_splits=False):
         logging.info(f"Starting recorder on device {device_index} with chunk {chunk_duration}s")
         if self.recording:
             raise RuntimeError("Recorder is already running")
@@ -68,6 +76,22 @@ class AudioRecorder:
         self.recording = True
         self.capture_error = ""
         self.overflow_chunk = None
+        self.smart_splits = smart_splits
+        self.segment_snapshot = {}
+        if smart_splits:
+            from src.speech_boundary import SpeechSegmenter, StreamingVoiceDetector
+
+            try:
+                self.segmenter = SpeechSegmenter(StreamingVoiceDetector(), maximum_seconds=chunk_duration)
+            except Exception:
+                self.recording = False
+                raise
+            self.raw_queue = queue.Queue(maxsize=128)
+            self.raw_overflow = None
+            self.segment_stop.clear()
+            self.segmenting = True
+            self.segment_thread = threading.Thread(target=self._segment_audio, daemon=True, name="speech-boundaries")
+            self.segment_thread.start()
         self.paused = False
         self._clear_visuals()
 
@@ -83,6 +107,9 @@ class AudioRecorder:
             logging.info("Stream started successfully")
         except Exception as e:
             self.recording = False
+            self.segment_stop.set()
+            if self.segment_thread:
+                self.segment_thread.join(timeout=5)
             if self.stream is not None:
                 self.stream.close()
                 self.stream = None
@@ -96,6 +123,18 @@ class AudioRecorder:
 
         if self.recording and not self.paused:
             self._update_visuals(indata, frames)
+
+            if self.smart_splits:
+                # PortAudio only copies/enqueues. Neural VAD runs in its own
+                # CPU thread and cannot block microphone delivery.
+                try:
+                    self.raw_queue.put_nowait(indata.copy())
+                except queue.Full:
+                    self.raw_overflow = indata.copy()
+                    self.capture_error = "Speech segmentation could not keep up. Captured audio was preserved."
+                    self.recording = False
+                    self.segment_stop.set()
+                return
 
             with self.lock:
                 self.audio_buffer.append(indata.copy())
@@ -117,12 +156,19 @@ class AudioRecorder:
     def pause(self):
         self.paused = True
         self._clear_visuals()
+        if self.smart_splits:
+            # A marker flushes the current phrase before the pause; it is not
+            # audio and never changes the duration of the retained WAV.
+            try:
+                self.raw_queue.put_nowait(None)
+            except queue.Full:
+                pass
 
     def resume(self):
         self.paused = False
 
     def stop(self):
-        if not self.recording and self.stream is None and not self.audio_buffer:
+        if not self.recording and self.stream is None and not self.audio_buffer and not self.segmenting:
             return
         self.recording = False
         self._clear_visuals()
@@ -133,10 +179,17 @@ class AudioRecorder:
             finally:
                 stream.close()
 
+        if self.smart_splits:
+            self.segment_stop.set()
+            if self.segment_thread:
+                self.segment_thread.join(timeout=5)
+            if self.segmenting:
+                raise RuntimeError("Speech segmentation is still finishing; captured audio remains in memory")
+
         with self.lock:
             if self.audio_buffer:
                 remaining_data = np.concatenate(self.audio_buffer)
-                if len(remaining_data) > int(SAMPLE_RATE * 0.1):
+                if len(remaining_data) > 0:
                     try:
                         self.audio_queue.put_nowait(remaining_data)
                     except queue.Full:
@@ -146,8 +199,69 @@ class AudioRecorder:
                 self.buffer_sample_count = 0
 
     def available_seconds(self):
+        if self.smart_splits:
+            return self.segment_snapshot.get("seconds", 0.0)
         with self.lock:
             return self.buffer_sample_count / SAMPLE_RATE
+
+    def _queue_segment(self, audio):
+        if audio.size == 0:
+            return
+        if self.overflow_chunk is None:
+            try:
+                self.audio_queue.put_nowait(audio)
+                return
+            except queue.Full:
+                self.capture_error = "The transcription engine cannot keep up with the microphone. Captured audio was preserved."
+                self.recording = False
+                self.segment_stop.set()
+        self.overflow_chunk = audio if self.overflow_chunk is None else np.concatenate((self.overflow_chunk, audio))
+
+    def _segment_audio(self):
+        try:
+            while not self.segment_stop.is_set() or not self.raw_queue.empty():
+                try:
+                    block = self.raw_queue.get(timeout=0.05)
+                except queue.Empty:
+                    continue
+                if block is None:
+                    self._queue_segment(self.segmenter.finish())
+                else:
+                    for chunk in self.segmenter.feed(block):
+                        self._queue_segment(chunk)
+                    if self.segmenter.detector_error:
+                        self.capture_error = f"Speech boundary detection failed: {self.segmenter.detector_error}"
+                        self.recording = False
+                        self.segment_stop.set()
+                self.segment_snapshot = self.segmenter.snapshot()
+            if self.raw_overflow is not None:
+                for chunk in self.segmenter.feed(self.raw_overflow):
+                    self._queue_segment(chunk)
+                self.raw_overflow = None
+            self._queue_segment(self.segmenter.finish())
+        except Exception as error:
+            logging.exception("Streaming speech boundary detection failed")
+            self.capture_error = f"Speech boundary detection failed: {error}"
+            self.recording = False
+            # VAD is auxiliary: retain unprocessed samples for WAV recovery.
+            self._queue_segment(self.segmenter.finish())
+            while not self.raw_queue.empty():
+                pending = self.raw_queue.get_nowait()
+                if pending is not None:
+                    self._queue_segment(np.asarray(pending).reshape(-1))
+            if self.raw_overflow is not None:
+                self._queue_segment(np.asarray(self.raw_overflow).reshape(-1))
+                self.raw_overflow = None
+        finally:
+            self.segmenting = False
+
+    def sampling_state(self):
+        snapshot = dict(self.segment_snapshot) if self.smart_splits else {
+            "state": "listening", "seconds": self.available_seconds(),
+            "maximum_seconds": self.chunk_duration_samples / SAMPLE_RATE if self.chunk_duration_samples else 30,
+            "silence": 0.0,
+        }
+        return dict(snapshot, pending=self.audio_queue.qsize(), paused=self.paused)
 
     def start_monitor(self, device_index=None) -> bool:
         """Open a lightweight level-only stream when not recording."""

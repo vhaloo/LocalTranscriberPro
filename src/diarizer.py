@@ -21,6 +21,7 @@ class Diarizer:
         self.enabled = HAS_DEPS
         self.logger = print
         self.target_fs = 16000  # ECAPA-TDNN expects 16kHz
+        self.last_warning = ""
 
     def log(self, msg):
         if self.logger:
@@ -67,6 +68,7 @@ class Diarizer:
         """
         if callback:
             self.logger = callback
+        self.last_warning = ""
         if not self.enabled:
             return segments
         if not self.load_model():
@@ -91,7 +93,7 @@ class Diarizer:
                         break
                     left = max(0, int((start - offset) * SAMPLE_RATE))
                     right = min(len(audio), int((end - offset) * SAMPLE_RATE))
-                    if right - left < 4000:
+                    if right - left < SAMPLE_RATE:
                         continue
                     check_cancelled(cancel_event)
                     # Eight seconds are sufficient for a voice fingerprint.
@@ -125,6 +127,16 @@ class Diarizer:
                     n_clusters=n_clusters, metric="cosine", linkage="average", distance_threshold=thresh
                 )
                 labels = clusterer.fit_predict(X)
+
+            if not num_speakers and len(set(labels)) > 20:
+                # Very short/noisy segments can fragment into hundreds of
+                # clusters. These are not evidence of hundreds of people.
+                self.last_warning = "diarization_uncertain"
+                self.log("Speaker grouping is unreliable; retaining text without inferred person labels.")
+                for item in segments:
+                    item.pop("speaker", None)
+                    item["speaker_warning"] = self.last_warning
+                return segments
 
             # 6. Apply Labels
             unique_speakers = set(labels)

@@ -12,7 +12,8 @@ from typing import Any
 from platformdirs import user_config_dir, user_data_dir, user_documents_dir
 
 from src.i18n import detect_ui_language
-from src.models import AUTO_FAST_MODEL_ID, AUTO_MODEL_ID, MODEL_BY_ID
+from src.models import AUTO_FAST_MODEL_ID, AUTO_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID, MODEL_BY_ID
+from src.translation_languages import LANGUAGE_BY_CODE
 from src.utils import atomic_write_text
 
 
@@ -45,7 +46,7 @@ def bounded_int(value: Any, default: int, minimum: int, maximum: int) -> int:
 
 
 DEFAULTS: dict[str, Any] = {
-    "schema_version": 5,
+    "schema_version": 6,
     "ui_language": detect_ui_language(),
     "ui_mode": "simple",
     "simple_quality": "best",
@@ -55,6 +56,12 @@ DEFAULTS: dict[str, Any] = {
     "device": "auto",
     "spoken_language": "auto",
     "translate": False,
+    "translation_target": "fr" if detect_ui_language() == "fr" else "en",
+    "conversation_partner": "auto",
+    "translation_third": "none",
+    "conversation_font_size": 22,
+    "show_confidence": True,
+    "overlap_separation": False,
     "speaker_detection": False,
     "vad": True,
     "cleanup": True,
@@ -86,6 +93,8 @@ class SettingsStore:
             loaded = json.loads(self.path.read_text(encoding="utf-8"))
             if isinstance(loaded, dict):
                 self.data.update(loaded)
+                if "translation_target" not in loaded and loaded.get("translate") is True:
+                    self.data["translation_target"] = "en"
                 if self.data.get("window_geometry") == "1180x860":
                     self.data["window_geometry"] = "1220x940"
                 self.data["schema_version"] = DEFAULTS["schema_version"]
@@ -93,8 +102,11 @@ class SettingsStore:
                     "ui_language": {"en", "fr"}, "ui_mode": {"simple", "advanced"},
                     "simple_quality": {"best", "fast"}, "device": {"auto", "cpu", "cuda", "metal"},
                     "transcript_layout": {"blocks", "lines"},
-                    "model": {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, *MODEL_BY_ID},
-                    "preset": {"files", "conference", "dictation", "link"},
+                    "model": {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID, *MODEL_BY_ID},
+                    "preset": {"files", "conference", "dictation", "link", "universal"},
+                    "translation_target": set(LANGUAGE_BY_CODE),
+                    "conversation_partner": {"auto", *LANGUAGE_BY_CODE},
+                    "translation_third": {"none", *LANGUAGE_BY_CODE},
                 }.items():
                     if not isinstance(self.data.get(key), str) or self.data[key] not in choices:
                         self.data[key] = DEFAULTS[key]
@@ -103,6 +115,7 @@ class SettingsStore:
                         self.data[key] = default
                 self.data["chunk_seconds"] = bounded_int(self.data.get("chunk_seconds"), 30, 5, 60)
                 self.data["beam_size"] = bounded_int(self.data.get("beam_size"), 8, 1, 10)
+                self.data["conversation_font_size"] = bounded_int(self.data.get("conversation_font_size"), 22, 14, 48)
                 if not isinstance(self.data.get("benchmarks"), dict):
                     self.data["benchmarks"] = {}
                 if not isinstance(self.data.get("vocabulary"), str):

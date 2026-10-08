@@ -25,12 +25,12 @@ def snapshot(root: Path, repository: str, revision: str, patterns: list[str]) ->
 
 
 def snapshot_complete(path: Path, patterns: list[str]) -> bool:
-    if patterns == PARAKEET_FILES:
-        return all((path / name).is_file() and (path / name).stat().st_size > 0 for name in patterns)
-    if not (path / "config.json").is_file():
-        return False
-    index = path / "model.safetensors.index.json"
     try:
+        if patterns == PARAKEET_FILES:
+            return all((path / name).is_file() and (path / name).stat().st_size > 0 for name in patterns)
+        if not (path / "config.json").is_file():
+            return False
+        index = path / "model.safetensors.index.json"
         if index.exists():
             shards = set(json.loads(index.read_text(encoding="utf-8"))["weight_map"].values())
             return bool(shards) and all((path / name).is_file() for name in shards)

@@ -27,6 +27,7 @@ class ModelSpec:
     revision: str = ""
     languages: tuple[str, ...] = ()
     auto_gpu_only: bool = False
+    automatic: bool = True
 
     @property
     def multilingual_score(self) -> float | None:
@@ -40,6 +41,19 @@ class ModelSpec:
         """Indicative logarithmic index of the catalogue's runtime estimates."""
         factor = max(0.015, min(1.8, self.speed_factor))
         return round(1 + 9 * log(1.8 / factor) / log(1.8 / 0.015), 1)
+
+    @property
+    def language_count(self) -> int:
+        if not self.multilingual:
+            return 1
+        if self.family == "omnilingual":
+            return 1600
+        return len(self.languages) if self.languages else (100 if self.model_id in {"large-v3", "large-v3-turbo"} else 99)
+
+    @property
+    def coverage_score(self) -> float:
+        """Language coverage, distinct from the editorial accuracy index."""
+        return round(min(10, self.language_count / 100 * 10), 1)
 
     def supports(self, language: str | None = None, task: str = "transcribe") -> bool:
         if task == "translate" and (not self.translation or not self.multilingual):
@@ -64,6 +78,8 @@ class ModelSpec:
 # Every official OpenAI Whisper checkpoint remains represented. The memory
 # floors include headroom for the GUI, decoding and the operating system.
 MODEL_CATALOG: tuple[ModelSpec, ...] = (
+    ModelSpec("omnilingual-1b-v2", 5.60, 16, 10, 0, 1.6, translation=False, quality_rank=90,
+              family="omnilingual"),
     ModelSpec(
         "qwen3-asr-1.7b", 6.2, 20.0, 10.0, 7.5, 1.8,
         translation=False, quality_rank=120, family="qwen",
@@ -106,13 +122,14 @@ MODEL_CATALOG: tuple[ModelSpec, ...] = (
 MODEL_BY_ID = {item.model_id: item for item in MODEL_CATALOG}
 AUTO_MODEL_ID = "auto-best"
 AUTO_FAST_MODEL_ID = "auto-fast"
+AUTO_MULTILINGUAL_MODEL_ID = "auto-multilingual"
 ALIGNER_REPOSITORY = "Qwen/Qwen3-ForcedAligner-0.6B"
 ALIGNER_REVISION = "c7cbfc2048c462b0d63a45797104fc9db3ad62b7"
 
 
 def get_model(model_id: str) -> ModelSpec:
     # Auto is a profile, never a downloadable model. Reject invalid saved IDs.
-    if model_id in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, "large"}:
+    if model_id in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID, "large"}:
         return MODEL_BY_ID["large-v3"]
     if model_id == "turbo":
         return MODEL_BY_ID["large-v3-turbo"]
@@ -132,11 +149,14 @@ def model_label(model_id: str, language: str = "en") -> str:
         return "Qualité maximale sûre (Auto)" if language == "fr" else "Safest maximum quality (Auto)"
     if model_id == AUTO_FAST_MODEL_ID:
         return "Rapidité (Auto)" if language == "fr" else "Fast transcription (Auto)"
+    if model_id == AUTO_MULTILINGUAL_MODEL_ID:
+        return "Multilinguisme maximal (Auto)" if language == "fr" else "Maximum language coverage (Auto)"
     spec = get_model(model_id)
     notes = {
         "qwen3-asr-1.7b": ("précision multilingue 2026", "2026 multilingual accuracy"),
         "qwen3-asr-0.6b": ("multilingue compact 2026", "2026 compact multilingual"),
         "parakeet-tdt-0.6b-v3": ("25 langues, CPU rapide", "25 languages, fast CPU"),
+        "omnilingual-1b-v2": ("1600+ langues · CTC · CPU · à vérifier", "1600+ languages · CTC · CPU · review needed"),
         "large-v3": ("multilingue, traduction", "multilingual, translation"),
         "large-v3-turbo": ("très rapide", "very fast"),
         "tiny": ("PC 4 Go", "4 GB PC"),
@@ -150,7 +170,7 @@ def model_label(model_id: str, language: str = "en") -> str:
 
 def model_requirement_text(model_id: str, language: str = "en") -> str:
     spec = get_model(model_id)
-    if spec.family == "parakeet":
+    if spec.family in {"parakeet", "omnilingual"}:
         if language == "fr":
             return f"CPU : {spec.ram_gb:g} Go RAM • aucun GPU requis • téléchargement : {spec.size_gb:g} Go"
         return f"CPU: {spec.ram_gb:g} GB RAM • no GPU required • download: {spec.size_gb:g} GB"
@@ -166,7 +186,7 @@ def model_requirement_text(model_id: str, language: str = "en") -> str:
 
 
 def model_choices(language: str) -> list[str]:
-    return [model_label(AUTO_MODEL_ID, language), model_label(AUTO_FAST_MODEL_ID, language)] + [
+    return [model_label(profile, language) for profile in (AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID)] + [
         model_label(item.model_id, language) for item in ranked_models()
     ]
 
@@ -184,7 +204,7 @@ def model_capability_text(model_id: str, language: str = "en") -> str:
 
 
 def model_id_from_label(label: str, language: str = "en") -> str:
-    for model_id in (AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, *MODEL_BY_ID):
+    for model_id in (AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID, *MODEL_BY_ID):
         if model_label(model_id, language) == label:
             return model_id
     return label if label in MODEL_BY_ID else AUTO_MODEL_ID

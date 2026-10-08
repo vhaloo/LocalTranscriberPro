@@ -28,6 +28,8 @@ def write_export(path: Path, segments: list[dict[str, Any]], options: Transcript
         buffer = io.StringIO(newline="")
         writer = csv.writer(buffer)
         fields = ("start", "end", "speaker", "source", "text")
+        if any("source_text" in item for item in segments):
+            fields += ("source_language", "source_text", "target_language", "third_language", "third_text")
         writer.writerow(fields)
         for item in segments:
             # Prevent text from being interpreted as a formula by spreadsheet

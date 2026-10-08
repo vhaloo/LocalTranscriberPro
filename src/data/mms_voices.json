@@ -1,0 +1,420 @@
+{
+  "ht": {
+    "repository": "facebook/mms-tts-hat",
+    "revision": "0ea3b8deddbce7014e3b830517c36b538c33df12",
+    "files": {
+      "README.md": {
+        "size": 3999,
+        "hash": "9d1e9189bb3120ea9ba466fa5511c027811b26b7",
+        "algorithm": "git-sha1"
+      },
+      "config.json": {
+        "size": 1641,
+        "hash": "7485392ff7bf3f10e697838225ee145685c26c70",
+        "algorithm": "git-sha1"
+      },
+      "model.safetensors": {
+        "size": 145222904,
+        "hash": "115d7f7e97954bb7fddf5116758d73b442ba5a993aa5926eee897e8c6379c7cd",
+        "algorithm": "sha256"
+      },
+      "special_tokens_map.json": {
+        "size": 47,
+        "hash": "d7b57bd9216b39a1535356cfc46d4fe83c31a10d",
+        "algorithm": "git-sha1"
+      },
+      "tokenizer_config.json": {
+        "size": 287,
+        "hash": "a1b12734c054a112dcead01f0b229326ed027174",
+        "algorithm": "git-sha1"
+      },
+      "vocab.json": {
+        "size": 350,
+        "hash": "e12e4623e41b559e898b428e7d45cddc8fe2e20e",
+        "algorithm": "git-sha1"
+      }
+    },
+    "backend": "mms",
+    "license": "CC-BY-NC-4.0"
+  },
+  "pa": {
+    "repository": "facebook/mms-tts-pan",
+    "revision": "45d7962e8daba724f9ff251ee3198bdb47a5f498",
+    "files": {
+      "README.md": {
+        "size": 4005,
+        "hash": "65dc9f3251b2e7efa7b4d0e0fa76e504f77d581e",
+        "algorithm": "git-sha1"
+      },
+      "config.json": {
+        "size": 1641,
+        "hash": "a8b089c37b99b7c5f3f978474bd11ec3b283201f",
+        "algorithm": "git-sha1"
+      },
+      "model.safetensors": {
+        "size": 145243640,
+        "hash": "071db9963578edff7be6b660e9fb69bb1f2aa3596d77d632b76a7f3353373977",
+        "algorithm": "sha256"
+      },
+      "special_tokens_map.json": {
+        "size": 49,
+        "hash": "eb6ac4c7d2bb853aa84b51c84a39d68c08495114",
+        "algorithm": "git-sha1"
+      },
+      "tokenizer_config.json": {
+        "size": 289,
+        "hash": "7e8aab7cd3399cb920384c3659ff18efc20646a4",
+        "algorithm": "git-sha1"
+      },
+      "vocab.json": {
+        "size": 750,
+        "hash": "27285ff700534e38dd27c1b6c7bb3c380bf0a60a",
+        "algorithm": "git-sha1"
+      }
+    },
+    "backend": "mms",
+    "license": "CC-BY-NC-4.0"
+  },
+  "bn": {
+    "repository": "facebook/mms-tts-ben",
+    "revision": "0da99de6074c8829121cdabfbdba423af18e8e56",
+    "files": {
+      "README.md": {
+        "size": 3978,
+        "hash": "15463a7c5b39713ebd29172f92fb0718fb694401",
+        "algorithm": "git-sha1"
+      },
+      "config.json": {
+        "size": 1641,
+        "hash": "1699c1667e2f2e8241ccc7be03759313c418c695",
+        "algorithm": "git-sha1"
+      },
+      "model.safetensors": {
+        "size": 145255160,
+        "hash": "6a0e055ec13ecd0a07ead04dec7974a071846e64a9fe0c0b188f61b32a9bd5ba",
+        "algorithm": "sha256"
+      },
+      "special_tokens_map.json": {
+        "size": 47,
+        "hash": "e0b4d0ba3223df7fed1b310cdd614ea664884b82",
+        "algorithm": "git-sha1"
+      },
+      "tokenizer_config.json": {
+        "size": 287,
+        "hash": "4a267cad9092701464dca5659f8a22a899fd05db",
+        "algorithm": "git-sha1"
+      },
+      "vocab.json": {
+        "size": 927,
+        "hash": "038482361ba580f442580dd2c0ad08e8ed8baaf5",
+        "algorithm": "git-sha1"
+      }
+    },
+    "backend": "mms",
+    "license": "CC-BY-NC-4.0"
+  },
+  "yo": {
+    "repository": "facebook/mms-tts-yor",
+    "revision": "d359e06b481cb5402e2e4215475b90c07a3f12e2",
+    "files": {
+      "README.md": {
+        "size": 3975,
+        "hash": "0349df5f92953ace431d98321535ecbffa0af7d7",
+        "algorithm": "git-sha1"
+      },
+      "config.json": {
+        "size": 1641,
+        "hash": "75c29d89c2e11dfbfa6e4fe5ba559ea7dd84451a",
+        "algorithm": "git-sha1"
+      },
+      "model.safetensors": {
+        "size": 145231352,
+        "hash": "aa4e892d1d4feecec41e60757a116de8beac58517a042849340861cfb17043c5",
+        "algorithm": "sha256"
+      },
+      "special_tokens_map.json": {
+        "size": 47,
+        "hash": "d7b57bd9216b39a1535356cfc46d4fe83c31a10d",
+        "algorithm": "git-sha1"
+      },
+      "tokenizer_config.json": {
+        "size": 287,
+        "hash": "bca0bed0c50082cbea8d910a7c4f7719b4933715",
+        "algorithm": "git-sha1"
+      },
+      "vocab.json": {
+        "size": 488,
+        "hash": "9538d1dd264a573f2b35a847ad2d2b1267d2f2e6",
+        "algorithm": "git-sha1"
+      }
+    },
+    "backend": "mms",
+    "license": "CC-BY-NC-4.0"
+  },
+  "so": {
+    "repository": "facebook/mms-tts-som",
+    "revision": "8ddd841a6b4303b2bf778ea8ce93ea2ef349d182",
+    "files": {
+      "README.md": {
+        "size": 3975,
+        "hash": "6c51d2c2a7a979331b57d8eb0fdd492df55f7b1b",
+        "algorithm": "git-sha1"
+      },
+      "config.json": {
+        "size": 1641,
+        "hash": "c91a58d07401e2d855b7ca952d21f6431d746ee9",
+        "algorithm": "git-sha1"
+      },
+      "model.safetensors": {
+        "size": 145219064,
+        "hash": "1cdd22aa91cf5de6bdcac5e289a56722467ce1cc82985e47f413f886cf9fd52c",
+        "algorithm": "sha256"
+      },
+      "special_tokens_map.json": {
+        "size": 47,
+        "hash": "141aa2989af19dc6ca6617c9e934932c201b35c0",
+        "algorithm": "git-sha1"
+      },
+      "tokenizer_config.json": {
+        "size": 287,
+        "hash": "593ad6d6f8b1f5a94e715940974d251c2bf86b3d",
+        "algorithm": "git-sha1"
+      },
+      "vocab.json": {
+        "size": 290,
+        "hash": "4acc2e9dc26873f66551fbfec91eae3dead39f20",
+        "algorithm": "git-sha1"
+      }
+    },
+    "backend": "mms",
+    "license": "CC-BY-NC-4.0"
+  },
+  "ti": {
+    "repository": "facebook/mms-tts-tir",
+    "revision": "cd216946d4d313dc9083f492d9e7dba151dbd90e",
+    "files": {
+      "README.md": {
+        "size": 4128,
+        "hash": "02ee8c60b6fbe4203e375795dcd85ddb3533ec19",
+        "algorithm": "git-sha1"
+      },
+      "config.json": {
+        "size": 1641,
+        "hash": "c91a58d07401e2d855b7ca952d21f6431d746ee9",
+        "algorithm": "git-sha1"
+      },
+      "model.safetensors": {
+        "size": 145219064,
+        "hash": "19a3dd1a9d2f40028d99cd3742d766a0924ee208dad309de4d2ca3eb6361be6f",
+        "algorithm": "sha256"
+      },
+      "special_tokens_map.json": {
+        "size": 47,
+        "hash": "869f115eba46202e7c1dde18a003855a46d55e95",
+        "algorithm": "git-sha1"
+      },
+      "tokenizer_config.json": {
+        "size": 286,
+        "hash": "9136caba066e945683487233a63b657e6a479ff7",
+        "algorithm": "git-sha1"
+      },
+      "vocab.json": {
+        "size": 290,
+        "hash": "f063f0ad720ac150f24809ec5e10bdb59a505106",
+        "algorithm": "git-sha1"
+      }
+    },
+    "backend": "mms",
+    "license": "CC-BY-NC-4.0"
+  },
+  "ur": {
+    "repository": "facebook/mms-tts-urd-script_arabic",
+    "revision": "4c4f53d52e4f0b40cb8e7f36dcef66a2a73619c5",
+    "files": {
+      "README.md": {
+        "size": 4011,
+        "hash": "c3ffb908c52871bc2c1155f9e10ca29547dd3d73",
+        "algorithm": "git-sha1"
+      },
+      "config.json": {
+        "size": 1641,
+        "hash": "69725b5f85af638006e978622c47121febff7b24",
+        "algorithm": "git-sha1"
+      },
+      "model.safetensors": {
+        "size": 145242872,
+        "hash": "2339cfcdbeb7199e2cd572cba666e28124434818917537939cd016e5ec65886d",
+        "algorithm": "sha256"
+      },
+      "special_tokens_map.json": {
+        "size": 48,
+        "hash": "602fe3aa858e6f0dc047baafdae777945e6a1a7b",
+        "algorithm": "git-sha1"
+      },
+      "tokenizer_config.json": {
+        "size": 302,
+        "hash": "388d2ee080d7c82ffcac5298e8273d13c91538d9",
+        "algorithm": "git-sha1"
+      },
+      "vocab.json": {
+        "size": 677,
+        "hash": "f3cc9cb58a30aac7ae78ddd9b6b6fd301bdfdff7",
+        "algorithm": "git-sha1"
+      }
+    },
+    "backend": "mms",
+    "license": "CC-BY-NC-4.0"
+  },
+  "ta": {
+    "repository": "facebook/mms-tts-tam",
+    "revision": "e9cf59dae34f0f51e3b1842876a658e4516f9fe4",
+    "files": {
+      "README.md": {
+        "size": 3988,
+        "hash": "1692df2801055ccb8a1390133420b286866d0532",
+        "algorithm": "git-sha1"
+      },
+      "config.json": {
+        "size": 1641,
+        "hash": "69725b5f85af638006e978622c47121febff7b24",
+        "algorithm": "git-sha1"
+      },
+      "model.safetensors": {
+        "size": 145242872,
+        "hash": "29357e85c7f86f7725b6ff7bab78d1963899c16c2874da1db3a7d6b90f36b050",
+        "algorithm": "sha256"
+      },
+      "special_tokens_map.json": {
+        "size": 47,
+        "hash": "adc92cd790c77e802cc36a365aa53db2f6930785",
+        "algorithm": "git-sha1"
+      },
+      "tokenizer_config.json": {
+        "size": 287,
+        "hash": "a4b7a5f84a28bc75511412eaf5d9789a9dc03c0d",
+        "algorithm": "git-sha1"
+      },
+      "vocab.json": {
+        "size": 721,
+        "hash": "086e82e37d07432d1329fcf96c2ae6e41b944724",
+        "algorithm": "git-sha1"
+      }
+    },
+    "backend": "mms",
+    "license": "CC-BY-NC-4.0"
+  },
+  "ha": {
+    "repository": "facebook/mms-tts-hau",
+    "revision": "f0eb02aa37f7259f35349da63cafe0556cf93e3d",
+    "files": {
+      "README.md": {
+        "size": 3972,
+        "hash": "3b1732f46de8166ae1f2616b0c0fa4bf20218cfe",
+        "algorithm": "git-sha1"
+      },
+      "config.json": {
+        "size": 1641,
+        "hash": "3d2e435b55b69f6e36996ebbd79b067efbe9c999",
+        "algorithm": "git-sha1"
+      },
+      "model.safetensors": {
+        "size": 145224440,
+        "hash": "8a68b8c658853a92fd50eca25fcfd76d069616052f99aa84719c5e40c133249d",
+        "algorithm": "sha256"
+      },
+      "special_tokens_map.json": {
+        "size": 47,
+        "hash": "55ee29f764dc5a5760d4125e2ac5ff28df555cd0",
+        "algorithm": "git-sha1"
+      },
+      "tokenizer_config.json": {
+        "size": 287,
+        "hash": "7b0d243b69c51eeb5d0ff95b8d495d658e1995cc",
+        "algorithm": "git-sha1"
+      },
+      "vocab.json": {
+        "size": 374,
+        "hash": "163d091fe8afc6f4ba002a40895e5985422969c9",
+        "algorithm": "git-sha1"
+      }
+    },
+    "backend": "mms",
+    "license": "CC-BY-NC-4.0"
+  },
+  "am": {
+    "repository": "facebook/mms-tts-amh",
+    "revision": "e366aee5e22a72b9a3333e081ddafb234538d9bb",
+    "files": {
+      "README.md": {
+        "size": 4125,
+        "hash": "78690add46636a899e7f28f763b69b5694052bbf",
+        "algorithm": "git-sha1"
+      },
+      "config.json": {
+        "size": 1641,
+        "hash": "25b068116face5ba73041981cda61e8cabd3e1a1",
+        "algorithm": "git-sha1"
+      },
+      "model.safetensors": {
+        "size": 145219832,
+        "hash": "2eb3bba0c0efb6260a71dbe753855388ff2bf9d98ea09996c23e0721a0662954",
+        "algorithm": "sha256"
+      },
+      "special_tokens_map.json": {
+        "size": 47,
+        "hash": "25b04675dd3681e3c39ca33c87b1f2702f2bfe97",
+        "algorithm": "git-sha1"
+      },
+      "tokenizer_config.json": {
+        "size": 286,
+        "hash": "04abfbf6c8cd2f37b20409c5dd2c37b4ee578819",
+        "algorithm": "git-sha1"
+      },
+      "vocab.json": {
+        "size": 301,
+        "hash": "f9eac2cc69877ab66cebef2b65a6d75625e06b41",
+        "algorithm": "git-sha1"
+      }
+    },
+    "backend": "mms",
+    "license": "CC-BY-NC-4.0"
+  },
+  "gu": {
+    "repository": "facebook/mms-tts-guj",
+    "revision": "b72e80a7eeca90b72e0af2e2d00b77a336ce242d",
+    "files": {
+      "README.md": {
+        "size": 3981,
+        "hash": "698ddafeef091df41b31ff26fa36d4f4d78a369a",
+        "algorithm": "git-sha1"
+      },
+      "config.json": {
+        "size": 1641,
+        "hash": "f0020805fe7b3288a23eb66b7093bffc8542763a",
+        "algorithm": "git-sha1"
+      },
+      "model.safetensors": {
+        "size": 145244408,
+        "hash": "f1f4e01188507d3cc8526d1326a6f1c8a9b51e5fd9abe7a92b500326808a0c6a",
+        "algorithm": "sha256"
+      },
+      "special_tokens_map.json": {
+        "size": 47,
+        "hash": "d7b57bd9216b39a1535356cfc46d4fe83c31a10d",
+        "algorithm": "git-sha1"
+      },
+      "tokenizer_config.json": {
+        "size": 287,
+        "hash": "534efc7ec43b38fb928d6f8cc672f8b09c11a432",
+        "algorithm": "git-sha1"
+      },
+      "vocab.json": {
+        "size": 765,
+        "hash": "97a03a93bc6bf4fa3caba55ebb651fe32ca2457c",
+        "algorithm": "git-sha1"
+      }
+    },
+    "backend": "mms",
+    "license": "CC-BY-NC-4.0"
+  }
+}

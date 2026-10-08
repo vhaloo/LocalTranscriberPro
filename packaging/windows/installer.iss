@@ -1,6 +1,9 @@
 #define AppName "Local Transcriber Pro"
 #ifndef AppVersion
-  #define AppVersion "3.0.0"
+  #define AppVersion "3.1.0"
+#endif
+#ifndef AppSource
+  #define AppSource "..\..\dist\" + AppVersion + "\LocalTranscriberPro"
 #endif
 #define AppPublisher "Vhaloo"
 #define AppExeName "LocalTranscriberPro.exe"
@@ -26,8 +29,9 @@ OutputBaseFilename=LocalTranscriberPro-{#AppVersion}-Windows-x64-Setup
 #endif
 SetupIconFile=..\..\assets\icon.ico
 UninstallDisplayIcon={app}\{#AppExeName}
-Compression=zip/1
-SolidCompression=no
+Compression=lzma2/ultra64
+SolidCompression=yes
+LZMAUseSeparateProcess=yes
 WizardStyle=modern
 CloseApplications=yes
 RestartApplications=no
@@ -65,7 +69,7 @@ Type: filesandordirs; Name: "{app}\_internal"
 #ifdef SyntaxOnly
 Source: "..\..\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 #else
-Source: "..\..\dist\LocalTranscriberPro\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#AppSource}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 #endif
 
 [Icons]

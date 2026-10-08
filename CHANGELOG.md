@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.1.0 — 2026-10-08
+
+- Added offline Universal live translation with searchable destinations, automatic two-language reversal, manual pairs and an optional third language.
+- Added Omnilingual CTC 1B v2 (1,600+ recognition languages) and pinned GlotLID v3 text language identification; universal Auto selects it on compatible hardware, with Whisper fallback. General quality Auto and every previous recognizer remain available.
+- Added pinned MADLAD-400 3B int8 translation with 452 language tokens/variants, GPU admission after recognition allocation and local CPU fallback.
+- Added original/translated/third-language colours, logical RTL preservation, large reading view on one monitor, adjustable font, actual capture/processing/queue indicators and silence-aware turn segmentation.
+- Added local speech playback for selected lines, slow voice, stop/replay, installed system voice selection, 47 on-demand voice choices and bundled French/English voices. MMS download prompts identify their noncommercial licence.
+- Added optional uncalibrated confidence indices and explicit unavailable/uncertain states; annotations are kept out of editable/exported transcript text.
+- Added optional experimental two-source separation; retained ordinary conference speaker labels and bounded long-session clustering.
+- Preserved file/video batches, online videos, dictation, vocabulary, history, recovery, progressive recording checkpoints, cancellation and TXT/SRT/VTT/CSV/JSON exports. Bilingual exports retain original and translations.
+- Kept startup update proposals and verified Windows download/install/relaunch; added version/documentation/screenshot release gates so public instructions must follow each update.
+- Rewrote README and multilingual help, added real demonstration screenshots, documented Canadian language priorities and published small held-out diagnostics with weaknesses rather than blanket language guarantees.
+
 ## 3.0.0 — 2026-10-07
 
 - Added pinned Qwen3-ASR 1.7B/0.6B with local forced alignment and Parakeet TDT 0.6B v3 int8 ONNX; retained all Whisper engines and translation.

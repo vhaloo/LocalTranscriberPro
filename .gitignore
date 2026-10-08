@@ -15,6 +15,7 @@ local_transcriber.py
 *.srt
 *.txt
 !requirements*.txt
+!packaging/*LICENSE.txt
 temp_downloads/
 artifacts/
 .unsaved_session.json

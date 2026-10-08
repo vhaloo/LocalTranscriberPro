@@ -15,7 +15,14 @@ from typing import Any
 import psutil
 from platformdirs import user_cache_dir
 
-from src.models import AUTO_FAST_MODEL_ID, AUTO_MODEL_ID, MODEL_CATALOG, ModelSpec, get_model
+from src.models import (
+    AUTO_FAST_MODEL_ID,
+    AUTO_MODEL_ID,
+    AUTO_MULTILINGUAL_MODEL_ID,
+    MODEL_CATALOG,
+    ModelSpec,
+    get_model,
+)
 
 HardwareStatusCallback = Callable[[str, float], None]
 
@@ -113,7 +120,7 @@ class HardwareProfile:
 
     def _cpu_compatibility(self, spec: ModelSpec) -> ModelCompatibility:
         runtime = self.torch_cpu_available if spec.family == "qwen" else (
-            self.parakeet_available if spec.family == "parakeet" else self.cpu_backend_available
+            self.parakeet_available if spec.family in {"parakeet", "omnilingual"} else self.cpu_backend_available
         )
         if not runtime:
             return ModelCompatibility(spec.model_id, False, "cpu", "cpu_runtime")
@@ -135,7 +142,7 @@ class HardwareProfile:
 
     def _cuda_compatibility(self, spec: ModelSpec) -> ModelCompatibility:
         runtime = self.torch_cuda if spec.family == "qwen" else (self.ctranslate_cuda or self.torch_cuda)
-        if spec.family == "parakeet" or not self.nvidia_detected or not runtime:
+        if spec.family in {"parakeet", "omnilingual"} or not self.nvidia_detected or not runtime:
             return ModelCompatibility(spec.model_id, False, "cuda", "gpu_runtime")
         if self.ram_gb < spec.gpu_system_ram_gb:
             return ModelCompatibility(
@@ -180,7 +187,7 @@ class HardwareProfile:
 
     def _metal_compatibility(self, spec: ModelSpec) -> ModelCompatibility:
         runtime = self.torch_mps if spec.family == "qwen" else (self.mlx_available or self.torch_mps)
-        if spec.family == "parakeet" or not self.apple_silicon or not runtime:
+        if spec.family in {"parakeet", "omnilingual"} or not self.apple_silicon or not runtime:
             return ModelCompatibility(spec.model_id, False, "metal", "gpu_runtime")
         if self.ram_gb < spec.ram_gb:
             return ModelCompatibility(
@@ -212,7 +219,7 @@ class HardwareProfile:
         spec = get_model(model_id)
         if spec.family == "qwen" and not self.qwen_available:
             return ModelCompatibility(spec.model_id, False, "", "model_runtime")
-        if spec.family == "parakeet" and not self.parakeet_available:
+        if spec.family in {"parakeet", "omnilingual"} and not self.parakeet_available:
             return ModelCompatibility(spec.model_id, False, "", "model_runtime")
         disk_problem = self._disk_check(spec, model_downloaded)
         if disk_problem:
@@ -259,7 +266,7 @@ class HardwareProfile:
     ) -> str:
         cached = set(cached_model_ids)
         candidates = sorted(
-            (spec for spec in MODEL_CATALOG if spec.multilingual and spec.supports(language, task)),
+            (spec for spec in MODEL_CATALOG if spec.multilingual and spec.automatic and spec.supports(language, task)),
             key=lambda spec: spec.quality_rank,
             reverse=True,
         )
@@ -284,6 +291,17 @@ class HardwareProfile:
                 return model_id
         return self.recommended_model(device_mode, cached, language, task)
 
+    def multilingual_recommended_model(self, device_mode: str = "auto", cached_model_ids: Iterable[str] = (),
+                                      language: str | None = None, task: str = "transcribe") -> str:
+        cached = set(cached_model_ids)
+        candidates = sorted((spec for spec in MODEL_CATALOG if spec.multilingual and spec.automatic and spec.supports(language, task)),
+                            key=lambda spec: (spec.language_count, spec.quality_rank), reverse=True)
+        for spec in candidates:
+            check = self.model_compatibility(spec.model_id, device_mode, spec.model_id in cached)
+            if check.supported and not (spec.auto_gpu_only and check.device == "cpu"):
+                return spec.model_id
+        return "tiny"
+
     def has_safe_model(self, device_mode: str = "auto", cached_model_ids: Iterable[str] = ()) -> bool:
         return bool(self.safe_models(device_mode, cached_model_ids))
 
@@ -300,6 +318,8 @@ class HardwareProfile:
             return self.recommended_model(device_mode, cached, language, task)
         if requested == AUTO_FAST_MODEL_ID:
             return self.fast_recommended_model(device_mode, cached, language, task)
+        if requested == AUTO_MULTILINGUAL_MODEL_ID:
+            return self.multilingual_recommended_model(device_mode, cached, language, task)
         try:
             spec = get_model(requested)
         except ValueError:

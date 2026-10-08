@@ -11,6 +11,15 @@ from PyInstaller.utils.hooks import collect_data_files, collect_submodules, copy
 # SPECPATH is the directory containing this spec (repo/packaging).
 ROOT = Path(SPECPATH).resolve().parent
 datas = []
+datas += [(str(ROOT / "packaging/ESPEAK-NG-LICENSE.txt"), "default-voices")]
+datas += [(str(ROOT / "src/data/translation_languages.json"), "src/data")]
+datas += [(str(ROOT / "src/data/voices.json"), "src/data")]
+datas += [(str(ROOT / "src/data/mms_voices.json"), "src/data")]
+datas += [(str(ROOT / "src/data/omnilingual.json"), "src/data")]
+datas += collect_data_files("uroman")
+if not (ROOT / "artifacts/default-voices/fr").is_dir():
+    raise RuntimeError("Run scripts/prepare_default_voices.py before packaging")
+datas += [(str(ROOT / "artifacts/default-voices"), "default-voices")]
 binaries = []
 hiddenimports = [
     "faster_whisper.audio",
@@ -30,6 +39,7 @@ hiddenimports += collect_submodules("nagisa")
 hiddenimports += collect_submodules("yt_dlp_ejs")
 hiddenimports += collect_submodules("transformers.models.qwen2_5_omni")
 hiddenimports += ["transformers.models.qwen2", "transformers.models.whisper", "librosa", "nagisa", "soynlp"]
+hiddenimports += ["transformers.models.vits", "transformers.models.vits.modeling_vits", "transformers.models.vits.tokenization_vits", "fasttext", "fasttext_pybind", "uroman"]
 for distribution in ("qwen-asr", "transformers", "accelerate", "huggingface-hub", "sherpa-onnx", "sherpa-onnx-core", "yt-dlp-ejs"):
     datas += copy_metadata(distribution)
 
@@ -97,7 +107,7 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[str(ROOT / "packaging" / "runtime_hook.py")],
-    excludes=["tensorflow", "jax", "matplotlib", "notebook", "IPython", "gradio", "flask", "vllm", "triton", "torchvision"],
+    excludes=["tensorflow", "jax", "matplotlib", "notebook", "IPython", "gradio", "flask", "vllm", "triton", "torchvision", "pyarrow"],
     noarchive=False,
     optimize=1,
     module_collection_mode={"speechbrain": "py", "qwen_asr": "py", "transformers": "py", "librosa": "py", "nagisa": "py"},
@@ -139,7 +149,7 @@ if platform.system() == "Darwin":
         name="Local Transcriber Pro.app",
         icon=str(icon) if icon.exists() else None,
         bundle_identifier="com.vhaloo.localtranscriberpro",
-        version="3.0.0",
+        version="3.1.0",
         info_plist={
             "NSMicrophoneUsageDescription": "Local Transcriber Pro needs microphone access only when you start a recording.",
             "LSMinimumSystemVersion": "12.0",

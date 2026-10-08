@@ -145,6 +145,10 @@ def test_model_replacement_waits_for_inference_to_finish():
     engine = object.__new__(TranscriberEngine)
     engine._load_lock = threading.RLock()
     engine.model_name = None
+    from types import SimpleNamespace
+
+    engine.current_status = None
+    engine.translator = SimpleNamespace(unload=lambda: None)
     entered, release, replaced = threading.Event(), threading.Event(), threading.Event()
 
     def inference(*_args):

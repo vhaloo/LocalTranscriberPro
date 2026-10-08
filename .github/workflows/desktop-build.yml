@@ -49,40 +49,56 @@ jobs:
         run: |
           python -m pip install torch==2.11.0+cpu torchaudio==2.11.0+cpu --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -r requirements-diarization.txt openai-whisper==20250625
+      - name: Resolve and validate release version
+        shell: python {0}
+        run: |
+          import os
+          from src import __version__
+          if os.environ.get("GITHUB_REF_TYPE") == "tag":
+              assert os.environ["GITHUB_REF_NAME"].removeprefix("v") == __version__
+          with open(os.environ["GITHUB_ENV"], "a") as handle:
+              handle.write(f"APP_VERSION={__version__}\n")
       - name: Generate icons
         run: |
           python scripts/generate_brand_assets.py
           python scripts/prepare_js_runtime.py
+          python scripts/prepare_default_voices.py
       - name: Validate before packaging
         run: |
           python -m compileall -q main.py src
+          python -m ruff check main.py src tests scripts
+          python scripts/check_release_docs.py
           python -m pytest
       - name: Build application
-        run: python -m PyInstaller --clean --noconfirm packaging/LocalTranscriberPro.spec
+        run: python -m PyInstaller --clean --noconfirm --distpath dist/${{ env.APP_VERSION }} packaging/LocalTranscriberPro.spec
+      - name: Validate frozen application on Windows
+        if: runner.os == 'Windows'
+        run: python scripts/validate_frozen.py dist/${{ env.APP_VERSION }}/LocalTranscriberPro/LocalTranscriberPro.exe
+      - name: Validate frozen application on macOS/Linux
+        if: runner.os != 'Windows'
+        run: python scripts/validate_frozen.py dist/${{ env.APP_VERSION }}/LocalTranscriberPro/LocalTranscriberPro
       - name: Package Windows installer
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force artifacts | Out-Null
-          $version = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME.TrimStart('v') } else { '3.0.0-preview' }
+          $version = $env:APP_VERSION
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "/DAppVersion=$version" packaging\windows\installer.iss
       - name: Package macOS DMG
         if: runner.os == 'macOS'
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          if [ "$GITHUB_REF_TYPE" != "tag" ]; then VERSION="3.0.0-preview"; fi
+          VERSION="$APP_VERSION"
           mkdir -p artifacts dmg-root
-          cp -R "dist/Local Transcriber Pro.app" dmg-root/
+          cp -R "dist/${APP_VERSION}/Local Transcriber Pro.app" dmg-root/
           ln -s /Applications dmg-root/Applications
           codesign --force --deep --sign - "dmg-root/Local Transcriber Pro.app"
           hdiutil create -volname "Local Transcriber Pro" -srcfolder dmg-root -ov -format UDZO "artifacts/LocalTranscriberPro-${VERSION}-macOS.dmg"
       - name: Package Linux AppImage and archive
         if: runner.os == 'Linux'
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          if [ "$GITHUB_REF_TYPE" != "tag" ]; then VERSION="3.0.0-preview"; fi
+          VERSION="$APP_VERSION"
           mkdir -p artifacts AppDir/usr/bin AppDir/usr/share/applications AppDir/usr/share/icons/hicolor/256x256/apps
-          cp -R dist/LocalTranscriberPro AppDir/usr/bin/
+          cp -R "dist/${APP_VERSION}/LocalTranscriberPro" AppDir/usr/bin/
           cp packaging/linux/localtranscriberpro.desktop AppDir/
           cp packaging/linux/localtranscriberpro.desktop AppDir/usr/share/applications/
           cp packaging/linux/AppRun AppDir/AppRun
@@ -92,11 +108,15 @@ jobs:
           curl -L -o appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
           chmod +x appimagetool
           ARCH=x86_64 ./appimagetool --appimage-extract-and-run AppDir "artifacts/LocalTranscriberPro-${VERSION}-Linux-x86_64.AppImage"
-          tar -C dist -czf "artifacts/LocalTranscriberPro-${VERSION}-Linux-x86_64.tar.gz" LocalTranscriberPro
+          tar -C "dist/${APP_VERSION}" -czf "artifacts/LocalTranscriberPro-${VERSION}-Linux-x86_64.tar.gz" LocalTranscriberPro
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact }}
-          path: artifacts/*
+          name: ${{ matrix.artifact }}-package
+          path: |
+            artifacts/*-Setup.exe
+            artifacts/*.dmg
+            artifacts/*.AppImage
+            artifacts/*.tar.gz
           if-no-files-found: error
 
   release:
@@ -107,6 +127,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: release-assets
+          pattern: "*-package"
           merge-multiple: true
       - name: Create checksums
         working-directory: release-assets
@@ -115,4 +136,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${GITHUB_REF_NAME}" release-assets/* --repo "${GITHUB_REPOSITORY}" --verify-tag --generate-notes --title "Local Transcriber Pro ${GITHUB_REF_NAME}"
+          if gh release view "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            echo "Release already exists; preserving its validated assets."
+            exit 0
+          fi
+          gh release create "${GITHUB_REF_NAME}" release-assets/* --repo "${GITHUB_REPOSITORY}" --verify-tag --generate-notes --draft --title "Local Transcriber Pro ${GITHUB_REF_NAME}"

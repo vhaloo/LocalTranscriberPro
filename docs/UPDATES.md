@@ -27,3 +27,7 @@ Accepter télécharge et vérifie le paquet, sauvegarde la session, ferme l'appl
 - Keep the installer AppId, application mutex and per-user data locations unchanged.
 
 Checksums over trusted HTTPS provide integrity verification, not an independent digital signature. Published Windows installers currently have no commercial Authenticode signature.
+
+## Keeping GitHub current for every release
+
+Version 3.1.0 adds `scripts/check_release_docs.py` to validation and packaging. The README title/download, changelog, platform versions, current guide and screenshot manifest must match the code version. Screenshots are checked for valid image data and SHA-256. Native package CI creates a draft after frozen ASR/voice checks; publication follows actual install validation. Existing verified release assets are preserved. See [BUILDING.md](BUILDING.md).
