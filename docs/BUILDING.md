@@ -53,6 +53,14 @@ The experimental 3.1.0 packages target x86-64 and are built on Ubuntu 24.04 with
 
 The version 1 rollback point is the immutable `archive-v1.1-before-v2.0` tag.
 
+## Local build file retention
+
+Keep one current source checkout, its working development environment, a verified current installer and at most one useful previous installer for rollback. The installed application, prepared model/voice caches, transcripts, settings, history and recovery data are separate from temporary packaging output and must be preserved.
+
+After a successful verified installation and publication, old `build/` output, superseded unpacked applications in `dist/`, duplicate installer downloads, old update installers and extracted inspection copies can be removed. Keep small installation/data checkpoints and validation reports. Before removing an artifact, confirm its exact path, its role and the retained installer or published asset; do not follow junctions or symlinks into model caches or the development environment. Preserve uncommitted or unique source changes before consolidating checkouts.
+
+The current build path is `scripts/build_windows.ps1`, `packaging/LocalTranscriberPro.spec`, the Inno Setup definition and the native desktop workflow. Previous 0.x/1.x application copies and standalone/download installer builders are available through Git history or archived releases; they are no longer shipped beside the current source.
+
 ## Windows GPU build
 
 Install a compatible PyTorch/torchaudio wheel before the diarization pack (the current tested pair is `2.11.0+cu128` for both). Install `openai-whisper==20250625` for the compatibility fallback. Run `python -m pip check` before packaging. The spec ships Nagisa Python sources because its Japanese preprocessing uses sibling module imports; omitting them silently forces Qwen to fall back.

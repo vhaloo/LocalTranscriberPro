@@ -102,6 +102,8 @@ py -3.12 -m venv .venv
 
 `scripts/build_windows.ps1` prepares icons, the video JavaScript runtime and bundled English/French voices, then builds the app. Inno Setup builds the installer. Documentation/version/screenshot checks fail a release whose GitHub instructions are stale. [Build, validation and release procedure](docs/BUILDING.md) · [Changelog](CHANGELOG.md).
 
+The current application starts from `main.py`; native builds use `packaging/LocalTranscriberPro.spec` and the documented scripts/workflows. Obsolete 0.x/1.x application copies, installers, builders and the old preview have been removed from the current source tree. They remain recoverable from Git history and archived releases. [Keeping local build files small](docs/BUILDING.md#local-build-file-retention).
+
 <a id="francais"></a>
 ## Français
 
