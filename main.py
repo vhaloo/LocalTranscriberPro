@@ -3,26 +3,17 @@ import json
 import logging
 import os
 import platform
-import sys
 from pathlib import Path
 
 import certifi
 
 os.environ.setdefault("HF_HUB_DISABLE_TELEMETRY", "1")
 
-from src.utils import setup_logging
+from src.utils import configure_frozen_streams, setup_logging
 
-# --- Fix 0: macOS Finder Crash Fix (Redirect Stdout/Stderr) ---
-# GUI apps launched from Finder have no stdout/stderr. Writing to them causes a crash.
-if getattr(sys, "frozen", False) and platform.system() == "Darwin" and "--video-worker" not in sys.argv:
-    log_dir = os.path.join(os.path.expanduser("~"), "Library", "Logs", "LocalTranscriberPro")
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
-
-    # Redirect stdout/stderr to a log file
-    log_file = os.path.join(log_dir, "app_debug.log")
-    sys.stdout = open(log_file, "w")
-    sys.stderr = sys.stdout
+# GUI packages may have absent or invalid stdout/stderr even when launched by
+# a shell. Inference libraries must not fall back because a progress bar flushes.
+configure_frozen_streams()
 
 # Use a current CA bundle. TLS verification is intentionally never disabled.
 os.environ["SSL_CERT_FILE"] = certifi.where()

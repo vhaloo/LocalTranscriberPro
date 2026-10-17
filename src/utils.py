@@ -20,6 +20,18 @@ from platformdirs import user_log_dir
 _ATOMIC_REPLACE_LOCK = threading.Lock()
 
 
+def configure_frozen_streams() -> None:
+    """Windowed bootloaders can inherit unusable console handles on any OS.
+
+    Transformers/tqdm flush both streams while loading checkpoint shards.
+    Give them real writable handles before importing inference libraries; GUI
+    progress and rotating application logs have their own explicit channels.
+    """
+    if getattr(sys, "frozen", False):
+        sys.stdout = open(os.devnull, "w", encoding="utf-8")
+        sys.stderr = open(os.devnull, "w", encoding="utf-8")
+
+
 def setup_logging() -> Path:
     log_dir = Path(user_log_dir("LocalTranscriberPro", "Vhaloo"))
     log_dir.mkdir(parents=True, exist_ok=True)
