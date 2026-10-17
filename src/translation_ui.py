@@ -6,6 +6,7 @@ import unicodedata
 import customtkinter as ctk
 
 from src.confidence import confidence_caption
+from src.tooltip import ToolTip
 from src.translation_languages import language_choices, language_label
 from src.utils import format_timestamp
 
@@ -96,6 +97,9 @@ class TranslationControls(ctk.CTkFrame):
                                   command=lambda value=field: self.choose(value))
             button.grid(row=2, column=column, sticky="ew", padx=12, pady=(2, 5))
             self.buttons[field] = button
+            ToolTip(button, self.t("tip_" + field))
+        ToolTip(self.model_button, self.t("model_help"))
+        ToolTip(self.pair_label, self.t("tip_conversation_pair"))
         self.guide = ctk.CTkLabel(self, text=self.t("translation_inline"), text_color=MUTED,
                                   font=("Segoe UI", 11), justify="left", wraplength=1000)
         self.guide.grid(row=3, column=0, columnspan=3, sticky="w", padx=14, pady=(2, 9))

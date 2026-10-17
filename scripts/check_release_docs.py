@@ -30,7 +30,8 @@ def check(root=ROOT):
             errors.append('README.md: stale platform download')
     if not (root / 'CHANGELOG.md').read_text('utf-8').startswith(f'# Changelog\n\n## {version}'):
         errors.append('CHANGELOG.md: missing current release entry')
-    for filename in ('docs/TRANSLATION.md', 'docs/VALIDATION_3.1.md', 'docs/EXPERIMENTAL_DESKTOP_3.1.md'):
+    minor = '.'.join(version.split('.')[:2])
+    for filename in ('docs/TRANSLATION.md', f'docs/VALIDATION_{minor}.md', f'docs/EXPERIMENTAL_DESKTOP_{minor}.md'):
         if version not in (root / filename).read_text('utf-8'):
             errors.append(filename + ': stale release documentation')
     try:

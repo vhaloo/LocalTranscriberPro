@@ -6,11 +6,9 @@ on:
       macos_run_id:
         description: Successful desktop build run containing macos-package
         required: true
-        default: "37839097443"
       linux_run_id:
         description: Successful desktop build run containing linux-x64-package
         required: true
-        default: "37839102632"
 
 permissions:
   contents: read

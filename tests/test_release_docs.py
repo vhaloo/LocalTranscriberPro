@@ -3,12 +3,14 @@ import shutil
 import pytest
 
 from scripts.check_release_docs import ROOT, check
+from src import __version__
 
 
 def fixture_repo(tmp_path):
+    minor = '.'.join(__version__.split('.')[:2])
     for name in ('src/__init__.py', 'pyproject.toml', 'packaging/windows/installer.iss',
                  'packaging/LocalTranscriberPro.spec', 'README.md', 'CHANGELOG.md',
-                 'docs/TRANSLATION.md', 'docs/VALIDATION_3.1.md', 'docs/EXPERIMENTAL_DESKTOP_3.1.md'):
+                 'docs/TRANSLATION.md', f'docs/VALIDATION_{minor}.md', f'docs/EXPERIMENTAL_DESKTOP_{minor}.md'):
         target = tmp_path / name
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(ROOT / name, target)
@@ -25,7 +27,7 @@ def test_current_release_docs():
 def test_stale_release_is_blocked(tmp_path, name):
     root = fixture_repo(tmp_path)
     path = root / name
-    path.write_text(path.read_text('utf-8').replace('3.1.0', '0.0.1'), encoding='utf-8')
+    path.write_text(path.read_text('utf-8').replace(__version__, '0.0.1'), encoding='utf-8')
     assert check(root)[1]
 
 

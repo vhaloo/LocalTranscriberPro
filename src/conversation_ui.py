@@ -8,6 +8,7 @@ import customtkinter as ctk
 
 from src.settings import bounded_int
 from src.speech_output_ui import SpeechOutputMixin
+from src.tooltip import ToolTip
 
 
 class ConversationMixin(SpeechOutputMixin):
@@ -20,8 +21,10 @@ class ConversationMixin(SpeechOutputMixin):
         tools = ctk.CTkFrame(row, fg_color="transparent")
         tools.grid(row=0, column=1, sticky="e")
         for label, delta in (("A−", -2), ("A+", 2)):
-            ctk.CTkButton(tools, text=label, width=42, height=29, fg_color="#16233D",
-                          command=lambda step=delta: self.change_transcript_font(step)).pack(side="left", padx=2)
+            button = ctk.CTkButton(tools, text=label, width=42, height=29, fg_color="#16233D",
+                                    command=lambda step=delta: self.change_transcript_font(step))
+            button.pack(side="left", padx=2)
+            ToolTip(button, self.t("tip_font_size"))
         self.font_size_label = ctk.CTkLabel(tools, text=str(self.conversation_font_size), width=26)
         self.font_size_label.pack(side="left", padx=3)
         self.reading_button = ctk.CTkButton(tools, text=self.t("reading_view"), width=170, height=29,
@@ -33,12 +36,17 @@ class ConversationMixin(SpeechOutputMixin):
         self.focus_stop = ctk.CTkButton(tools, text=self.t("stop"), width=85, height=29,
                                        fg_color="#8C3444", command=self.stop_recording, state="disabled")
         self.focus_stop.pack(side="left", padx=2)
+        for widget, key in ((self.reading_button, "tip_reading"), (self.focus_pause, "tip_pause"),
+                            (self.focus_stop, "tip_stop")):
+            ToolTip(widget, self.t(key))
         self.pipeline_label = ctk.CTkLabel(row, text=self.t("pipeline_idle"), text_color="#9AA8BE",
                                           font=("Segoe UI", 12), anchor="w")
         self.pipeline_label.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(3, 0))
         self.sampling_bar = ctk.CTkProgressBar(row, height=4, progress_color="#65A8FF", fg_color="#26344D")
         self.sampling_bar.grid(row=2, column=0, columnspan=2, sticky="ew", pady=(2, 3))
         self.sampling_bar.set(0)
+        ToolTip(self.pipeline_label, self.t("tip_pipeline"))
+        ToolTip(self.sampling_bar, self.t("tip_pipeline"))
         self._build_speech_controls(row)
 
     def change_transcript_font(self, delta):

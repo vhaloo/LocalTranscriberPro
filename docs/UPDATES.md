@@ -12,7 +12,7 @@ The bundled `_internal` runtime is replaced completely to prevent obsolete nativ
 
 Windows supports installation and relaunch. On macOS/Linux the accepted proposal opens the official release page for a platform-appropriate installation. Those platforms do not yet have automated replacement.
 
-The stable 3.1.0 release also carries explicitly labelled **experimental** macOS Apple Silicon and Linux x86-64 assets. This per-platform status does not change the stable Windows updater channel. Mac/Linux users install these packages manually; see [the experimental installation guide](EXPERIMENTAL_DESKTOP_3.1.md).
+The stable 3.2.0 release also carries explicitly labelled **experimental** macOS Apple Silicon and Linux x86-64 assets. This per-platform status does not change the stable Windows updater channel. Mac/Linux users install these packages manually; see [the experimental installation guide](EXPERIMENTAL_DESKTOP_3.2.md).
 
 ## Français
 
@@ -33,3 +33,9 @@ Checksums over trusted HTTPS provide integrity verification, not an independent 
 ## Keeping GitHub current for every release
 
 Version 3.1.0 adds `scripts/check_release_docs.py` to validation and packaging. The README title/download, changelog, platform versions, current guide and screenshot manifest must match the code version. Screenshots are checked for valid image data and SHA-256. Native package CI creates a draft after frozen ASR/voice checks; stable publication follows actual install validation. Explicitly authorized experimental assets carry their own status and validation limits. Existing verified release assets are preserved. See [BUILDING.md](BUILDING.md).
+
+## Independent video-engine repair — 3.2.0
+
+**Video options → Update the official video engine** is a separate explicit download. It queries only `yt-dlp/yt-dlp-nightly-builds`, accepts the exact platform asset and same-release `SHA2-256SUMS`, checks size and SHA-256 and writes a receipt in the video-engine cache. Each subsequent import verifies the executable again before launching it. Missing/changed/unverified files use the bundled engine. An update needs no app restart, preserves the current engine on download/hash failure and does not update any recognition/translation model. The button sends no audio, transcript, cookie or URL to GitHub.
+
+The nightly channel follows the recommendation of [yt-dlp’s maintainers](https://github.com/yt-dlp/yt-dlp#installation) for timely site fixes. It does not bypass DRM, authentication or a site’s restrictions. The regular application startup updater continues to use stable Local Transcriber Pro releases.

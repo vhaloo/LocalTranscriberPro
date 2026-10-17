@@ -3,26 +3,17 @@ import json
 import logging
 import os
 import platform
-import sys
 from pathlib import Path
 
 import certifi
 
 os.environ.setdefault("HF_HUB_DISABLE_TELEMETRY", "1")
 
-from src.utils import setup_logging
+from src.utils import configure_frozen_streams, setup_logging
 
-# --- Fix 0: macOS Finder Crash Fix (Redirect Stdout/Stderr) ---
-# GUI apps launched from Finder have no stdout/stderr. Writing to them causes a crash.
-if getattr(sys, "frozen", False) and platform.system() == "Darwin":
-    log_dir = os.path.join(os.path.expanduser("~"), "Library", "Logs", "LocalTranscriberPro")
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
-
-    # Redirect stdout/stderr to a log file
-    log_file = os.path.join(log_dir, "app_debug.log")
-    sys.stdout = open(log_file, "w")
-    sys.stderr = sys.stdout
+# GUI packages may have absent or invalid stdout/stderr even when launched by
+# a shell. Inference libraries must not fall back because a progress bar flushes.
+configure_frozen_streams()
 
 # Use a current CA bundle. TLS verification is intentionally never disabled.
 os.environ["SSL_CERT_FILE"] = certifi.where()
@@ -64,12 +55,14 @@ def run_packaged_smoke_test(args: argparse.Namespace) -> int:
     from src.transcriber import TranscriberEngine, TranscriptionOptions
 
     payload: dict[str, object] = {"success": False}
+    downloaded = None
     try:
         source = args.smoke_test
         if args.youtube_test:
             from src.youtube_utils import download_youtube_audio
 
             source = download_youtube_audio(args.youtube_test, Path(args.diagnostic_output).resolve().parent / "youtube-qa")
+            downloaded = source
         hardware = detect_hardware()
         engine = TranscriberEngine(hardware)
         options = TranscriptionOptions(language=args.language, task=args.task, beam_size=5, vad_filter=True,
@@ -101,6 +94,11 @@ def run_packaged_smoke_test(args: argparse.Namespace) -> int:
         }
     except Exception as exc:  # The JSON report is the frozen-app diagnostic surface.
         payload["error"] = f"{type(exc).__name__}: {exc}"
+    finally:
+        if downloaded:
+            from src.youtube_utils import cleanup_online_audio
+
+            cleanup_online_audio(downloaded)
     output = Path(args.diagnostic_output).expanduser().resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -130,6 +128,7 @@ def run_voice_smoke_test(args: argparse.Namespace) -> int:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--video-worker")
     parser.add_argument("--smoke-test")
     parser.add_argument("--youtube-test")
     parser.add_argument("--diagnostic-output")
@@ -154,8 +153,12 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
-    setup_logging()
     args = parse_args()
+    if args.video_worker:
+        from src.video_worker import main as video_worker_main
+
+        return video_worker_main(args.video_worker)
+    setup_logging()
     if args.voice_test:
         return run_voice_smoke_test(args)
     if args.smoke_test or args.youtube_test:

@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.2.0 — 2026-10-17
+
+- Added visible installation budgets, a storage/folders panel with actual selectable paths, background file sizes/free space and copy/open actions. Documented minimum, universal and full-catalogue budgets, recording growth and every per-OS storage location. The Windows installer shows the budgets and checks 12 GB free on the chosen installation drive.
+- Reworked online media import for supported sites/direct HTTP(S), isolated cancellable workers, bounded download sizes, retry/fallback formats, real audio decoding validation, compressed intermediate media and owned-job cleanup. Kept the previous YouTube entry point compatible.
+- Updated bundled yt-dlp/EJS and added optional independent official nightly engine updates with strict repository/size/SHA-256 checks and fallback to the included engine. Added explicit Netscape-cookie exports via temporary copies, actionable errors, local-file fallback and technical diagnostics that exclude URLs, cookies and conversations.
+- Fixed absent/invalid console streams in windowed packages before model imports, preventing checkpoint progress bars from forcing Qwen into a weaker fallback. Added a regression using the actual progress-bar library.
+- Expanded French/English hover/keyboard help for conversation languages, reading, confidence, overlapping speech, recordings, updates, video import and storage. Made the header responsive and option panels resizable/scrollable; tooltips close with hidden/destroyed controls.
+- Retained existing models, languages, offline inference, voices, universal conversation, exports, history/recovery, microphone tools and application updates. Updated current screenshots and version-aware documentation gates; retained historical language measurements without inventing new reliability scores.
+- Added real-worker HTTP/cancellation/cleanup tests, engine-integrity tests and bounded storage tests. Native package validation now exercises isolated media import and offline recognition together.
+
 ## 3.1.0 — 2026-10-08
 
 - Source maintenance, 2026-10-13: removed unused 0.x/1.x implementation copies, obsolete installer/build helpers and the old preview; retained current native packaging, the launcher and Git archive history. Documented local build artifact retention. Installed application code is unchanged.

@@ -32,13 +32,13 @@ For direct PyInstaller builds, run `python scripts/prepare_js_runtime.py` and `p
 
 The build workflow creates `Local Transcriber Pro.app`, adds the microphone usage description, applies an ad-hoc signature for artifact integrity, and packages it in a DMG. Production distribution should replace ad-hoc signing with Developer ID signing and notarization.
 
-The experimental 3.1.0 DMG is arm64 for Apple Silicon, built on macOS 14. No Intel package is provided. See [experimental distribution instructions](EXPERIMENTAL_DESKTOP_3.1.md).
+The experimental 3.2.0 DMG is arm64 for Apple Silicon, built on macOS 14. No Intel package is provided. See [experimental distribution instructions](EXPERIMENTAL_DESKTOP_3.2.md).
 
 ## Linux
 
 The build workflow creates an AppImage and a portable tar archive. The AppImage contains the application runtime; model files remain external and are downloaded to the user's cache on first use.
 
-The experimental 3.1.0 packages target x86-64 and are built on Ubuntu 24.04 with a CPU PyTorch runtime. Other distributions and GPU inference are unverified.
+The experimental 3.2.0 packages target x86-64 and are built on Ubuntu 24.04 with a CPU PyTorch runtime. Other distributions and GPU inference are unverified.
 
 ## Release procedure
 
@@ -47,7 +47,7 @@ The experimental 3.1.0 packages target x86-64 and are built on Ubuntu 24.04 with
 3. Run `scripts/check_release_docs.py`, `scripts/generate_language_readme.py --check`, Ruff and tests. CI rejects stale versions, download links, language inventories, documentation or screenshot metadata.
 4. Build the native package, run `scripts/verify_frozen_source.py` and `scripts/validate_frozen.py`, then test installation/upgrade/relaunch and data preservation on the target OS. Keep reports and a rollback checkpoint.
 5. Create an annotated `v3.x.y` tag. The desktop workflow builds native packages and tests frozen CPU ASR plus bundled voices; it creates a **draft** release with checksums. It preserves an existing verified release rather than overwriting its assets.
-6. Publish stable platform assets after installation and runtime verification. An explicitly authorized experimental platform distribution may be published earlier with `experimental` filenames/labels, architecture, checksums and precise validation limits. Before making a release latest, check exact filenames and hashes, README screenshots and updater discovery. Windows 3.1.0 remains stable; macOS/Linux 3.1.0 are experimental and physical installation validation is not claimed.
+6. Publish stable platform assets after installation and runtime verification. An explicitly authorized experimental platform distribution may be published earlier with `experimental` filenames/labels, architecture, checksums and precise validation limits. Before making a release latest, check exact filenames and hashes, README screenshots and updater discovery. Windows 3.2.0 remains stable; macOS/Linux 3.2.0 are experimental and physical installation validation is not claimed.
 
 `experimental-package-check.yml` can check successful desktop-build artifacts directly: mount and verify the final Mac DMG/signature, extract the Linux AppImage, compare its executable to the portable archive, verify packaged source/catalogues and run offline CPU ASR plus bundled voices. These checks improve experimental release confidence without claiming GUI, microphone, GPU or physical installation validation.
 
@@ -72,3 +72,9 @@ The updater requires the exact asset name `LocalTranscriberPro-X.Y.Z-Windows-x64
 Every GitHub asset must be under 2 GiB. Verify the installer size before upload. Do not publish an oversized or renamed older binary. For local builds, `AppSource` can override the Inno source directory when using a fresh output path to avoid stale/locked native files.
 
 Pass the resolved absolute `AppSource` path when the checkout path is long. Unresolved `packaging/windows/../../...` prefixes can push otherwise valid filenames over the compiler's Windows path limit. The native bundle's files must remain complete; shortening the source path is preferable to deleting dependencies.
+
+## Video import validation (3.2)
+
+The bundled yt-dlp nightly is pinned in requirements. Changes must preserve EJS and the bundled JavaScript runtime. `main.py --video-worker` dispatches before logging/GUI/model initialization; JSONL file IPC is required because windowed Windows executables have no stdout. `validate_frozen.py` runs an actual packaged HTTP import against a local server, followed by Tiny CPU offline recognition and temporary-job cleanup, in addition to direct ASR and bundled voices. Public-site tests are recorded separately because site access is time-dependent.
+
+Before release, compare `catalogue_budget()` and the installer/README estimates with actual installed and asset sizes. Keep GB decimal and distinguish files, installation headroom, cache duplication and unlimited recordings. The storage inspector never follows links or deletes data. Independent engine updates must remain restricted to the official yt-dlp nightly repository and verified metadata/checksums.

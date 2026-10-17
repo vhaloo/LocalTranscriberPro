@@ -10,14 +10,18 @@ class ToolTip:
         self.delay_ms = delay_ms
         self.tooltip_window = None
         self.pending = None
-        targets = [self.widget, *self.widget.winfo_children()]
-        canvas = getattr(self.widget, "_canvas", None)
-        if canvas is not None and canvas not in targets:
-            targets.append(canvas)
+        targets = [self.widget]
+        for target in targets:
+            targets.extend(child for child in target.winfo_children() if child not in targets)
         for target in targets:
             self._safe_bind(target, "<Enter>", self.schedule)
             self._safe_bind(target, "<Leave>", self.hide_tooltip)
             self._safe_bind(target, "<ButtonPress>", self.hide_tooltip)
+            self._safe_bind(target, "<FocusIn>", self.schedule)
+            self._safe_bind(target, "<FocusOut>", self.hide_tooltip)
+            self._safe_bind(target, "<Escape>", self.hide_tooltip)
+        self._safe_bind(self.widget, "<Destroy>", self.hide_tooltip)
+        self._safe_bind(self.widget, "<Unmap>", self.hide_tooltip)
 
     @staticmethod
     def _safe_bind(target, sequence: str, callback) -> None:
@@ -28,8 +32,11 @@ class ToolTip:
 
     def schedule(self, _event=None) -> None:
         self.cancel()
-        if self.text:
-            self.pending = self.widget.after(self.delay_ms, self.show_tooltip)
+        try:
+            if self.text and self.widget.winfo_exists():
+                self.pending = self.widget.after(self.delay_ms, self.show_tooltip)
+        except tk.TclError:
+            return
 
     def cancel(self) -> None:
         if self.pending is not None:
@@ -41,7 +48,10 @@ class ToolTip:
 
     def show_tooltip(self) -> None:
         self.pending = None
-        if self.tooltip_window or not self.text or not self.widget.winfo_exists():
+        try:
+            if self.tooltip_window or not self.text or not self.widget.winfo_exists() or not self.widget.winfo_ismapped():
+                return
+        except tk.TclError:
             return
         self.tooltip_window = tk.Toplevel(self.widget)
         self.tooltip_window.wm_overrideredirect(True)
