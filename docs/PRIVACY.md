@@ -7,16 +7,18 @@ Audio transcription, translation and speaker labeling run on the user's computer
 Network access occurs only for:
 
 1. downloading a selected model the first time it is used;
-2. downloading a YouTube video's audio after the user explicitly starts that task;
+2. retrieving explicitly requested media from a supported website or HTTP(S) media URL;
 3. checking the official GitHub stable release when startup update checks are enabled or the user clicks ↻;
-4. downloading a release installer and checksum after the user accepts an update.
+4. downloading a release installer and checksum after the user accepts an update;
+5. downloading the official yt-dlp engine/checksum when its explicit update button is chosen;
+6. preparing an optional selected local voice on first use, with the displayed download prompt.
 
 Downloaded models are cached locally and can be inspected or deleted in the Model Manager.
 
 ## Security controls
 
 - The global TLS-verification bypass in version 1 was removed. The current certificate bundle is used and HTTPS verification stays enabled.
-- Online-video URLs are limited to known YouTube HTTPS hosts before yt-dlp receives them.
+- Online-media URLs must be HTTP(S), without inline username/password or control characters. Local file URLs are rejected; local files use the dedicated file chooser. Extraction runs in a separate cancellable worker with a size limit and free-space reserve.
 - Model deletion resolves and validates the target against known model-cache roots before removing anything.
 - Settings and recovery files use per-user operating-system data directories.
 - Writes for transcripts and settings use temporary files followed by atomic replacement where practical.
@@ -43,4 +45,12 @@ The History view uses a local SQLite index under the user's application-data dir
 
 New model snapshots are pinned to explicit revisions and load packaged Python code, never repository-provided Python. Files remain in the local cache. Update checks send the usual HTTPS request metadata to GitHub, including the source IP and app User-Agent; audio, transcripts, hardware details and vocabulary are not transmitted. No automatic update is installed without accepting the proposal. A missing checksum or damaged installer aborts installation. SHA-256 downloaded over HTTPS protects integrity but is not an independent publisher signature.
 
-Requested YouTube downloads use the bundled yt-dlp EJS solver and Node runtime to process YouTube's JavaScript challenges with yt-dlp's permission restrictions. Automatic downloading of remote EJS components is disabled; updates to the solver ship with application updates.
+Requested YouTube downloads use the bundled yt-dlp EJS solver and Node runtime to process YouTube's JavaScript challenges with yt-dlp's permission restrictions. Automatic downloading of remote EJS components is disabled; the included solver ships with application updates. An optional verified official yt-dlp executable can be updated independently to follow site changes.
+
+## Explicit online sign-in and temporary files — 3.2
+
+A user may select a Netscape cookie export. Browser databases are never read automatically. The selected path is kept only for the current app session, is not saved in settings and is not included in diagnostics. A bounded temporary copy is passed to the isolated downloader and removed after import or cancellation; the original export is not modified. Cookie contents, requested URLs and raw extractor errors never enter the application log. Site access necessarily sends the requested URL and any selected applicable cookies to that site. Cookies are sensitive session credentials; the application shows that explanation before selection.
+
+Each import owns a unique `ltp-video-*` folder under `Cache/online-audio` with an explicit ownership marker. Only that job is cleaned up after recognition, failure or cancellation. An abrupt OS/process crash can leave an unfinished job; the storage panel exposes its location. Cleanup does not scan or delete unrelated files. Technical diagnostics copy OS/tool versions and tool availability, without conversation contents or URLs.
+
+**Storage and folders** shows actual application, export, cache, settings/history/recovery and log locations with read-only measurements. User data lives outside the runtime and survives app replacement. XDG-configured locations are respected on Linux.

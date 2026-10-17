@@ -60,6 +60,8 @@ from src.models import (
 )
 from src.segments import shift_segments, validate_segments
 from src.settings import SettingsStore, bounded_int, ensure_output_folder
+from src.storage import MINIMUM_INSTALL_FREE, format_bytes
+from src.storage_ui import StorageDialog
 from src.tooltip import ToolTip
 from src.transcriber import EngineStatus, TranscriberEngine, TranscriptionOptions
 from src.transcript_format import TranscriptFormat, format_transcript
@@ -71,7 +73,13 @@ from src.utils import (
     create_srt_content,
     timestamped_name,
 )
-from src.youtube_utils import download_youtube_audio, is_supported_url
+from src.video_ui import VideoOptionsDialog
+from src.youtube_utils import (
+    VideoDownloadError,
+    cleanup_online_audio,
+    download_youtube_audio,
+    is_supported_url,
+)
 
 APP_VERSION = __version__
 DEV_CREDIT = "Vhaloo"
@@ -759,6 +767,7 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
             self.simple_quality = "best"
         self.hardware_ready = self.hardware.has_safe_model(self.selected_device, cached_models)
         self.pending_files: list[str] = []
+        self.video_cookies_file = ""
         self.transcript_data: list[dict[str, Any]] = []
         self.recording_spool: RecordingSpool | None = None
         self.recording_offset = 0.0
@@ -1061,6 +1070,32 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
         )
         self.mode_button.pack(side="left", padx=(5, 0))
         ToolTip(self.mode_button, self.t("tip_mode"))
+        self.header_controls = controls
+        self._header_stacked = None
+        header.bind("<Configure>", self._responsive_header, add="+")
+        locations = ctk.CTkFrame(header, fg_color="transparent")
+        locations.grid(row=2, column=0, columnspan=2, sticky="ew", pady=(8, 0))
+        locations.grid_columnconfigure(2, weight=1)
+        self.storage_button = ctk.CTkButton(locations, text=self.t("storage_short"), height=27, width=158,
+                                            fg_color=PANEL, command=lambda: StorageDialog(self))
+        self.storage_button.grid(row=0, column=0, padx=(0, 12))
+        ToolTip(self.storage_button, self.t("storage_summary_tip"))
+        ctk.CTkLabel(locations, text=self.t("storage_compact", minimum=format_bytes(MINIMUM_INSTALL_FREE, self.t.language)),
+                    font=("Segoe UI", 11), text_color=ACCENT).grid(row=0, column=1, padx=(0, 12))
+        self.storage_output = ctk.CTkEntry(locations, height=27, fg_color=BACKGROUND, border_width=0)
+        self.storage_output.insert(0, str(self.output_folder))
+        self.storage_output.configure(state="readonly")
+        self.storage_output.grid(row=0, column=2, sticky="ew")
+        self.storage_output_tip = ToolTip(self.storage_output, self.t("storage_output_tip", path=self.output_folder))
+
+    def _responsive_header(self, event):
+        stacked = event.width < 1120
+        if stacked == self._header_stacked:
+            return
+        self._header_stacked = stacked
+        self.header_controls.grid(row=1 if stacked else 0, column=0 if stacked else 1,
+                                  columnspan=2 if stacked else 1, sticky="w" if stacked else "e",
+                                  pady=(8, 0) if stacked else 0)
 
     def _build_simple_dashboard(self) -> None:
         self.simple_panel = ctk.CTkFrame(self, fg_color=PANEL, corner_radius=28)
@@ -1382,6 +1417,8 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
             border_color="#2A3C5E",
         )
         self.url_entry.grid(row=0, column=0, sticky="ew", padx=(0, 12))
+        ToolTip(self.url_entry, self.t("video_url_tip"))
+        self.url_entry.bind("<Return>", lambda _event: self.start_link())
         self.link_button = ctk.CTkButton(
             self.link_controls,
             text=self.t("download_start"),
@@ -1396,6 +1433,14 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
         )
         self.link_button.grid(row=0, column=1)
         ToolTip(self.link_button, self.t("tip_link"))
+        video_options = ctk.CTkButton(self.link_controls, text=self.t("video_options"), width=190, height=28,
+                                      fg_color=PANEL_ALT, command=lambda: VideoOptionsDialog(self))
+        video_options.grid(row=1, column=0, sticky="w", pady=(8, 0))
+        ToolTip(video_options, self.t("video_options_tip"))
+        local_video = ctk.CTkButton(self.link_controls, text=self.t("video_local_file"), width=190, height=28,
+                                    fg_color=PANEL_ALT, command=self.choose_files)
+        local_video.grid(row=1, column=1, pady=(8, 0))
+        ToolTip(local_video, self.t("video_local_tip"))
         self.translation_controls = TranslationControls(self, self.source_card)
         self.translation_controls.grid(row=3, column=0, sticky="ew", padx=20, pady=(0, 10))
 
@@ -1508,13 +1553,17 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
             widget.grid(row=index // 4, column=index % 4, sticky="w", padx=6, pady=7)
             ToolTip(widget, self.t(tip_key))
         self.update_var = ctk.BooleanVar(value=self.settings.get("check_updates", True))
-        ctk.CTkCheckBox(checks, text=self.t("update_automatic"), variable=self.update_var,
+        update_check = ctk.CTkCheckBox(checks, text=self.t("update_automatic"), variable=self.update_var,
                        font=("Segoe UI", 12), checkbox_width=20, checkbox_height=20,
-                       fg_color=ACCENT_DARK, command=self.persist_settings).grid(row=1, column=2, sticky="w", padx=6, pady=7)
+                       fg_color=ACCENT_DARK, command=self.persist_settings)
+        update_check.grid(row=1, column=2, sticky="w", padx=6, pady=7)
+        ToolTip(update_check, self.t("tip_update_automatic"))
         self.keep_audio_var = ctk.BooleanVar(value=self.settings.get("keep_recording_audio", True))
-        ctk.CTkCheckBox(checks, text=self.t("keep_audio"), variable=self.keep_audio_var,
+        keep_audio_check = ctk.CTkCheckBox(checks, text=self.t("keep_audio"), variable=self.keep_audio_var,
                        font=("Segoe UI", 12), checkbox_width=20, checkbox_height=20,
-                       fg_color=ACCENT_DARK, command=self.persist_settings).grid(row=1, column=3, sticky="w", padx=6, pady=7)
+                       fg_color=ACCENT_DARK, command=self.persist_settings)
+        keep_audio_check.grid(row=1, column=3, sticky="w", padx=6, pady=7)
+        ToolTip(keep_audio_check, self.t("tip_keep_audio"))
 
         tuning = ctk.CTkFrame(self.advanced_panel, fg_color="transparent")
         tuning.grid(row=3, column=0, columnspan=4, sticky="ew", padx=20, pady=(2, 14))
@@ -2464,6 +2513,8 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
             messagebox.showwarning(self.t("warning"), self.t("invalid_url"), parent=self)
             return
         config = self.job_config()
+        config["video_cookies_file"] = self.video_cookies_file
+        config["video_max_bytes"] = bounded_int(self.settings.get("video_max_mb", 2000), 2000, 512, 4000) * 1_000_000
         self._start_job(0)
         self.worker_thread = threading.Thread(
             target=self._link_worker,
@@ -2484,6 +2535,9 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
                     temp_dir,
                     lambda percent: self._safe_ui(self._set_progress, percent / 400.0),
                     cancel_event=self.cancel_event,
+                    cookies_file=config.get("video_cookies_file") or None,
+                    max_bytes=config.get("video_max_bytes", 2_000_000_000),
+                    status_callback=lambda stage: self._safe_ui(self._set_status, self.t("video_stage_" + stage)),
                 )
             )
             self._safe_ui(self._set_progress, 0.25)
@@ -2513,15 +2567,15 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
                 status.device,
             )
             self._safe_ui(self._finish_job, saved, status.backend)
+        except VideoDownloadError as error:
+            logging.warning("Online video import failed: %s", error.code)
+            self._safe_ui(self._fail_job, RuntimeError(self.t("video_error_" + error.code)))
         except Exception as error:
             logging.exception("Online video transcription failed")
             self._safe_ui(self._fail_job, error)
         finally:
             if downloaded:
-                try:
-                    downloaded.unlink(missing_ok=True)
-                except OSError:
-                    pass
+                cleanup_online_audio(downloaded)
 
     def start_recording(self) -> None:
         if self.busy or self.recorder.recording or self.closing:
@@ -2906,6 +2960,11 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
             self.output_folder = ensure_output_folder(folder)
             self.history.index_existing(self.output_folder)
             self.settings.set("output_folder", str(self.output_folder), save=True)
+            self.storage_output.configure(state="normal")
+            self.storage_output.delete(0, "end")
+            self.storage_output.insert(0, str(self.output_folder))
+            self.storage_output.configure(state="readonly")
+            self.storage_output_tip.text = self.t("storage_output_tip", path=self.output_folder)
 
     def load_history_session(self, record: SessionRecord) -> None:
         if self.busy or self.recorder.recording:

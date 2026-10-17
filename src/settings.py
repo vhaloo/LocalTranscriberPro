@@ -76,6 +76,7 @@ DEFAULTS: dict[str, Any] = {
     "benchmarks": {},
     "window_geometry": "1220x940",
     "check_updates": True,
+    "video_max_mb": 2000,
     "keep_recording_audio": True,
     "vocabulary": "",
 }
@@ -116,6 +117,8 @@ class SettingsStore:
                 self.data["chunk_seconds"] = bounded_int(self.data.get("chunk_seconds"), 30, 5, 60)
                 self.data["beam_size"] = bounded_int(self.data.get("beam_size"), 8, 1, 10)
                 self.data["conversation_font_size"] = bounded_int(self.data.get("conversation_font_size"), 22, 14, 48)
+                if self.data.get("video_max_mb") not in (512, 1000, 2000, 4000):
+                    self.data["video_max_mb"] = DEFAULTS["video_max_mb"]
                 if not isinstance(self.data.get("benchmarks"), dict):
                     self.data["benchmarks"] = {}
                 if not isinstance(self.data.get("vocabulary"), str):

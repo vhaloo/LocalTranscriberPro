@@ -12,7 +12,7 @@ psutil>=6.1,<8
 sounddevice>=0.5.1,<0.6
 soundfile>=0.13,<0.14
 tkinterdnd2>=0.4.3,<0.5
-yt-dlp[default]>=2026.7.4
+yt-dlp[default]==2026.10.10.233141.dev0
 certifi>=2025.6.15
 sentencepiece>=0.2,<0.3
 arabic-reshaper>=3,<4

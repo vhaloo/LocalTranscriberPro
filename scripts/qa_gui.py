@@ -10,6 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from src import __version__  # noqa: E402
 from src.gui import TranscriberApp  # noqa: E402
 from src.hardware import detect_hardware  # noqa: E402
 from src.history import HistoryStore  # noqa: E402
@@ -25,7 +26,7 @@ if __name__ == "__main__":
     parser.add_argument("--exit-after-check", action="store_true")
     args = parser.parse_args()
     setup_logging()
-    folder = ROOT / "artifacts" / ("gui-qa-3.1" if args.universal else "gui-qa")
+    folder = ROOT / "artifacts" / ("gui-qa-" + __version__)
     settings = SettingsStore(folder / "settings.json")
     settings.update({"ui_language": "fr", "ui_mode": "advanced" if args.universal else "simple",
                      "preset": "universal" if args.universal else "files",
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     app = PreviewApp(hardware=detect_hardware(), settings=settings,
                          history=HistoryStore(folder / "history.sqlite3"))
     if args.demo:
-        app.title("Local Transcriber Pro 3.1.0 • Démonstration")
+        app.title("Local Transcriber Pro " + __version__ + " • Démonstration")
         app.transcript_data = [
             {"start": 0, "end": 4, "source_language": "ar", "source_text": "أنا أحتاج إلى مساعدة في العثور على سكن.",
              "target_language": "fr", "text": "J’ai besoin d’aide pour trouver un logement.",

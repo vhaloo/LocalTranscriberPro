@@ -100,7 +100,7 @@ jobs:
           cp -R "dist/${APP_VERSION}/Local Transcriber Pro.app" dmg-root/
           ln -s /Applications dmg-root/Applications
           codesign --force --deep --sign - "dmg-root/Local Transcriber Pro.app"
-          hdiutil create -volname "Local Transcriber Pro" -srcfolder dmg-root -ov -format UDZO "artifacts/LocalTranscriberPro-${VERSION}-macOS.dmg"
+          hdiutil create -volname "Local Transcriber Pro" -srcfolder dmg-root -ov -format UDZO "artifacts/LocalTranscriberPro-${VERSION}-macOS-arm64-experimental.dmg"
       - name: Package Linux AppImage and archive
         if: runner.os == 'Linux'
         run: |
@@ -115,8 +115,8 @@ jobs:
           chmod +x AppDir/AppRun AppDir/usr/bin/LocalTranscriberPro/LocalTranscriberPro
           curl -L -o appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
           chmod +x appimagetool
-          ARCH=x86_64 ./appimagetool --appimage-extract-and-run AppDir "artifacts/LocalTranscriberPro-${VERSION}-Linux-x86_64.AppImage"
-          tar -C "dist/${APP_VERSION}" -czf "artifacts/LocalTranscriberPro-${VERSION}-Linux-x86_64.tar.gz" LocalTranscriberPro
+          ARCH=x86_64 ./appimagetool --appimage-extract-and-run AppDir "artifacts/LocalTranscriberPro-${VERSION}-Linux-x86_64-experimental.AppImage"
+          tar -C "dist/${APP_VERSION}" -czf "artifacts/LocalTranscriberPro-${VERSION}-Linux-x86_64-experimental.tar.gz" LocalTranscriberPro
       - name: Check release asset size limit
         shell: python {0}
         run: |

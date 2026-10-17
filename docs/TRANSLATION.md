@@ -1,4 +1,4 @@
-# Traduction et lecture locales — 3.1.0
+# Traduction et lecture locales — 3.2.0
 
 ## Démarrer une conversation
 
@@ -55,3 +55,9 @@ L'identification habituelle des personnes reste une option distincte, appliquée
 Chaque session termine avec TXT, SRT, VTT, CSV et JSON dans le dossier choisi ; les textes originaux/traduits restent associés. Les sauvegardes progressives TXT/JSON et l'audio de récupération protègent une session interrompue. Historique rouvre le résultat ; Effacer vide l'écran sans effacer les fichiers sauvegardés. Le transcript bilingue est protégé contre les corrections accidentelles de ses associations ; le transcript simple conserve l'édition.
 
 Pour les noms, nombres et décisions importants, réécoutez et faites confirmer le sens. Ces outils facilitent un échange ; leur couverture annoncée ne garantit pas une interprétation correcte de toute langue, tout dialecte ou toute situation sonore.
+
+## Aides, stockage et médias en ligne — 3.2
+
+Les principales commandes montrent une aide au survol et au focus clavier. **Stockage et dossiers**, en haut de la fenêtre, affiche les besoins, les dossiers exacts des modèles/voix/historique/exports et leurs tailles. Comptez environ 5,9 Go pour le minimum avec Tiny, 14,4 Go pour Omnilingual + traduction et 44 Go pour tout le catalogue ; prévoyez 12 Go libres avant installation ou 85 Go avec les caches de toutes les options. L’audio enregistré ajoute environ 115 Mo/heure et il n’existe pas de maximum absolu.
+
+**Vidéo en ligne** accepte YouTube, les autres sites pris en charge et les liens média HTTP(S). **Options vidéo et diagnostic** actualise le moteur officiel vérifié et règle la limite. L’audio compressé est vérifié puis traité localement ; l’annulation arrête aussi le téléchargement. Une connexion éventuelle utilise uniquement l’export de cookies que vous choisissez, via une copie temporaire. **Utiliser un fichier local…** offre un autre parcours lorsqu’un site refuse l’import. [Dossiers, budgets et procédure détaillée](../README.md#storage-requirements-and-locations--stockage-et-dossiers).
