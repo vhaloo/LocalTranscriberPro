@@ -9,6 +9,10 @@ on:
       linux_run_id:
         description: Successful desktop build run containing linux-x64-package
         required: true
+      release_tag:
+        description: Optional existing draft release to receive verified Mac/Linux assets
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -79,3 +83,87 @@ jobs:
             artifacts/packaged-smoke/report-*.json
             artifacts/frozen-source-proof.json
           if-no-files-found: ignore
+
+  attach-to-draft:
+    if: inputs.release_tag != ''
+    needs: check
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ inputs.release_tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.macos_run_id }}
+          name: macos-package
+          path: packages
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.linux_run_id }}
+          name: linux-x64-package
+          path: packages
+      - name: Attach exact inspected packages to an existing draft
+        shell: python {0}
+        run: |
+          import hashlib
+          import json
+          import os
+          import subprocess
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, os.environ["GITHUB_WORKSPACE"])
+          from src import __version__
+          from src.updater import expected_checksum
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+          tag = os.environ["RELEASE_TAG"]
+          assert tag == "v" + __version__, "Draft tag must match the checked application"
+          def api(path, binary=False):
+              command = ["gh", "api", f"repos/{repo}/{path}"]
+              if binary:
+                  command += ["-H", "Accept: application/octet-stream"]
+              result = subprocess.run(command, check=True, capture_output=True)
+              return result.stdout if binary else json.loads(result.stdout)
+
+          matches = [item for item in api("releases?per_page=100") if item["tag_name"] == tag]
+          assert len(matches) == 1 and matches[0]["draft"], "Only an existing draft may be modified"
+          release = matches[0]
+          assert not release["prerelease"]
+          assets = {item["name"]: item for item in release["assets"]}
+          manifest_asset = assets["SHA256SUMS.txt"]
+          assert manifest_asset["state"] == "uploaded" and manifest_asset["size"] < 256 * 1024
+          manifest_bytes = api(f"releases/assets/{manifest_asset['id']}", binary=True)
+          assert len(manifest_bytes) == manifest_asset["size"]
+          assert manifest_asset["digest"] == "sha256:" + hashlib.sha256(manifest_bytes).hexdigest()
+          manifest = manifest_bytes.decode("utf-8-sig")
+          names = [f"LocalTranscriberPro-{__version__}-macOS-arm64-experimental.dmg",
+                   f"LocalTranscriberPro-{__version__}-Linux-x86_64-experimental.AppImage",
+                   f"LocalTranscriberPro-{__version__}-Linux-x86_64-experimental.tar.gz"]
+          assert {path.name for path in Path("packages").iterdir()} == set(names)
+          proof = []
+          for name in names:
+              path = Path("packages") / name
+              assert path.is_file() and 0 < path.stat().st_size < 2 * 1024 ** 3
+              digest = hashlib.file_digest(path.open("rb"), "sha256").hexdigest()
+              assert digest == expected_checksum(manifest, name), name
+              old = assets.get(name)
+              if old is None:
+                  subprocess.run(["gh", "release", "upload", tag, str(path), "--repo", repo], check=True)
+              current = api(f"releases/{release['id']}")
+              assert current["draft"] and current["tag_name"] == tag
+              remote = next(item for item in current["assets"] if item["name"] == name)
+              assert remote["state"] == "uploaded" and remote["size"] == path.stat().st_size
+              assert remote["digest"] == "sha256:" + digest
+              proof.append({"name": name, "bytes": remote["size"], "sha256": digest})
+          Path("verified-draft-assets.json").write_text(json.dumps(proof, indent=2), encoding="utf-8")
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verified-experimental-draft-assets
+          path: verified-draft-assets.json
+          if-no-files-found: error
