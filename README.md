@@ -37,6 +37,8 @@ Windows checks the official GitHub release at startup and proposes a newer stabl
 | All current recognizers, translation, voices and optional tools | ~44 GB | **85 GB prudent budget** including preparation and possible Windows Hub duplicate caches |
 | Saved microphone audio | ~115 MB per recorded hour | Adds to the chosen output folder, plus text exports |
 
+**Measured 3.2.0 Windows files:** 5.325 GB for the application runtime before model caches; 2.106 GB for its compressed installer. The table uses conservative planning budgets.
+
 These are conservative Windows package/catalogue estimates; Mac/Linux packages are generally smaller. **There is no finite maximum**: recordings, exports, extra model revisions and caches can continue growing. The 85 GB figure is a planning budget, not a hard ceiling. Preparing every model is optional. A build environment needs extra space beyond these user-installation budgets.
 
 **En français :** minimum pratique d’environ **5,9 Go**, avec **12 Go libres avant installation** ; environ **14,4 Go** pour la conversation universelle, **44 Go** pour les fichiers de tout le catalogue et **85 Go à prévoir** avec les préparations/caches. L’audio du micro ajoute environ **115 Mo par heure**. Aucun maximum absolu ne peut être promis. Le panneau **Stockage et dossiers**, accessible en haut de la fenêtre, donne les chemins réels, les tailles mesurées en arrière-plan et l’espace libre ; les liens/jonctions sont ignorés et les mesures incomplètes sont signalées.
