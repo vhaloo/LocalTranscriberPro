@@ -123,6 +123,7 @@ jobs:
           import re
           import subprocess
           import sys
+          import time
           from pathlib import Path
           sys.path.insert(0, os.environ["GITHUB_WORKSPACE"])
           from src import __version__
@@ -140,6 +141,14 @@ jobs:
           matches = [item for item in api("releases?per_page=100") if item["tag_name"] == staging]
           assert len(matches) == 1 and matches[0]["draft"]
           assets = {item["name"]: item for item in matches[0]["assets"]}
+          for attempt in range(40):
+              if "windows-parts.json" in assets:
+                  break
+              print("Waiting for the verified Windows part manifest", flush=True)
+              time.sleep(30)
+              current = api(f"releases/{matches[0]['id']}")
+              assert current["draft"] and current["tag_name"] == staging
+              assets = {item["name"]: item for item in current["assets"]}
           metadata_asset = assets["windows-parts.json"]
           assert metadata_asset["state"] == "uploaded" and 0 < metadata_asset["size"] <= 128 * 1024
           raw = api(f"releases/assets/{metadata_asset['id']}", binary=True)
