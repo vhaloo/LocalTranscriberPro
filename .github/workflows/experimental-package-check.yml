@@ -13,6 +13,10 @@ on:
         description: Optional existing draft release to receive verified Mac/Linux assets
         required: false
         default: ""
+      windows_staging_tag:
+        description: Optional internal draft containing a checksummed Windows upload split into parts
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -94,6 +98,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       RELEASE_TAG: ${{ inputs.release_tag }}
+      WINDOWS_STAGING_TAG: ${{ inputs.windows_staging_tag }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -108,6 +113,77 @@ jobs:
           run-id: ${{ inputs.linux_run_id }}
           name: linux-x64-package
           path: packages
+      - name: Reassemble an optional staged Windows upload
+        if: inputs.windows_staging_tag != ''
+        shell: python {0}
+        run: |
+          import hashlib
+          import json
+          import os
+          import re
+          import subprocess
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, os.environ["GITHUB_WORKSPACE"])
+          from src import __version__
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+          staging = os.environ["WINDOWS_STAGING_TAG"]
+          assert staging.startswith(f"internal-windows-{__version__}-")
+          def api(path, binary=False):
+              command = ["gh", "api", f"repos/{repo}/{path}"]
+              if binary:
+                  command += ["-H", "Accept: application/octet-stream"]
+              result = subprocess.run(command, check=True, capture_output=True)
+              return result.stdout if binary else json.loads(result.stdout)
+
+          matches = [item for item in api("releases?per_page=100") if item["tag_name"] == staging]
+          assert len(matches) == 1 and matches[0]["draft"]
+          assets = {item["name"]: item for item in matches[0]["assets"]}
+          metadata_asset = assets["windows-parts.json"]
+          assert metadata_asset["state"] == "uploaded" and 0 < metadata_asset["size"] <= 128 * 1024
+          raw = api(f"releases/assets/{metadata_asset['id']}", binary=True)
+          assert len(raw) == metadata_asset["size"]
+          assert metadata_asset["digest"] == "sha256:" + hashlib.sha256(raw).hexdigest()
+          manifest = json.loads(raw)
+          filename = f"LocalTranscriberPro-{__version__}-Windows-x64-Setup.exe"
+          assert manifest["filename"] == filename and manifest["version"] == __version__
+          assert 0 < manifest["bytes"] < 2 * 1024 ** 3
+          assert re.fullmatch(r"[a-f0-9]{64}", manifest["sha256"])
+          parts = manifest["parts"]
+          assert 1 <= len(parts) <= 32
+          assert sum(part["bytes"] for part in parts) == manifest["bytes"]
+          for index, part in enumerate(parts):
+              assert part["name"] == f"windows-{__version__}.part-{index:03}.bin"
+              assert 0 < part["bytes"] <= 128 * 1024 ** 2
+              assert re.fullmatch(r"[a-f0-9]{64}", part["sha256"])
+              remote = assets[part["name"]]
+              assert remote["state"] == "uploaded" and remote["size"] == part["bytes"]
+              assert remote["digest"] == "sha256:" + part["sha256"]
+          temporary = Path("packages") / (filename + ".part")
+          destination = Path("packages") / filename
+          assert not destination.exists() and not temporary.exists()
+          total_hash = hashlib.sha256()
+          with temporary.open("xb") as output:
+              for part in parts:
+                  asset_id = int(assets[part["name"]]["id"])
+                  command = ["gh", "api", f"repos/{repo}/releases/assets/{asset_id}",
+                             "-H", "Accept: application/octet-stream"]
+                  process = subprocess.Popen(command, stdout=subprocess.PIPE)
+                  count, digest = 0, hashlib.sha256()
+                  while chunk := process.stdout.read(1024 * 1024):
+                      count += len(chunk)
+                      if count > part["bytes"]:
+                          process.terminate()
+                          raise ValueError("Staged part exceeds its declared size")
+                      digest.update(chunk)
+                      total_hash.update(chunk)
+                      output.write(chunk)
+                  assert process.wait() == 0
+                  assert count == part["bytes"] and digest.hexdigest() == part["sha256"]
+          assert temporary.stat().st_size == manifest["bytes"]
+          assert total_hash.hexdigest() == manifest["sha256"]
+          temporary.replace(destination)
       - name: Attach exact inspected packages to an existing draft
         shell: python {0}
         run: |
@@ -145,6 +221,8 @@ jobs:
           names = [f"LocalTranscriberPro-{__version__}-macOS-arm64-experimental.dmg",
                    f"LocalTranscriberPro-{__version__}-Linux-x86_64-experimental.AppImage",
                    f"LocalTranscriberPro-{__version__}-Linux-x86_64-experimental.tar.gz"]
+          if os.environ["WINDOWS_STAGING_TAG"]:
+              names.append(f"LocalTranscriberPro-{__version__}-Windows-x64-Setup.exe")
           assert {path.name for path in Path("packages").iterdir()} == set(names)
           proof = []
           for name in names:
