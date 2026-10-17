@@ -4,7 +4,7 @@ Version 3.2 preserves the recognition/translation models, language catalogues an
 
 ## Source and UI checks
 
-- Windows source checks cover the retained features and new real-worker HTTP audio import, stalled-server cancellation, unreadable audio, owned-job cleanup, cookie export preservation and URL validation.
+- All 158 Windows tests passed locally in 17.47 seconds, with Ruff, compilation and `pip check` also passing. The [three-platform source CI](https://github.com/vhaloo/LocalTranscriberPro/actions/runs/39055911591) passed on Windows, macOS and Linux. Source checks cover the retained features and new real-worker HTTP audio import, stalled-server cancellation, unreadable audio, owned-job cleanup, cookie export preservation and URL validation.
 - Engine checks cover official repository/tag/assets, announced size, SHA-256, cancellation, retained previous files on failure and re-verification before launch.
 - Storage checks cover custom paths, hardlink deduplication, bounded scans and skipping directory links, including links passed as the scan root.
 - The actual French interface was opened with isolated settings/history and illustrative Arabic/French/English text. Reading enlargement, selected speech lines, font limits, clipboard content and editable-text/confidence preservation passed the GUI self-check. Storage and video panels were inspected; current screenshots are in `docs/images`.
@@ -17,8 +17,9 @@ Version 3.2 preserves the recognition/translation models, language catalogues an
 | Public YouTube clip, included yt-dlp 2026.10.10.233141 | Passed; decodable audio | 309,156 bytes, M4A; 5.95 s |
 | Same clip, independently updated official engine | Passed; decodable audio | 309,156 bytes, M4A; 9.28 s |
 | Public direct HTTPS FLAC sample | Passed; decodable audio | 1,152,693 bytes; 4.86 s |
+| Vimeo sample URL, no cookies | Authentication/verification requested; actionable error shown | No retained temporary audio |
 
-The optional official Windows engine was downloaded as 17,842,237 bytes, matched the same-release SHA-256 manifest and passed re-verification before use. The test left no owned temporary jobs. These are acquisition/decoding checks, not speech-quality or all-site benchmarks. Internet conditions, content availability, authentication, geoblocking and server verification can change. Vimeo and all other extractors are not individually certified by these cases.
+The optional official Windows engine was downloaded as 17,842,237 bytes, matched the same-release SHA-256 manifest and passed re-verification before use. The test left no owned temporary jobs. These are acquisition/decoding checks, not speech-quality or all-site benchmarks. Internet conditions, content availability, authentication, geoblocking and server verification can change. The Vimeo sample required authentication/verification without cookies; authenticated Vimeo access was not validated. Other extractors are not individually certified by these cases.
 
 ## Storage estimates
 
