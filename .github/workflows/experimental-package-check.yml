@@ -220,7 +220,7 @@ jobs:
           assert len(matches) == 1 and matches[0]["draft"], "Only an existing draft may be modified"
           release = matches[0]
           assert not release["prerelease"]
-          assets = {item["name"]: item for item in release["assets"]}
+          assets = {item["name"]: item for item in api(f"releases/{release['id']}/assets?per_page=100")}
           manifest_asset = assets["SHA256SUMS.txt"]
           assert manifest_asset["state"] == "uploaded" and manifest_asset["size"] < 256 * 1024
           manifest_bytes = api(f"releases/assets/{manifest_asset['id']}", binary=True)
@@ -240,6 +240,9 @@ jobs:
               digest = hashlib.file_digest(path.open("rb"), "sha256").hexdigest()
               assert digest == expected_checksum(manifest, name), name
               old = assets.get(name)
+              if old is not None:
+                  assert old["state"] == "uploaded", f"Resolve the incomplete upload for {name} before retrying"
+                  assert old["size"] == path.stat().st_size and old["digest"] == "sha256:" + digest
               if old is None:
                   subprocess.run(["gh", "release", "upload", tag, str(path), "--repo", repo], check=True)
               current = api(f"releases/{release['id']}")
