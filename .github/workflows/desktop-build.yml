@@ -1,4 +1,5 @@
 name: Build desktop packages
+run-name: Desktop ${{ inputs.platform || 'all' }} @ ${{ github.ref_name }}
 
 on:
   workflow_dispatch:
