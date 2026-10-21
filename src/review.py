@@ -6,6 +6,18 @@ import re
 from datetime import UTC, datetime
 
 
+def audience_lines(segments, language="all"):
+    result = []
+    for item in segments:
+        lines = [(item.get("source_language", item.get("language")), item.get("source_text", item.get("text", "")), "original")]
+        if "source_text" in item and not item.get("translation_pending"):
+            lines.append((item.get("target_language"), item.get("text", ""), "translated"))
+        if item.get("third_text") and item.get("third_language") not in {item.get("source_language"), item.get("target_language")}:
+            lines.append((item.get("third_language"), item["third_text"], "translated"))
+        result.extend((code, text, tag) for code, text, tag in lines if text and (language == "all" or language == code))
+    return result
+
+
 def review_flags(item):
     flags = []
     if item.get("language_uncertain"):

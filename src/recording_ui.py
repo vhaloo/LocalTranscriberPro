@@ -283,4 +283,3 @@ class RecordingMixin:
         )
         self._fail_job(error)
         self.after(250, self._start_microphone_monitor)
-

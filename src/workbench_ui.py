@@ -11,7 +11,7 @@ import customtkinter as ctk
 
 from src.exports import write_bundle
 from src.private_session import decrypt_segments, save_private
-from src.review import correct_segment, retranslate_segment
+from src.review import audience_lines, correct_segment, retranslate_segment
 from src.session import SessionController, identified
 from src.tooltip import ToolTip
 from src.translation_languages import language_label, normalize_language
@@ -69,16 +69,12 @@ class WorkbenchMixin:
         for tag, color in (("original", "#F5F7FB"), ("translated", "#5EE4B7")):
             box._textbox.tag_configure(tag, foreground=color, spacing3=15)
             box._textbox.tag_configure(tag + "_rtl", foreground=color, justify="right", spacing3=15)
-        for item in self.transcript_data:
-            lines = [(item.get("source_language", item.get("language")), item.get("source_text", item.get("text", "")), "original")]
-            if "source_text" in item and not item.get("translation_pending"):
-                lines.append((item.get("target_language"), item.get("text", ""), "translated"))
-            if item.get("third_text") and item.get("third_language") not in {item.get("source_language"), item.get("target_language")}:
-                lines.append((item.get("third_language"), item["third_text"], "translated"))
-            for code, text, tag in lines:
-                if text and (selected == "all" or selected == code):
-                    shaped, rtl = display_line(text)
-                    box.insert("end", shaped + "\n\n", tag + ("_rtl" if rtl else ""))
+        window.speech_lines = {}
+        for code, text, tag in audience_lines(self.transcript_data, selected):
+            row = int(box._textbox.index("end-1c").split(".")[0])
+            window.speech_lines[row] = (text, code or self.t.language)
+            shaped, rtl = display_line(text)
+            box.insert("end", shaped + "\n\n", tag + ("_rtl" if rtl else ""))
         box.configure(state="disabled")
         box.see("end")
 
@@ -105,7 +101,15 @@ class WorkbenchMixin:
             self._update_audience()
         for label, delta in (("A−", -4), ("A+", 4)):
             ctk.CTkButton(controls, text=label, width=50, command=lambda value=delta: resize(value)).pack(side="left", padx=4)
-        ctk.CTkButton(controls, text=self.t("speech_read_selection"), command=self.read_transcript_lines).pack(side="right", padx=5)
+        def read_visible():
+            selection = window.box._textbox.tag_ranges("sel")
+            if selection:
+                first, last = int(str(selection[0]).split(".")[0]), int(str(selection[1]).split(".")[0])
+                items = [item for row, item in window.speech_lines.items() if first <= row <= last]
+            else:
+                items = list(window.speech_lines.values())[-1:]
+            self.speak_items(items)
+        ctk.CTkButton(controls, text=self.t("speech_read_selection"), command=read_visible).pack(side="right", padx=5)
         window.box = ctk.CTkTextbox(window, wrap="word", fg_color="#111C32")
         window.box.pack(fill="both", expand=True, padx=20, pady=20)
         self._update_audience()

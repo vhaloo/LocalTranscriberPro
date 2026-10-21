@@ -10,7 +10,7 @@ from cryptography.exceptions import InvalidTag
 from src.gui import TranscriberApp
 from src.private_session import decrypt_segments, encrypt_segments, save_private
 from src.release_signature import verify_manifest
-from src.review import correct_segment, retranslate_segment, review_flags
+from src.review import audience_lines, correct_segment, retranslate_segment, review_flags
 from src.session import PreviewScheduler, SessionController, identified
 from src.translation import TranslationEngine
 
@@ -183,3 +183,12 @@ def test_windows_commit_limit_can_reject_model_despite_free_physical_ram():
     hardware = HardwareProfile("Windows", "11", "AMD64", "CPU", 8, 64, available_ram_gb=32, commit_free_gb=4)
     assert hardware.effective_available_ram_gb == 2
     assert not hardware.model_compatibility("omnilingual-1b-v2", "cpu", True).supported
+
+
+def test_audience_readback_uses_visible_language_and_logical_unicode():
+    item = turn()
+    french = audience_lines([item], "fr")
+    assert french == [("fr", "J’ai 12 livres.", "translated")]
+    arabic = audience_lines([item], "ar")
+    assert arabic == [("ar", item["source_text"], "original")]
+    assert len(audience_lines([item])) == 3
