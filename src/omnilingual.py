@@ -46,13 +46,19 @@ class OmnilingualBackend:
             model=str(folder / "model.onnx"), tokens=str(folder / "tokens.txt"),
             num_threads=max(1, min(threads, 8)), provider="cpu")
         self.language_probability = None
+        self.language_candidates = []
 
     def transcribe_chunk(self, audio, options):
         stream = self.recognizer.create_stream()
         stream.accept_waveform(SAMPLE_RATE, audio)
         self.recognizer.decode_stream(stream)
         text = stream.result.text.strip()
-        predictions = self.lid.f.predict(text.replace("\n", " "), 1, 0.0, "strict") if text else []
+        predictions = self.lid.f.predict(text.replace("\n", " "), 3, 0.0, "strict") if text else []
+        self.language_candidates = [
+            {"language": METADATA["lid"]["iso3_to_language"].get(label.removeprefix("__label__").split("_")[0],
+                                                                  label.removeprefix("__label__").split("_")[0]),
+             "probability": max(0.0, min(1.0, float(score)))} for score, label in predictions
+        ]
         probability, label = predictions[0] if predictions else (0.0, "__label__und")
         # fastText adds an epsilon to its softmax output; very confident
         # predictions can be 1.00001 and must remain valid transcript metadata.

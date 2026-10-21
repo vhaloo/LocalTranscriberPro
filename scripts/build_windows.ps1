@@ -1,3 +1,4 @@
+param([string]$OutputRoot = "")
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $PSScriptRoot
 Set-Location $Root
@@ -22,20 +23,24 @@ if ($LASTEXITCODE -ne 0) { throw "Default voice preparation failed." }
 
 $BuildVersion = & $Python -c "from src import __version__; print(__version__)"
 $BuildStamp = Get-Date -Format "yyyyMMdd-HHmmss"
-& $Python -m PyInstaller --clean --noconfirm --workpath "build/$BuildVersion-$BuildStamp" --distpath "dist/$BuildVersion" packaging/LocalTranscriberPro.spec
-if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath "dist\$BuildVersion\LocalTranscriberPro\LocalTranscriberPro.exe")) {
+if (-not $OutputRoot) { $OutputRoot = $Root }
+$OutputRoot = [IO.Path]::GetFullPath($OutputRoot)
+$BuildWork = Join-Path $OutputRoot "build\$BuildVersion-$BuildStamp"
+$BuildDist = Join-Path $OutputRoot "dist\$BuildVersion"
+& $Python -m PyInstaller --clean --noconfirm --workpath $BuildWork --distpath $BuildDist packaging/LocalTranscriberPro.spec
+if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath (Join-Path $BuildDist 'LocalTranscriberPro\LocalTranscriberPro.exe'))) {
     throw "PyInstaller did not produce the expected application."
 }
 
 # Some runtime packages mark data directories read-only. Keep generated
 # bundle directories writable so the next build and installer replacement can
 # remove obsolete files without changing any system ACL or security setting.
-$BundleRoot = (Resolve-Path -LiteralPath "dist\$BuildVersion\LocalTranscriberPro").Path
-if (-not $BundleRoot.StartsWith($Root + '\')) { throw "Unexpected bundle path." }
+$BundleRoot = (Resolve-Path -LiteralPath (Join-Path $BuildDist 'LocalTranscriberPro')).Path
+if (-not $BundleRoot.StartsWith($OutputRoot.TrimEnd('\') + '\')) { throw "Unexpected bundle path." }
 Get-ChildItem -LiteralPath $BundleRoot -Directory -Recurse -Force | ForEach-Object {
     if ($_.Attributes -band [IO.FileAttributes]::ReadOnly) {
         $_.Attributes = $_.Attributes -band (-bnot [IO.FileAttributes]::ReadOnly)
     }
 }
 
-Write-Host "Build ready in dist\$BuildVersion\LocalTranscriberPro"
+Write-Host "Build ready in $BundleRoot"

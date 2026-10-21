@@ -39,6 +39,9 @@ class UpdateInfo:
     checksum_url: str
     filename: str
     size: int
+    manifest_url: str = ""
+    signature_url: str = ""
+    signature_required: bool = False
 
 
 class SafeRedirects(urllib.request.HTTPRedirectHandler):
@@ -74,7 +77,8 @@ def parse_release(payload: dict, current_version: str) -> UpdateInfo | None:
     if target <= version_tuple(current_version):
         return None
     version = ".".join(str(value) for value in target)
-    filename = f"LocalTranscriberPro-{version}-Windows-x64-Setup.exe"
+    from src.runtime_flavor import cpu_only
+    filename = f"LocalTranscriberPro-{version}-Windows-x64-" + ("CPU-" if cpu_only() else "") + "Setup.exe"
     assets = {asset.get("name"): asset for asset in payload.get("assets", []) if isinstance(asset, dict)}
     installer, checksum = assets.get(filename), assets.get("SHA256SUMS.txt")
     if installer is None or checksum is None:
@@ -86,8 +90,18 @@ def parse_release(payload: dict, current_version: str) -> UpdateInfo | None:
     size = int(installer.get("size", 0))
     if size <= 0 or size > MAX_INSTALLER_BYTES:
         raise ValueError("Invalid update package size")
+    signed_urls = []
+    required = version_tuple(current_version) >= (3, 3, 0)
+    for name in ("release-manifest.json", "release-manifest.sig"):
+        asset = assets.get(name)
+        url = str(asset.get("browser_download_url", "")) if asset else ""
+        if url and not _release_asset_url(url, tag, name):
+            raise ValueError("Signed manifest is outside the official repository")
+        signed_urls.append(url)
+    if required and not all(signed_urls):
+        raise ValueError("This application requires a publisher-signed update")
     return UpdateInfo(version, f"https://github.com/{REPOSITORY}/releases/tag/{quote(tag, safe='')}",
-                      installer_url, checksum_url, filename, size)
+                      installer_url, checksum_url, filename, size, *signed_urls, required)
 
 
 def check_for_update(current_version: str) -> UpdateInfo | None:
@@ -116,7 +130,7 @@ def expected_checksum(content: str, filename: str) -> str:
 
 def download_update(info: UpdateInfo, folder: Path, progress: Callable[[float], None] | None = None,
                     cancel_event: threading.Event | None = None) -> Path:
-    if Path(info.filename).name != info.filename or not info.filename.endswith("-Windows-x64-Setup.exe"):
+    if Path(info.filename).name != info.filename or not info.filename.endswith(("-Windows-x64-Setup.exe", "-Windows-x64-CPU-Setup.exe")):
         raise ValueError("Invalid update filename")
     version_tuple(info.version)
     if not any(_release_asset_url(info.installer_url, tag, info.filename)
@@ -130,6 +144,18 @@ def download_update(info: UpdateInfo, folder: Path, progress: Callable[[float], 
     if len(checksums) > 256 * 1024:
         raise ValueError("Checksum manifest is too large")
     expected = expected_checksum(checksums.decode("utf-8-sig"), info.filename)
+    if info.signature_required or info.manifest_url or info.signature_url:
+        tag = "v" + info.version if "/v" + info.version + "/" in info.installer_url else info.version
+        for url, name in ((info.manifest_url, "release-manifest.json"), (info.signature_url, "release-manifest.sig")):
+            if not _release_asset_url(url, tag, name):
+                raise ValueError("Missing or untrusted publisher signature")
+        with _open(info.manifest_url) as response:
+            manifest = response.read(256 * 1024 + 1)
+        with _open(info.signature_url) as response:
+            signature = response.read(201)
+        from src.release_signature import verify_manifest
+        if verify_manifest(manifest, signature, info.version, info.filename, info.size) != expected:
+            raise ValueError("Signed and SHA-256 manifests disagree")
     folder.mkdir(parents=True, exist_ok=True)
     destination = folder / info.filename
     temporary = destination.with_suffix(".exe.part")

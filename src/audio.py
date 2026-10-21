@@ -25,6 +25,7 @@ class AudioRecorder:
         self.buffer_sample_count = 0
         self.chunk_duration_samples = 0
         self.capture_error = ""
+        self.captured_samples = 0
         self.overflow_chunk = None
         self.smart_splits = False
         self.segmenting = False
@@ -75,6 +76,7 @@ class AudioRecorder:
         self.audio_queue = queue.Queue(maxsize=128)
         self.recording = True
         self.capture_error = ""
+        self.captured_samples = 0
         self.overflow_chunk = None
         self.smart_splits = smart_splits
         self.segment_snapshot = {}
@@ -122,6 +124,7 @@ class AudioRecorder:
             logging.warning("Microphone capture status: %s", status)
 
         if self.recording and not self.paused:
+            self.captured_samples += frames
             self._update_visuals(indata, frames)
 
             if self.smart_splits:
@@ -227,7 +230,10 @@ class AudioRecorder:
                 if block is None:
                     self._queue_segment(self.segmenter.finish())
                 else:
-                    for chunk in self.segmenter.feed(block):
+                    with self.lock:
+                        chunks = self.segmenter.feed(block)
+                        self.segment_snapshot = self.segmenter.snapshot()
+                    for chunk in chunks:
                         self._queue_segment(chunk)
                     if self.segmenter.detector_error:
                         self.capture_error = f"Speech boundary detection failed: {self.segmenter.detector_error}"
@@ -255,13 +261,22 @@ class AudioRecorder:
         finally:
             self.segmenting = False
 
+    def preview_audio(self):
+        if not self.smart_splits or self.segmenter is None:
+            return np.empty(0, dtype=np.float32)
+        with self.lock:
+            if self.segmenter.state != "speech":
+                return np.empty(0, dtype=np.float32)
+            parts = [*self.segmenter.parts, self.segmenter.pending]
+            return np.concatenate(parts).astype(np.float32) if parts else np.empty(0, dtype=np.float32)
+
     def sampling_state(self):
         snapshot = dict(self.segment_snapshot) if self.smart_splits else {
             "state": "listening", "seconds": self.available_seconds(),
             "maximum_seconds": self.chunk_duration_samples / SAMPLE_RATE if self.chunk_duration_samples else 30,
             "silence": 0.0,
         }
-        return dict(snapshot, pending=self.audio_queue.qsize(), paused=self.paused)
+        return dict(snapshot, pending=self.audio_queue.qsize(), paused=self.paused, captured_seconds=self.captured_samples / SAMPLE_RATE)
 
     def start_monitor(self, device_index=None) -> bool:
         """Open a lightweight level-only stream when not recording."""

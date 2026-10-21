@@ -5,6 +5,7 @@ samples are used for evaluation only and are not redistributed with the app.
 """
 from __future__ import annotations
 
+import argparse
 import concurrent.futures
 import hashlib
 import io
@@ -16,6 +17,7 @@ import soundfile as sf
 
 ROOT = Path(__file__).resolve().parents[1] / "artifacts/dialect-tests"
 ROOT.mkdir(parents=True, exist_ok=True)
+SAMPLES = 2
 ASIAN = ["cmn_hans_cn", "yue_hant_hk", "hi_in", "ur_pk", "ta_in", "bn_in", "ps_af",
          "th_th", "vi_vn", "id_id", "ja_jp", "ko_kr"]
 PRIORITY = ["es_419", "fa_ir", "pa_in", "ln_cd", "yo_ng", "so_so", "ha_ng", "ig_ng", "am_et", "sw_ke", "tr_tr", "gu_in", "fr_fr", "en_us"]
@@ -30,7 +32,7 @@ def get_json(endpoint, **params):
 
 def fetch(entry):
     dataset, config = entry
-    target = ROOT / (dataset.split("/")[-1] + "-" + config + ".json")
+    target = ROOT / (dataset.split("/")[-1] + "-" + config + (f"-{SAMPLES}" if SAMPLES != 2 else "") + ".json")
     if target.is_file():
         return json.loads(target.read_text(encoding="utf-8"))
     try:
@@ -68,9 +70,10 @@ def fetch(entry):
         selected.append({"dataset": dataset, "config": config, "split": "test", "row": entry["row_idx"],
                          "file": name, "sha256": hashlib.sha256(audio_bytes).hexdigest(), "duration": duration,
                          "reference": row.get("transcription", row.get("raw_transcription", ""))})
-        if len(selected) == 2:
+        selected[-1]["speaker_id"] = row.get("speaker_id", row.get("speaker"))
+        if len(selected) == SAMPLES:
             break
-    if len(selected) != 2:
+    if len(selected) < 2:
         raise RuntimeError("Insufficient held-out clips: " + config)
     target.write_text(json.dumps(selected, ensure_ascii=False, indent=2), encoding="utf-8")
     print(config, "downloaded", flush=True)
@@ -78,6 +81,12 @@ def fetch(entry):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--samples", type=int, default=2, choices=range(2, 21))
+    parser.add_argument("--folder", type=Path, default=ROOT)
+    args = parser.parse_args()
+    SAMPLES, ROOT = args.samples, args.folder
+    ROOT.mkdir(parents=True, exist_ok=True)
     entries = ([("phatjmo/cmu_haitian", "default")]
                + [("google/fleurs", config) for config in PRIORITY]
                + [("UBC-NLP/Casablanca", config) for config in ARABIC]

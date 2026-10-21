@@ -1,23 +1,34 @@
 {
-  "version": "3.2.0",
-  "captured": "2026-10-17",
-  "context": "Real Windows interface with isolated demonstration settings and illustrative text. No private conversation.",
+  "version": "3.3.0",
   "images": [
     {
-      "file": "local-transcriber-pro-3.2.0-universal.png",
-      "sha256": "e99cc450177678e4fab72dcfa767929c7499bcab9ed2eab7341c6d6f5f05f018"
+      "file": "local-transcriber-pro-3.3.0-universal.png",
+      "sha256": "51f3d8051904c0b1231385e6f504d397fea6b67ce5bff2c72acfbd91e075867b"
     },
     {
-      "file": "local-transcriber-pro-3.2.0-storage.png",
-      "sha256": "e157d97cd8e3c8f825fc077c384e313296deef58e582c65d20f41d7864c98a47"
+      "file": "local-transcriber-pro-3.3.0-reading.png",
+      "sha256": "f5b5364def05e8116e2e8ef9848223c1607c8fcf8eeb3d352ec79e19b924d89d"
     },
     {
-      "file": "local-transcriber-pro-3.2.0-video.png",
-      "sha256": "0ad2aee0e6469bb3ad038a884623dee857b06c4588f43befc0056a0e60447e6c"
+      "file": "local-transcriber-pro-3.3.0-review.png",
+      "sha256": "2312d217b56088708740a3fa936dca50a6f5f74cbad4bc23a73f1a00e53f3ad9"
     },
     {
-      "file": "local-transcriber-pro-3.2.0-reading.png",
-      "sha256": "48f0ec12eb987ae49cf78c378a1b2a269f453b2306919548fdb5c237c31aebe6"
+      "file": "local-transcriber-pro-3.3.0-audience.png",
+      "sha256": "5b9e4b74dccae45f59e067915bc2a8647470955838748edd7d417243867baa15"
+    },
+    {
+      "file": "local-transcriber-pro-3.3.0-offline.png",
+      "sha256": "b7c63f5617e01fa9a20329cd401e401ff57834c626819f2e4745c3b581fecb71"
+    },
+    {
+      "file": "local-transcriber-pro-3.3.0-storage.png",
+      "sha256": "88335adba9863c3bb0c2584d60ff2d0323b06c6afcebbf31324a48fddb70e2da"
+    },
+    {
+      "file": "local-transcriber-pro-3.3.0-video.png",
+      "sha256": "818b2f08c3f5a9b75727149d73a08aa0da4ef5603e3115c7e94272fa694b5e78"
     }
-  ]
+  ],
+  "demonstration": "Real Windows app with illustrative text; no private conversations"
 }

@@ -24,6 +24,7 @@ if __name__ == "__main__":
     parser.add_argument("--no-preload", action="store_true")
     parser.add_argument("--self-check", action="store_true")
     parser.add_argument("--exit-after-check", action="store_true")
+    parser.add_argument("--panel", choices=("review", "audience", "offline", "privacy", "storage", "video", "reading"))
     args = parser.parse_args()
     setup_logging()
     folder = ROOT / "artifacts" / ("gui-qa-" + __version__)
@@ -121,4 +122,10 @@ if __name__ == "__main__":
             if args.exit_after_check:
                 app.after(100, app.on_close)
         app.after(1100, verify)
+    if args.panel:
+        actions = {"review": app.review_turns, "audience": app.open_audience, "offline": app.offline_prepare,
+                   "privacy": app.privacy_controls, "storage": lambda: __import__("src.storage_ui", fromlist=["StorageDialog"]).StorageDialog(app),
+                   "video": lambda: __import__("src.video_ui", fromlist=["VideoOptionsDialog"]).VideoOptionsDialog(app),
+                   "reading": app.toggle_reading_view}
+        app.after(1500, actions[args.panel])
     app.mainloop()

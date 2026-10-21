@@ -60,6 +60,11 @@ class TranscriptionOptions:
     overlap_separation: bool = False
     activity_callback: Callable[[str], None] | None = None
     original_callback: Callable[[dict[str, Any]], None] | None = None
+    translation_model: str = "madlad400-3b"
+    translation_cache: str | None = None
+    translation_context: bool = False
+    glossary: str = ""
+    recover_model_errors: bool = False
 
 
 @dataclass
@@ -142,6 +147,8 @@ class TranscriberEngine:
                 self.translator.unload()
             status = self._load_model_unlocked(model_id, device_mode, status_callback, options)
             if options and options.target_language:
+                self.translator.configure(options.translation_model, options.translation_cache,
+                                          options.translation_context, options.glossary)
                 if status_callback:
                     status_callback("translation_prepare", "MADLAD-400", status.device)
                 self.translator.load(self.hardware, allow_download=not options.offline, cancel_event=options.cancel_event)
@@ -400,7 +407,24 @@ class TranscriberEngine:
         progress_callback: ProgressCallback | None = None,
     ) -> dict[str, Any]:
         data = np.asarray(audio_data, dtype=np.float32).reshape(-1)
-        return self._transcribe(data, options or TranscriptionOptions(), progress_callback)
+        options = options or TranscriptionOptions()
+        try:
+            return self._transcribe(data, options, progress_callback)
+        except RuntimeError:
+            check_cancelled(options.cancel_event)
+            if not options.recover_model_errors or not self.current_status:
+                raise
+            requested, device = self.current_status.model_id, self.current_status.requested_device
+            logging.warning("Restarting the local engine once; captured audio remains available")
+            with self._load_lock:
+                self.translator.unload()
+                self.unload_model()
+                self.load_model(requested, device, options=replace(options, offline=True))
+                result = self._transcribe(data, replace(options, recover_model_errors=False), progress_callback)
+                result["engine_restarted"] = True
+                for item in result.get("segments", []):
+                    item["engine_restarted"] = True
+                return result
 
     def _transcribe(
         self,
@@ -438,6 +462,7 @@ class TranscriberEngine:
             result = transcribe_modern(self.model, source, options, duration, progress_callback)
             if self.backend == "omnilingual-onnx":
                 result["language_probability"] = self.model.language_probability
+                result["language_candidates"] = self.model.language_candidates
         elif self.backend == "faster-whisper":
             result = self._transcribe_faster(source, options, duration, progress_callback)
         elif self.backend == "mlx":
@@ -560,6 +585,8 @@ class TranscriberEngine:
             "segments": segments,
             "language": getattr(info, "language", language),
             "language_probability": constrained_probability if constrained_probability is not None else getattr(info, "language_probability", None),
+            "language_candidates": [{"language": code, "probability": float(score)}
+                                    for code, score in (getattr(info, "all_language_probs", None) or [])[:3]],
         }
 
     def _transcribe_mlx(

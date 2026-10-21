@@ -46,7 +46,7 @@ def _sentence(words: list[dict[str, Any]]) -> dict[str, Any]:
 class QwenBackend:
     def __init__(self, spec: ModelSpec, device: str, cache: Path):
         import torch
-        from qwen_asr import Qwen3ASRModel, Qwen3ForcedAligner
+        from qwen_asr import Qwen3ASRModel
 
         self.device = "mps" if device == "metal" else device
         dtype = torch.float16 if device != "cpu" else torch.float32
@@ -55,10 +55,8 @@ class QwenBackend:
             attn_implementation="sdpa", max_inference_batch_size=1, max_new_tokens=512,
             local_files_only=True,
         )
-        self.aligner = Qwen3ForcedAligner.from_pretrained(
-            str(aligner_path(cache)), dtype=dtype, device_map=self.device,
-            attn_implementation="sdpa", local_files_only=True,
-        )
+        self.aligner = None
+        self.aligner_folder, self.aligner_dtype = aligner_path(cache), dtype
 
     def transcribe_chunk(self, audio: np.ndarray, options: Any) -> tuple[str | None, list[dict[str, Any]], str]:
         language = QWEN_LANGUAGES.get(options.language)
@@ -69,6 +67,11 @@ class QwenBackend:
         if not text:
             return code, [], "word"
         if options.word_timestamps and code in ALIGNER_LANGUAGES:
+            if self.aligner is None:
+                from qwen_asr import Qwen3ForcedAligner
+                self.aligner = Qwen3ForcedAligner.from_pretrained(
+                    str(self.aligner_folder), dtype=self.aligner_dtype, device_map=self.device,
+                    attn_implementation="sdpa", local_files_only=True)
             alignment = self.aligner.align(audio=(audio, SAMPLE_RATE), text=text, language=result.language)[0]
             words = [{"start": max(0.0, float(item.start_time)),
                       "end": min(len(audio) / SAMPLE_RATE, float(item.end_time)),

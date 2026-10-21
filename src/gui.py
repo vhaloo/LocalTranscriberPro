@@ -18,7 +18,6 @@ from tkinter import filedialog, messagebox
 from typing import Any
 
 import customtkinter as ctk
-import numpy as np
 from platformdirs import user_cache_dir, user_data_dir
 
 try:
@@ -35,7 +34,7 @@ except ImportError:
 
 
 from src import __version__
-from src.audio import SAMPLE_RATE, AudioRecorder
+from src.audio import AudioRecorder
 from src.conversation_ui import ConversationMixin
 from src.diarizer import Diarizer
 from src.editing import apply_text_edits
@@ -58,14 +57,15 @@ from src.models import (
     model_requirement_text,
     ranked_models,
 )
+from src.recording_ui import RecordingMixin
 from src.segments import shift_segments, validate_segments
+from src.session import SessionController, identified
 from src.settings import SettingsStore, bounded_int, ensure_output_folder
 from src.storage import MINIMUM_INSTALL_FREE, format_bytes
 from src.storage_ui import StorageDialog
 from src.tooltip import ToolTip
 from src.transcriber import EngineStatus, TranscriberEngine, TranscriptionOptions
 from src.transcript_format import TranscriptFormat, format_transcript
-from src.translation_languages import normalize_language
 from src.translation_ui import TranslationControls, render_conversation
 from src.update_ui import UpdatesMixin
 from src.utils import (
@@ -700,7 +700,7 @@ class ModelManagerDialog(ctk.CTkToplevel):
             messagebox.showerror(self.t("error"), self.t("job_error", error=path), parent=self)
 
 
-class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
+class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
     def __init__(
         self,
         hardware: HardwareProfile | None = None,
@@ -958,8 +958,13 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
         for widget in self.winfo_children():
             widget.destroy()
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(4, weight=1)
+        self.grid_rowconfigure(4, weight=0)
+        self.grid_rowconfigure(2, weight=1)
         self._build_header()
+        self.controls_container = ctk.CTkScrollableFrame(self, fg_color="transparent",
+            height=min(300, max(150, round(self.winfo_screenheight() * 0.22))))
+        self.controls_container.grid(row=1, column=0, sticky="ew")
+        self.controls_container.grid_columnconfigure(0, weight=1)
         self._build_simple_dashboard()
         self._build_tasks()
         self._build_source_card()
@@ -1098,7 +1103,7 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
                                   pady=(8, 0) if stacked else 0)
 
     def _build_simple_dashboard(self) -> None:
-        self.simple_panel = ctk.CTkFrame(self, fg_color=PANEL, corner_radius=28)
+        self.simple_panel = ctk.CTkFrame(self.controls_container, fg_color=PANEL, corner_radius=28)
         self.simple_panel.grid(row=1, column=0, sticky="ew", padx=28, pady=(4, 8))
         self.simple_panel.grid_columnconfigure(0, weight=1)
 
@@ -1220,7 +1225,7 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
         self.simple_auto_summary_label.grid(row=3, column=0, sticky="w", padx=22, pady=(3, 13))
 
     def _build_tasks(self) -> None:
-        self.task_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.task_frame = ctk.CTkFrame(self.controls_container, fg_color="transparent")
         self.task_frame.grid(row=1, column=0, sticky="ew", padx=28, pady=(4, 10))
         ctk.CTkLabel(
             self.task_frame,
@@ -1253,7 +1258,7 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
             self.task_buttons[task_id] = button
 
     def _build_source_card(self) -> None:
-        self.source_card = ctk.CTkFrame(self, fg_color=PANEL, corner_radius=28)
+        self.source_card = ctk.CTkFrame(self.controls_container, fg_color=PANEL, corner_radius=28)
         self.source_card.grid(row=2, column=0, sticky="ew", padx=28, pady=6)
         self.source_card.grid_columnconfigure(0, weight=1)
         self.source_title = ctk.CTkLabel(
@@ -1449,7 +1454,7 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
             ModelSelectorDialog(self)
 
     def _build_advanced_panel(self) -> None:
-        self.advanced_panel = ctk.CTkFrame(self, fg_color=PANEL, corner_radius=20)
+        self.advanced_panel = ctk.CTkFrame(self.controls_container, fg_color=PANEL, corner_radius=20)
         self.advanced_panel.grid(row=3, column=0, sticky="ew", padx=28, pady=6)
         for column in range(4):
             self.advanced_panel.grid_columnconfigure(column, weight=1)
@@ -1692,7 +1697,7 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
     def _build_output(self) -> None:
         output = ctk.CTkFrame(self, fg_color=PANEL, corner_radius=20)
         self.output_card = output
-        output.grid(row=4, column=0, sticky="nsew", padx=28, pady=(6, 22))
+        output.grid(row=2, column=0, sticky="nsew", padx=28, pady=(6, 22))
         output.grid_columnconfigure(0, weight=1)
         output.grid_rowconfigure(3, weight=1)
 
@@ -1815,10 +1820,12 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
 
     def _apply_mode_visibility(self) -> None:
         if self.reading_view:
+            self.controls_container.grid_remove()
             for frame in (self.header_frame, self.simple_panel, self.task_frame, self.source_card, self.advanced_panel):
                 frame.grid_remove()
             self.output_card.grid_configure(padx=12, pady=12)
             return
+        self.controls_container.grid()
         self.header_frame.grid()
         self.source_card.grid()
         self.output_card.grid_configure(padx=28, pady=(6, 22))
@@ -2222,16 +2229,21 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
             "conversation": self.preset == "universal",
             "partner_language": None if self.conversation_partner == "auto" else self.conversation_partner,
             "third_language": None if self.translation_third == "none" else self.translation_third,
-            "speaker": bool(self.speaker_var.get()) and self.preset != "universal",
+            "speaker": bool(self.speaker_var.get()) and self.preset != "universal" and not self.private_mode,
             "vad": bool(self.vad_var.get()),
             "cleanup": bool(self.cleanup_var.get()),
-            "smart_subtitles": bool(self.smart_subtitles_var.get()),
+            "smart_subtitles": bool(self.smart_subtitles_var.get()) and not self.private_mode,
             "open_result": bool(self.open_result_var.get()),
             "beam": bounded_int(self.beam_var.get(), 8, 1, 10),
             "chunk": 12 if self.preset == "universal" else bounded_int(self.chunk_var.get(), 30, 5, 60),
             "vocabulary": self.settings.get("vocabulary", ""),
-            "keep_audio": bool(self.settings.get("keep_recording_audio", True)),
+            "keep_audio": bool(self.settings.get("keep_recording_audio", True)) and not self.private_mode,
+            "private": self.private_mode,
             "overlap_separation": bool(self.overlap_var.get()),
+            "translation_model": self.settings.get("translation_model", "madlad400-3b"),
+            "translation_cache": self.settings.get("translation_cache", ""),
+            "translation_context": bool(self.settings.get("translation_context", False)),
+            "glossary": self.settings.get("translation_glossary", ""),
         }
 
     def transcribe_options(self, config: dict[str, Any]) -> TranscriptionOptions:
@@ -2251,6 +2263,11 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
             overlap_separation=config.get("overlap_separation", False),
             original_callback=(lambda result: self._safe_ui(self._preview_conversation, result, self.recording_offset))
                 if config.get("conversation") else None,
+            translation_model=config.get("translation_model", "madlad400-3b"),
+            translation_cache=config.get("translation_cache") or None,
+            translation_context=config.get("translation_context", False),
+            glossary=config.get("glossary", ""),
+            recover_model_errors=True,
         )
 
     def _engine_load_status(self, stage: str, model: str, device: str) -> None:
@@ -2471,7 +2488,7 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
                     if config["speaker"] and segments:
                         self._safe_ui(self._set_status, self.t("progress_diarizing"))
                         segments = self.diarizer.process(filepath, segments, callback=logging.info, cancel_event=self.cancel_event)
-                    file_segments = [dict(item, source=name) for item in segments]
+                    file_segments = [dict(item, source=name, audio_path=str(filepath), audio_start=item["start"], audio_end=item["end"]) for item in segments]
                     display_segments = shift_segments(file_segments, session_offset)
                     self._safe_ui(self._append_segments, display_segments)
                     saved = self.save_result_bundle(file_segments, Path(filepath).stem)
@@ -2577,201 +2594,9 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
             if downloaded:
                 cleanup_online_audio(downloaded)
 
-    def start_recording(self) -> None:
-        if self.busy or self.recorder.recording or self.closing:
-            return
-        if not self._can_start_safely():
-            return
-        self.stop_speaking(resume=False)
-        config = self.job_config()
-        microphone = self.microphone_combo.get()
-        try:
-            device_index = int(microphone.split(":", 1)[0]) if ":" in microphone else None
-        except ValueError:
-            device_index = None
-        self.transcript_data = []
-        self.recording_offset = 0.0
-        prefix = "Conversation" if self.preset == "universal" else ("Conference" if self.preset == "conference" else "Dictation")
-        self.active_recording_base = self._new_output_base(prefix)
-        self.render_transcript()
-        self._start_job(0)
-        if not self._model_is_armed(config):
-            self._show_recording_initialization()
-        self.worker_thread = threading.Thread(
-            target=self._recording_worker,
-            args=(device_index, config),
-            daemon=True,
-            name="live-transcription",
-        )
-        self.worker_thread.start()
-
-    def _recording_worker(self, device_index: int | None, config: dict[str, Any]) -> None:
-        segments_all: list[dict[str, Any]] = []
-        spool: RecordingSpool | None = None
-        completed = False
-        try:
-            resolved = self.hardware.resolve_model(
-                config["model"], config["device"], self.engine.cached_model_ids()
-            )
-            self._safe_ui(self._set_status, self.t("progress_loading", model=resolved))
-            status = self.engine.load_model(
-                config["model"], config["device"], self._engine_load_status, self.transcribe_options(config)
-            )
-            self.last_engine_status = status
-            check_cancelled(self.cancel_event)
-            spool = RecordingSpool(self.active_recording_base.with_suffix(".wav"))
-            self.recording_spool = spool
-            options = self.transcribe_options(config)
-            self.engine.reset_translation_session(options)
-            if config.get("conversation"):
-                self.recorder.start(device_index, config["chunk"], smart_splits=True)
-            else:
-                self.recorder.start(device_index, config["chunk"])
-            self._safe_ui(self._recording_started)
-            while True:
-                try:
-                    audio = self.recorder.audio_queue.get(timeout=0.25)
-                except queue.Empty:
-                    if not self.recorder.recording and not self.recorder.segmenting:
-                        break
-                    continue
-                if audio is None:
-                    break
-                flattened = np.asarray(audio, dtype=np.float32).reshape(-1)
-                self.last_audio = flattened.copy()
-                spool.append(flattened)
-                result = self.engine.transcribe_audio(flattened, options)
-                segments = self._prepare_segments(result.get("segments", []), config["cleanup"])
-                shifted = shift_segments(segments, self.recording_offset)
-                segments_all.extend(shifted)
-                self.recording_offset += flattened.size / SAMPLE_RATE
-                if config.get("conversation"):
-                    segments_all = self.engine.translator.complete_conversation(segments_all, self.cancel_event)
-                    self._safe_ui(self._replace_segments, list(segments_all))
-                    self._safe_ui(self.translation_controls.update_pair, result.get("conversation_pair", []))
-                else:
-                    self._safe_ui(self._append_segments, shifted)
-                self._safe_ui(self._pipeline_activity, "waiting")
-                # The worker owns this snapshot. It never depends on whether
-                # the UI has already consumed its queued segment event.
-                write_export(self.active_recording_base.with_suffix(".json"), segments_all)
-                write_export(self.active_recording_base.with_suffix(".txt"), segments_all, self.transcript_format_options())
-                if self.recorder.capture_error:
-                    raise RuntimeError(self.recorder.capture_error)
-            spool.close()
-            if config["speaker"] and segments_all:
-                self._safe_ui(self._set_status, self.t("progress_diarizing"))
-                segments_all = self.diarizer.process(str(spool.path), segments_all, callback=logging.info, cancel_event=self.cancel_event)
-                self._safe_ui(self._replace_segments, segments_all)
-            saved = self.save_result_bundle(
-                segments_all,
-                "Conversation" if config.get("conversation") else ("Conference" if self.preset == "conference" else "Dictation"),
-                base_override=self.active_recording_base,
-            )
-            completed = True
-            self._safe_ui(self._finish_recording, saved, status.backend)
-        except Exception as error:
-            logging.exception("Live transcription failed")
-            self._safe_ui(self._fail_recording, error)
-        finally:
-            if spool is not None:
-                try:
-                    if not completed:
-                        # Preserve captured backlog after an engine/device failure.
-                        self.recorder.stop()
-                        while True:
-                            try:
-                                pending = self.recorder.audio_queue.get_nowait()
-                            except queue.Empty:
-                                break
-                            if pending is not None:
-                                spool.append(pending)
-                        if self.recorder.overflow_chunk is not None:
-                            spool.append(self.recorder.overflow_chunk)
-                except (OSError, RuntimeError):
-                    logging.exception("Could not flush all pending audio; the existing WAV was preserved")
-                finally:
-                    spool.close()
-                if completed and not config.get("keep_audio", True):
-                    spool.path.unlink(missing_ok=True)
-            self.recording_spool = None
-
-    def _recording_started(self) -> None:
-        self.busy = False
-        self._hide_recording_initialization()
-        self._set_status(self.t("progress_recording"))
-        self.record_button.configure(state="disabled")
-        self.pause_button.configure(state="normal")
-        self.stop_button.configure(
-            state="normal",
-            text=self.t("stop_recording"),
-            fg_color=RED,
-            hover_color="#FF8290",
-            border_width=2,
-            border_color="#FFD7DC",
-        )
-        self._set_source_buttons_state("disabled")
-        self._pipeline_activity("waiting")
-
-    def toggle_pause(self) -> None:
-        self.stop_speaking(resume=False)
-        if not self.recorder.recording:
-            return
-        if self.recorder.paused:
-            self.recorder.resume()
-            self.pause_button.configure(text=self.t("pause"))
-            self._set_status(self.t("progress_recording"))
-        else:
-            self.recorder.pause()
-            self.pause_button.configure(text=self.t("resume"))
-            self._set_status(self.t("cancelled"))
-
-    def stop_recording(self) -> None:
-        self.stop_speaking(resume=False)
-        if not self.recorder.recording:
-            return
-        self.recorder.stop()
-        self.busy = True
-        self.pause_button.configure(state="disabled")
-        self.stop_button.configure(state="disabled", text=self.t("processing"))
-        self._set_status(self.t("processing"))
-
-    def _finish_recording(self, saved: Path | None, backend: str) -> None:
-        self._hide_recording_initialization()
-        self.active_recording_base = None
-        self.record_button.configure(state="normal")
-        self.pause_button.configure(state="disabled", text=self.t("pause"))
-        self.stop_button.configure(
-            state="disabled",
-            text=self.t("stop"),
-            fg_color="#60708A",
-            border_width=0,
-        )
-        self._finish_job(saved, backend)
-        self.after(250, self._start_microphone_monitor)
-
-    def _fail_recording(self, error: Exception) -> None:
-        self._hide_recording_initialization()
-        self._save_backup()
-        self.active_recording_base = None
-        try:
-            self.recorder.stop()
-        except Exception:
-            pass
-        self.record_button.configure(state="normal")
-        self.pause_button.configure(state="disabled")
-        self.stop_button.configure(
-            state="disabled",
-            text=self.t("stop"),
-            fg_color="#60708A",
-            border_width=0,
-        )
-        self._fail_job(error)
-        self.after(250, self._start_microphone_monitor)
-
     def _prepare_segments(self, segments: list[dict[str, Any]], cleanup: bool) -> list[dict[str, Any]]:
         prepared = []
-        for item in segments:
+        for item in identified(segments):
             text = str(item.get("text", "")).strip()
             if cleanup and "source_text" not in item:
                 text = self.engine.cleanup_text(text)
@@ -2796,20 +2621,12 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
         self._save_backup()
 
     def _replace_segments(self, segments: list[dict[str, Any]]) -> None:
-        self.transcript_data = segments
+        self.transcript_data = self.session_controller.snapshot(segments)
         self.render_transcript()
         self._save_backup()
 
     def _preview_conversation(self, result: dict[str, Any], offset: float) -> None:
-        values = result.get("segments", [])
-        if not values:
-            return
-        preview = dict(values[0], end=values[-1].get("end", 0), source_text=result.get("text", ""),
-                       source_language=normalize_language(result.get("language")) or "und", target_language="",
-                       translation_pending=True, translation_pending_reason="processing")
-        self.transcript_data.append(shift_segments([preview], offset)[0])
-        self.render_transcript()
-        self._save_backup()
+        self._show_live_preview(str(result.get("text", "")), str(result.get("language") or ""))
 
     def transcript_format_options(self) -> TranscriptFormat:
         return TranscriptFormat(
@@ -2851,6 +2668,7 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
         self.textbox.see("end")
         self.textbox.bind("<Button-3>", self._transcript_context_menu)
         self._offer_detected_voice()
+        self._update_audience()
 
     def copy_transcript(self) -> None:
         text = (format_transcript(self.transcript_data, self.transcript_format_options())
@@ -2923,9 +2741,10 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
         prefix: str,
         base_override: Path | None = None,
     ) -> Path | None:
-        if not segments:
+        if not segments or getattr(self, "private_mode", False):
             return None
         base = base_override or self._new_output_base(prefix)
+        self.current_session_base = base
         text_path = base.with_suffix(".txt")
         json_path = base.with_suffix(".json")
         write_bundle(base, segments, self.transcript_format_options())
@@ -2970,13 +2789,15 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
         if self.busy or self.recorder.recording:
             return
         try:
-            self.transcript_data = self.history.load_segments(record)
+            self.transcript_data = identified(self.history.load_segments(record))
+            self.session_controller = SessionController()
+            self.current_session_base = Path(record.json_path).with_suffix("")
         except (OSError, ValueError, TypeError) as error:
             messagebox.showerror(
                 self.t("error"), self.t("history_load_error", error=error), parent=self
             )
             return
-        if record.task in {"files", "conference", "dictation", "link"}:
+        if record.task in {"files", "conference", "dictation", "link", "universal"}:
             self.preset = record.task
             self._refresh_task_styles()
             self._update_source_context()
@@ -3063,6 +2884,8 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
         self.translation_controls.set_enabled(state == "normal" and not self.recorder.recording)
 
     def _set_status(self, text: str) -> None:
+        if self.__dict__.get("private_mode", False):
+            text = self.t("private_active") + " · " + text
         self.status_label.configure(text=text)
 
     def _set_progress(self, value: float) -> None:
@@ -3160,7 +2983,7 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
         ctk.CTkButton(dialog, text=self.t("save"), command=save).pack(pady=18)
 
     def _save_backup(self) -> None:
-        if not self.transcript_data:
+        if self.__dict__.get("private_mode", False) or not self.transcript_data:
             return
         try:
             self.backup_file.parent.mkdir(parents=True, exist_ok=True)
@@ -3200,7 +3023,8 @@ class TranscriberApp(ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWra
         self._close_when_idle()
 
     def _close_when_idle(self) -> None:
-        if self.worker_thread is not None and self.worker_thread.is_alive():
+        if ((self.worker_thread is not None and self.worker_thread.is_alive())
+                or any(thread.is_alive() for thread in self.__dict__.get("tool_threads", []))):
             self._set_status(self.t("closing_safely"))
             self.after(100, self._close_when_idle)
             return
