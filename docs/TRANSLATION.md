@@ -48,6 +48,8 @@ Lancez **Enregistrer**. Le modèle de reconnaissance et MADLAD doivent être pr�
 
 En automatique, deux langues reconnues avec une indication de langue d'au moins 0,55 et du texte exploitable constituent la paire. L'application ne déduit jamais une langue à partir d'un pays ou d'une personne. Une fois la paire reconnue, français → arabe et arabe → français, par exemple, sont routés sans changer de bouton. Avant que la paire soit complète, la parole étrangère est traduite vers votre langue ; une ligne dans votre propre langue peut rester en attente. Elle est complétée lorsque l'autre langue est connue.
 
+Qwen et Parakeet utilisent aussi le détecteur textuel local GlotLID lorsqu’ils ne fournissent pas de score de langue. Ce complément de 1,69 Go est préparé avant la capture et reste dans le cache Omnilingual partagé ; il ne télécharge rien pendant la reconnaissance. Pour Qwen, un désaccord entre sa langue annoncée et le détecteur réduit l’indication au lieu de forcer une paire. Si le détecteur n’est pas préparé en mode hors ligne, ou si le texte est ambigu, confirmez les langues avec les boutons proposés. Ce score d’identification n’est pas une probabilité de transcription ou de traduction correcte.
+
 Une détection peut se tromper même avec un score élevé. Si la paire est fausse, corrigez l’autre langue dans son sélecteur : le changement sera appliqué au prochain fragment. Le changement manuel de modèle pendant l’enregistrement reste bloqué ; seul le choix automatique entre moteurs déjà préparés se fait entre deux fragments. La troisième langue est facultative ; une traduction identique à l’original ou à la destination n’est pas affichée deux fois.
 
 ## Texte et rythme de traitement
@@ -61,6 +63,8 @@ La capture écoute des fenêtres de 32 ms et recherche la parole avec Silero VAD
 ## Reconnaissance, traduction et voix
 
 Le profil multilingue automatique privilégie Omnilingual sur une machine compatible, puis le meilleur Whisper qui tient dans les ressources disponibles. Qwen 1.7B demeure le profil général de précision sur GPU compatible ; sa couverture de 30 langues est plus étroite. Parakeet privilégie la vitesse CPU pour 25 langues européennes. Le sélecteur affiche précision relative, rapidité et multilinguisme séparément, ainsi que les raisons matérielles d'indisponibilité.
+
+Le choix automatique tient compte du couple reconnaissance/traduction. Si le premier modèle de reconnaissance laisse trop peu de mémoire au traducteur, l’application libère ce modèle, réserve la traduction puis recherche le meilleur moteur vocal compatible avec la mémoire restante. Le diagnostic indique cette réserve. Sous Windows, la mémoire disponible tient aussi compte de la limite d’engagement du système : d’autres logiciels peuvent réduire les ressources utilisables même si de la RAM physique semble libre.
 
 **Omnilingual CTC 1B v2** est une reconnaissance CPU de plus de 1 600 langues, choisie par le profil universel sur une machine compatible (16 Go de RAM totale, 10 Go disponibles, 5,6 Go de téléchargement avec GlotLID). Fixer une langue de conversation hors du catalogue Whisper le sélectionne sur une machine compatible. Les heures sont celles du fragment complet ; aucun alignement mot à mot ni score de transcription n'est inventé. Son identification de langue vient du texte reconnu par GlotLID v3, avec plus de 2 000 étiquettes de langue et d'écriture. Une langue reconnue par le modèle peut donc ne pas être identifiée automatiquement. Le modèle n'est pas systématiquement plus précis que Whisper ; les deux restent sélectionnables.
 

@@ -32,6 +32,10 @@ FILES = {
 }
 
 
+class TranslationResourceError(RuntimeError):
+    """The translation model cannot yet fit alongside the active recognizer."""
+
+
 @dataclass
 class ConversationRouter:
     preferred: str
@@ -136,7 +140,7 @@ class TranslationEngine:
             hardware.refresh_resources()
             required_ram = 14 if self.model_id.endswith("7b") else 6
             if hardware.effective_available_ram_gb < required_ram or hardware.ram_gb < required_ram * 2:
-                raise RuntimeError(f"Traduction {self.model_id}: {required_ram * 2} Go de RAM totale et {required_ram} Go disponibles nécessaires.")
+                raise TranslationResourceError(f"Traduction {self.model_id}: {required_ram * 2} Go de RAM totale et {required_ram} Go disponibles nécessaires.")
             self.cache.mkdir(parents=True, exist_ok=True)
             import shutil
             required_disk = 10 if self.model_id.endswith("7b") else 4

@@ -13,6 +13,9 @@ def prepare_profile(engine, voices, options, model, device, languages, download=
     with engine._load_lock:
         status = engine.load_model(model, device, options=options)
         results = [f"ASR: {status.model_id} · {status.device}"]
+        if options.conversation and status.backend in {"qwen3-asr", "parakeet-onnx"}:
+            results.append("LID: GlotLID ✓" if engine.language_identifier is not None else
+                           "LID: unavailable — confirm the conversation languages manually")
         if options.target_language:
             for code in languages:
                 translated = engine.translator.translate("Bonjour. Hello. 123.", code)

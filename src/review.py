@@ -72,6 +72,17 @@ def correct_segment(segment, source, translation=None, source_language=None, spe
     return result
 
 
+def review_values(segment, source, translation, source_language=None, speaker=None, target_language=None, retranslate=False):
+    source_changed = source.strip() != segment.get("source_text", segment.get("text", ""))
+    language_changed = source_language != segment.get("source_language", segment.get("language"))
+    target_changed = target_language != segment.get("target_language")
+    translation_changed = translation.strip() != segment.get("text", "")
+    # Invalidate an unchanged old translation after a source edit, while
+    # preserving a new translation explicitly entered in the same operation.
+    manual = None if retranslate or ((source_changed or language_changed or target_changed) and not translation_changed) else translation
+    return correct_segment(segment, source, manual, source_language, speaker, target_language)
+
+
 def retranslate_segment(segment, translator, cancel_event=None):
     result = copy.deepcopy(segment)
     if "source_text" not in result or not result.get("target_language"):

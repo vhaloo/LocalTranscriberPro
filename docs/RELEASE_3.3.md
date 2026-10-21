@@ -4,6 +4,7 @@ Private conversation tools, with every previous function retained:
 
 - Provisional live text and captured-audio backlog, with final transcription priority.
 - Confirmable language candidates and language changes between turns.
+- Automatic model admission for combined ASR/translation memory, with pinned local language hints for Qwen/Parakeet when needed.
 - Paired original/translation editing, precise source replay, selective retranslation and revision history.
 - Independent audience window, large text and typed translated/spoken replies.
 - Offline profile preparation and optional password-encrypted transcript sessions.

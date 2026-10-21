@@ -30,6 +30,28 @@ def cached_checkpoint():
         return False
 
 
+def language_hints(lid, text):
+    predictions = lid.f.predict(text.replace("\n", " "), 3, 0.0, "strict") if text.strip() else []
+    return [
+        {"language": METADATA["lid"]["iso3_to_language"].get(label.removeprefix("__label__").split("_")[0],
+                                                           label.removeprefix("__label__").split("_")[0]),
+         "probability": max(0.0, min(1.0, float(score)))} for score, label in predictions
+    ]
+
+
+class TextLanguageIdentifier:
+    """Reuse the pinned text detector when ASR has no language probability."""
+    def __init__(self, offline=False, cancel_event=None):
+        spec = METADATA["lid"]
+        folder = prepare_assets(cache_root() / "glotlid", spec["repository"], spec["revision"],
+                                spec["files"], not offline, cancel_event)
+        import fasttext
+        self.lid = fasttext.load_model(str(folder / "model_v3.bin"))
+
+    def predict(self, text):
+        return language_hints(self.lid, text)
+
+
 class OmnilingualBackend:
     def __init__(self, threads, offline=False, cancel_event=None):
         root = cache_root()
@@ -53,18 +75,10 @@ class OmnilingualBackend:
         stream.accept_waveform(SAMPLE_RATE, audio)
         self.recognizer.decode_stream(stream)
         text = stream.result.text.strip()
-        predictions = self.lid.f.predict(text.replace("\n", " "), 3, 0.0, "strict") if text else []
-        self.language_candidates = [
-            {"language": METADATA["lid"]["iso3_to_language"].get(label.removeprefix("__label__").split("_")[0],
-                                                                  label.removeprefix("__label__").split("_")[0]),
-             "probability": max(0.0, min(1.0, float(score)))} for score, label in predictions
-        ]
-        probability, label = predictions[0] if predictions else (0.0, "__label__und")
-        # fastText adds an epsilon to its softmax output; very confident
-        # predictions can be 1.00001 and must remain valid transcript metadata.
-        probability = max(0.0, min(1.0, float(probability)))
-        iso3 = label.removeprefix("__label__").split("_")[0]
-        language = options.language or METADATA["lid"]["iso3_to_language"].get(iso3, iso3)
+        self.language_candidates = language_hints(self.lid, text)
+        top = self.language_candidates[0] if self.language_candidates else {"language": "und", "probability": 0.0}
+        probability = top["probability"]
+        language = options.language or top["language"]
         if language.startswith(("und", "zxx")):
             language, probability = "und", 0.0
         self.language_probability = probability if not options.language else None

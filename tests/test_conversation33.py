@@ -10,7 +10,7 @@ from cryptography.exceptions import InvalidTag
 from src.gui import TranscriberApp
 from src.private_session import decrypt_segments, encrypt_segments, save_private
 from src.release_signature import verify_manifest
-from src.review import audience_lines, correct_segment, retranslate_segment, review_flags
+from src.review import audience_lines, correct_segment, retranslate_segment, review_flags, review_values
 from src.session import PreviewScheduler, SessionController, identified
 from src.translation import TranslationEngine
 
@@ -54,6 +54,39 @@ def test_original_edit_invalidates_translation_indices_but_keeps_timing_and_audi
     assert result["translation_pending"] and result["text"] == "" and result["third_text"] == ""
     assert result["recognition_index"] is None and result["revisions"][0]["before"]["text"] == item["text"]
     assert not item.get("revisions")
+
+
+def test_paired_editor_preserves_an_explicit_translation_entered_with_a_source_edit():
+    item = turn()
+    unchanged_translation = review_values(item, "مرحبا", item["text"], "ar", target_language="fr")
+    assert unchanged_translation["translation_pending"] and unchanged_translation["text"] == ""
+    both_edited = review_values(item, "مرحبا", "Bonjour", "ar", target_language="fr")
+    assert both_edited["text"] == "Bonjour" and not both_edited["translation_pending"]
+    assert both_edited["source_text"] == "مرحبا" and both_edited["recognition_index"] is None
+
+
+def test_typed_reply_reads_that_reply_and_updates_completed_exports(tmp_path):
+    from src.transcript_format import TranscriptFormat
+
+    app = object.__new__(TranscriberApp)
+    app.session_controller = SessionController()
+    app.transcript_data = [turn()]
+    app.current_session_base = tmp_path / "conversation"
+    app.private_mode, app.busy = False, False
+    app.recorder = SimpleNamespace(recording=False)
+    app.render_transcript = lambda: None
+    app._save_backup = lambda: None
+    app.transcript_format_options = lambda: TranscriptFormat()
+    spoken = []
+    app.speak_items = lambda items: spoken.extend(items)
+    reply = identified([{"start": 0., "end": 0., "source_text": "Bonjour", "source_language": "fr",
+                         "text": "مرحبا", "target_language": "ar", "input_mode": "typed"}])[0]
+    app._accept_reply(reply, app.session_controller)
+    assert app.transcript_data[-1]["segment_id"] != reply["segment_id"]
+    assert spoken == [("مرحبا", "ar")]
+    assert "مرحبا" in (tmp_path / "conversation.json").read_text("utf-8")
+    app._accept_reply(reply, SessionController())
+    assert len(spoken) == 1
 
 
 def test_manual_translation_and_retranslation_only_change_selected_turn():
@@ -109,6 +142,109 @@ def test_provisional_decode_is_lightweight_without_changing_final_accuracy_optio
     recorder.audio_queue.put(np.zeros(100))
     RecordingMixin._try_provisional(app, final, PreviewScheduler())
     assert len(calls) == 1
+
+
+def test_unscored_recognizer_uses_real_local_language_hints_without_overriding_disagreement():
+    from src.transcriber import TranscriberEngine, TranscriptionOptions
+
+    engine = object.__new__(TranscriberEngine)
+    engine.model_name = "qwen3-asr-0.6b"
+    engine.language_identifier = SimpleNamespace(predict=lambda text: [
+        {"language": "fr", "probability": 0.91}, {"language": "en", "probability": 0.08}])
+    result = {"language": "fr", "text": "Bonjour à tous", "segments": [{}]}
+    options = TranscriptionOptions(conversation=True)
+    engine._annotate_text_language(result, options)
+    assert result["language_probability"] == 0.91 and result["language_detection"] == "text-glotlid-v3"
+    result["language"] = "ar"
+    engine._annotate_text_language(result, options)
+    assert result["language"] == "ar" and result["language_probability"] == 0
+    engine.language_identifier = None
+    unscored = {"language": "fr", "text": "Bonjour", "segments": [{}]}
+    engine._annotate_text_language(unscored, options)
+    assert "language_probability" not in unscored
+    engine.language_identifier = SimpleNamespace(predict=lambda text: (_ for _ in ()).throw(RuntimeError("Unavailable")))
+    engine._annotate_text_language(unscored, options)
+    assert "language_probability" not in unscored and unscored["text"] == "Bonjour"
+
+
+def test_automatic_conversation_reserves_translation_memory_before_reselecting_asr():
+    import threading
+
+    from src.transcriber import EngineStatus, TranscriberEngine, TranscriptionOptions
+    from src.translation import TranslationResourceError
+
+    events = []
+    engine = object.__new__(TranscriberEngine)
+    engine._load_lock = threading.RLock()
+    engine.current_status = None
+    engine.hardware = object()
+    engine.language_identifier = None
+    def load_asr(*_args):
+        model = "omnilingual-1b-v2" if not events else "large-v3"
+        events.append("asr:" + model)
+        engine.backend = "omnilingual-onnx" if model.startswith("omni") else "faster-whisper"
+        status = EngineStatus(model, "auto", "cpu", engine.backend, "int8", "auto-multilingual")
+        engine.current_status = status
+        return status
+    def load_translation(*_args, **kwargs):
+        assert kwargs["allow_download"] is False
+        events.append("mt")
+        if events.count("mt") == 1:
+            raise TranslationResourceError("Combined memory")
+    engine._load_model_unlocked = load_asr
+    engine.unload_model = lambda: events.append("unload-asr")
+    engine.translator = SimpleNamespace(unload=lambda: None, configure=lambda *_: None, load=load_translation)
+    result = engine.load_model("auto-multilingual", options=TranscriptionOptions(
+        target_language="fr", conversation=True, offline=True))
+    assert events == ["asr:omnilingual-1b-v2", "mt", "unload-asr", "mt", "asr:large-v3"]
+    assert result.model_id == "large-v3" and "translation_memory_reservation" in result.fallback_reason
+
+
+def test_live_adaptation_never_replaces_a_working_arabic_pair_with_european_only_asr(monkeypatch):
+    from src.recording_ui import RecordingMixin
+    from src.transcriber import TranscriptionOptions
+
+    hardware = SimpleNamespace(refreshed=False)
+    hardware.refresh_resources = lambda: setattr(hardware, "refreshed", True)
+    def choose(*_args):
+        assert hardware.refreshed, "Refresh resources after the translator has become resident"
+        return "parakeet-tdt-0.6b-v3"
+    monkeypatch.setattr("src.recording_ui.conversation_model", choose)
+    def forbidden_load(*_args):
+        raise AssertionError("Keep the working engine when the candidate lacks Arabic")
+    engine = SimpleNamespace(translator=SimpleNamespace(router=SimpleNamespace(pair=("fr", "ar"))),
+        cached_model_ids=lambda: {"omnilingual-1b-v2", "parakeet-tdt-0.6b-v3"},
+        model_name="omnilingual-1b-v2", _load_model_unlocked=forbidden_load)
+    app = SimpleNamespace(engine=engine, hardware=hardware)
+    RecordingMixin._adapt_conversation_model(app, TranscriptionOptions(conversation=True))
+    assert engine.model_name == "omnilingual-1b-v2"
+
+
+def test_unknown_language_cannot_silently_resolve_to_an_unsupported_tiny_model(tmp_path, monkeypatch):
+    from src.hardware import HardwareProfile
+    from src.transcriber import TranscriberEngine, TranscriptionOptions
+
+    hardware = HardwareProfile("Windows", "11", "AMD64", "CPU", 8, 4, available_ram_gb=2)
+    hardware.refresh_resources = lambda: None
+    monkeypatch.setattr("src.transcriber.user_cache_dir", lambda *_args: str(tmp_path))
+    engine = TranscriberEngine(hardware)
+    engine.cached_model_ids = lambda: set()
+    with pytest.raises(RuntimeError, match="supports the requested language"):
+        engine._load_model_unlocked("auto-best", "cpu", options=TranscriptionOptions(language="xxxx"))
+
+
+@pytest.mark.parametrize("language,backend_code", [("fil", "tl"), ("jv", "jw")])
+def test_whisper_adaptor_accepts_language_picker_codes(language, backend_code):
+    from src.transcriber import TranscriberEngine, TranscriptionOptions
+
+    engine = object.__new__(TranscriberEngine)
+    def transcribe(_source, **kwargs):
+        assert kwargs["language"] == backend_code
+        return iter([]), SimpleNamespace(language=backend_code)
+    engine.model = SimpleNamespace(transcribe=transcribe)
+    engine.translator = SimpleNamespace(router=None)
+    result = engine._transcribe_faster("not-opened-by-fake-backend", TranscriptionOptions(language=language), 1, None)
+    assert result["language"] == backend_code
 
 
 def test_switching_language_pair_does_not_rewrite_previous_routed_turns():

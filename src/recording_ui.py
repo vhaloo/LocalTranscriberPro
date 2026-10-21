@@ -175,16 +175,22 @@ class RecordingMixin:
         pair = self.engine.translator.router.pair if self.engine.translator.router else ()
         if len(pair) != 2:
             return
+        self.hardware.refresh_resources()
         cached = self.engine.cached_model_ids()
         candidate = conversation_model(pair[0], self.hardware, cached)
         if not all(get_model(candidate).supports(code, "transcribe") for code in pair):
-            candidate = "omnilingual-1b-v2"
-        if candidate in cached and candidate != self.engine.model_name:
+            # Retain the working broad-coverage engine. Forcing an unavailable
+            # Omni load here could fall back to an engine missing one language.
+            return
+        if (candidate in cached and candidate != self.engine.model_name
+                and self.hardware.model_compatibility(candidate, "auto", True).supported):
             # Keep translation and routing resident; only replace ASR, between
             # turns. No new model download is initiated during capture.
             with self.engine._load_lock:
                 status = self.engine._load_model_unlocked(candidate, "auto", self._engine_load_status,
                                                           replace(options, offline=True))
+                if not all(get_model(status.model_id).supports(code, "transcribe") for code in pair):
+                    raise RuntimeError("The available recognizer cannot handle both conversation languages. Select a compatible model before continuing.")
                 self.last_engine_status = status
 
     def _try_provisional(self, options, scheduler):

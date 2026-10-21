@@ -11,7 +11,7 @@ import customtkinter as ctk
 
 from src.exports import write_bundle
 from src.private_session import decrypt_segments, save_private
-from src.review import audience_lines, correct_segment, retranslate_segment
+from src.review import audience_lines, retranslate_segment, review_values
 from src.session import SessionController, identified
 from src.tooltip import ToolTip
 from src.translation_languages import language_label, normalize_language
@@ -179,22 +179,27 @@ class WorkbenchMixin:
                 return
             source_value = source.get("1.0", "end-1c")
             translated_value = translated.get("1.0", "end-1c")
-            source_changed = source_value.strip() != item.get("source_text", item.get("text", ""))
-            language_changed = selected.get("language") != item.get("source_language", item.get("language"))
-            target_changed = selected.get("target") != item.get("target_language")
-            manual = None if source_changed or language_changed or target_changed or retranslate else translated_value
             try:
-                corrected = correct_segment(item, source_value, manual, normalize_language(selected.get("language")), speaker.get(), selected.get("target"))
+                corrected = review_values(item, source_value, translated_value, normalize_language(selected.get("language")),
+                                          speaker.get(), selected.get("target"), retranslate)
             except ValueError as error:
                 messagebox.showerror(self.t("error"), str(error), parent=dialog)
                 return
             self._apply_review(corrected)
+            translated.delete("1.0", "end")
+            translated.insert("1.0", corrected.get("text", "") if "source_text" in corrected else "")
             if retranslate:
                 def operation():
                     with self.engine._load_lock:
                         self.engine.translator.load(self.hardware, allow_download=False)
                         return retranslate_segment(corrected, self.engine.translator)
-                self._workbench_job(operation, self._apply_retranslation)
+                def finished(result):
+                    self._apply_retranslation(result)
+                    if (dialog.winfo_exists() and selected["id"] == result.get("segment_id")
+                            and source.get("1.0", "end-1c").strip() == source_value.strip()
+                            and translated.get("1.0", "end-1c") == corrected.get("text", "")):
+                        load(picker.get())
+                self._workbench_job(operation, finished)
             history.configure(text=self.t("review_history", count=len(corrected.get("revisions", []))))
         buttons = ctk.CTkFrame(dialog, fg_color="transparent")
         buttons.pack(fill="x", padx=20, pady=10)
@@ -290,15 +295,16 @@ class WorkbenchMixin:
                                           "text": "", "input_mode": "typed", "words": []}])[0]
                     return retranslate_segment(result, self.engine.translator)
             def done(item):
-                if controller is not self.session_controller:
-                    return
-                self.session_controller.add_reply(item)
-                self.transcript_data = self.session_controller.snapshot(self.transcript_data)
-                self.render_transcript()
-                self._save_backup()
-                self.read_transcript_lines()
+                self._accept_reply(item, controller)
             self._workbench_job(operation, done)
         ctk.CTkButton(dialog, text=self.t("reply_translate_speak"), command=submit).pack(pady=15)
+
+    def _accept_reply(self, item, controller):
+        if controller is not self.session_controller:
+            return
+        self.session_controller.add_reply(item)
+        self._apply_review(item)
+        self.speak_items([(item["text"], item["target_language"])])
 
     def offline_prepare(self):
         if self.busy or self.recorder.recording:

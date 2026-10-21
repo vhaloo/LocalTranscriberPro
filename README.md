@@ -16,6 +16,7 @@ No API key, subscription or cloud inference is required. Download speech/transla
 
 - **Live provisional text:** idle inference capacity previews the current turn; only final results enter exports. The pipeline shows seconds of captured audio still awaiting final processing.
 - **Confirm languages without stopping:** candidate buttons and searchable selectors apply changes at the next turn; earlier translations retain their original routing.
+- **Safer automatic models:** shared recognition/translation memory admission and local GlotLID hints also cover recognizers without a language score. Missing or ambiguous language evidence can be confirmed manually.
 - **Review paired turns:** correct originals/translations, name a speaker, replay linked source audio and retranslate one turn with a revision history.
 - **Audience display and typed replies:** a separate movable window with language filtering and 18–72 point text; typed replies are translated, logged and read locally.
 - **Offline profile preparation:** explicitly prepare the selected recognizer, translator and available voices, then exercise local inference without model downloads.

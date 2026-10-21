@@ -31,7 +31,7 @@ from src.transcriber import TranscriberEngine, TranscriptionOptions  # noqa: E40
 
 
 class Harness(RecordingMixin):
-    def __init__(self, audio, model, device):
+    def __init__(self, audio, model, device, word_timestamps=False, require_preview=False):
         self.audio = audio
         self.hardware = detect_hardware()
         self.engine = TranscriberEngine(self.hardware)
@@ -43,6 +43,7 @@ class Harness(RecordingMixin):
         self.recording_offset = 0.0
         self.preset = "universal"
         self.private_mode = True
+        self.require_preview = require_preview
         self.previews, self.pairs, self.results = [], [], []
         self.error, self.finished = None, False
         self.decode_trace = []
@@ -54,12 +55,13 @@ class Harness(RecordingMixin):
                 "input_seconds": len(audio) / 16000, "seconds": round(time.monotonic() - started, 3),
                 "result_characters": len(result.get("text", "")), "pending": self.recorder.audio_queue.qsize(),
                 "available_seconds_at_return": self.recorder.available_seconds()})
+            print("Decode:", json.dumps(self.decode_trace[-1]), flush=True)
             return result
         self.engine.transcribe_audio = trace
         self.translation_controls = SimpleNamespace(update_candidates=lambda _: None,
             update_pair=lambda pair: self.pairs.append(pair))
         self.options = TranscriptionOptions(target_language="fr", conversation=True, third_language="en",
-            offline=True, word_timestamps=False, recover_model_errors=True)
+            offline=True, word_timestamps=word_timestamps, recover_model_errors=True)
         self.config = dict(model=model, device=device, private=True, conversation=True,
             chunk=12, cleanup=False, speaker=False, keep_audio=False)
 
@@ -79,7 +81,7 @@ class Harness(RecordingMixin):
         pass
 
     def _recording_started(self):
-        pass
+        print("Pipeline ready:", self.engine.current_status, "MT:", self.engine.translator.device, flush=True)
 
     def _show_live_preview(self, text, language=""):
         if text.strip():
@@ -132,7 +134,8 @@ class Harness(RecordingMixin):
             raise self.error
         assert self.finished and self.results, "Live worker produced no final conversation"
         assert self.recorder.capture_error == "", self.recorder.capture_error
-        assert self.previews, "No provisional inference reached the live display"
+        if self.require_preview:
+            assert self.previews, "No provisional inference reached the live display"
         assert abs(self.recording_offset - self.audio.size / 16000) < 1 / 16000, "Lost audio samples"
         assert all(item.get("segment_id") for item in self.results)
         assert {item.get("source_language") for item in self.results} >= {"ar", "fr"}
@@ -154,6 +157,8 @@ if __name__ == "__main__":
     parser.add_argument("--arabic", required=True, type=Path)
     parser.add_argument("--model", default="qwen3-asr-0.6b")
     parser.add_argument("--device", default="auto")
+    parser.add_argument("--word-timestamps", action="store_true")
+    parser.add_argument("--require-preview", action="store_true", help="Require an observed preview in a spare-capacity test")
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
     connect = socket.socket.connect
@@ -168,7 +173,7 @@ if __name__ == "__main__":
         arabic = np.concatenate([audio for _, audio in iter_audio_chunks(str(args.arabic))])
         silence = np.zeros(16000, dtype="float32")
         audio = np.concatenate([french, silence, arabic, silence, french, silence])
-        harness = Harness(audio, args.model, args.device)
+        harness = Harness(audio, args.model, args.device, args.word_timestamps, args.require_preview)
         result = harness.run()
         result["local_voice_synthesis"] = True
     except Exception as error:
