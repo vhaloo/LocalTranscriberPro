@@ -1,6 +1,6 @@
 # Models and third-party licences — 3.3.0
 
-Application source is MIT. Weight licences, voice/model cards and dependency licences remain independent. Model repositories are pinned; local files are verified before loading. Downloads contain no remote executable model code. Ordinary cached model files work offline after preparation.
+Application source is MIT. Weight licences, voice/model cards and dependency licences remain independent. The added Qwen, Parakeet, Omnilingual, translation and voice repositories use pinned revisions with local verification. Legacy Whisper uses its engine's official model catalogue and local cache. Downloads contain no repository-provided executable Python. Prepared model files work offline.
 
 | Component | Publisher/reference | Licence / qualification |
 |---|---|---|

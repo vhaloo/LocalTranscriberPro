@@ -151,6 +151,8 @@ Bilingual text is protected against accidental rewriting of original/translation
 
 Universal translation adds **MADLAD-400 3B int8 (~2.96 GB)** and requires at least 12 GB total / 6 GB currently available system RAM. It uses a compatible GPU if enough VRAM remains after loading recognition; otherwise it runs on CPU. A CPU-only computer can be slower than conversation speed. Optional separation adds ~113 MB; downloadable voices typically add ~60–150 MB each.
 
+For conversation recognition with Qwen/Parakeet, GlotLID adds **1.69 GB** of local language hints, shared with the Omnilingual cache. Its text-language score is separate from speech accuracy. Models are prepared before capture; ambiguous or unavailable language evidence can be confirmed manually.
+
 Admission checks total and available RAM, disk space, usable backends and free VRAM before loading. Accuracy/speed/coverage scores are relative catalogue guides, not measured cross-language accuracy percentages. [Exact hardware policy](docs/HARDWARE.md).
 
 ## Privacy
@@ -220,7 +222,51 @@ Au démarrage, une nouvelle version officielle est proposée. Sous Windows, acce
 Ces couvertures **ne s'additionnent pas**. Une langue reconnue par Omnilingual peut ne pas avoir de traduction, de détection automatique exploitable ou de voix dans l'application. Les 2 000+ étiquettes du détecteur textuel GlotLID ne sont pas une liste supplémentaire de langues transcrites. Le matériel, le modèle préparé et les langues disponibles à chaque étape limitent le parcours complet.
 
 <a id="mesures-langues"></a>
-### Pourcentages mesurés : reconnaissance, 35 groupes
+### Diagnostics 3.3 : huit extraits par groupe
+
+**280 extraits pour Omnilingual, 168 pour Qwen 0.6B dans 21 groupes de sa couverture déclarée.** Ces groupes incluent huit corpus arabes régionaux. Réseau bloqué ; Omnilingual sur CPU et Qwen sur CUDA. Le CER mesure des erreurs de caractères normalisés, pas la fiabilité du sens. Huit extraits par groupe ne certifient ni une langue ni ses dialectes. Les temps observés ne sont pas un classement contrôlé de vitesse. [Méthode, configurations et limites](docs/LANGUAGE_DIAGNOSTICS_3.3.md) · [Compteurs et empreintes des entrées](docs/evaluations/3.3-language-diagnostics.json).
+
+| Langue / groupe | Extraits | CER Omnilingual 1B v2 (%) ↓ | CER Qwen 0.6B (%) ↓ |
+|---|---:|---:|---:|
+| Créole haïtien | 8 | 25.6 | Hors couverture déclarée |
+| Espagnol (Amérique latine) | 8 | 1.2 | 2.1 |
+| Persan (Iran) | 8 | 3.6 | 13.3 |
+| Pendjabi (Inde) | 8 | 8.0 | Hors couverture déclarée |
+| Lingala (RDC) | 8 | 4.7 | Hors couverture déclarée |
+| Yoruba (Nigeria) | 8 | 20.2 | Hors couverture déclarée |
+| Somali | 8 | 10.9 | Hors couverture déclarée |
+| Haoussa | 8 | 7.0 | Hors couverture déclarée |
+| Igbo | 8 | 10.6 | Hors couverture déclarée |
+| Amharique | 8 | 10.7 | Hors couverture déclarée |
+| Swahili | 8 | 1.6 | Hors couverture déclarée |
+| Turc | 8 | 3.6 | 5.2 |
+| Gujarati | 8 | 4.6 | Hors couverture déclarée |
+| Français | 8 | 6.8 | 7.7 |
+| Anglais | 8 | 3.1 | 2.3 |
+| Arabe — Algérie | 8 | 29.6 | 38.1 |
+| Arabe — Égypte | 8 | 25.8 | 28.8 |
+| Arabe — Jordanie | 8 | 18.5 | 23.7 |
+| Arabe — Mauritanie | 8 | 41.7 | 46.1 |
+| Arabe — Maroc | 8 | 39.9 | 46.6 |
+| Arabe — Palestine | 8 | 14.7 | 23.3 |
+| Arabe — Émirats arabes unis | 8 | 17.8 | 21.0 |
+| Arabe — Yémen | 8 | 17.0 | 30.2 |
+| Mandarin | 8 | 22.0 | 10.2 |
+| Cantonais | 8 | 18.3 | 4.9 |
+| Hindi | 8 | 3.3 | 18.5 |
+| Ourdou | 8 | 43.8 | Hors couverture déclarée |
+| Tamoul | 8 | 6.0 | Hors couverture déclarée |
+| Bengali | 8 | 6.9 | Hors couverture déclarée |
+| Pachto | 8 | 17.1 | Hors couverture déclarée |
+| Thaï | 8 | 22.8 | 9.0 |
+| Vietnamien | 8 | 10.3 | 5.2 |
+| Indonésien | 8 | 1.4 | 2.8 |
+| Japonais | 8 | 19.2 | 8.9 |
+| Coréen | 8 | 6.1 | 3.2 |
+
+Les essais Whisper supplémentaires partiels ne sont pas mélangés à ces mesures. La comparaison historique complète ci-dessous reste distincte. Aucun pourcentage de fiabilité sémantique ou de traduction n’est déduit de ces échantillons.
+
+### Mesures historiques 3.1 : deux extraits par groupe
 
 **Deux extraits par groupe, 70 extraits au total**, identiques pour les deux moteurs ; Whisper large-v3 sur CUDA et Omnilingual CTC 1B v2 sur CPU, réseau bloqué pendant l'inférence. FLEURS correspond principalement à de la parole lue ; Casablanca fournit huit groupes arabes, et CMU deux extraits haïtiens. Les pays ci-dessous décrivent les corpus, pas l'origine déduite d'une personne.
 

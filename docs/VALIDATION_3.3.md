@@ -30,3 +30,9 @@ A two-second physical input-stream check received 32,768 samples with no overflo
 - Paired edits preserve translations explicitly corrected with the original, while unchanged old translations are invalidated. Typed replies read their own destination text even when another turn finishes concurrently, and update existing completed exports. Logical Unicode survives manual bilingual TXT export.
 
 These are execution and regression checks, not human certification of translation meaning. The controlled clips are not a representative multilingual conversation study. The final native-package, installation and public-asset evidence is added after those operations complete.
+
+## Expanded language diagnostics
+
+[The complete 3.3 table](LANGUAGE_DIAGNOSTICS_3.3.md) publishes 280 scored Omnilingual clips across 35 groups and 168 scored Qwen 0.6B clips across 21 declared-coverage groups. The other 112 Qwen entries are explicitly outside its catalogue. Each scored group contains eight held-out clips. Only aggregate counters and input hashes are published.
+
+Additional Whisper CPU runs were partial and are not presented as a balanced complete comparison. The optional CUDA int8_float16 diagnostic was refused by its actual free-VRAM guard while other applications remained open. It did not change the production automatic-model policy. The historical complete 70-clip comparison stays separately labelled; no 0.6B results are relabelled as Qwen 1.7B and no semantic reliability percentages are invented. Normalized language-route agreement does not certify Cantonese/Mandarin dialect identification.

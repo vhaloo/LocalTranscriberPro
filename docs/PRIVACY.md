@@ -28,7 +28,7 @@ Downloaded models are cached locally and can be inspected or deleted in the Mode
 
 ## Code signing
 
-Automated public builds use the documented build workflow but may be unsigned unless the maintainer configures platform secrets:
+Native platform signing is not provisioned in these builds. Producing platform-signed installers requires the corresponding credentials and build steps:
 
 - Windows Authenticode certificate
 - Apple Developer ID Application and Installer certificates, plus notarization credentials
