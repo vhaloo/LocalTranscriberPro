@@ -65,10 +65,12 @@ class HardwareProfile:
     qwen_available: bool = False
     parakeet_available: bool = False
     reclaimable_vram_gb: float = 0.0
+    commit_free_gb: float | None = None
 
     @property
     def effective_available_ram_gb(self) -> float:
-        return self.ram_gb if self.available_ram_gb is None else self.available_ram_gb
+        available = self.ram_gb if self.available_ram_gb is None else self.available_ram_gb
+        return min(available, max(0.0, self.commit_free_gb - 2)) if self.commit_free_gb is not None else available
 
     @property
     def effective_free_vram_gb(self) -> float:
@@ -341,6 +343,7 @@ class HardwareProfile:
         memory = psutil.virtual_memory()
         self.available_ram_gb = memory.available / 1024**3
         self.swap_gb = psutil.swap_memory().total / 1024**3
+        self.commit_free_gb = _commit_headroom_gb()
         self.disk_free_gb = _cache_disk_free_gb()
         if self.nvidia_detected:
             _, total, free, driver = _nvidia_details()
@@ -401,6 +404,25 @@ def _cache_disk_free_gb() -> float:
         return shutil.disk_usage(target).free / 1024**3
     except OSError:
         return 0.0
+
+
+def _commit_headroom_gb():
+    """Windows can run out of commit despite apparently free physical RAM."""
+    if platform.system() != "Windows":
+        return None
+    try:
+        import ctypes
+        class MemoryStatus(ctypes.Structure):
+            _fields_ = [("length", ctypes.c_uint32), ("load", ctypes.c_uint32),
+                        *[(name, ctypes.c_uint64) for name in ("total_phys", "available_phys", "commit_limit",
+                          "available_commit", "total_virtual", "available_virtual", "extended")]]
+        status = MemoryStatus()
+        status.length = ctypes.sizeof(status)
+        if ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(status)):
+            return status.available_commit / 1024**3
+    except (AttributeError, OSError):
+        pass
+    return None
 
 
 def detect_hardware(status_callback: HardwareStatusCallback | None = None) -> HardwareProfile:
@@ -470,6 +492,9 @@ def detect_hardware(status_callback: HardwareStatusCallback | None = None) -> Ha
         gpu_name = f"Apple {platform.machine()}"
 
     report("hardware_ready", 0.70)
+    from src.runtime_flavor import cpu_only
+    if cpu_only():
+        ct2_cuda = torch_cuda = False
     return HardwareProfile(
         os_name=platform.system(),
         os_version=platform.release(),
@@ -479,6 +504,7 @@ def detect_hardware(status_callback: HardwareStatusCallback | None = None) -> Ha
         ram_gb=ram_gb,
         available_ram_gb=available_ram_gb,
         swap_gb=swap_gb,
+        commit_free_gb=_commit_headroom_gb(),
         disk_free_gb=disk_free_gb,
         gpu_name=gpu_name,
         gpu_vram_gb=gpu_vram,

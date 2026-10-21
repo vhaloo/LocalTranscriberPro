@@ -434,7 +434,7 @@ STRINGS: dict[str, dict[str, str]] = {
 
 
 STRINGS["en"].update({
-    "app_subtitle": "Private local transcription • Version 3.0",
+    "app_subtitle": "Private local transcription • Version 3.3",
     "updates": "Check for updates",
     "update_automatic": "Check updates at startup",
     "update_checking": "Checking the official release…",
@@ -463,7 +463,7 @@ STRINGS["en"].update({
     "microphone_backlog": "The engine cannot keep up. Recording was stopped and captured audio was saved.",
 })
 STRINGS["fr"].update({
-    "app_subtitle": "Transcription privée et locale • Version 3.0",
+    "app_subtitle": "Transcription privée et locale • Version 3.3",
     "updates": "Vérifier les mises à jour",
     "update_automatic": "Vérifier au démarrage",
     "update_checking": "Vérification de la version officielle…",
@@ -672,7 +672,7 @@ STRINGS["en"]["translation_help_body"] += (
 
 
 STRINGS["fr"].update({
-    "app_subtitle": "Transcription et traduction locales — version 3.2",
+    "app_subtitle": "Transcription et traduction locales — version 3.3",
     "invalid_url": "Collez un lien HTTP ou HTTPS vers une vidéo. Les chemins locaux et les identifiants intégrés dans l’URL ne sont pas acceptés ; utilisez Fichier local pour un enregistrement.",
     "url_placeholder": "Lien YouTube, Vimeo, autre site vidéo ou fichier média HTTP(S)…",
     "task_link_help": "Importez l’audio d’une vidéo YouTube ou d’un autre site compatible. Internet sert au téléchargement ; reconnaissance et traduction restent locales.",
@@ -758,7 +758,7 @@ STRINGS["fr"].update({
     "tip_update_automatic": "Vérifie les releases officielles au démarrage. Toute installation est proposée avant téléchargement/remplacement ; les modèles et les transcriptions sont conservés.",
 })
 STRINGS["en"].update({
-    "app_subtitle": "Local transcription and translation — version 3.2",
+    "app_subtitle": "Local transcription and translation — version 3.3",
     "invalid_url": "Paste an HTTP or HTTPS video URL. Local paths and credentials embedded in URLs are not accepted; use Local file for a recording.",
     "url_placeholder": "YouTube, Vimeo, another video website or direct HTTP(S) media link…",
     "task_link_help": "Import audio from YouTube or another supported website. Downloading uses Internet; recognition and translation stay local.",
@@ -843,6 +843,11 @@ STRINGS["en"].update({
     "tip_keep_audio": "Keeps the recording WAV alongside transcripts for replay or retranscription. It adds disk usage with each session.",
     "tip_update_automatic": "Checks official releases at startup. Installation is proposed before downloading/replacing the app; models and transcripts are preserved.",
 })
+
+
+from src.i18n_33 import register  # noqa: E402
+
+register(STRINGS)
 
 
 def detect_ui_language() -> str:

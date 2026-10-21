@@ -35,6 +35,38 @@ def unique(rows):
         raise ValueError("Duplicate language codes in documentation input")
 
 
+def expanded_diagnostics():
+    path = ROOT / "docs/evaluations/3.3-language-diagnostics.json"
+    if not path.is_file():
+        return []
+    data = json.loads(path.read_text("utf-8"))
+    models = ("omnilingual-1b-v2", "qwen3-asr-0.6b")
+    assert data["clips_in_manifest"] == 280 and len(data["groups"]) == 35
+    lines = ["### Diagnostics 3.3 : huit extraits par groupe", "",
+        "**280 extraits pour Omnilingual, 168 pour Qwen 0.6B dans 21 groupes de sa couverture déclarée.** "
+        "Ces groupes incluent huit corpus arabes régionaux. Réseau bloqué ; Omnilingual sur CPU et Qwen sur CUDA. "
+        "Le CER mesure des erreurs de caractères normalisés, pas la fiabilité du sens. Huit extraits par groupe "
+        "ne certifient ni une langue ni ses dialectes. Les temps observés ne sont pas un classement contrôlé de vitesse. "
+        "[Méthode, configurations et limites](docs/LANGUAGE_DIAGNOSTICS_3.3.md) · "
+        "[Compteurs et empreintes des entrées](docs/evaluations/3.3-language-diagnostics.json).", "",
+        "| Langue / groupe | Extraits | CER Omnilingual 1B v2 (%) ↓ | CER Qwen 0.6B (%) ↓ |",
+        "|---|---:|---:|---:|"]
+    for group in data["groups"]:
+        values = []
+        for model in models:
+            row = data["models"][model]["by_group"].get(group["code"])
+            if row:
+                assert row["clips"] == 8 and row["reference_characters"] > 0
+                values.append(f"{100 * row['character_edits'] / row['reference_characters']:.1f}")
+            else:
+                values.append("Hors couverture déclarée")
+        lines.append(f"| {cell(group['label'])} | 8 | " + " | ".join(values) + " |")
+    lines += ["", "Les essais Whisper supplémentaires partiels ne sont pas mélangés à ces mesures. "
+        "La comparaison historique complète ci-dessous reste distincte. Aucun pourcentage de fiabilité "
+        "sémantique ou de traduction n’est déduit de ces échantillons.", ""]
+    return lines
+
+
 def generate():
     catalogue = load("src/data/translation_languages.json")
     omnilingual = load("docs/data/omnilingual_languages.json")
@@ -95,7 +127,7 @@ def generate():
              "traduction, de détection automatique exploitable ou de voix dans l'application. Les 2 000+ étiquettes "
              "du détecteur textuel GlotLID ne sont pas une liste supplémentaire de langues transcrites. Le matériel, "
              "le modèle préparé et les langues disponibles à chaque étape limitent le parcours complet.", "",
-             '<a id="mesures-langues"></a>', "### Pourcentages mesurés : reconnaissance, 35 groupes", "",
+             '<a id="mesures-langues"></a>', *expanded_diagnostics(), "### Mesures historiques 3.1 : deux extraits par groupe", "",
              "**Deux extraits par groupe, 70 extraits au total**, identiques pour les deux moteurs ; Whisper large-v3 "
              "sur CUDA et Omnilingual CTC 1B v2 sur CPU, réseau bloqué pendant l'inférence. FLEURS correspond "
              "principalement à de la parole lue ; Casablanca fournit huit groupes arabes, et CMU deux extraits haïtiens. "

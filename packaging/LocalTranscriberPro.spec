@@ -1,6 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 import os
+import json
 import platform
 import shutil
 from pathlib import Path
@@ -11,11 +12,16 @@ from PyInstaller.utils.hooks import collect_data_files, collect_submodules, copy
 # SPECPATH is the directory containing this spec (repo/packaging).
 ROOT = Path(SPECPATH).resolve().parent
 datas = []
+flavor_file = ROOT / "artifacts/runtime-flavor.json"
+flavor_file.parent.mkdir(parents=True, exist_ok=True)
+flavor_file.write_text(json.dumps({"cpu_only": os.environ.get("LTP_CPU_ONLY") == "1"}), "utf-8")
+datas += [(str(flavor_file), ".")]
 datas += [(str(ROOT / "packaging/ESPEAK-NG-LICENSE.txt"), "default-voices")]
 datas += [(str(ROOT / "src/data/translation_languages.json"), "src/data")]
 datas += [(str(ROOT / "src/data/voices.json"), "src/data")]
 datas += [(str(ROOT / "src/data/mms_voices.json"), "src/data")]
 datas += [(str(ROOT / "src/data/omnilingual.json"), "src/data")]
+datas += [(str(ROOT / "src/data/translation_7b.json"), "src/data")]
 datas += collect_data_files("uroman")
 if not (ROOT / "artifacts/default-voices/fr").is_dir():
     raise RuntimeError("Run scripts/prepare_default_voices.py before packaging")
@@ -149,7 +155,7 @@ if platform.system() == "Darwin":
         name="Local Transcriber Pro.app",
         icon=str(icon) if icon.exists() else None,
         bundle_identifier="com.vhaloo.localtranscriberpro",
-        version="3.2.0",
+        version="3.3.0",
         info_plist={
             "NSMicrophoneUsageDescription": "Local Transcriber Pro needs microphone access only when you start a recording.",
             "LSMinimumSystemVersion": "12.0",

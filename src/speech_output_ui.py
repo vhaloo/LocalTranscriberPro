@@ -160,7 +160,9 @@ class SpeechOutputMixin:
         return items
 
     def read_transcript_lines(self):
-        items = self.selected_speech_lines()
+        self.speak_items(self.selected_speech_lines())
+
+    def speak_items(self, items):
         if not items:
             return
         mode = self.voice_choice

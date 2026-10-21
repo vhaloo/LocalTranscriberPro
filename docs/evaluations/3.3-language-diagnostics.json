@@ -1,0 +1,2993 @@
+{
+  "version": "3.3.0",
+  "date": "2026-10-21",
+  "clips_in_manifest": 280,
+  "manifest_sha256": "9fb12fb6d9e30f4196bad92a3c3b1a5b580b9df2f87675c6ad4c68cc8dd47b18",
+  "method": "Eight held-out clips per group; normalized character/whitespace-word edit distance. Not semantic reliability.",
+  "network_blocked": true,
+  "timing_limit": "Wall time excluding initial model loading; mixed CPU/GPU and ordinary desktop activity. Not a controlled speed ranking.",
+  "models": {
+    "omnilingual-1b-v2": {
+      "loaded_status": "EngineStatus(model_id='omnilingual-1b-v2', requested_device='auto', device='cpu', backend='omnilingual-onnx', compute_type='float32', requested_model_id='omnilingual-1b-v2', fallback_reason='')",
+      "scored": 280,
+      "skipped_outside_coverage": 0,
+      "aggregate": {
+        "clips": 280,
+        "audio_seconds": 2503.125,
+        "character_edits": 2546,
+        "reference_characters": 19048,
+        "word_edits": 2214,
+        "reference_words": 5432,
+        "processing_seconds": 663.825,
+        "language_matches": 263
+      },
+      "by_group": {
+        "default": {
+          "clips": 8,
+          "audio_seconds": 72.758,
+          "character_edits": 143,
+          "reference_characters": 559,
+          "word_edits": 94,
+          "reference_words": 151,
+          "processing_seconds": 19.14,
+          "language_matches": 3
+        },
+        "es_419": {
+          "clips": 8,
+          "audio_seconds": 78.12,
+          "character_edits": 9,
+          "reference_characters": 776,
+          "word_edits": 11,
+          "reference_words": 154,
+          "processing_seconds": 20.47,
+          "language_matches": 8
+        },
+        "fa_ir": {
+          "clips": 8,
+          "audio_seconds": 101.16,
+          "character_edits": 23,
+          "reference_characters": 638,
+          "word_edits": 43,
+          "reference_words": 171,
+          "processing_seconds": 27.36,
+          "language_matches": 8
+        },
+        "pa_in": {
+          "clips": 8,
+          "audio_seconds": 72.9,
+          "character_edits": 37,
+          "reference_characters": 465,
+          "word_edits": 51,
+          "reference_words": 279,
+          "processing_seconds": 19.028,
+          "language_matches": 8
+        },
+        "ln_cd": {
+          "clips": 8,
+          "audio_seconds": 84.0,
+          "character_edits": 24,
+          "reference_characters": 512,
+          "word_edits": 21,
+          "reference_words": 105,
+          "processing_seconds": 22.594,
+          "language_matches": 8
+        },
+        "yo_ng": {
+          "clips": 8,
+          "audio_seconds": 93.12,
+          "character_edits": 106,
+          "reference_characters": 524,
+          "word_edits": 75,
+          "reference_words": 142,
+          "processing_seconds": 25.532,
+          "language_matches": 8
+        },
+        "so_so": {
+          "clips": 8,
+          "audio_seconds": 79.92,
+          "character_edits": 91,
+          "reference_characters": 834,
+          "word_edits": 58,
+          "reference_words": 159,
+          "processing_seconds": 21.172,
+          "language_matches": 8
+        },
+        "ha_ng": {
+          "clips": 8,
+          "audio_seconds": 93.6,
+          "character_edits": 50,
+          "reference_characters": 713,
+          "word_edits": 34,
+          "reference_words": 144,
+          "processing_seconds": 25.625,
+          "language_matches": 8
+        },
+        "ig_ng": {
+          "clips": 8,
+          "audio_seconds": 93.72,
+          "character_edits": 77,
+          "reference_characters": 728,
+          "word_edits": 82,
+          "reference_words": 182,
+          "processing_seconds": 25.501,
+          "language_matches": 8
+        },
+        "am_et": {
+          "clips": 8,
+          "audio_seconds": 79.86,
+          "character_edits": 49,
+          "reference_characters": 460,
+          "word_edits": 74,
+          "reference_words": 119,
+          "processing_seconds": 21.015,
+          "language_matches": 8
+        },
+        "sw_ke": {
+          "clips": 8,
+          "audio_seconds": 85.2,
+          "character_edits": 11,
+          "reference_characters": 693,
+          "word_edits": 13,
+          "reference_words": 128,
+          "processing_seconds": 22.344,
+          "language_matches": 8
+        },
+        "tr_tr": {
+          "clips": 8,
+          "audio_seconds": 73.62,
+          "character_edits": 25,
+          "reference_characters": 689,
+          "word_edits": 16,
+          "reference_words": 112,
+          "processing_seconds": 19.187,
+          "language_matches": 7
+        },
+        "gu_in": {
+          "clips": 8,
+          "audio_seconds": 73.92,
+          "character_edits": 20,
+          "reference_characters": 436,
+          "word_edits": 25,
+          "reference_words": 262,
+          "processing_seconds": 19.345,
+          "language_matches": 8
+        },
+        "fr_fr": {
+          "clips": 8,
+          "audio_seconds": 71.94,
+          "character_edits": 61,
+          "reference_characters": 891,
+          "word_edits": 36,
+          "reference_words": 195,
+          "processing_seconds": 18.733,
+          "language_matches": 8
+        },
+        "en_us": {
+          "clips": 8,
+          "audio_seconds": 70.04,
+          "character_edits": 24,
+          "reference_characters": 768,
+          "word_edits": 15,
+          "reference_words": 156,
+          "processing_seconds": 19.109,
+          "language_matches": 8
+        },
+        "Algeria": {
+          "clips": 8,
+          "audio_seconds": 31.88,
+          "character_edits": 86,
+          "reference_characters": 291,
+          "word_edits": 43,
+          "reference_words": 64,
+          "processing_seconds": 8.608,
+          "language_matches": 6
+        },
+        "Egypt": {
+          "clips": 8,
+          "audio_seconds": 32.166,
+          "character_edits": 78,
+          "reference_characters": 302,
+          "word_edits": 55,
+          "reference_words": 78,
+          "processing_seconds": 8.186,
+          "language_matches": 8
+        },
+        "Jordan": {
+          "clips": 8,
+          "audio_seconds": 45.037,
+          "character_edits": 75,
+          "reference_characters": 405,
+          "word_edits": 58,
+          "reference_words": 110,
+          "processing_seconds": 11.626,
+          "language_matches": 8
+        },
+        "Mauritania": {
+          "clips": 8,
+          "audio_seconds": 30.4,
+          "character_edits": 123,
+          "reference_characters": 295,
+          "word_edits": 61,
+          "reference_words": 76,
+          "processing_seconds": 7.781,
+          "language_matches": 6
+        },
+        "Morocco": {
+          "clips": 8,
+          "audio_seconds": 37.389,
+          "character_edits": 213,
+          "reference_characters": 534,
+          "word_edits": 114,
+          "reference_words": 125,
+          "processing_seconds": 9.702,
+          "language_matches": 8
+        },
+        "Palestine": {
+          "clips": 8,
+          "audio_seconds": 60.806,
+          "character_edits": 86,
+          "reference_characters": 587,
+          "word_edits": 72,
+          "reference_words": 143,
+          "processing_seconds": 15.953,
+          "language_matches": 8
+        },
+        "UAE": {
+          "clips": 8,
+          "audio_seconds": 40.953,
+          "character_edits": 76,
+          "reference_characters": 428,
+          "word_edits": 66,
+          "reference_words": 107,
+          "processing_seconds": 10.467,
+          "language_matches": 8
+        },
+        "Yemen": {
+          "clips": 8,
+          "audio_seconds": 45.976,
+          "character_edits": 75,
+          "reference_characters": 440,
+          "word_edits": 71,
+          "reference_words": 105,
+          "processing_seconds": 11.843,
+          "language_matches": 7
+        },
+        "cmn_hans_cn": {
+          "clips": 8,
+          "audio_seconds": 80.88,
+          "character_edits": 54,
+          "reference_characters": 245,
+          "word_edits": 224,
+          "reference_words": 224,
+          "processing_seconds": 21.422,
+          "language_matches": 6
+        },
+        "yue_hant_hk": {
+          "clips": 8,
+          "audio_seconds": 81.36,
+          "character_edits": 49,
+          "reference_characters": 268,
+          "word_edits": 268,
+          "reference_words": 268,
+          "processing_seconds": 21.469,
+          "language_matches": 7
+        },
+        "hi_in": {
+          "clips": 8,
+          "audio_seconds": 81.54,
+          "character_edits": 16,
+          "reference_characters": 487,
+          "word_edits": 22,
+          "reference_words": 287,
+          "processing_seconds": 21.593,
+          "language_matches": 8
+        },
+        "ur_pk": {
+          "clips": 8,
+          "audio_seconds": 78.6,
+          "character_edits": 373,
+          "reference_characters": 851,
+          "word_edits": 159,
+          "reference_words": 241,
+          "processing_seconds": 20.719,
+          "language_matches": 5
+        },
+        "ta_in": {
+          "clips": 8,
+          "audio_seconds": 66.22,
+          "character_edits": 27,
+          "reference_characters": 451,
+          "word_edits": 42,
+          "reference_words": 250,
+          "processing_seconds": 17.501,
+          "language_matches": 8
+        },
+        "bn_in": {
+          "clips": 8,
+          "audio_seconds": 92.34,
+          "character_edits": 31,
+          "reference_characters": 448,
+          "word_edits": 39,
+          "reference_words": 266,
+          "processing_seconds": 24.703,
+          "language_matches": 8
+        },
+        "ps_af": {
+          "clips": 8,
+          "audio_seconds": 70.74,
+          "character_edits": 99,
+          "reference_characters": 580,
+          "word_edits": 80,
+          "reference_words": 164,
+          "processing_seconds": 18.549,
+          "language_matches": 8
+        },
+        "th_th": {
+          "clips": 8,
+          "audio_seconds": 74.16,
+          "character_edits": 169,
+          "reference_characters": 742,
+          "word_edits": 73,
+          "reference_words": 27,
+          "processing_seconds": 20.032,
+          "language_matches": 8
+        },
+        "vi_vn": {
+          "clips": 8,
+          "audio_seconds": 81.24,
+          "character_edits": 67,
+          "reference_characters": 651,
+          "word_edits": 44,
+          "reference_words": 191,
+          "processing_seconds": 21.39,
+          "language_matches": 8
+        },
+        "id_id": {
+          "clips": 8,
+          "audio_seconds": 73.98,
+          "character_edits": 9,
+          "reference_characters": 652,
+          "word_edits": 13,
+          "reference_words": 115,
+          "processing_seconds": 19.609,
+          "language_matches": 8
+        },
+        "ja_jp": {
+          "clips": 8,
+          "audio_seconds": 86.16,
+          "character_edits": 69,
+          "reference_characters": 359,
+          "word_edits": 24,
+          "reference_words": 20,
+          "processing_seconds": 23.188,
+          "language_matches": 8
+        },
+        "ko_kr": {
+          "clips": 8,
+          "audio_seconds": 87.42,
+          "character_edits": 21,
+          "reference_characters": 346,
+          "word_edits": 38,
+          "reference_words": 112,
+          "processing_seconds": 23.329,
+          "language_matches": 8
+        }
+      }
+    },
+    "qwen3-asr-0.6b": {
+      "loaded_status": "EngineStatus(model_id='qwen3-asr-0.6b', requested_device='auto', device='cuda', backend='qwen3-asr', compute_type='float16', requested_model_id='qwen3-asr-0.6b', fallback_reason='')",
+      "scored": 168,
+      "skipped_outside_coverage": 112,
+      "aggregate": {
+        "clips": 168,
+        "audio_seconds": 1366.227,
+        "character_edits": 1553,
+        "reference_characters": 10794,
+        "word_edits": 1319,
+        "reference_words": 2840,
+        "processing_seconds": 527.162,
+        "language_matches": 163
+      },
+      "by_group": {
+        "es_419": {
+          "clips": 8,
+          "audio_seconds": 78.12,
+          "character_edits": 16,
+          "reference_characters": 776,
+          "word_edits": 8,
+          "reference_words": 154,
+          "processing_seconds": 39.969,
+          "language_matches": 8
+        },
+        "fa_ir": {
+          "clips": 8,
+          "audio_seconds": 101.16,
+          "character_edits": 85,
+          "reference_characters": 638,
+          "word_edits": 67,
+          "reference_words": 171,
+          "processing_seconds": 39.516,
+          "language_matches": 8
+        },
+        "tr_tr": {
+          "clips": 8,
+          "audio_seconds": 73.62,
+          "character_edits": 36,
+          "reference_characters": 689,
+          "word_edits": 19,
+          "reference_words": 112,
+          "processing_seconds": 22.0,
+          "language_matches": 8
+        },
+        "fr_fr": {
+          "clips": 8,
+          "audio_seconds": 71.94,
+          "character_edits": 69,
+          "reference_characters": 891,
+          "word_edits": 28,
+          "reference_words": 195,
+          "processing_seconds": 24.234,
+          "language_matches": 8
+        },
+        "en_us": {
+          "clips": 8,
+          "audio_seconds": 70.04,
+          "character_edits": 18,
+          "reference_characters": 768,
+          "word_edits": 7,
+          "reference_words": 156,
+          "processing_seconds": 17.001,
+          "language_matches": 8
+        },
+        "Algeria": {
+          "clips": 8,
+          "audio_seconds": 31.88,
+          "character_edits": 111,
+          "reference_characters": 291,
+          "word_edits": 55,
+          "reference_words": 64,
+          "processing_seconds": 14.39,
+          "language_matches": 7
+        },
+        "Egypt": {
+          "clips": 8,
+          "audio_seconds": 32.166,
+          "character_edits": 87,
+          "reference_characters": 302,
+          "word_edits": 54,
+          "reference_words": 78,
+          "processing_seconds": 16.406,
+          "language_matches": 8
+        },
+        "Jordan": {
+          "clips": 8,
+          "audio_seconds": 45.037,
+          "character_edits": 96,
+          "reference_characters": 405,
+          "word_edits": 72,
+          "reference_words": 110,
+          "processing_seconds": 18.578,
+          "language_matches": 7
+        },
+        "Mauritania": {
+          "clips": 8,
+          "audio_seconds": 30.4,
+          "character_edits": 136,
+          "reference_characters": 295,
+          "word_edits": 62,
+          "reference_words": 76,
+          "processing_seconds": 12.75,
+          "language_matches": 7
+        },
+        "Morocco": {
+          "clips": 8,
+          "audio_seconds": 37.389,
+          "character_edits": 249,
+          "reference_characters": 534,
+          "word_edits": 115,
+          "reference_words": 125,
+          "processing_seconds": 19.703,
+          "language_matches": 7
+        },
+        "Palestine": {
+          "clips": 8,
+          "audio_seconds": 60.806,
+          "character_edits": 137,
+          "reference_characters": 587,
+          "word_edits": 85,
+          "reference_words": 143,
+          "processing_seconds": 24.704,
+          "language_matches": 8
+        },
+        "UAE": {
+          "clips": 8,
+          "audio_seconds": 40.953,
+          "character_edits": 90,
+          "reference_characters": 428,
+          "word_edits": 67,
+          "reference_words": 107,
+          "processing_seconds": 18.14,
+          "language_matches": 8
+        },
+        "Yemen": {
+          "clips": 8,
+          "audio_seconds": 45.976,
+          "character_edits": 133,
+          "reference_characters": 440,
+          "word_edits": 75,
+          "reference_words": 105,
+          "processing_seconds": 18.673,
+          "language_matches": 7
+        },
+        "cmn_hans_cn": {
+          "clips": 8,
+          "audio_seconds": 80.88,
+          "character_edits": 25,
+          "reference_characters": 245,
+          "word_edits": 223,
+          "reference_words": 224,
+          "processing_seconds": 15.08,
+          "language_matches": 8
+        },
+        "yue_hant_hk": {
+          "clips": 8,
+          "audio_seconds": 81.36,
+          "character_edits": 13,
+          "reference_characters": 268,
+          "word_edits": 268,
+          "reference_words": 268,
+          "processing_seconds": 18.954,
+          "language_matches": 8
+        },
+        "hi_in": {
+          "clips": 8,
+          "audio_seconds": 81.54,
+          "character_edits": 90,
+          "reference_characters": 487,
+          "word_edits": 35,
+          "reference_words": 287,
+          "processing_seconds": 68.719,
+          "language_matches": 8
+        },
+        "th_th": {
+          "clips": 8,
+          "audio_seconds": 74.16,
+          "character_edits": 67,
+          "reference_characters": 742,
+          "word_edits": 20,
+          "reference_words": 27,
+          "processing_seconds": 44.296,
+          "language_matches": 8
+        },
+        "vi_vn": {
+          "clips": 8,
+          "audio_seconds": 81.24,
+          "character_edits": 34,
+          "reference_characters": 651,
+          "word_edits": 16,
+          "reference_words": 191,
+          "processing_seconds": 22.345,
+          "language_matches": 8
+        },
+        "id_id": {
+          "clips": 8,
+          "audio_seconds": 73.98,
+          "character_edits": 18,
+          "reference_characters": 652,
+          "word_edits": 7,
+          "reference_words": 115,
+          "processing_seconds": 21.282,
+          "language_matches": 8
+        },
+        "ja_jp": {
+          "clips": 8,
+          "audio_seconds": 86.16,
+          "character_edits": 32,
+          "reference_characters": 359,
+          "word_edits": 15,
+          "reference_words": 20,
+          "processing_seconds": 21.187,
+          "language_matches": 8
+        },
+        "ko_kr": {
+          "clips": 8,
+          "audio_seconds": 87.42,
+          "character_edits": 11,
+          "reference_characters": 346,
+          "word_edits": 21,
+          "reference_words": 112,
+          "processing_seconds": 29.235,
+          "language_matches": 8
+        }
+      }
+    }
+  },
+  "not_included": [
+    "Expanded Whisper CPU diagnostics were partial and are excluded; the optional CUDA int8_float16 attempt was refused for insufficient actual free VRAM. Historical complete 70-clip Whisper diagnostics remain separately published."
+  ],
+  "language_match_limit": "Normalized translation-route IDs; Cantonese/Mandarin share zh. This count does not validate dialect identification.",
+  "groups": [
+    {
+      "code": "default",
+      "label": "Créole haïtien"
+    },
+    {
+      "code": "es_419",
+      "label": "Espagnol (Amérique latine)"
+    },
+    {
+      "code": "fa_ir",
+      "label": "Persan (Iran)"
+    },
+    {
+      "code": "pa_in",
+      "label": "Pendjabi (Inde)"
+    },
+    {
+      "code": "ln_cd",
+      "label": "Lingala (RDC)"
+    },
+    {
+      "code": "yo_ng",
+      "label": "Yoruba (Nigeria)"
+    },
+    {
+      "code": "so_so",
+      "label": "Somali"
+    },
+    {
+      "code": "ha_ng",
+      "label": "Haoussa"
+    },
+    {
+      "code": "ig_ng",
+      "label": "Igbo"
+    },
+    {
+      "code": "am_et",
+      "label": "Amharique"
+    },
+    {
+      "code": "sw_ke",
+      "label": "Swahili"
+    },
+    {
+      "code": "tr_tr",
+      "label": "Turc"
+    },
+    {
+      "code": "gu_in",
+      "label": "Gujarati"
+    },
+    {
+      "code": "fr_fr",
+      "label": "Français"
+    },
+    {
+      "code": "en_us",
+      "label": "Anglais"
+    },
+    {
+      "code": "Algeria",
+      "label": "Arabe — Algérie"
+    },
+    {
+      "code": "Egypt",
+      "label": "Arabe — Égypte"
+    },
+    {
+      "code": "Jordan",
+      "label": "Arabe — Jordanie"
+    },
+    {
+      "code": "Mauritania",
+      "label": "Arabe — Mauritanie"
+    },
+    {
+      "code": "Morocco",
+      "label": "Arabe — Maroc"
+    },
+    {
+      "code": "Palestine",
+      "label": "Arabe — Palestine"
+    },
+    {
+      "code": "UAE",
+      "label": "Arabe — Émirats arabes unis"
+    },
+    {
+      "code": "Yemen",
+      "label": "Arabe — Yémen"
+    },
+    {
+      "code": "cmn_hans_cn",
+      "label": "Mandarin"
+    },
+    {
+      "code": "yue_hant_hk",
+      "label": "Cantonais"
+    },
+    {
+      "code": "hi_in",
+      "label": "Hindi"
+    },
+    {
+      "code": "ur_pk",
+      "label": "Ourdou"
+    },
+    {
+      "code": "ta_in",
+      "label": "Tamoul"
+    },
+    {
+      "code": "bn_in",
+      "label": "Bengali"
+    },
+    {
+      "code": "ps_af",
+      "label": "Pachto"
+    },
+    {
+      "code": "th_th",
+      "label": "Thaï"
+    },
+    {
+      "code": "vi_vn",
+      "label": "Vietnamien"
+    },
+    {
+      "code": "id_id",
+      "label": "Indonésien"
+    },
+    {
+      "code": "ja_jp",
+      "label": "Japonais"
+    },
+    {
+      "code": "ko_kr",
+      "label": "Coréen"
+    }
+  ],
+  "inputs": [
+    {
+      "dataset": "phatjmo/cmu_haitian",
+      "config": "default",
+      "split": "test",
+      "row": 0,
+      "sha256": "4ed5c175b1745912109e0cfcbe9f01a08c163bc92ec595a22d6d5f0e2496089a",
+      "duration": 9.6408125
+    },
+    {
+      "dataset": "phatjmo/cmu_haitian",
+      "config": "default",
+      "split": "test",
+      "row": 1,
+      "sha256": "c91834d8c7be402074678afdd1ad9d15f1f798949996a9f3377f42a860e1c249",
+      "duration": 10.3421875
+    },
+    {
+      "dataset": "phatjmo/cmu_haitian",
+      "config": "default",
+      "split": "test",
+      "row": 2,
+      "sha256": "ca4c5ed2edec407967b4d991f3389830c1fe152cd8d681ead591561a5b817e9b",
+      "duration": 8.4759375
+    },
+    {
+      "dataset": "phatjmo/cmu_haitian",
+      "config": "default",
+      "split": "test",
+      "row": 3,
+      "sha256": "522d0d8e7805d74ef547b0e83fe79cd9b8ff3100a7b9d3213771af014e952d3c",
+      "duration": 10.4649375
+    },
+    {
+      "dataset": "phatjmo/cmu_haitian",
+      "config": "default",
+      "split": "test",
+      "row": 4,
+      "sha256": "ea2ad45b55a8254b04430c9284a10985ef4458a4a46eb0e2ae644083daee471b",
+      "duration": 8.2610625
+    },
+    {
+      "dataset": "phatjmo/cmu_haitian",
+      "config": "default",
+      "split": "test",
+      "row": 5,
+      "sha256": "5fead17565cabaf1ffe0cccff225d8d5d4c88053a6ccc19d2ae3093b1964fd2f",
+      "duration": 7.9826875
+    },
+    {
+      "dataset": "phatjmo/cmu_haitian",
+      "config": "default",
+      "split": "test",
+      "row": 6,
+      "sha256": "808580b68cf89b4b2bd9c00cd8f60b8074b9de0a0c227a8a22bf25d1dd005077",
+      "duration": 7.5021875
+    },
+    {
+      "dataset": "phatjmo/cmu_haitian",
+      "config": "default",
+      "split": "test",
+      "row": 7,
+      "sha256": "33bbb76648daec108450ea90eb21bcc26b42b34dd206ee5d4ef707de486d5f24",
+      "duration": 10.0885625
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "es_419",
+      "split": "test",
+      "row": 0,
+      "sha256": "861ceedc4d50fbe52fc89b6d0c0fa740b9cd6fa668388e754064847386af0faf",
+      "duration": 12.84
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "es_419",
+      "split": "test",
+      "row": 2,
+      "sha256": "0576e73da35ef17b6ce6396d31b32830b7ab19cea98f9f5db68de3756dc3d4fc",
+      "duration": 9.72
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "es_419",
+      "split": "test",
+      "row": 3,
+      "sha256": "275d5d9dcbfb7099b9aac08ea81fc7383b94e085a683d127ce4d8ff742cb3961",
+      "duration": 8.58
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "es_419",
+      "split": "test",
+      "row": 4,
+      "sha256": "675d977de02f4ae1314252277c44375f9969732cb80db56e024b853fbbb939f7",
+      "duration": 10.62
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "es_419",
+      "split": "test",
+      "row": 5,
+      "sha256": "27c060cfd8abfffe6f31dc41b3e1fb8ab0adef25ac8347a038c6ef1e536077f8",
+      "duration": 9.78
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "es_419",
+      "split": "test",
+      "row": 6,
+      "sha256": "13b06188bd62a1a63ed350e6fe1a1ee8518db1ea7bc8f75d72849ca023de7c32",
+      "duration": 5.64
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "es_419",
+      "split": "test",
+      "row": 7,
+      "sha256": "41b0e8fe385400d1d4653717d017c4b6f6666b63a21e5b13eb7e3d4d6149c3d4",
+      "duration": 10.26
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "es_419",
+      "split": "test",
+      "row": 8,
+      "sha256": "7459d655bf0ff1c24e46df4d94a0fbf02ebcd2b86eaa9c38f54f8e8ee7ac6273",
+      "duration": 10.68
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "fa_ir",
+      "split": "test",
+      "row": 1,
+      "sha256": "41f59b02714adaedcf9f3dfb6fcb7ca6843df254c634762f718bba76f743c255",
+      "duration": 11.22
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "fa_ir",
+      "split": "test",
+      "row": 2,
+      "sha256": "a6440a41b640c7a5abbba6f5d2c94b91d64755d115b827114544900baa9600b3",
+      "duration": 13.8
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "fa_ir",
+      "split": "test",
+      "row": 5,
+      "sha256": "e7912420a56f285719600d6c13db1d0383cd42281a7b42f805ec51481e05e013",
+      "duration": 10.74
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "fa_ir",
+      "split": "test",
+      "row": 7,
+      "sha256": "8b3efaac33a675033560a19db1de10a107876783e376042991710d9df1996f63",
+      "duration": 13.02
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "fa_ir",
+      "split": "test",
+      "row": 9,
+      "sha256": "ed023c4b1a9f64507a17853a08a5324a7327da0734836023373f0a34c6307409",
+      "duration": 13.8
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "fa_ir",
+      "split": "test",
+      "row": 10,
+      "sha256": "bafe077a98dc1d6171cb467bc6820c6f525a9f301487da3f053854ac1067c795",
+      "duration": 13.2
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "fa_ir",
+      "split": "test",
+      "row": 13,
+      "sha256": "73a6bb4adff97f1db8ea53d5175a6cf366ef7ddb057d2546e75ee0169bdb69bb",
+      "duration": 13.62
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "fa_ir",
+      "split": "test",
+      "row": 14,
+      "sha256": "1fdf0e7a9447cdea06daba90cfb5bf1a4160792a2be5c7555cd98aedc05958af",
+      "duration": 11.76
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "pa_in",
+      "split": "test",
+      "row": 0,
+      "sha256": "ee757e68b815deed85e5ad19321c2a0563089b908eb1cbdbb103137a49d27af0",
+      "duration": 7.14
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "pa_in",
+      "split": "test",
+      "row": 1,
+      "sha256": "32c2910e6063ba283599a9e99da3a16498819625fddbcc1348796f3672f5a448",
+      "duration": 10.32
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "pa_in",
+      "split": "test",
+      "row": 2,
+      "sha256": "c861709e29c1a57f3843a71abe3077512ad227cee2340c740afe446ab9582891",
+      "duration": 6.48
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "pa_in",
+      "split": "test",
+      "row": 3,
+      "sha256": "8fa9ce85c3c1e3b30c55e354e0017f1178274d39ced4f722e74a2ee82dd06c81",
+      "duration": 12.96
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "pa_in",
+      "split": "test",
+      "row": 4,
+      "sha256": "3e1adb7b4f4cbaa37b2926d0349e230ccd573e3562053829ea3387a97538ba27",
+      "duration": 6.96
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "pa_in",
+      "split": "test",
+      "row": 5,
+      "sha256": "387fc594089370d12ae2d0b2f69458033e0ad8fa066cd765b39c78bd55bec6f5",
+      "duration": 8.22
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "pa_in",
+      "split": "test",
+      "row": 7,
+      "sha256": "eebf02c5a70a117e93724eef74249bfecf72d778d51e2b05ef892b1456248ec8",
+      "duration": 9.48
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "pa_in",
+      "split": "test",
+      "row": 8,
+      "sha256": "9b076e631247150c906f5521ae513cd2c88a33acfe87bfa80aad2dbb0e9934c3",
+      "duration": 11.34
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ln_cd",
+      "split": "test",
+      "row": 4,
+      "sha256": "9ccb6152aa5b64b94eeff006991fba21ea7d49184ce3d4f937bba72af02ed470",
+      "duration": 8.34
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ln_cd",
+      "split": "test",
+      "row": 5,
+      "sha256": "fcc3efb355f0b3e1f9260cf681333fa7b28dcbd37485e7c9d9954275c2608e5f",
+      "duration": 9.48
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ln_cd",
+      "split": "test",
+      "row": 10,
+      "sha256": "b0c9bdcb639c6e050b2cfa51d5f9c32d9a7392918bfaa93778832c541548043d",
+      "duration": 12.12
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ln_cd",
+      "split": "test",
+      "row": 14,
+      "sha256": "ab948a3bc39bca21f610926867f26fd4eab72fba3166b755447eac6a55ddb181",
+      "duration": 10.26
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ln_cd",
+      "split": "test",
+      "row": 23,
+      "sha256": "d3a5df97993f0ee74fc72c85168ef6e8f3da8fcb43b2333968a34528f916d0de",
+      "duration": 9.42
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ln_cd",
+      "split": "test",
+      "row": 28,
+      "sha256": "f59a530d62319db0b9492bd3ddc9f977fe116dea84fc184b0882b29103d4ad6c",
+      "duration": 12.36
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ln_cd",
+      "split": "test",
+      "row": 29,
+      "sha256": "e5151019848b190707e3fc3eecbb8bf945d4a1dd6b0aae54d5d3d44dc1377fd1",
+      "duration": 11.28
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ln_cd",
+      "split": "test",
+      "row": 34,
+      "sha256": "1e81be7293316e1965190881e011c582ec3a4df47423f39e5a33c6d000265c07",
+      "duration": 10.74
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "yo_ng",
+      "split": "test",
+      "row": 1,
+      "sha256": "0a86bf5cf1df6d62e7ecf07afd4ac8b3f552adc55a71935e5b9d4ab09d7e0ef5",
+      "duration": 9.42
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "yo_ng",
+      "split": "test",
+      "row": 2,
+      "sha256": "e724ac4595bbe842ce9873ddab1e4f04a474c4f877d2fd85430bfbdc829b1367",
+      "duration": 12.42
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "yo_ng",
+      "split": "test",
+      "row": 8,
+      "sha256": "703ab76471fbd9cb9174002f3507828d2577aa7e1d257cdf966dcac8e482b938",
+      "duration": 8.76
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "yo_ng",
+      "split": "test",
+      "row": 9,
+      "sha256": "d817bff3dc6da9120fc3b82e9a3c2ba24474c3211906b3ae442e996aaced44d1",
+      "duration": 13.62
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "yo_ng",
+      "split": "test",
+      "row": 13,
+      "sha256": "25e26ae533ea79dafe648329d509d29eb0109adeda4496ce1491e902be240f07",
+      "duration": 11.82
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "yo_ng",
+      "split": "test",
+      "row": 15,
+      "sha256": "f5986001122ce5c1b875a2ac14955a8561218470b70230a63968b226ecdf934f",
+      "duration": 13.56
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "yo_ng",
+      "split": "test",
+      "row": 16,
+      "sha256": "38434ce5d42f9b7b28e6f29fe16a22d7e5cfc3a8cc92468fed0fef674775f85a",
+      "duration": 12.0
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "yo_ng",
+      "split": "test",
+      "row": 17,
+      "sha256": "381dd2b902e8acc479da7aa74a2dff1453187ab0622867d6bd0e01cbe99c1a46",
+      "duration": 11.52
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "so_so",
+      "split": "test",
+      "row": 1,
+      "sha256": "211e876707698aeae9a49d84ad349ee9b41aab6b57f76cbfec5f048e1171aea2",
+      "duration": 8.94
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "so_so",
+      "split": "test",
+      "row": 2,
+      "sha256": "836a4867d327171df30739987c34f3bca8c109c2c9ef04e9bfc4b793b3815d22",
+      "duration": 10.92
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "so_so",
+      "split": "test",
+      "row": 5,
+      "sha256": "4571d5da64614313556fd49fe34817a45cf312ef8d2d7300c629625bd0fffeeb",
+      "duration": 5.88
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "so_so",
+      "split": "test",
+      "row": 6,
+      "sha256": "7d8d19355e3036a82ab6e7a29fd5d0aef468bb4b937f00f9e08d505cdb736bf3",
+      "duration": 13.98
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "so_so",
+      "split": "test",
+      "row": 7,
+      "sha256": "1baa136cfcb403c6b88228727919f3f05b7a1467742f79293bd5e459d28e240b",
+      "duration": 8.7
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "so_so",
+      "split": "test",
+      "row": 8,
+      "sha256": "84ef663d2b5da61b093ff440e64ceb9e216eb8918313c11d2cd45685afb3e6cf",
+      "duration": 11.04
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "so_so",
+      "split": "test",
+      "row": 9,
+      "sha256": "9a3c16779e7749d848ba3a9dd7989dd8318e3fb415e7311cd147f60b07c2134f",
+      "duration": 9.54
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "so_so",
+      "split": "test",
+      "row": 10,
+      "sha256": "56d6b6e24f33d85ee3fc1a6f649cf97f8e0524361f87bf0d76ac9e818e6705aa",
+      "duration": 10.92
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ha_ng",
+      "split": "test",
+      "row": 4,
+      "sha256": "8079af4221aa23759b638a58b4a336baed1015cb6414b5fd109a295101a0b613",
+      "duration": 10.56
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ha_ng",
+      "split": "test",
+      "row": 6,
+      "sha256": "8071e5da6d1cf3713e6cc39b7976fb4ba1942ee70069c220b76f2f61ce12b683",
+      "duration": 11.88
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ha_ng",
+      "split": "test",
+      "row": 7,
+      "sha256": "83aa3d4a791ce53115053142a93a8549f59c2e8a8409df06f127261586d39b91",
+      "duration": 11.82
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ha_ng",
+      "split": "test",
+      "row": 8,
+      "sha256": "1e4f72cdea62677d8220ef6fcb3f7ad4cdc7a0b3fc826b20cbf23889204e3b6d",
+      "duration": 10.74
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ha_ng",
+      "split": "test",
+      "row": 9,
+      "sha256": "94a122e72ef8143293a05592f6c0dbfc43c3172fe6a809f518e0ead1ca62e10a",
+      "duration": 13.92
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ha_ng",
+      "split": "test",
+      "row": 10,
+      "sha256": "6b7be902c385c620e173d752e0830240c7359c93272f3822bab3298b4af9886a",
+      "duration": 11.7
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ha_ng",
+      "split": "test",
+      "row": 15,
+      "sha256": "0567a736cce665792dd03ae83761f464b3d4ea86c0170b618a01c67e250fceb4",
+      "duration": 11.34
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ha_ng",
+      "split": "test",
+      "row": 16,
+      "sha256": "01a055c39c146dcb2140360e844c8358b5bf346a69f9676305fa7df7bad9774b",
+      "duration": 11.64
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ig_ng",
+      "split": "test",
+      "row": 0,
+      "sha256": "5287fba6264be3dcfee08585e09faab2d390360c6fb3bef7bad40186fb39296f",
+      "duration": 10.68
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ig_ng",
+      "split": "test",
+      "row": 1,
+      "sha256": "768073b01cd17e66a90421b55a8dedd74dde4a64afdc8ff025d0cb7668c2dd06",
+      "duration": 8.22
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ig_ng",
+      "split": "test",
+      "row": 4,
+      "sha256": "a3f011e5b9e473bced5ec12a48248eab09838c2cc2427ea81b790fbd190528d8",
+      "duration": 13.38
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ig_ng",
+      "split": "test",
+      "row": 6,
+      "sha256": "f4434a3f76aa05f5dc5d71adcf51a1f9a9741c6a277fed722b951846b8d019a6",
+      "duration": 10.26
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ig_ng",
+      "split": "test",
+      "row": 9,
+      "sha256": "42549fbe83b001ee6d9ef491c9f1f10f54e6e4282e670f9408c10fb1de4e8ec3",
+      "duration": 12.18
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ig_ng",
+      "split": "test",
+      "row": 10,
+      "sha256": "d508816b7e022fd058d95cfd7e23d11cd7201f4441dda525217120aa413f6699",
+      "duration": 11.58
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ig_ng",
+      "split": "test",
+      "row": 14,
+      "sha256": "f2de624ff32177c462097c17cd922fe82e2e62786e7e9bf28e18216f77ca6548",
+      "duration": 13.44
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ig_ng",
+      "split": "test",
+      "row": 17,
+      "sha256": "a205c84cb5c2d91a69926d18d95d1f966c5b641a76d2795ee5d7c8773f0e97ff",
+      "duration": 13.98
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "am_et",
+      "split": "test",
+      "row": 1,
+      "sha256": "845d19dc4d4e6367b89975f90f192986dbece45017a370f5e270576fabba3946",
+      "duration": 12.48
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "am_et",
+      "split": "test",
+      "row": 2,
+      "sha256": "02548f53378308efca2fe0741e7b166d9f7076c93d40796b0bbbc8ca17bdc027",
+      "duration": 10.86
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "am_et",
+      "split": "test",
+      "row": 3,
+      "sha256": "3e9a219d02c409b66806a60132ac5db55a0f66655b57672325cccc6fd0b4d882",
+      "duration": 9.36
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "am_et",
+      "split": "test",
+      "row": 4,
+      "sha256": "46f5e202af897534bf0a946891f5bb48c33630f28189656f7c0565888a42d130",
+      "duration": 11.34
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "am_et",
+      "split": "test",
+      "row": 5,
+      "sha256": "68edba95478c1b0b749c59a3ae6f84855900bde8b431555de984ce4c95d22e79",
+      "duration": 6.96
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "am_et",
+      "split": "test",
+      "row": 6,
+      "sha256": "986f5d00f392a1c22e214fed2577f9deb782e1ffb28e8b7274ddd228fc4eefc0",
+      "duration": 12.84
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "am_et",
+      "split": "test",
+      "row": 7,
+      "sha256": "504a2685edbe3a2d2b1e2a0ba942aef883c7697be0640046bf68963dd7810b84",
+      "duration": 8.94
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "am_et",
+      "split": "test",
+      "row": 9,
+      "sha256": "2aa19cddf3b7aec8912bf9d5d6e25e05937a992734913931e59d093f2d3b4259",
+      "duration": 7.08
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "sw_ke",
+      "split": "test",
+      "row": 1,
+      "sha256": "7c3d039366983da01ac14d7c2ef207b6488889595dbd252ecd3fd470f4053346",
+      "duration": 12.96
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "sw_ke",
+      "split": "test",
+      "row": 2,
+      "sha256": "2f32dc01034978bf775b5cdd5620ae6fbba464b57f064d93df59db2d9f33d541",
+      "duration": 11.64
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "sw_ke",
+      "split": "test",
+      "row": 4,
+      "sha256": "a3b65d7cb37844f3304ea4f7be1c50d9c0dae590d3a7aa1b503f1e37c89be59d",
+      "duration": 10.32
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "sw_ke",
+      "split": "test",
+      "row": 6,
+      "sha256": "a51adaf547e249d9f4ce1c492dde9a9c43ca180cb414c94eff6ce2e951bc4363",
+      "duration": 11.16
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "sw_ke",
+      "split": "test",
+      "row": 9,
+      "sha256": "7de134eb6b03ee4946401d893bafda82524fcaaf80d116add52c2bd92fa3ca8b",
+      "duration": 9.66
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "sw_ke",
+      "split": "test",
+      "row": 11,
+      "sha256": "0f1b2e8ecc62344f7fd69076e0f2de9295101baabcfce822a463c540f3fc51ac",
+      "duration": 11.88
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "sw_ke",
+      "split": "test",
+      "row": 12,
+      "sha256": "fd24a41224bd3580db4dbbc38a0b2ebdc39555c1695f827701c29a5703fe9afa",
+      "duration": 7.8
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "sw_ke",
+      "split": "test",
+      "row": 15,
+      "sha256": "5ddd1a3554e52ff15513c1e30fd664459a8bfa74b6c2aab2f2651a638ee1986a",
+      "duration": 9.78
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "tr_tr",
+      "split": "test",
+      "row": 1,
+      "sha256": "8d49d9d174794b25da72852685120ff5dd1d7319ca629256fafd1e25c635fc9a",
+      "duration": 12.36
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "tr_tr",
+      "split": "test",
+      "row": 2,
+      "sha256": "0d35468a6dec8161711e470404f64471ceed7d7197adcd2e7638a4fc3182620d",
+      "duration": 11.1
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "tr_tr",
+      "split": "test",
+      "row": 5,
+      "sha256": "e1f1ca24c6d251db5cb48bbebe21ceddc163f54baf7af029dcad7dcf03d0ccd8",
+      "duration": 4.2
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "tr_tr",
+      "split": "test",
+      "row": 6,
+      "sha256": "9549dbbd2affd97ec6debac30f577759b509310432c4e2a2ea93db216b6529d0",
+      "duration": 10.2
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "tr_tr",
+      "split": "test",
+      "row": 7,
+      "sha256": "63aa20f0e8bb209a52a0bd4f7b7d2a7dd6de08cea13123a4ff74970856cc2c0e",
+      "duration": 9.12
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "tr_tr",
+      "split": "test",
+      "row": 8,
+      "sha256": "90cb56524422534fb409cd9ee21ca5f6e2bfaccc2812dbb847c18c171b8a64ad",
+      "duration": 5.76
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "tr_tr",
+      "split": "test",
+      "row": 11,
+      "sha256": "9a023acff26593a6fa073dbd52de87e2fd6a4cac133a67bc6b3976f3c9bd8304",
+      "duration": 8.64
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "tr_tr",
+      "split": "test",
+      "row": 12,
+      "sha256": "97f2f84479c44fd317bafbc45ce92ff558f5c9114f5d87f7377f26999279c435",
+      "duration": 12.24
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "gu_in",
+      "split": "test",
+      "row": 0,
+      "sha256": "8b88338fc51653e4704457f9bf38a8854a668a52f5a1c4e8156617bdf3df4dae",
+      "duration": 11.16
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "gu_in",
+      "split": "test",
+      "row": 1,
+      "sha256": "ab29ce827749de3bdca9f085d5b8c3f82e21751a97f24307f038fd516b68fa58",
+      "duration": 8.4
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "gu_in",
+      "split": "test",
+      "row": 3,
+      "sha256": "66fd6939be66a4c110cace11bbda8e9ce9f4e4c646275929850ce1e7d2ab44ea",
+      "duration": 7.8
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "gu_in",
+      "split": "test",
+      "row": 4,
+      "sha256": "3ac1e2470366f93f0ecadf027144aee71abad956ce110170989358f399f19473",
+      "duration": 7.8
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "gu_in",
+      "split": "test",
+      "row": 5,
+      "sha256": "ba87e12c9078a0a29799f54d0bede83df718f2319bfee2cabf74f7d6ce17ab8d",
+      "duration": 7.92
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "gu_in",
+      "split": "test",
+      "row": 6,
+      "sha256": "3d185dff093439babe368bb6b77c7c981af7abf31ee552db1b133d1a7fe4151a",
+      "duration": 13.92
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "gu_in",
+      "split": "test",
+      "row": 7,
+      "sha256": "3e34502926ce469f4a0cf6746e7ea07537dfeefc3331e8c339bb1aba0ec19548",
+      "duration": 5.88
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "gu_in",
+      "split": "test",
+      "row": 9,
+      "sha256": "4450661a6167990f41ebfbd065c6a7b33329aa005d2d7204a80f7f3bc53b8802",
+      "duration": 11.04
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "fr_fr",
+      "split": "test",
+      "row": 0,
+      "sha256": "c834367fd212902124bdd0e0f6c1f16b5561af6386600f145e5aec50008b298d",
+      "duration": 10.2
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "fr_fr",
+      "split": "test",
+      "row": 2,
+      "sha256": "05ccf3ccc2ab4b72d056c3f02e3ffcf6ea0f37b1c42bea5c35789c85291fbdc5",
+      "duration": 8.28
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "fr_fr",
+      "split": "test",
+      "row": 3,
+      "sha256": "fc42db1a8eb9339fa89be21f013b2e2ea231b3eb9b4af3bf82c7a3a1aae78b3b",
+      "duration": 10.2
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "fr_fr",
+      "split": "test",
+      "row": 4,
+      "sha256": "315a3fc3328acea267098f2cbc0cfa5dccee6e125c6861c229335f9b476cb4b9",
+      "duration": 8.34
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "fr_fr",
+      "split": "test",
+      "row": 5,
+      "sha256": "bbd0709fac97a44791bceecac6d7e9ebf799625bbe62f13658d5634c7a8ddc2e",
+      "duration": 7.2
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "fr_fr",
+      "split": "test",
+      "row": 6,
+      "sha256": "f149d230427496afa3223808edee58e64316f2bd3d879ad9c962b12d2f0bf9a3",
+      "duration": 8.4
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "fr_fr",
+      "split": "test",
+      "row": 7,
+      "sha256": "7ec432adcd9dc8b56c41238f16fd11ec3acd93a9fd8c4b5d14a567e59aa9e7c3",
+      "duration": 11.64
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "fr_fr",
+      "split": "test",
+      "row": 8,
+      "sha256": "b9de46d46d5204457de15fb7a7dec50bb2e6d1f6353a871e238efcbcb0da57e6",
+      "duration": 7.68
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "en_us",
+      "split": "test",
+      "row": 0,
+      "sha256": "33aca50159ec2e3cbcc894eb26faa916d6badb1b49fb75994973561540a7f012",
+      "duration": 10.56
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "en_us",
+      "split": "test",
+      "row": 1,
+      "sha256": "7603cae3294309ef70d234180cefccc3b13865ee525262228a636069b9b62841",
+      "duration": 8.76
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "en_us",
+      "split": "test",
+      "row": 2,
+      "sha256": "260bdd1a15e1d35bcc5d91667516ca3bc659285e10f94872182715bcd7880398",
+      "duration": 11.46
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "en_us",
+      "split": "test",
+      "row": 3,
+      "sha256": "b174be7730f0aab6a26762130b66f2125392b50550645727bd057d8479fb6219",
+      "duration": 5.76
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "en_us",
+      "split": "test",
+      "row": 4,
+      "sha256": "bfa2f3fb72a05cbcb7c0000a460435f2d0eedca7c5cc90f01aacc89127df7f63",
+      "duration": 4.32
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "en_us",
+      "split": "test",
+      "row": 5,
+      "sha256": "3802ffc3e69c66e0d2e66652015bff0c6b1b8498bfb8670623eb4e34bc9e008d",
+      "duration": 11.42
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "en_us",
+      "split": "test",
+      "row": 6,
+      "sha256": "6b3081a29a5bb6fc6434e8525690edc26b23844841e119c916183f4ba1863372",
+      "duration": 10.8
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "en_us",
+      "split": "test",
+      "row": 7,
+      "sha256": "14c9f40d7087ed487823917a9bc1838a037d78d315a694f7ace632651c612a61",
+      "duration": 6.96
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Algeria",
+      "split": "test",
+      "row": 3,
+      "sha256": "1e8fe78c95bf1ef383511628141186af2042cf133cfb4c919883290520fde12c",
+      "duration": 4.875124716553288
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Algeria",
+      "split": "test",
+      "row": 4,
+      "sha256": "e5019913ce671a0c91775a13dbb6449f5684aebf5314d957ca4db9611afbe0e7",
+      "duration": 3.46984126984127
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Algeria",
+      "split": "test",
+      "row": 5,
+      "sha256": "b15d113cf44a727dc705daf58ab2ea96a14212efe10e099da67420b8e834f9eb",
+      "duration": 3.1399092970521543
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Algeria",
+      "split": "test",
+      "row": 6,
+      "sha256": "0dea0106f4ffddccd1c4a12fcaffa94555ffa34033988c4747c3d96018fa12bc",
+      "duration": 3.627981859410431
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Algeria",
+      "split": "test",
+      "row": 7,
+      "sha256": "0dc461c1d4f80b16821bdcd5aaceb2113fe8bba4e105d2f76a37a3bb7b47a529",
+      "duration": 4.555986394557823
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Algeria",
+      "split": "test",
+      "row": 10,
+      "sha256": "39c479ed18cfd4317910c39c945ff94e521b6efd35c3cf957275dec10416e717",
+      "duration": 3.880997732426304
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Algeria",
+      "split": "test",
+      "row": 15,
+      "sha256": "6617adfe6abbd237bb0517918d698916aebf4212510bd80a8d86859348dd9b3e",
+      "duration": 3.5286167800453514
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Algeria",
+      "split": "test",
+      "row": 17,
+      "sha256": "9a0b6025b790c17cc6abc49494baaa6c50183d18aae61cb1e9e4d949f6c74cdd",
+      "duration": 4.80124716553288
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Egypt",
+      "split": "test",
+      "row": 0,
+      "sha256": "19ec14155afc5c9cba0f85c8fc1003b367edc95f2aaba55cf4680e06adfb6976",
+      "duration": 3.984013605442177
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Egypt",
+      "split": "test",
+      "row": 1,
+      "sha256": "f87dba21fbe001e07f3fd08eee96702133141b97358ac8580f48d9e6677d36c6",
+      "duration": 3.618798185941043
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Egypt",
+      "split": "test",
+      "row": 8,
+      "sha256": "64fad1a4ed932723bd00761e74d1f2c94c16d642679f1c71798fcf87b5ffb4c4",
+      "duration": 4.910612244897959
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Egypt",
+      "split": "test",
+      "row": 10,
+      "sha256": "2e600046d47a6aaa4f867c3a218ba563d1b19aab00c5442fb19722ce96228fc3",
+      "duration": 3.3768707482993197
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Egypt",
+      "split": "test",
+      "row": 11,
+      "sha256": "7bf0d48e4ed82fac1068a31e0ed80431fa26639f4ed8b2694bd3bd7c2aa131b1",
+      "duration": 5.39655328798186
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Egypt",
+      "split": "test",
+      "row": 13,
+      "sha256": "6e59918d3bc7c7a7d460477150925251e5091f89414dfc900afffdf61f047c36",
+      "duration": 3.74140589569161
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Egypt",
+      "split": "test",
+      "row": 15,
+      "sha256": "464f9b3dae967a575100027f5f29562c0a86bae01bdf711c02cbf1262cbf8796",
+      "duration": 3.2700226757369615
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Egypt",
+      "split": "test",
+      "row": 25,
+      "sha256": "150b02cb5ec98d61aceb7a0035e880f062c00c24e35194ec62b28d56e971dd92",
+      "duration": 3.8677097505668936
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Jordan",
+      "split": "test",
+      "row": 0,
+      "sha256": "383c117750b35816cb27c03aefdbcdcbc891f503a4169e89f654174a32197607",
+      "duration": 6.698979591836735
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Jordan",
+      "split": "test",
+      "row": 1,
+      "sha256": "b6bed502f21f0c1f2c77874c87c834fb0be1f5b14ba58117f5fce79be40f4c45",
+      "duration": 5.866213151927438
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Jordan",
+      "split": "test",
+      "row": 4,
+      "sha256": "5bf5a416fadcc3d9538ba75afa4d1436acfb720abe307ffe53da29f6108e0839",
+      "duration": 5.5960997732426305
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Jordan",
+      "split": "test",
+      "row": 5,
+      "sha256": "57f75b361766329701245660bfc99efbf6f81f932883ae19a8d7141fac7434aa",
+      "duration": 5.990612244897959
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Jordan",
+      "split": "test",
+      "row": 6,
+      "sha256": "58c7a395119b2cd06a270e7f2433442696a8fdced0d43edc0528a2bce3cca529",
+      "duration": 3.7629931972789117
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Jordan",
+      "split": "test",
+      "row": 7,
+      "sha256": "9bbdc934465bdd2137a84babbbefc7522eee1e2415489991ef8a812063287f22",
+      "duration": 4.886734693877551
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Jordan",
+      "split": "test",
+      "row": 8,
+      "sha256": "e021dc0d1940fb9964e1ace553f4eb0f0040801501750f96aa0818d689606e70",
+      "duration": 8.48798185941043
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Jordan",
+      "split": "test",
+      "row": 9,
+      "sha256": "3b572732f905e6b835c60c39b721751421870d6bb33d3070635d9b926a046416",
+      "duration": 3.747777777777778
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Mauritania",
+      "split": "test",
+      "row": 1,
+      "sha256": "9a9c348c0230392c6775808d46952d90da52b0ce835a0f531f00252f075743e6",
+      "duration": 4.315354166666666
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Mauritania",
+      "split": "test",
+      "row": 2,
+      "sha256": "d6c3956298e3fcc6a92cb265ff0d7aff9e77c355c36ed6dc66528d147ed0a212",
+      "duration": 3.16275
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Mauritania",
+      "split": "test",
+      "row": 4,
+      "sha256": "dbfbe4fd9a9fe4ba0bd659c9ed4332f0cfa3338184c5ad8fcb213ae19eb6ef10",
+      "duration": 3.448583333333333
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Mauritania",
+      "split": "test",
+      "row": 6,
+      "sha256": "a8baaa422f38d68ca8210456159a3b19a1d0799cb375d1f72517b895f55f28cc",
+      "duration": 3.315354166666667
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Mauritania",
+      "split": "test",
+      "row": 7,
+      "sha256": "02cb75728190255aca3aea8c90d94b8d38ee30fdaadf2b59ed98713f31f7a527",
+      "duration": 3.518625
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Mauritania",
+      "split": "test",
+      "row": 9,
+      "sha256": "21a28278b89893121277fc5be898bdd92d3f630ea79144920da5650145b41812",
+      "duration": 4.225375
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Mauritania",
+      "split": "test",
+      "row": 14,
+      "sha256": "d7a54532a4e77b91cab3e906692c2c05d6e6d5609b704353fc8ebd237291b8eb",
+      "duration": 3.4490208333333334
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Mauritania",
+      "split": "test",
+      "row": 15,
+      "sha256": "dc7b9328f27321279ccad0a9f2d5ea1a6b85832a4936190d2769b0df4d5ad7a4",
+      "duration": 4.965
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Morocco",
+      "split": "test",
+      "row": 0,
+      "sha256": "b9ab15a2597ee301794d7247d7500d719b4e0a971ae21776aefc326bda0ca45c",
+      "duration": 7.207256235827664
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Morocco",
+      "split": "test",
+      "row": 1,
+      "sha256": "cc3edafadf35845ff79880b4d274f2d6c5c6528ba3747247ba988bdf751329d6",
+      "duration": 4.258684807256236
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Morocco",
+      "split": "test",
+      "row": 2,
+      "sha256": "01bb6b1134714e2a19123cabb4860822e78edc3885707cb5562d4855643f9bb0",
+      "duration": 4.004739229024944
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Morocco",
+      "split": "test",
+      "row": 5,
+      "sha256": "d0a3cfc47790f159f0d3cf1c86d5de88310c746f41fe733ab0724d5298a7e151",
+      "duration": 3.340498866213152
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Morocco",
+      "split": "test",
+      "row": 6,
+      "sha256": "6c62de5abc0abaf2391ce2974625c36b88df8ad50482b2f5f9a990de336de2d7",
+      "duration": 4.995124716553288
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Morocco",
+      "split": "test",
+      "row": 7,
+      "sha256": "0f730337352aed5ff755def2baace93b0e53ff8bc186f5ac87a33f9bd76f655f",
+      "duration": 3.3153968253968253
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Morocco",
+      "split": "test",
+      "row": 8,
+      "sha256": "c93b63373db6947dee0524e14a9fde144cfa8402c79e11e8fe6216ea90890f5f",
+      "duration": 4.410770975056689
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Morocco",
+      "split": "test",
+      "row": 10,
+      "sha256": "27f6ba1d6511797504585bda654d35356c82a65683a586e30d36abb5a5c8a7da",
+      "duration": 5.856349206349206
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Palestine",
+      "split": "test",
+      "row": 0,
+      "sha256": "c101b90ee300df8a5b56de558eb972c21ec2764592a733e76f50880518c1b414",
+      "duration": 9.61578231292517
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Palestine",
+      "split": "test",
+      "row": 1,
+      "sha256": "87376ec4dc68370f1c07de6ac683b96a7bf90098d68dcac668dd0ca90cf1fd1e",
+      "duration": 10.901337868480725
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Palestine",
+      "split": "test",
+      "row": 2,
+      "sha256": "db9256f49ac86813402ca77cd9c4a6e0ae44f23f5a17c8fb049d5703b9f81abb",
+      "duration": 11.413628117913833
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Palestine",
+      "split": "test",
+      "row": 4,
+      "sha256": "e8fcf192e28622bb1b95e57854006c27e83d5635ffb5407f0bba98d48f570ac3",
+      "duration": 5.296303854875283
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Palestine",
+      "split": "test",
+      "row": 5,
+      "sha256": "b0caa7862b49b572d087631f06b77c18c4299cdebceda786b2d4753f8b293f14",
+      "duration": 8.004263038548753
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Palestine",
+      "split": "test",
+      "row": 7,
+      "sha256": "879afcc1dc3863eadd81d8bc14e51a5ad456d1de941e818362439ad839c0afe2",
+      "duration": 4.660204081632653
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Palestine",
+      "split": "test",
+      "row": 8,
+      "sha256": "2f114699bf3df901aaa3c674f51a7bdd514d7c8effc97ccd26c99f16ee8a8eec",
+      "duration": 5.889773242630386
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Palestine",
+      "split": "test",
+      "row": 9,
+      "sha256": "e81f1177fde3e755e0a873bfef468787ef2187e7a99fa03da1810cae6656c1ef",
+      "duration": 5.024535147392291
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "UAE",
+      "split": "test",
+      "row": 0,
+      "sha256": "bca283857fe4eca38ca078cb5cd37bac483fe5d04dc64309f6b56708380ea788",
+      "duration": 7.705668934240363
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "UAE",
+      "split": "test",
+      "row": 1,
+      "sha256": "63e33b3f5f354193567aeaecd86ef17cece6543181aa2486643eccbf1b8faa28",
+      "duration": 4.365034013605442
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "UAE",
+      "split": "test",
+      "row": 2,
+      "sha256": "9edcb255d18a0a3df5cda062facb8880adb6162900d088909ffd85fc7003acfe",
+      "duration": 4.180861678004535
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "UAE",
+      "split": "test",
+      "row": 4,
+      "sha256": "bf33d3d9abf72d7493a0d72bae586105cd3e90ff2f276e16170c9677cae9086b",
+      "duration": 4.197097505668935
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "UAE",
+      "split": "test",
+      "row": 6,
+      "sha256": "e9d412260533db619b7cbbaf70b9abdf0128f0db65883e46889c62a1a2375447",
+      "duration": 3.9104761904761904
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "UAE",
+      "split": "test",
+      "row": 7,
+      "sha256": "548ddf1d8d0f6ff33be90c09f8810585ef9ba4c6f1b6297a42c75334be1bc628",
+      "duration": 9.668979591836734
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "UAE",
+      "split": "test",
+      "row": 9,
+      "sha256": "88c5385d49706794551c5468ce70d8a3b06641fe3cac431a4e2f6aa2633bdd96",
+      "duration": 3.4949433106575962
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "UAE",
+      "split": "test",
+      "row": 10,
+      "sha256": "2961b25ae391f117947ffa587d72baea53ac4bd0f0aa03307b249938d99b89b1",
+      "duration": 3.4296825396825397
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Yemen",
+      "split": "test",
+      "row": 2,
+      "sha256": "4f41b575ef8e25272e8239418c9b9e2347c37a87cd93deb1d167dcaf76418312",
+      "duration": 4.8835374149659865
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Yemen",
+      "split": "test",
+      "row": 3,
+      "sha256": "f4d02db9be122e07130c72f4c92e6e1116bde7c970dcc257a63bc476070e2488",
+      "duration": 8.208866213151927
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Yemen",
+      "split": "test",
+      "row": 6,
+      "sha256": "c0a000accfd613620be43b3186c44a96b83cf5f7dc592ac66b99414f9f81f81a",
+      "duration": 4.312471655328798
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Yemen",
+      "split": "test",
+      "row": 9,
+      "sha256": "19b0c617771c34166fef7b3a6d53740e8e8eced22ac80861b06c3a631a68b4e2",
+      "duration": 9.026802721088435
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Yemen",
+      "split": "test",
+      "row": 11,
+      "sha256": "d8eca3dc19c6a160506bca7dd450dc8b8b267534d6ae9793efa44c30ba6db498",
+      "duration": 3.079297052154195
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Yemen",
+      "split": "test",
+      "row": 12,
+      "sha256": "17d7b78b091b176da369319411d6417533e0f12aeb76f13c988d18fa63789ba8",
+      "duration": 5.1781859410430835
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Yemen",
+      "split": "test",
+      "row": 13,
+      "sha256": "4b252e04578d23db1944fe7e98e85166eef3a4b7baecd59f7eb0d81769415bd5",
+      "duration": 6.914263038548753
+    },
+    {
+      "dataset": "UBC-NLP/Casablanca",
+      "config": "Yemen",
+      "split": "test",
+      "row": 14,
+      "sha256": "c7cbbc4f53f84139a8031124f388fe58431c570c2fde80388b56bdadf4b4653d",
+      "duration": 4.372539682539682
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "cmn_hans_cn",
+      "split": "test",
+      "row": 0,
+      "sha256": "a72c0b59fdba80850552af7991de07f9f4940846d2d70f0890eeb153c40f164b",
+      "duration": 10.38
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "cmn_hans_cn",
+      "split": "test",
+      "row": 1,
+      "sha256": "b39d2c84aefada280b73a9ab439726d370d45e5a75bd05f0a90153288ea4561b",
+      "duration": 8.28
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "cmn_hans_cn",
+      "split": "test",
+      "row": 2,
+      "sha256": "aeb95366f4907daf8797d66797c87f6e002f10704e78e87a0c4b4521756a1616",
+      "duration": 13.86
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "cmn_hans_cn",
+      "split": "test",
+      "row": 4,
+      "sha256": "7cc0e10d7c4ad3297d1803ac968c996a747117edd75a6cec59e485a93bbe0fe9",
+      "duration": 12.9
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "cmn_hans_cn",
+      "split": "test",
+      "row": 5,
+      "sha256": "e07c342ae53173bec1c3d5f534073fa6368713f76e7b5ab9497b015b1020167f",
+      "duration": 13.74
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "cmn_hans_cn",
+      "split": "test",
+      "row": 8,
+      "sha256": "714a1785c636060d6a8f284abcf786c876f70b07e0a8ea966c476abf1e890fe7",
+      "duration": 7.62
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "cmn_hans_cn",
+      "split": "test",
+      "row": 9,
+      "sha256": "52cd9b630b984ed486d69f8ee8dd841a57f875c752e1af411e0a39dabd3e00cb",
+      "duration": 6.84
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "cmn_hans_cn",
+      "split": "test",
+      "row": 10,
+      "sha256": "cd570cba752dd4214a9c6ec050759172932e4bc4df18ed2a2bb0d8a9e30172db",
+      "duration": 7.26
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "yue_hant_hk",
+      "split": "test",
+      "row": 0,
+      "sha256": "dc69052b8de90c91d3d8548f75839eab437049c2f0b8d53f2b108f9d83b33c64",
+      "duration": 7.26
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "yue_hant_hk",
+      "split": "test",
+      "row": 1,
+      "sha256": "60ab714c2acf6bdd4d747fc4c027ad10311d86d0d5db53a81ff194d87980eb58",
+      "duration": 13.2
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "yue_hant_hk",
+      "split": "test",
+      "row": 2,
+      "sha256": "ccb1c21aba44d1a46ce14e608a0a93933f2bb93063b62833aa4a4ec24299654e",
+      "duration": 10.26
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "yue_hant_hk",
+      "split": "test",
+      "row": 3,
+      "sha256": "190b01bed3aaffb51242aceb318dec846fc45575b6a8bdcfe2b43f3696e30954",
+      "duration": 7.98
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "yue_hant_hk",
+      "split": "test",
+      "row": 4,
+      "sha256": "f628cddc1cf101e3d889748c7b1fba65f545217f5e4d7f5899a92777cdf7d2ae",
+      "duration": 10.32
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "yue_hant_hk",
+      "split": "test",
+      "row": 5,
+      "sha256": "c530a64e611a7d75c67c9c05b2cd0716799be8fd2b2a38734a31bdd7d7134cbe",
+      "duration": 9.18
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "yue_hant_hk",
+      "split": "test",
+      "row": 6,
+      "sha256": "89f9902f3a5b04c01dbf9210088c85d0407c7e7c792fcec68ebd3ee4153073b4",
+      "duration": 9.24
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "yue_hant_hk",
+      "split": "test",
+      "row": 7,
+      "sha256": "9aa038655484849d85154d765257c2a5648128b00c2feed2474d96a486435cd7",
+      "duration": 13.92
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "hi_in",
+      "split": "test",
+      "row": 0,
+      "sha256": "217f3abbd8e9cd3767d6e8b87d49fbf82421fc920a103de026b4586d7e644dc5",
+      "duration": 9.12
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "hi_in",
+      "split": "test",
+      "row": 1,
+      "sha256": "b63e6ae5a8a5b53fcd5b60c467790baca13ca0c8490d35418d692ef7751a5459",
+      "duration": 13.8
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "hi_in",
+      "split": "test",
+      "row": 3,
+      "sha256": "e15385240ea707ea4edfce9db06808efc73658090d132015b8baee99514e2f30",
+      "duration": 5.1
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "hi_in",
+      "split": "test",
+      "row": 4,
+      "sha256": "ebe88dec83ef1fc371bb3b5f6343cd8920d275a8a281b9976977d71a838bc2f4",
+      "duration": 13.2
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "hi_in",
+      "split": "test",
+      "row": 5,
+      "sha256": "b853e4f4cc9e2c0e312a8ae0ce59bc3637319866de1a674045e0de3f5d240693",
+      "duration": 10.62
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "hi_in",
+      "split": "test",
+      "row": 7,
+      "sha256": "1627aac0f973d5bf25cbfe47cd0185538858b76c88a944fe9e7d7d89e068b932",
+      "duration": 8.22
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "hi_in",
+      "split": "test",
+      "row": 8,
+      "sha256": "a8e30e9bf7c9e9ece854275692c8ca7d0a2e4045e09197220ce1bda41fc6fb09",
+      "duration": 7.8
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "hi_in",
+      "split": "test",
+      "row": 9,
+      "sha256": "4cbdfdd0d2e1e986955475152cffa0c28a85792873c6ffa47504842a490c3111",
+      "duration": 13.68
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ur_pk",
+      "split": "test",
+      "row": 0,
+      "sha256": "5e5bd3f594a86ab334f10c4878e748227c9ba344f058de8efce69eac7d7a0d20",
+      "duration": 12.24
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ur_pk",
+      "split": "test",
+      "row": 1,
+      "sha256": "2a75e3b8c92153f3eafde4febbe4ed69ce1a36ae1ecfc7ceabfee708c1151b31",
+      "duration": 6.24
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ur_pk",
+      "split": "test",
+      "row": 2,
+      "sha256": "7b22664a00563017d8db4b98117cfcf90e8c9a0cfb3164788ef3821f9796b138",
+      "duration": 12.12
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ur_pk",
+      "split": "test",
+      "row": 3,
+      "sha256": "bed8ae57c1cf1b1dced468d9ecc6328c691f2f21c5336a224e359efe770ed351",
+      "duration": 7.56
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ur_pk",
+      "split": "test",
+      "row": 4,
+      "sha256": "7e1bf332a1a9e16542e6de81645dcfea21e5c7d992ce1a26db456c5e98e74c4c",
+      "duration": 10.44
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ur_pk",
+      "split": "test",
+      "row": 5,
+      "sha256": "dce42cadcb6d5a0ec6021dc866ff6d7aa5fa9d6220be0a7251762e53b66ad559",
+      "duration": 8.82
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ur_pk",
+      "split": "test",
+      "row": 6,
+      "sha256": "dc1cd329d29a55e21f44f692b2e6665d8e8f3e941b7ac2f699a24f2010a0ce63",
+      "duration": 10.8
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ur_pk",
+      "split": "test",
+      "row": 7,
+      "sha256": "1370ef49fe6e41e669f01c09b9e6cb493e61fa98de28a5614337c99ff8fd4ff0",
+      "duration": 10.38
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ta_in",
+      "split": "test",
+      "row": 0,
+      "sha256": "449d0c9516dc1cf0d5082f0ffdb744b858dd0bb67033e2c02a13ea989987b439",
+      "duration": 7.8
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ta_in",
+      "split": "test",
+      "row": 1,
+      "sha256": "b2ec2dd1f835acc101cb09ad16458fea1bbd8132ad208c38b7757e2fd1d40a88",
+      "duration": 6.96
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ta_in",
+      "split": "test",
+      "row": 4,
+      "sha256": "0162731daabe23ed5b3c472b60be0103cbd4febf11800da4122f7bc0c6ecdefa",
+      "duration": 10.24
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ta_in",
+      "split": "test",
+      "row": 7,
+      "sha256": "d198e494b0657eef805c8711d943ee0a08ad38425e67864267fe3536693bfad1",
+      "duration": 8.82
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ta_in",
+      "split": "test",
+      "row": 8,
+      "sha256": "3584431b395d8372a887dcfba6c904366f67f8734535cf1578341fe685da7d18",
+      "duration": 7.02
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ta_in",
+      "split": "test",
+      "row": 12,
+      "sha256": "ca25c226a26abf6a84f120ebe2eb9402c261978ce2c6d209b7f454452808fd7c",
+      "duration": 7.74
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ta_in",
+      "split": "test",
+      "row": 13,
+      "sha256": "413f8b04e338425a32a1154b64a5d73f955c8996945d272de7be4349c25200bc",
+      "duration": 11.76
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ta_in",
+      "split": "test",
+      "row": 18,
+      "sha256": "b19fb75c37782c676e66202b1e9c3013c488615d20610995c51372e6dbcfe458",
+      "duration": 5.88
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "bn_in",
+      "split": "test",
+      "row": 1,
+      "sha256": "8c40e7d6c18122601972c4a8e11ba027f751ef9bad683f63a73501839cc62b66",
+      "duration": 10.44
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "bn_in",
+      "split": "test",
+      "row": 3,
+      "sha256": "adb69dd072e29c3449774a115f5abbe6151da635d5a55a8961478be3e368a7c8",
+      "duration": 10.32
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "bn_in",
+      "split": "test",
+      "row": 4,
+      "sha256": "8dfcf90e557fa150a3d33c06f3807a2ab601ffda79161ac0293c26314df7ee9f",
+      "duration": 10.56
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "bn_in",
+      "split": "test",
+      "row": 5,
+      "sha256": "a0011cfd552edb47be1a24a766cbbdafc3ba72e4942aeb10f2de16e6319d0f86",
+      "duration": 10.38
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "bn_in",
+      "split": "test",
+      "row": 7,
+      "sha256": "db026c4006af23c15cee36d462f3a9fcc3e95b7a4388f06280eafbb2c85e2b5e",
+      "duration": 13.56
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "bn_in",
+      "split": "test",
+      "row": 8,
+      "sha256": "7a8d20780e2d94c0d92ee911667f6dfb5fa5b9fbd3e41fe06a4a3e72a2b76f33",
+      "duration": 13.8
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "bn_in",
+      "split": "test",
+      "row": 10,
+      "sha256": "45b328c334be03c3e380e8ba5ab425a85abec5b1f7baa7cf2d68f0ee13f631e7",
+      "duration": 11.7
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "bn_in",
+      "split": "test",
+      "row": 11,
+      "sha256": "4660bc2e32289c7891ca4c6b39d06815d693dd17e7a42714a3178c9cbb7879fe",
+      "duration": 11.58
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ps_af",
+      "split": "test",
+      "row": 1,
+      "sha256": "aaa130b4cca3f5ec0654ae6651259cc0d5b7ed47bd7b714f6725b80d861f938c",
+      "duration": 6.36
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ps_af",
+      "split": "test",
+      "row": 2,
+      "sha256": "8d8e66584a582ff034348709d74df551f6cd9d9b14f06306e446d2bb0b476fbf",
+      "duration": 7.92
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ps_af",
+      "split": "test",
+      "row": 4,
+      "sha256": "39e1cb441eda567b88a4e8d4e3b6cc6a4ffaf9dceff704797f36ebf98fbbce84",
+      "duration": 8.28
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ps_af",
+      "split": "test",
+      "row": 5,
+      "sha256": "c89169047a5796a21ee8bd61ebdf9a664ab29d7b2e86dade3dd7bc1c2fa7cdcb",
+      "duration": 12.36
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ps_af",
+      "split": "test",
+      "row": 7,
+      "sha256": "b291a9a6fc0815a783a82a08e528139143993a7be56bdbc596f196e8445142c2",
+      "duration": 6.0
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ps_af",
+      "split": "test",
+      "row": 8,
+      "sha256": "fbcdc99e120eda144051b1a3e10d17ec9464b1ece711aff76f3217d3e239d5fd",
+      "duration": 9.96
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ps_af",
+      "split": "test",
+      "row": 9,
+      "sha256": "70d7c8d676e726e67e7509a5c03af888c9932e907eeedcc8e26374873cb61224",
+      "duration": 9.18
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ps_af",
+      "split": "test",
+      "row": 11,
+      "sha256": "cdca74ba74ca44fc68f574b7b53f4d4a45fc1d38f30571824c6c7893ad6d68ea",
+      "duration": 10.68
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "th_th",
+      "split": "test",
+      "row": 0,
+      "sha256": "d3c1f7278bb82f716a5ef7b804959d3ad655cf4790be0fc432a12de962d8a2d8",
+      "duration": 8.82
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "th_th",
+      "split": "test",
+      "row": 1,
+      "sha256": "d774e3bb5370542c316ae458aa819900d2e0e9737ba9046804ee416ef7339de6",
+      "duration": 7.2
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "th_th",
+      "split": "test",
+      "row": 2,
+      "sha256": "c326ec0044502c872eccdecd8a421e6c87b9883f2c1a42f2687edf1df8f17da5",
+      "duration": 9.54
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "th_th",
+      "split": "test",
+      "row": 3,
+      "sha256": "49efb92b7e61406fc1800d9a85dc2a2c1668c3726d4aa33b277dda7104a188fb",
+      "duration": 10.02
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "th_th",
+      "split": "test",
+      "row": 4,
+      "sha256": "76bebbfbf7fa1a4701e281d18938d76221a5627d8dfa709b102ce45d9eff3c60",
+      "duration": 7.5
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "th_th",
+      "split": "test",
+      "row": 5,
+      "sha256": "9a83d3eaeb779f09da629ec896d0fa02c9023e4670c59888c82870215fb8c098",
+      "duration": 7.2
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "th_th",
+      "split": "test",
+      "row": 6,
+      "sha256": "54fbed08ba6d905d74174a34d051ef2a1e1bdd28ccb4e9297cbeea12bef4cae4",
+      "duration": 12.6
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "th_th",
+      "split": "test",
+      "row": 7,
+      "sha256": "2ce38211823d4db0c18b8d572770767b764c02e3852ab47cc8b528084f70818b",
+      "duration": 11.28
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "vi_vn",
+      "split": "test",
+      "row": 0,
+      "sha256": "33318a8f837de6c2953248729f658292c31520b57aa36ee0fe55c234d55c4b54",
+      "duration": 11.34
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "vi_vn",
+      "split": "test",
+      "row": 1,
+      "sha256": "3211626fb751053176762108ee6825501ddd4400aff42ce9633f83c71b07d1de",
+      "duration": 7.26
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "vi_vn",
+      "split": "test",
+      "row": 2,
+      "sha256": "43febdf828f97a7efc3a45180a99d76747d3c45bf9143fbf8bf62d7c0adedc26",
+      "duration": 10.02
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "vi_vn",
+      "split": "test",
+      "row": 3,
+      "sha256": "cca46c77040d86068a55feef4ef95b21289afba255b4a8db8b00d878545cf33f",
+      "duration": 11.16
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "vi_vn",
+      "split": "test",
+      "row": 5,
+      "sha256": "8ac66d54510d2481167b649134d4674708e9fc2b6aa3890287a98f5fa83db313",
+      "duration": 10.02
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "vi_vn",
+      "split": "test",
+      "row": 7,
+      "sha256": "c06fd5f367fb476ad23068ff7dda4c5151e028c62f3f5e364fd993503e669d07",
+      "duration": 8.4
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "vi_vn",
+      "split": "test",
+      "row": 8,
+      "sha256": "d1dcf34dd0757b8de5f5d891d1b4e1c0306b21372d459d7eac6c186eeb956dde",
+      "duration": 13.74
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "vi_vn",
+      "split": "test",
+      "row": 10,
+      "sha256": "f1fbdb4228de18fd1091283ad2249be453e2a0e41a076871504721652cf8d73f",
+      "duration": 9.3
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "id_id",
+      "split": "test",
+      "row": 0,
+      "sha256": "7f161741420a7b1c867effcdd6b570ac9f642644748f17fe6599e3830ec39423",
+      "duration": 8.58
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "id_id",
+      "split": "test",
+      "row": 1,
+      "sha256": "698d20dd68ddb80bb02b699ae0fb28a4b1fdf0cb7fe62b13e3f9ba611c6bbd1a",
+      "duration": 7.68
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "id_id",
+      "split": "test",
+      "row": 2,
+      "sha256": "02c4ae748de3e046cf8ca5af069c7fca6b752eed443c474e72f89f367edaccbf",
+      "duration": 9.48
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "id_id",
+      "split": "test",
+      "row": 3,
+      "sha256": "c8774c483cd835897aef9fca546b775accba4b958216abf1007f2bef70514035",
+      "duration": 9.48
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "id_id",
+      "split": "test",
+      "row": 4,
+      "sha256": "2cf2747ced509ce8e67d3768b22d78222c0d5f0ffdcd6a5c1ffb18fcefc3d4f3",
+      "duration": 12.3
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "id_id",
+      "split": "test",
+      "row": 5,
+      "sha256": "fee5ae06da9c316a6cceb417a363bcdf6101967935294284c3c6baccb7e17d5b",
+      "duration": 7.32
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "id_id",
+      "split": "test",
+      "row": 6,
+      "sha256": "dcb3216d41adbb300733846d2e51bbbf7de9266d6434cfaad8c37d5eafddf460",
+      "duration": 5.22
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "id_id",
+      "split": "test",
+      "row": 8,
+      "sha256": "9d65ce8795f7d0f56169eecd2370b371ee0ffe152941a3b06ebdf1049f3a595d",
+      "duration": 13.92
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ja_jp",
+      "split": "test",
+      "row": 0,
+      "sha256": "bd1b9533cfa176b8c2a71ecb4821a02bc86fa368d096373efe8d8dceafb35634",
+      "duration": 10.44
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ja_jp",
+      "split": "test",
+      "row": 2,
+      "sha256": "ade60c57813d704095310734906a9b6918b2dbbdcd0c9405c3f7d25580570d48",
+      "duration": 12.84
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ja_jp",
+      "split": "test",
+      "row": 3,
+      "sha256": "7059c2e63434b2ffb6d33782ba99bf31b2c3f725feb988d50c514adda8efdb64",
+      "duration": 12.54
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ja_jp",
+      "split": "test",
+      "row": 4,
+      "sha256": "3a268d324535ea7360c2448837f8947e87440554f01cbfc54879052d48703110",
+      "duration": 12.06
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ja_jp",
+      "split": "test",
+      "row": 5,
+      "sha256": "70d05f350c3fe4585fa6be747cd00de46b84a270517527df8b271e2f0f4cca8c",
+      "duration": 6.96
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ja_jp",
+      "split": "test",
+      "row": 6,
+      "sha256": "3cae5637b6406e6bdaaada5b7bbb75272b2e50f8f178dfdfc0c3760442e582a1",
+      "duration": 8.88
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ja_jp",
+      "split": "test",
+      "row": 7,
+      "sha256": "f8ab164f389ee30d0c9694ce9b6fab387354503971262f5cc4a1b31c309e7b93",
+      "duration": 12.96
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ja_jp",
+      "split": "test",
+      "row": 8,
+      "sha256": "08a7f22e72fe84fea5e7f563ede5b8a06b453cd5b6974e4dcaaa1ecd7918248d",
+      "duration": 9.48
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ko_kr",
+      "split": "test",
+      "row": 0,
+      "sha256": "e6bc095e55046de927d7c937f036f96ebb506570648ad9ae7c6576febfc4746a",
+      "duration": 12.48
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ko_kr",
+      "split": "test",
+      "row": 1,
+      "sha256": "a5a400dda19a17f0ceb0c4a2542387ae376e3f0518ba0f9769564402df55affd",
+      "duration": 10.8
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ko_kr",
+      "split": "test",
+      "row": 2,
+      "sha256": "989020dedbda7fa529b0b4e876f236e79b25a2915d093e23de94c8456e72b7b4",
+      "duration": 8.94
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ko_kr",
+      "split": "test",
+      "row": 3,
+      "sha256": "3f9cef47c3ab213f3d35a47b18751915cd25d59dcf8e6d4a53733bd92c478bca",
+      "duration": 12.54
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ko_kr",
+      "split": "test",
+      "row": 4,
+      "sha256": "459b5666b2d4e54055d9d28463522f2f0f8ccb14fea27c0e1d1a5fe450377754",
+      "duration": 12.12
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ko_kr",
+      "split": "test",
+      "row": 5,
+      "sha256": "6cc9c1cb9637a448663ac2979a8541cfb255a9da99cb951c25717d33a02b8b9e",
+      "duration": 9.9
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ko_kr",
+      "split": "test",
+      "row": 6,
+      "sha256": "767df963734516f0586c3ac953729415b5ffdec51743526bfa897eb8d145b7c9",
+      "duration": 13.62
+    },
+    {
+      "dataset": "google/fleurs",
+      "config": "ko_kr",
+      "split": "test",
+      "row": 7,
+      "sha256": "61ed57382352c83a8a0f1799854237e00204df6c3e1c37f93d8231d0a07738d4",
+      "duration": 7.02
+    }
+  ]
+}

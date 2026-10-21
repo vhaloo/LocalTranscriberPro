@@ -1,4 +1,5 @@
 name: Build desktop packages
+run-name: Desktop ${{ inputs.platform || 'all' }} @ ${{ github.ref_name }}
 
 on:
   workflow_dispatch:
@@ -6,7 +7,7 @@ on:
       platform:
         description: Platform to build and check
         type: choice
-        options: [all, windows, macos, linux]
+        options: [all, windows, windows-cpu, macos, linux]
         default: all
   push:
     tags: ["v2.*", "v3.*"]
@@ -19,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJSON(inputs.platform == 'windows' && '["windows-latest"]' || inputs.platform == 'macos' && '["macos-14"]' || inputs.platform == 'linux' && '["ubuntu-24.04"]' || '["windows-latest","macos-14","ubuntu-24.04"]') }}
+        os: ${{ fromJSON((inputs.platform == 'windows' || inputs.platform == 'windows-cpu') && '["windows-latest"]' || inputs.platform == 'macos' && '["macos-14"]' || inputs.platform == 'linux' && '["ubuntu-24.04"]' || '["windows-latest","macos-14","ubuntu-24.04"]') }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -36,11 +37,18 @@ jobs:
       - name: Install build tools
         run: python -m pip install -r requirements-dev.txt
       - name: Install diarization pack (Windows CUDA runtime)
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && inputs.platform != 'windows-cpu'
         shell: pwsh
         run: |
           python -m pip install torch==2.11.0+cu128 torchaudio==2.11.0+cu128 --index-url https://download.pytorch.org/whl/cu128
           python -m pip install -r requirements-diarization.txt openai-whisper==20250625
+      - name: Install lighter Windows CPU runtime
+        if: runner.os == 'Windows' && inputs.platform == 'windows-cpu'
+        shell: pwsh
+        run: |
+          python -m pip install torch==2.11.0+cpu torchaudio==2.11.0+cpu --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -r requirements-diarization.txt openai-whisper==20250625
+          Add-Content $env:GITHUB_ENV "LTP_CPU_ONLY=1"
       - name: Install diarization and Apple acceleration
         if: runner.os == 'macOS'
         run: python -m pip install -r requirements-macos.txt
@@ -91,7 +99,11 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force artifacts | Out-Null
           $version = $env:APP_VERSION
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "/DAppVersion=$version" packaging\windows\installer.iss
+          if ($env:LTP_CPU_ONLY -eq '1') {
+            & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "/DAppVersion=$version" "/DCPUOnly=1" packaging\windows\installer.iss
+          } else {
+            & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "/DAppVersion=$version" packaging\windows\installer.iss
+          }
       - name: Package macOS DMG
         if: runner.os == 'macOS'
         run: |
@@ -128,7 +140,7 @@ jobs:
               assert 0 < path.stat().st_size < 2 * 1024 ** 3, f"GitHub release asset must be under 2 GiB: {path}"
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ runner.os == 'Windows' && 'windows-x64' || runner.os == 'macOS' && 'macos' || 'linux-x64' }}-package
+          name: ${{ runner.os == 'Windows' && (inputs.platform == 'windows-cpu' && 'windows-cpu-x64' || 'windows-x64') || runner.os == 'macOS' && 'macos' || 'linux-x64' }}-package
           path: |
             artifacts/*-Setup.exe
             artifacts/*.dmg

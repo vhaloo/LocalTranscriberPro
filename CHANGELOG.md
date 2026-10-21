@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.3.0
+
+- Add final-priority provisional live recognition and a measured captured-audio backlog.
+- Apply language changes between turns; expose detection candidates and preserve prior routing.
+- Add logical-Unicode paired edits, per-turn source replay, selective retranslation and revision history.
+- Add a movable, language-filtered audience window and typed translated/spoken replies.
+- Add explicit offline preparation and private sessions with password-encrypted transcript files.
+- Add optional pinned MADLAD 7B translation, opt-in context and a destination-specific glossary.
+- Preserve corrections across worker snapshots; reject stale asynchronous retranslations.
+- Separate recording orchestration, add one bounded engine restart and account for Windows commit headroom.
+- Keep transcript visible while settings scroll; load Qwen word alignment only when needed.
+- Add independent Ed25519 update-manifest verification and a lighter Windows CPU package.
+- Expand reproducible held-out language diagnostics; refresh documentation and real screenshots.
+
 ## 3.2.0 — 2026-10-17
 
 - Added visible installation budgets, a storage/folders panel with actual selectable paths, background file sizes/free space and copy/open actions. Documented minimum, universal and full-catalogue budgets, recording growth and every per-OS storage location. The Windows installer shows the budgets and checks 12 GB free on the chosen installation drive.

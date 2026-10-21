@@ -17,6 +17,14 @@ on:
         description: Optional internal draft containing a checksummed Windows upload split into parts
         required: false
         default: ""
+      windows_cpu_run_id:
+        description: Optional successful desktop build containing windows-cpu-x64-package
+        required: false
+        default: ""
+      windows_run_id:
+        description: Optional successful desktop build containing windows-x64-package
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -112,6 +120,20 @@ jobs:
           github-token: ${{ github.token }}
           run-id: ${{ inputs.linux_run_id }}
           name: linux-x64-package
+          path: packages
+      - uses: actions/download-artifact@v4
+        if: inputs.windows_cpu_run_id != ''
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.windows_cpu_run_id }}
+          name: windows-cpu-x64-package
+          path: packages
+      - uses: actions/download-artifact@v4
+        if: inputs.windows_run_id != ''
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.windows_run_id }}
+          name: windows-x64-package
           path: packages
       - name: Reassemble an optional staged Windows upload
         if: inputs.windows_staging_tag != ''
@@ -221,18 +243,34 @@ jobs:
           release = matches[0]
           assert not release["prerelease"]
           assets = {item["name"]: item for item in api(f"releases/{release['id']}/assets?per_page=100")}
-          manifest_asset = assets["SHA256SUMS.txt"]
-          assert manifest_asset["state"] == "uploaded" and manifest_asset["size"] < 256 * 1024
-          manifest_bytes = api(f"releases/assets/{manifest_asset['id']}", binary=True)
-          assert len(manifest_bytes) == manifest_asset["size"]
-          assert manifest_asset["digest"] == "sha256:" + hashlib.sha256(manifest_bytes).hexdigest()
-          manifest = manifest_bytes.decode("utf-8-sig")
           names = [f"LocalTranscriberPro-{__version__}-macOS-arm64-experimental.dmg",
                    f"LocalTranscriberPro-{__version__}-Linux-x86_64-experimental.AppImage",
                    f"LocalTranscriberPro-{__version__}-Linux-x86_64-experimental.tar.gz"]
-          if os.environ["WINDOWS_STAGING_TAG"]:
+          if os.environ["WINDOWS_STAGING_TAG"] or (Path("packages") / f"LocalTranscriberPro-{__version__}-Windows-x64-Setup.exe").is_file():
               names.append(f"LocalTranscriberPro-{__version__}-Windows-x64-Setup.exe")
+          cpu = Path("packages") / f"LocalTranscriberPro-{__version__}-Windows-x64-CPU-Setup.exe"
+          if cpu.is_file():
+              names.append(cpu.name)
           assert {path.name for path in Path("packages").iterdir()} == set(names)
+          manifest_asset = assets.get("SHA256SUMS.txt")
+          if manifest_asset is None:
+              assert not assets, "A new manifest may only initialize an empty draft"
+              lines = []
+              for name in names:
+                  path = Path("packages") / name
+                  assert 0 < path.stat().st_size < 2 * 1024 ** 3
+                  with path.open("rb") as stream:
+                      lines.append(hashlib.file_digest(stream, "sha256").hexdigest() + "  " + name)
+              manifest = "\n".join(lines) + "\n"
+              manifest_path = Path("SHA256SUMS.txt")
+              manifest_path.write_text(manifest, encoding="utf-8")
+              subprocess.run(["gh", "release", "upload", tag, str(manifest_path), "--repo", repo], check=True)
+          else:
+              assert manifest_asset["state"] == "uploaded" and manifest_asset["size"] < 256 * 1024
+              manifest_bytes = api(f"releases/assets/{manifest_asset['id']}", binary=True)
+              assert len(manifest_bytes) == manifest_asset["size"]
+              assert manifest_asset["digest"] == "sha256:" + hashlib.sha256(manifest_bytes).hexdigest()
+              manifest = manifest_bytes.decode("utf-8-sig")
           proof = []
           for name in names:
               path = Path("packages") / name

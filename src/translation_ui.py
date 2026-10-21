@@ -103,7 +103,30 @@ class TranslationControls(ctk.CTkFrame):
         self.guide = ctk.CTkLabel(self, text=self.t("translation_inline"), text_color=MUTED,
                                   font=("Segoe UI", 11), justify="left", wraplength=1000)
         self.guide.grid(row=3, column=0, columnspan=3, sticky="w", padx=14, pady=(2, 9))
+        self.candidates = ctk.CTkFrame(self, fg_color="transparent", height=1)
+        self.candidates.grid(row=4, column=0, columnspan=3, sticky="ew", padx=14, pady=(0, 7))
+        self.candidates.grid_remove()
         self.refresh()
+
+    def update_candidates(self, values):
+        for widget in self.candidates.winfo_children():
+            widget.destroy()
+        seen = set()
+        from src.translation_languages import LANGUAGE_BY_CODE
+        for item in values[:3]:
+            code = item.get("language")
+            if code not in LANGUAGE_BY_CODE or code == self.app.translation_target or code in seen:
+                continue
+            seen.add(code)
+            if len(seen) == 1:
+                ctk.CTkLabel(self.candidates, text=self.t("language_candidates"), font=("Segoe UI", 11)).pack(side="left", padx=4)
+            button = ctk.CTkButton(self.candidates, text=language_label(code, self.t.language), height=25, width=130,
+                                  fg_color=PANEL, command=lambda value=code: self.app.translation_changed("conversation_partner", value))
+            button.pack(side="left", padx=4)
+        if seen:
+            self.candidates.grid()
+        else:
+            self.candidates.grid_remove()
 
     def refresh(self):
         for field, button in self.buttons.items():
@@ -114,7 +137,8 @@ class TranslationControls(ctk.CTkFrame):
 
     def set_enabled(self, enabled):
         for field, button in self.buttons.items():
-            button.configure(state="normal" if enabled and (field == "translation_target" or self.app.preset == "universal") else "disabled")
+            available = enabled or (self.app.recorder.recording and self.app.preset == "universal" and not self.app.busy)
+            button.configure(state="normal" if available and (field == "translation_target" or self.app.preset == "universal") else "disabled")
         self.model_button.configure(state="normal" if enabled else "disabled")
 
     def choose(self, field):

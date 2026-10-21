@@ -10,6 +10,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from math import log
 
+from src.translation_languages import ASR_LANGUAGES, normalize_language
+
 
 @dataclass(frozen=True)
 class ModelSpec:
@@ -62,6 +64,10 @@ class ModelSpec:
             return True
         if not self.multilingual and language != "en":
             return False
+        if self.family == "whisper":
+            if language == "yue":
+                return self.model_id in {"large-v3", "large-v3-turbo"}
+            return normalize_language(language) in ASR_LANGUAGES
         return not self.languages or language in self.languages
 
     @property

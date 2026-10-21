@@ -67,6 +67,17 @@ def iter_audio_chunks(source: str | np.ndarray, seconds: float = 25.0) -> Iterat
         yield consumed / SAMPLE_RATE, pending.copy()
 
 
+class TransientSpool:
+    """Confidential capture never writes a recovery WAV to disk."""
+    path = None
+
+    def append(self, audio):
+        pass
+
+    def close(self):
+        pass
+
+
 class RecordingSpool:
     """Keep microphone audio on disk; memory stays bounded for endless dictation."""
 

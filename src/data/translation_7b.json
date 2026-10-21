@@ -1,0 +1,26 @@
+{
+  "repository": "Nextcloud-AI/madlad400-7b-mt-bt-ct2-int8",
+  "revision": "35c8ee23db1906ef28970fe7e6e9c4dfbe8a39d7",
+  "files": {
+    "config.json": {
+      "size": 224,
+      "hash": "90fb54962455a4e0a0bc7235c0f063d7e46d9c1a1ae003af8059809abd6aeece",
+      "algorithm": "sha256"
+    },
+    "spiece.model": {
+      "size": 4427844,
+      "hash": "ef11ac9a22c7503492f56d48dce53be20e339b63605983e9f27d2cd0e0f3922c",
+      "algorithm": "sha256"
+    },
+    "shared_vocabulary.json": {
+      "size": 5477099,
+      "hash": "c327551ce3ca6efc7b437e11a267f79979893332dda8a1d146e2c950815193f8",
+      "algorithm": "sha256"
+    },
+    "model.bin": {
+      "size": 8312279065,
+      "hash": "028675a47ec8a287161d24c01a62796595124d48e9972eacba4b08150ef09ba5",
+      "algorithm": "sha256"
+    }
+  }
+}

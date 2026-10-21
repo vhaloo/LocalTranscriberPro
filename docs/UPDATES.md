@@ -1,6 +1,6 @@
 # Application updates / Mises à jour
 
-At startup, an enabled background check queries only the official repository's latest stable GitHub release. No audio or transcript is sent. Offline startup and API failures remain usable and quiet; the manual ↻ check explains failures. Drafts, pre-releases, older versions and releases without both the Windows installer and checksum manifest are ignored.
+At startup, an enabled background check queries only the official repository's latest stable GitHub release. No audio or transcript is sent. Offline startup and API failures remain usable and quiet; the manual ↻ check explains failures. Drafts, pre-releases, older versions and releases without the required Windows installer, checksum and signed-manifest assets are ignored.
 
 The proposal shows the version and requires the user's acceptance. Download is cancellable. HTTPS redirects are restricted to GitHub asset hosts; the asset URLs must belong to this exact repository and release. Both the announced byte count and SHA-256 must match before the temporary download becomes executable.
 
@@ -12,27 +12,29 @@ The bundled `_internal` runtime is replaced completely to prevent obsolete nativ
 
 Windows supports installation and relaunch. On macOS/Linux the accepted proposal opens the official release page for a platform-appropriate installation. Those platforms do not yet have automated replacement.
 
-The stable 3.2.0 release also carries explicitly labelled **experimental** macOS Apple Silicon and Linux x86-64 assets. This per-platform status does not change the stable Windows updater channel. Mac/Linux users install these packages manually; see [the experimental installation guide](EXPERIMENTAL_DESKTOP_3.2.md).
+The stable 3.3.0 release also carries explicitly labelled **experimental** macOS Apple Silicon and Linux x86-64 assets. This per-platform status does not change the stable Windows updater channel. Mac/Linux users install these packages manually; see [the experimental installation guide](EXPERIMENTAL_DESKTOP_3.3.md).
 
 ## Français
 
 La vérification en arrière-plan est activée par défaut et se désactive dans Avancé. Le bouton ↻ lance une vérification manuelle. Une nouvelle version stable officielle est proposée ; aucune installation ne commence sans accepter. L'audio, le texte, le vocabulaire et les informations matérielles ne sont pas envoyés.
 
-Accepter télécharge et vérifie le paquet, sauvegarde la session, ferme l'application, installe pour le compte Windows actuel et relance la nouvelle version. Un fichier incomplet, modifié ou sans SHA-256 bloque l'installation. Annuler conserve l'application actuelle. Les enregistrements et transcriptions actifs doivent être terminés avant installation.
+Accepter télécharge et vérifie le paquet, sauvegarde la session, ferme l'application, installe pour le compte Windows actuel et relance la nouvelle version. Un fichier incomplet, modifié, sans SHA-256 ou sans signature valide bloque l'installation depuis la 3.3. Annuler conserve l'application actuelle. Les enregistrements et transcriptions actifs doivent être terminés avant installation.
 
 ## Release requirements
 
 - Stable numeric tag `vX.Y.Z` (or `X.Y.Z`), greater than the running version.
 - Asset `LocalTranscriberPro-X.Y.Z-Windows-x64-Setup.exe`.
+- For CPU-only installations, asset `LocalTranscriberPro-X.Y.Z-Windows-x64-CPU-Setup.exe`; the packaged `runtime-flavor.json` preserves that choice on later updates.
 - Asset `SHA256SUMS.txt`, containing that exact filename and its SHA-256.
-- Both assets must be hosted under `https://github.com/vhaloo/LocalTranscriberPro/releases/download/<tag>/`.
+- Assets `release-manifest.json` and `release-manifest.sig`, signed with the maintainer's Ed25519 key and binding the numeric version and each exact asset name, size and SHA-256.
+- All assets must be hosted under `https://github.com/vhaloo/LocalTranscriberPro/releases/download/<tag>/`.
 - Keep the installer AppId, application mutex and per-user data locations unchanged.
 
-Checksums over trusted HTTPS provide integrity verification, not an independent digital signature. Published Windows installers currently have no commercial Authenticode signature.
+Version 3.3 pins the Ed25519 public key in `src/release_signature.py`. Invalid/missing signatures and mismatched versions or asset metadata fail closed. Private signing keys are neither committed nor bundled. The prior 3.2 client cannot retrospectively gain this verifier: its initial upgrade to 3.3 follows its existing HTTPS/SHA-256 procedure. Published Windows installers currently have no commercial Authenticode signature; Ed25519 manifests do not replace native operating-system certificates.
 
 ## Keeping GitHub current for every release
 
-Version 3.1.0 adds `scripts/check_release_docs.py` to validation and packaging. The README title/download, changelog, platform versions, current guide and screenshot manifest must match the code version. Screenshots are checked for valid image data and SHA-256. Native package CI creates a draft after frozen ASR/voice checks; stable publication follows actual install validation. Explicitly authorized experimental assets carry their own status and validation limits. Existing verified release assets are preserved. See [BUILDING.md](BUILDING.md).
+`scripts/check_release_docs.py` is required in validation and packaging. The README title/download, changelog, platform versions, current guide and screenshot manifest must match the code version. Screenshots are checked for valid image data and SHA-256. Native packages pass frozen ASR/voice checks, then exact verified assets are attached to a draft; stable publication follows actual Windows install validation and manifest signing. Explicitly authorized experimental assets carry their own status and validation limits. Existing verified release assets are preserved. See [BUILDING.md](BUILDING.md).
 
 ## Independent video-engine repair — 3.2.0
 

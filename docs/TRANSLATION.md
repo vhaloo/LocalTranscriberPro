@@ -1,4 +1,42 @@
-# Traduction et lecture locales — 3.2.0
+# Traduction et lecture locales — 3.3.0
+
+## Nouveautés 3.3 : converser, vérifier, partager l’écran
+
+**Le transcript reste visible pendant que les réglages défilent.** F11 agrandit toujours la lecture ; A− / A+ conserve le réglage de taille. **Écran interlocuteur** ouvre une fenêtre indépendante, déplaçable sur un autre écran, avec filtre de langue et police de 18 à 72 points. Aucun deuxième écran physique n’est requis pour l’ouvrir.
+
+**Texte provisoire :** quand le moteur est disponible, un aperçu du tour en cours apparaît en jaune. Il peut changer. Ce passage rapide utilise un décodage allégé ; le résultat final est recalculé avec les réglages de précision choisis et le fragment audio complet. L’aperçu n’entre ni dans les exports ni dans l’historique. Il s’agit d’aperçus successifs locaux, pas d’une promesse de streaming mot par mot ni d’une latence fixe. Les fragments finalisés ont priorité ; les aperçus ralentissent automatiquement si le moteur met du temps, et un aperçu arrivé après la fin du tour est écarté. « Audio restant » compte les secondes capturées encore en attente de finalisation, pas une estimation de temps de calcul.
+
+**Langues en cours de capture :** les sélecteurs restent disponibles en conversation. Les changements sont appliqués entre deux fragments ; les interventions déjà traduites conservent leur direction initiale. Les boutons de langues possibles permettent de confirmer une détection. Sur une paire connue, le profil automatique peut passer à un moteur général de précision déjà préparé et compatible avec les deux langues ; il ne télécharge pas un nouveau modèle au milieu de l’entretien. La détection identifie une langue, pas une personne. Un changement de langue au sein d’une phrase reste difficile et n’est pas une attribution certaine de langue à chaque mot.
+
+**Réviser les phrases** ouvre les originaux et traductions sans modifier l’ordre Unicode conservé dans les fichiers. Un aperçu facilite la lecture des écritures de droite à gauche. Sélectionnez une intervention, corrigez le texte ou la langue, ajoutez si besoin un nom de locuteur, puis enregistrez. Une modification de l’original invalide sa traduction et ses anciens indices ; **Retraduire cette phrase** recalcule uniquement cette intervention et sa troisième langue. Une traduction arrivée après une correction plus récente ne l’écrase pas. **Voir les corrections** expose l’historique ; JSON et les fichiers chiffrés le conservent. Les exports TXT/SRT/VTT/CSV restent des vues du texte courant. Une différence de nombres déclenche une invitation à vérifier, sans affirmer que le sens est faux.
+
+**Réécouter cette phrase** lit le passage associé lorsque son fichier audio existe encore. Pour les nouvelles sessions enregistrées, conservez l’audio du micro pour pouvoir relire les anciens passages ; un audio supprimé ou un téléchargement temporaire déjà nettoyé ne peut pas être réécouté. Les fichiers locaux importés gardent leur liaison avec leur source. Les phrases écrites n’ont pas d’audio original.
+
+**Écrire et parler** accepte une réponse dans votre langue, la traduit vers l’autre langue confirmée, l’ajoute au log et la fait lire par une voix locale ou système disponible. La capture se suspend pendant la lecture, comme pour la lecture habituelle. Les demandes de voix manquantes conservent leur confirmation et leurs informations de licence.
+
+## Préparer une utilisation sans Internet
+
+Dans **Préparer hors ligne**, choisissez les langues de l’entretien dans les sélecteurs principaux, puis préparez le profil. Le bouton de téléchargement est explicite ; les voix disponibles et leurs licences sont présentées. **Vérifier sans téléchargement** charge uniquement les modèles locaux et exerce reconnaissance, traduction et voix disponibles. Un moteur absent ou une voix non disponible reste clairement signalé ; aucune couverture vocale n’est inventée. Le test de reconnaissance s’appuie sur une voix locale préparée lorsque son format le permet.
+
+MADLAD 3B reste le moteur de traduction standard. Le modèle facultatif **MADLAD 7B MT-BT int8**, conversion Nextcloud-AI d’un modèle Google, occupe environ 8,33 Go. Il exige 28 Go de RAM totale et 14 Go disponibles ; le GPU n’est utilisé qu’avec au moins 10 Go de VRAM réellement libres après la reconnaissance. Le CPU reste possible, avec un délai plus élevé. Choisissez un dossier sur un disque assez grand ; **Stockage et dossiers** expose aussi cet emplacement. Un modèle plus gros n’est pas automatiquement plus juste dans chaque langue.
+
+La **traduction contextuelle**, facultative, conserve un court contexte de la même langue ; si la séparation des phrases n’est pas conservée par le modèle, l’application revient à la phrase seule. Le glossaire utilise une ligne `terme source | langue de destination | traduction imposée`, par exemple `Maple Street | fr | rue Maple`. Les termes ne sont imposés que si les marqueurs survivent au décodage ; sinon le moteur revient à la traduction habituelle. Ces options restent à évaluer selon les langues et les termes utilisés.
+
+## Session confidentielle et fichier chiffré
+
+**Confidentialité → Session confidentielle** désactive les nouvelles sauvegardes automatiques du texte, de l’audio, de la récupération et de l’historique. Le texte reste en mémoire jusqu’à la fermeture. Les fichiers précédemment créés restent présents ; les exports manuels restent possibles. Ce réglage se réinitialise au lancement suivant et son état est rappelé dans le statut.
+
+Vous pouvez enregistrer un fichier `.ltps` protégé par mot de passe : AES-256-GCM authentifie les données et Scrypt dérive la clé avec un sel aléatoire. Le mot de passe n’est pas sauvegardé et ne peut pas être récupéré. Le fichier contient le texte, ses traductions et corrections, **pas l’audio**. L’ouverture d’un fichier chiffré active le mode confidentiel. Ce chiffrement de fichier ne protège pas un ordinateur déjà compromis, la mémoire ou un export manuel en clair.
+
+## English — 3.3 conversation tools
+
+The transcript stays visible while settings scroll. Live previews are provisional, use idle inference capacity and never enter exports. The backlog counts captured audio awaiting final processing. Confirm or change languages during capture; changes apply at the next turn and preserve earlier routing. A prepared compatible accuracy model can replace the broad-coverage recognizer once both languages are known.
+
+**Review turns** preserves logical Unicode originals, timed audio links and a revision history. Edit an original or translation, name a speaker, replay linked audio or retranslate that turn only. Source edits invalidate old translation/confidence information; stale asynchronous results never overwrite newer edits. Number differences prompt review, not a semantic verdict.
+
+**Audience display** is a separate movable window with language filtering and 18–72 point text. **Type and speak** translates a written reply to the confirmed other language, adds it to the log and reads it locally. **Prepare offline** explicitly prepares models/voices and exercises available local engines without downloads during verification. Optional MADLAD 7B, contextual translation and a destination-specific glossary retain documented resource and quality limits.
+
+**Confidential sessions** create no new automatic transcript/audio/history/recovery files. Save text and revisions in a password-encrypted `.ltps` file when needed. Audio is excluded. Existing files remain and manual plaintext exports are possible. Passwords are not saved or recoverable; confidentiality resets on the next app launch.
 
 ## Démarrer une conversation
 
@@ -10,7 +48,9 @@ Lancez **Enregistrer**. Le modèle de reconnaissance et MADLAD doivent être pr�
 
 En automatique, deux langues reconnues avec une indication de langue d'au moins 0,55 et du texte exploitable constituent la paire. L'application ne déduit jamais une langue à partir d'un pays ou d'une personne. Une fois la paire reconnue, français → arabe et arabe → français, par exemple, sont routés sans changer de bouton. Avant que la paire soit complète, la parole étrangère est traduite vers votre langue ; une ligne dans votre propre langue peut rester en attente. Elle est complétée lorsque l'autre langue est connue.
 
-Une détection peut se tromper même avec un score élevé. Si la paire est fausse, arrêtez la capture et fixez l'autre langue avant de repartir. Le changement de langue/modèle pendant l'enregistrement est bloqué pour garder une session cohérente. La troisième langue est facultative ; une traduction identique à l'original ou à la destination n'est pas affichée deux fois.
+Qwen et Parakeet utilisent aussi le détecteur textuel local GlotLID lorsqu’ils ne fournissent pas de score de langue. Ce complément de 1,69 Go est préparé avant la capture et reste dans le cache Omnilingual partagé ; il ne télécharge rien pendant la reconnaissance. Pour Qwen, un désaccord entre sa langue annoncée et le détecteur réduit l’indication au lieu de forcer une paire. Si le détecteur n’est pas préparé en mode hors ligne, ou si le texte est ambigu, confirmez les langues avec les boutons proposés. Ce score d’identification n’est pas une probabilité de transcription ou de traduction correcte.
+
+Une détection peut se tromper même avec un score élevé. Si la paire est fausse, corrigez l’autre langue dans son sélecteur : le changement sera appliqué au prochain fragment. Le changement manuel de modèle pendant l’enregistrement reste bloqué ; seul le choix automatique entre moteurs déjà préparés se fait entre deux fragments. La troisième langue est facultative ; une traduction identique à l’original ou à la destination n’est pas affichée deux fois.
 
 ## Texte et rythme de traitement
 
@@ -23,6 +63,8 @@ La capture écoute des fenêtres de 32 ms et recherche la parole avec Silero VAD
 ## Reconnaissance, traduction et voix
 
 Le profil multilingue automatique privilégie Omnilingual sur une machine compatible, puis le meilleur Whisper qui tient dans les ressources disponibles. Qwen 1.7B demeure le profil général de précision sur GPU compatible ; sa couverture de 30 langues est plus étroite. Parakeet privilégie la vitesse CPU pour 25 langues européennes. Le sélecteur affiche précision relative, rapidité et multilinguisme séparément, ainsi que les raisons matérielles d'indisponibilité.
+
+Le choix automatique tient compte du couple reconnaissance/traduction. Si le premier modèle de reconnaissance laisse trop peu de mémoire au traducteur, l’application libère ce modèle, réserve la traduction puis recherche le meilleur moteur vocal compatible avec la mémoire restante. Le diagnostic indique cette réserve. Sous Windows, la mémoire disponible tient aussi compte de la limite d’engagement du système : d’autres logiciels peuvent réduire les ressources utilisables même si de la RAM physique semble libre.
 
 **Omnilingual CTC 1B v2** est une reconnaissance CPU de plus de 1 600 langues, choisie par le profil universel sur une machine compatible (16 Go de RAM totale, 10 Go disponibles, 5,6 Go de téléchargement avec GlotLID). Fixer une langue de conversation hors du catalogue Whisper le sélectionne sur une machine compatible. Les heures sont celles du fragment complet ; aucun alignement mot à mot ni score de transcription n'est inventé. Son identification de langue vient du texte reconnu par GlotLID v3, avec plus de 2 000 étiquettes de langue et d'écriture. Une langue reconnue par le modèle peut donc ne pas être identifiée automatiquement. Le modèle n'est pas systématiquement plus précis que Whisper ; les deux restent sélectionnables.
 
@@ -56,8 +98,8 @@ Chaque session termine avec TXT, SRT, VTT, CSV et JSON dans le dossier choisi ; 
 
 Pour les noms, nombres et décisions importants, réécoutez et faites confirmer le sens. Ces outils facilitent un échange ; leur couverture annoncée ne garantit pas une interprétation correcte de toute langue, tout dialecte ou toute situation sonore.
 
-## Aides, stockage et médias en ligne — 3.2
+## Aides, stockage et médias en ligne — 3.3
 
-Les principales commandes montrent une aide au survol et au focus clavier. **Stockage et dossiers**, en haut de la fenêtre, affiche les besoins, les dossiers exacts des modèles/voix/historique/exports et leurs tailles. Comptez environ 5,9 Go pour le minimum avec Tiny, 14,4 Go pour Omnilingual + traduction et 44 Go pour tout le catalogue ; prévoyez 12 Go libres avant installation ou 85 Go avec les caches de toutes les options. L’audio enregistré ajoute environ 115 Mo/heure et il n’existe pas de maximum absolu.
+Les principales commandes montrent une aide au survol et au focus clavier. **Stockage et dossiers**, en haut de la fenêtre, affiche les besoins, les dossiers exacts des modèles/voix/historique/exports et leurs tailles. Comptez environ 5,9 Go pour le minimum avec Tiny, 14,4 Go pour Omnilingual + traduction et 53 Go pour tout le catalogue ; prévoyez 12 Go libres avant installation ou 95 Go avec les caches de toutes les options. L’audio enregistré ajoute environ 115 Mo/heure et il n’existe pas de maximum absolu.
 
 **Vidéo en ligne** accepte YouTube, les autres sites pris en charge et les liens média HTTP(S). **Options vidéo et diagnostic** actualise le moteur officiel vérifié et règle la limite. L’audio compressé est vérifié puis traité localement ; l’annulation arrête aussi le téléchargement. Une connexion éventuelle utilise uniquement l’export de cookies que vous choisissez, via une copie temporaire. **Utiliser un fichier local…** offre un autre parcours lorsqu’un site refuse l’import. [Dossiers, budgets et procédure détaillée](../README.md#storage-requirements-and-locations--stockage-et-dossiers).

@@ -9,6 +9,7 @@ import gc
 import hashlib
 import json
 import logging
+import re
 import threading
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -29,6 +30,10 @@ FILES = {
     "config.json": (190, "a428c51cd35517554523b3c6b6974a5928bc35e82b130869a543566a34a83b93"),
     "shared_vocabulary.json": (5477099, "c327551ce3ca6efc7b437e11a267f79979893332dda8a1d146e2c950815193f8"),
 }
+
+
+class TranslationResourceError(RuntimeError):
+    """The translation model cannot yet fit alongside the active recognizer."""
 
 
 @dataclass
@@ -61,28 +66,53 @@ class TranslationEngine:
         self.device = "cpu"
         self.router: ConversationRouter | None = None
         self.last_index = None
+        self.routing_generation = 0
         self._lock = threading.RLock()
+        self.model_id = "madlad400-3b"
+        self.context_enabled = False
+        self.context = []
+        self.glossary = ""
+        self.optional_cache = None
+
+    def configure(self, model_id="madlad400-3b", cache=None, context=False, glossary=""):
+        if model_id not in {"madlad400-3b", "madlad400-7b"}:
+            raise ValueError("Unknown local translation model")
+        with self._lock:
+            if model_id != self.model_id or (model_id.endswith("7b") and cache and Path(cache) != self.cache):
+                self.unload()
+                self.cache = Path(cache) if cache and model_id.endswith("7b") else Path(user_cache_dir("LocalTranscriberPro", "Vhaloo")) / "translation" / model_id
+            self.model_id = model_id
+            self.context_enabled = bool(context)
+            self.glossary = str(glossary)[:6000]
+
+    def assets(self):
+        if self.model_id == "madlad400-3b":
+            return REPOSITORY, REVISION, FILES
+        metadata = json.loads((Path(__file__).parent / "data/translation_7b.json").read_text("utf-8"))
+        return metadata["repository"], metadata["revision"], {name: (item["size"], item["hash"]) for name, item in metadata["files"].items()}
 
     def _complete(self) -> bool:
         try:
+            _, _, files = self.assets()
             return all((self.cache / name).is_file() and (self.cache / name).stat().st_size == size
-                       for name, (size, _) in FILES.items())
+                       for name, (size, _) in files.items())
         except OSError:
             return False
 
     def prepare(self, allow_download: bool, cancel_event: threading.Event | None = None) -> Path:
         check_cancelled(cancel_event)
+        repository, revision, files = self.assets()
         if not self._complete():
             if not allow_download:
                 raise RuntimeError("Le moteur de traduction n'est pas préparé. Connectez-vous une fois pour télécharger MADLAD-400, puis utilisez-le hors ligne.")
             from huggingface_hub import hf_hub_download
 
             self.cache.mkdir(parents=True, exist_ok=True)
-            for name in FILES:
+            for name in files:
                 check_cancelled(cancel_event)
                 # local_dir produces ordinary files on Windows, avoiding the
                 # cached-symlink traversal failure seen in the 3.0 delivery.
-                hf_hub_download(REPOSITORY, name, revision=REVISION, local_dir=self.cache)
+                hf_hub_download(repository, name, revision=revision, local_dir=self.cache)
         if not self._complete():
             raise RuntimeError("Incomplete local translation model")
         receipt_path = self.cache / "verified.json"
@@ -90,7 +120,7 @@ class TranslationEngine:
             receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             receipt = {}
-        for name, (_, checksum) in FILES.items():
+        for name, (_, checksum) in files.items():
             check_cancelled(cancel_event)
             path = self.cache / name
             signature = [path.stat().st_size, path.stat().st_mtime_ns, checksum]
@@ -108,18 +138,22 @@ class TranslationEngine:
             if self.model is not None:
                 return
             hardware.refresh_resources()
-            if hardware.effective_available_ram_gb < 6 or hardware.ram_gb < 12:
-                raise RuntimeError("La traduction universelle nécessite 12 Go de RAM et 6 Go actuellement disponibles.")
-            if not self._complete() and hardware.disk_free_gb < 4:
-                raise RuntimeError("La préparation de la traduction nécessite 4 Go d'espace libre.")
+            required_ram = 14 if self.model_id.endswith("7b") else 6
+            if hardware.effective_available_ram_gb < required_ram or hardware.ram_gb < required_ram * 2:
+                raise TranslationResourceError(f"Traduction {self.model_id}: {required_ram * 2} Go de RAM totale et {required_ram} Go disponibles nécessaires.")
+            self.cache.mkdir(parents=True, exist_ok=True)
+            import shutil
+            required_disk = 10 if self.model_id.endswith("7b") else 4
+            if not self._complete() and shutil.disk_usage(self.cache).free < required_disk * 1_000_000_000:
+                raise RuntimeError(f"Traduction {self.model_id}: {required_disk} Go libres nécessaires dans {self.cache}.")
             folder = self.prepare(allow_download, cancel_event)
             import ctranslate2
             import sentencepiece
 
-            self.tokenizer = sentencepiece.SentencePieceProcessor(model_file=str(folder / "sentencepiece.model"))
+            self.tokenizer = sentencepiece.SentencePieceProcessor(model_file=str(folder / ("spiece.model" if self.model_id.endswith("7b") else "sentencepiece.model")))
             # ASR remains resident: its memory cannot be reclaimed to admit MT.
             free_vram = hardware.gpu_vram_free_gb if hardware.gpu_vram_free_gb is not None else hardware.gpu_vram_gb
-            self.device = "cuda" if hardware.ctranslate_cuda and free_vram >= 4 else "cpu"
+            self.device = "cuda" if hardware.ctranslate_cuda and free_vram >= (10 if self.model_id.endswith("7b") else 4) else "cpu"
             try:
                 self.model = ctranslate2.Translator(str(folder), device=self.device,
                     compute_type="int8_float16" if self.device == "cuda" else "int8",
@@ -131,10 +165,12 @@ class TranslationEngine:
                 self.device = "cpu"
                 self.model = ctranslate2.Translator(str(folder), device="cpu", compute_type="int8",
                     inter_threads=1, intra_threads=max(1, min(hardware.cpu_threads, 12)))
-            logging.info("Loaded translation model=madlad400-3b device=%s compute=int8", self.device)
+            logging.info("Loaded translation model=%s device=%s compute=int8", self.model_id, self.device)
 
     def reset_conversation(self, preferred: str, partner: str | None = None) -> None:
+        self.routing_generation += 1
         self.router = ConversationRouter(preferred, partner if partner != preferred else None)
+        self.context = []
 
     def translate(self, text: str, target: str, cancel_event=None) -> str:
         self.last_index = None
@@ -145,6 +181,19 @@ class TranslationEngine:
         with self._lock:
             if self.model is None:
                 raise RuntimeError("Local translation engine is not loaded")
+            original = text
+            substitutions = []
+            for line in self.glossary.splitlines()[:40]:
+                parts = [value.strip() for value in line.split("|")]
+                if len(parts) != 3 or parts[1] != target or not parts[0] or not parts[2]:
+                    continue
+                marker = f"ZXQTERM{len(substitutions)}QXZ"
+                if marker in text:
+                    continue
+                updated = re.sub(r"(?<!\w)" + re.escape(parts[0]) + r"(?!\w)", marker, text)
+                if updated != text:
+                    text = updated
+                    substitutions.append((marker, parts[2]))
             tokens = self.tokenizer.encode(text, out_type=str)
             translated = []
             scores = []
@@ -167,7 +216,16 @@ class TranslationEngine:
                 translated.append(output)
             check_cancelled(cancel_event)
             self.last_index = min(scores) if scores else None
-            return " ".join(translated).strip()
+            output = " ".join(translated).strip()
+            if substitutions and not all(marker in output for marker, _ in substitutions):
+                glossary, self.glossary = self.glossary, ""
+                try:
+                    return self.translate(original, target, cancel_event)
+                finally:
+                    self.glossary = glossary
+            for marker, replacement in substitutions:
+                output = output.replace(marker, replacement)
+            return output
 
     def translate_result(self, result: dict[str, Any], target: str, conversation: bool = False,
                          third: str | None = None, cancel_event=None) -> dict[str, Any]:
@@ -190,16 +248,17 @@ class TranslationEngine:
             text = str(segment.get("text", "")).strip()
             if not text:
                 continue
-            output = text if destination == source or destination is None else self.translate(text, destination, cancel_event)
+            output = text if destination == source or destination is None else self.translate_contextual(text, destination, source, cancel_event)
             translation_index = self.last_index if destination and destination != source else None
             item = dict(segment, source_text=text, source_language=source or "und", text=output,
                         target_language=destination or "", translation_pending=destination is None,
-                        source_words=segment.get("words", []), words=[], translation_model="madlad400-3b")
+                        source_words=segment.get("words", []), words=[], translation_model=self.model_id)
             item["translation_index"] = translation_index
             source_indices = [s["recognition_index"] for s in result.get("segments", []) if s.get("recognition_index") is not None]
             if conversation and source_indices:
                 item["recognition_index"] = min(source_indices)
             if conversation:
+                item["routing_generation"] = self.routing_generation
                 item["conversation_pair"] = list(self.router.pair)
             if third:
                 item.update(third_language=third, third_text=text if third == source else (
@@ -209,7 +268,27 @@ class TranslationEngine:
             translated.append(item)
         return dict(result, source_text=original, segments=translated,
                     text=" ".join(item["text"] for item in translated), target_language=destination or "",
-                    conversation_pair=list(self.router.pair) if conversation else [], translation_model="madlad400-3b")
+                    conversation_pair=list(self.router.pair) if conversation else [], translation_model=self.model_id)
+
+    def translate_contextual(self, text, target, source, cancel_event=None):
+        """Opt-in context; marker failure falls back to the original turn.
+
+        T5 has no chat instructions. Separate turns with a stable marker and
+        accept context only when it survives decoding exactly. Never display
+        earlier turns again or infer that the result is more reliable.
+        """
+        if not self.context_enabled:
+            return self.translate(text, target, cancel_event)
+        previous = next((value for code, value in reversed(self.context) if code == source), None)
+        if previous:
+            marker = " [987654321] "
+            output = self.translate(previous[-500:] + marker + text, target, cancel_event)
+            pieces = output.split("[987654321]")
+            output = pieces[-1].strip() if len(pieces) == 2 and pieces[-1].strip() else self.translate(text, target, cancel_event)
+        else:
+            output = self.translate(text, target, cancel_event)
+        self.context = [*self.context[-3:], (source, text)]
+        return output
 
     def complete_conversation(self, segments: list[dict[str, Any]], cancel_event=None) -> list[dict[str, Any]]:
         """Resolve earlier lines once both conversation languages are known."""
@@ -217,12 +296,15 @@ class TranslationEngine:
             return segments
         completed = []
         for segment in segments:
-            if "source_text" not in segment:
+            if "source_text" not in segment or segment.get("routing_generation", self.routing_generation) != self.routing_generation:
                 completed.append(segment)
                 continue
             item = dict(segment, conversation_pair=list(self.router.pair))
             destination = self.router.destination(item.get("source_language"), None, "")
             if destination and (item.get("translation_pending") or item.get("target_language") != destination):
+                if item.get("edited") or item.get("translation_edited"):
+                    completed.append(item)
+                    continue
                 item.update(text=self.translate(item["source_text"], destination, cancel_event),
                             target_language=destination, translation_pending=False, translation_index=self.last_index)
             completed.append(item)

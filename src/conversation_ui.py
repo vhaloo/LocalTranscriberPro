@@ -9,9 +9,10 @@ import customtkinter as ctk
 from src.settings import bounded_int
 from src.speech_output_ui import SpeechOutputMixin
 from src.tooltip import ToolTip
+from src.workbench_ui import WorkbenchMixin
 
 
-class ConversationMixin(SpeechOutputMixin):
+class ConversationMixin(WorkbenchMixin, SpeechOutputMixin):
     def _build_conversation_toolbar(self, toolbar):
         row = ctk.CTkFrame(toolbar, fg_color="transparent")
         row.grid(row=1, column=0, columnspan=5, sticky="ew", pady=(6, 0))
@@ -48,6 +49,7 @@ class ConversationMixin(SpeechOutputMixin):
         ToolTip(self.pipeline_label, self.t("tip_pipeline"))
         ToolTip(self.sampling_bar, self.t("tip_pipeline"))
         self._build_speech_controls(row)
+        self._workbench_controls(row)
 
     def change_transcript_font(self, delta):
         self._commit_editor_changes()
@@ -114,15 +116,30 @@ class ConversationMixin(SpeechOutputMixin):
             sampling = self.t("pipeline_paused") if self.recorder.paused else self.t(
                 "pipeline_" + state.get("state", "listening"), seconds=seconds)
             stage = self.t("pipeline_" + self.pipeline_stage, seconds=max(0, time.monotonic() - self.pipeline_started))
-            self.pipeline_label.configure(text=f"{sampling}   •   {stage}   •   " + self.t("pipeline_queue", count=state.get("pending", 0)))
+            lag = max(0.0, state.get("captured_seconds", 0) - getattr(self, "recording_offset", 0))
+            self.pipeline_label.configure(text=f"{sampling}   •   {stage}   •   " + self.t("pipeline_queue", count=state.get("pending", 0)) + "   •   " + self.t("pipeline_lag", seconds=f"{lag:.1f}"))
         elif not self.busy:
             self.pipeline_label.configure(text=self.t("pipeline_idle"))
             self.sampling_bar.set(0)
 
     def translation_changed(self, field, code):
-        if self.busy or self.recorder.recording:
+        if self.busy:
+            return
+        if field == "conversation_partner" and code == self.translation_target:
+            self._set_status(self.t("pair_different"))
+            return
+        if field == "translation_target" and code == self.conversation_partner:
+            self._set_status(self.t("pair_different"))
             return
         setattr(self, field, code)
+        if self.recorder.recording:
+            self.session_controller.configure_languages(self.translation_target,
+                None if self.conversation_partner == "auto" else self.conversation_partner,
+                None if self.translation_third == "none" else self.translation_third)
+            self.translation_controls.refresh()
+            self.persist_settings()
+            self._set_status(self.t("pair_next_turn"))
+            return
         if field == "conversation_partner" and code not in {"auto", "none"}:
             from src.translation_languages import ASR_LANGUAGES
             if code not in ASR_LANGUAGES and self.hardware.model_compatibility("omnilingual-1b-v2", "auto").supported:

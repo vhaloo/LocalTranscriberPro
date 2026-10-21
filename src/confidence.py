@@ -43,4 +43,9 @@ def confidence_caption(item, t):
         fields.append(t("confidence_confirm"))
     if item.get("overlap_experimental"):
         fields.append(t("overlap_review"))
+    from src.review import review_flags
+    if "numbers" in review_flags(item):
+        fields.append(t("review_numbers"))
+    if item.get("revisions"):
+        fields.append(t("review_history", count=len(item["revisions"])))
     return "  ·  ".join(fields)

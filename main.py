@@ -69,6 +69,8 @@ def run_packaged_smoke_test(args: argparse.Namespace) -> int:
                                        target_language=args.target_language, conversation=args.conversation,
                                        partner_language=args.partner_language, third_language=args.third_language,
                                        offline=args.offline, overlap_separation=args.overlap)
+        options.translation_model = args.translation_model
+        options.translation_cache = args.translation_cache
         engine.load_model(args.model, args.device, options=options)
         engine.reset_translation_session(options)
         progress: list[float] = []
@@ -137,6 +139,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--language", default=None)
     parser.add_argument("--task", choices=("transcribe", "translate"), default="transcribe")
     parser.add_argument("--target-language")
+    parser.add_argument("--translation-model", choices=("madlad400-3b", "madlad400-7b"), default="madlad400-3b")
+    parser.add_argument("--translation-cache")
     parser.add_argument("--conversation", action="store_true")
     parser.add_argument("--partner-language")
     parser.add_argument("--third-language")

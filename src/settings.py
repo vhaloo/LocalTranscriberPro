@@ -79,6 +79,10 @@ DEFAULTS: dict[str, Any] = {
     "video_max_mb": 2000,
     "keep_recording_audio": True,
     "vocabulary": "",
+    "translation_model": "madlad400-3b",
+    "translation_cache": "",
+    "translation_context": False,
+    "translation_glossary": "",
 }
 
 
@@ -108,6 +112,7 @@ class SettingsStore:
                     "translation_target": set(LANGUAGE_BY_CODE),
                     "conversation_partner": {"auto", *LANGUAGE_BY_CODE},
                     "translation_third": {"none", *LANGUAGE_BY_CODE},
+                    "translation_model": {"madlad400-3b", "madlad400-7b"},
                 }.items():
                     if not isinstance(self.data.get(key), str) or self.data[key] not in choices:
                         self.data[key] = DEFAULTS[key]
@@ -124,6 +129,10 @@ class SettingsStore:
                 if not isinstance(self.data.get("vocabulary"), str):
                     self.data["vocabulary"] = ""
                 self.data["vocabulary"] = self.data["vocabulary"][:2000]
+                for key in ("translation_glossary", "translation_cache"):
+                    if not isinstance(self.data.get(key), str):
+                        self.data[key] = ""
+                    self.data[key] = self.data[key][:6000]
                 for key in ("output_folder", "microphone", "spoken_language"):
                     if not isinstance(self.data.get(key), str) or not self.data[key].strip():
                         self.data[key] = DEFAULTS[key]

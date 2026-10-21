@@ -37,7 +37,7 @@ def catalogue_budget() -> dict[str, int]:
                  for f in voice["files"].values())
     voices += sum(f["size"] for f in piper["common"]["files"].values())
     recognizers = sum(model.size_gb for model in MODEL_CATALOG) * GB
-    extras = (2.96 + 0.113 + 0.10 + 0.25) * GB + voices
+    extras = (2.96 + 8.33 + 0.113 + 0.10 + 0.25) * GB + voices
     stored = APPLICATION_BUDGET + recognizers + extras
     # Windows Hub fallback may retain both blobs and materialized snapshots.
     preparation = stored + recognizers + 8 * GB

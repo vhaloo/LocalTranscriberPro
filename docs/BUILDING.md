@@ -32,7 +32,7 @@ For direct PyInstaller builds, run `python scripts/prepare_js_runtime.py` and `p
 
 The build workflow creates `Local Transcriber Pro.app`, adds the microphone usage description, applies an ad-hoc signature for artifact integrity, and packages it in a DMG. Production distribution should replace ad-hoc signing with Developer ID signing and notarization.
 
-The experimental 3.2.0 DMG is arm64 for Apple Silicon, built on macOS 14. No Intel package is provided. See [experimental distribution instructions](EXPERIMENTAL_DESKTOP_3.2.md).
+The experimental 3.3.0 DMG is arm64 for Apple Silicon, built on macOS 14. No Intel package is provided. See [experimental distribution instructions](EXPERIMENTAL_DESKTOP_3.3.md).
 
 ## Linux
 
@@ -67,7 +67,19 @@ Install a compatible PyTorch/torchaudio wheel before the diarization pack (the c
 
 After building, exercise the real frozen stack with `LocalTranscriberPro.exe --smoke-test sample.wav --model auto-best --device auto --language fr --diagnostic-output report.json`. Inspect the reported backend and fallback reason; nonempty text alone does not prove the requested engine worked. Add `--task translate`, `--diarize` or `--expect-silence` for those checks.
 
-The updater requires the exact asset name `LocalTranscriberPro-X.Y.Z-Windows-x64-Setup.exe` and a same-release `SHA256SUMS.txt`. Pre-releases and draft releases are ignored. Publish only after Windows installation/upgrade/relaunch testing and platform-specific validation. Local packaging does not publish a GitHub release.
+The updater requires the exact asset name `LocalTranscriberPro-X.Y.Z-Windows-x64-Setup.exe` (or `-CPU-Setup.exe` for that installed flavor), a same-release `SHA256SUMS.txt` and valid `release-manifest.json`/`release-manifest.sig`. Pre-releases and draft releases are ignored. Publish only after Windows installation/upgrade/relaunch testing and platform-specific validation. Local packaging does not publish a GitHub release.
+
+## Separate CPU packages and release signing — 3.3
+
+`desktop-build.yml` supports `windows`, `windows-cpu`, `macos`, `linux` and `all`. The CPU job uses CPU PyTorch wheels and sets `LTP_CPU_ONLY=1` before PyInstaller; the spec writes the matching runtime marker, and Inno's `CPUOnly` definition creates the distinct installer filename. The full Windows package retains CUDA. For a local build on another disk, `scripts/build_windows.ps1 -OutputRoot E:\LocalTranscriberPro-build` keeps large build/dist output off the system drive.
+
+After native checks, `experimental-package-check.yml` can inspect Mac/Linux containers and attach all five exact package artifacts to an existing empty draft, using their completed run IDs. It verifies sizes and hashes before and after upload and will not replace a conflicting asset or publish the draft. Download the resulting exact packages, verify them against `SHA256SUMS.txt`, then run:
+
+```text
+python scripts/sign_release.py VERIFIED_PACKAGE_FOLDER --key PRIVATE_KEY_PATH --version 3.3.0
+```
+
+The raw 32-byte Ed25519 private key must remain outside Git, logs, artifacts and packaged files. The verifier's public key must match that key before building. Upload only the resulting public manifest and signature, with the matching checksum manifest. Do not regenerate a key during a retry. Check all published asset bytes against the signed manifest after publication. Independent update signatures do not supply Authenticode or Apple notarization; those need separately provisioned certificates.
 
 Every GitHub asset must be under 2 GiB. Verify the installer size before upload. Do not publish an oversized or renamed older binary. For local builds, `AppSource` can override the Inno source directory when using a fresh output path to avoid stale/locked native files.
 

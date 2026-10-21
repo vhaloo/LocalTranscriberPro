@@ -34,7 +34,11 @@ class StorageDialog(ctk.CTkToplevel):
         listing = ctk.CTkScrollableFrame(self, fg_color="#111C32")
         listing.pack(fill="both", expand=True, padx=22, pady=(0, 12))
         self.rows = []
-        for key, path in storage_locations(parent.output_folder, parent.settings.path, parent.history.database_path):
+        locations = storage_locations(parent.output_folder, parent.settings.path, parent.history.database_path)
+        if parent.settings.get("translation_cache", ""):
+            from pathlib import Path
+            locations.append(("storage_translation_7b", Path(parent.settings.get("translation_cache"))))
+        for key, path in locations:
             row = ctk.CTkFrame(listing, fg_color="#16233D", corner_radius=10)
             row.pack(fill="x", pady=4)
             row.grid_columnconfigure(0, weight=1)

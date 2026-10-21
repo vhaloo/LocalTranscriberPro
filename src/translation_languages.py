@@ -15,6 +15,12 @@ def normalize_language(code: str | None) -> str | None:
     return {"jw": "jv", "tl": "fil", "yue": "zh", "nb": "no", "iw": "he"}.get(code, code)
 
 
+def whisper_language(code: str | None) -> str | None:
+    if code in {None, "", "auto"}:
+        return None
+    return {"jv": "jw", "fil": "tl", "nb": "no", "iw": "he"}.get(code, code)
+
+
 def language_label(code: str, ui_language: str = "fr") -> str:
     item = LANGUAGE_BY_CODE.get(code)
     return f"{item.get(ui_language, item['en'])} · {code}" if item else code
