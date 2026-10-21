@@ -104,7 +104,9 @@ class WorkbenchMixin:
         def read_visible():
             selection = window.box._textbox.tag_ranges("sel")
             if selection:
-                first, last = int(str(selection[0]).split(".")[0]), int(str(selection[1]).split(".")[0])
+                first = int(str(selection[0]).split(".")[0])
+                end_row, end_column = str(selection[1]).split(".")
+                last = int(end_row) - (1 if end_column == "0" else 0)
                 items = [item for row, item in window.speech_lines.items() if first <= row <= last]
             else:
                 items = list(window.speech_lines.values())[-1:]

@@ -2720,8 +2720,9 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
             self.open_file_safe(destination)
 
     def _write_export(self, path: Path, segments: list[dict[str, Any]]) -> None:
+        bilingual = any("source_text" in item for item in segments)
         write_export(path, segments, self.transcript_format_options(),
-                     self.textbox.get("1.0", "end-1c").strip() if path.suffix.lower() == ".txt" else None)
+                     self._editor_text() if path.suffix.lower() == ".txt" and not bilingual else None)
 
     def _new_output_base(self, prefix: str) -> Path:
         self.output_folder = ensure_output_folder(self.output_folder)

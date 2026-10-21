@@ -192,3 +192,18 @@ def test_audience_readback_uses_visible_language_and_logical_unicode():
     arabic = audience_lines([item], "ar")
     assert arabic == [("ar", item["source_text"], "original")]
     assert len(audience_lines([item])) == 3
+
+
+def test_manual_bilingual_text_export_never_uses_display_glyphs_or_confidence(tmp_path):
+    from src.transcript_format import TranscriptFormat
+    app = object.__new__(TranscriberApp)
+    app.transcript_format_options = lambda: TranscriptFormat()
+    def forbidden_display_read():
+        raise AssertionError("Bilingual exports must use logical segment text")
+    app._editor_text = forbidden_display_read
+    item = turn()
+    path = tmp_path / "conversation.txt"
+    app._write_export(path, [item])
+    text = path.read_text("utf-8")
+    assert item["source_text"] in text and item["text"] in text
+    assert "90/100" not in text
