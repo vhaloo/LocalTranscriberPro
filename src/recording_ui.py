@@ -194,7 +194,9 @@ class RecordingMixin:
         if not scheduler.due(now, seconds, self.recorder.audio_queue.qsize()):
             return
         try:
-            result = self.engine.transcribe_audio(audio, replace(options, target_language=None, conversation=False,
+            # Provisional text uses a cheap greedy pass. Final turns retain
+            # the user's accuracy/beam settings and are always decoded again.
+            result = self.engine.transcribe_audio(audio, replace(options, beam_size=1, target_language=None, conversation=False,
                 third_language=None, overlap_separation=False, word_timestamps=False, original_callback=None,
                 activity_callback=None, recover_model_errors=False))
             # A late provisional result never replaces an already-finalized turn.

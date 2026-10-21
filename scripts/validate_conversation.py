@@ -45,6 +45,17 @@ class Harness(RecordingMixin):
         self.private_mode = True
         self.previews, self.pairs, self.results = [], [], []
         self.error, self.finished = None, False
+        self.decode_trace = []
+        transcribe = self.engine.transcribe_audio
+        def trace(audio, options):
+            started = time.monotonic()
+            result = transcribe(audio, options)
+            self.decode_trace.append({"provisional": options.target_language is None,
+                "input_seconds": len(audio) / 16000, "seconds": round(time.monotonic() - started, 3),
+                "result_characters": len(result.get("text", "")), "pending": self.recorder.audio_queue.qsize(),
+                "available_seconds_at_return": self.recorder.available_seconds()})
+            return result
+        self.engine.transcribe_audio = trace
         self.translation_controls = SimpleNamespace(update_candidates=lambda _: None,
             update_pair=lambda pair: self.pairs.append(pair))
         self.options = TranscriptionOptions(target_language="fr", conversation=True, third_language="en",
@@ -135,7 +146,7 @@ class Harness(RecordingMixin):
             "languages": sorted({item["source_language"] for item in self.results}),
             "destinations": sorted({item["target_language"] for item in self.results}),
             "third_language": "en", "microphone_captured": False, "network_blocked": True,
-            "audio_saved": False, "translation_device": self.engine.translator.device}
+            "audio_saved": False, "translation_device": self.engine.translator.device, "decode_trace": self.decode_trace}
 
 
 if __name__ == "__main__":
@@ -148,18 +159,23 @@ if __name__ == "__main__":
     connect = socket.socket.connect
     socket.socket.connect = lambda *_: (_ for _ in ()).throw(RuntimeError("Network prohibited during validation"))
     started = time.monotonic()
+    harness = None
     try:
         voice, rate = LocalSpeechOutput().synthesize(
-            "Bonjour. Nous allons chercher un logement ensemble. Votre rendez-vous est demain à neuf heures.",
+            "Nous allons chercher ensemble un logement disponible et vérifier les documents nécessaires pour votre rendez-vous de demain matin à neuf heures.",
             "fr", allow_download=False)
         french = resample_poly(voice, 16000, rate).astype("float32")
         arabic = np.concatenate([audio for _, audio in iter_audio_chunks(str(args.arabic))])
         silence = np.zeros(16000, dtype="float32")
         audio = np.concatenate([french, silence, arabic, silence, french, silence])
-        result = Harness(audio, args.model, args.device).run()
+        harness = Harness(audio, args.model, args.device)
+        result = harness.run()
         result["local_voice_synthesis"] = True
     except Exception as error:
         result = {"success": False, "error": f"{type(error).__name__}: {error}"}
+        if harness is not None:
+            result.update(decode_trace=harness.decode_trace, previews=harness.previews,
+                          final_turns=len(harness.results), pairs=harness.pairs)
     finally:
         socket.socket.connect = connect
     result["elapsed_seconds"] = round(time.monotonic() - started, 2)

@@ -85,6 +85,32 @@ def test_provisional_scheduler_yields_to_final_audio_and_adapts_to_inference_cos
     assert scheduler.duration == 0
 
 
+def test_provisional_decode_is_lightweight_without_changing_final_accuracy_options():
+    import queue
+
+    import numpy as np
+
+    from src.recording_ui import RecordingMixin
+    from src.transcriber import TranscriptionOptions
+
+    calls, shown = [], []
+    def decode(_audio, options):
+        calls.append(options)
+        return {"text": "Bonjour", "language": "fr"}
+    recorder = SimpleNamespace(preview_audio=lambda: np.zeros(32000, dtype="float32"),
+                               audio_queue=queue.Queue(), available_seconds=lambda: 2)
+    app = SimpleNamespace(recorder=recorder, engine=SimpleNamespace(transcribe_audio=decode),
+        _safe_ui=lambda callback, *args: callback(*args), _show_live_preview=lambda *args: shown.append(args))
+    final = TranscriptionOptions(beam_size=8, target_language="fr", conversation=True)
+    RecordingMixin._try_provisional(app, final, PreviewScheduler())
+    assert shown == [("Bonjour", "fr")]
+    assert calls[0].beam_size == 1 and not calls[0].word_timestamps and calls[0].target_language is None
+    assert final.beam_size == 8 and final.conversation and final.target_language == "fr"
+    recorder.audio_queue.put(np.zeros(100))
+    RecordingMixin._try_provisional(app, final, PreviewScheduler())
+    assert len(calls) == 1
+
+
 def test_switching_language_pair_does_not_rewrite_previous_routed_turns():
     translator = TranslationEngine()
     translator.translate = lambda text, code, cancel=None: code + ": " + text
