@@ -45,6 +45,7 @@ if __name__ == "__main__":
     parser.add_argument("--asr-only", action="store_true")
     parser.add_argument("--folder", type=Path, default=ROOT / "artifacts/dialect-tests")
     parser.add_argument("--report-folder", type=Path)
+    parser.add_argument("--resume", action="store_true", help="Continue a partial report for the same model and manifest")
     args = parser.parse_args()
     folder = args.folder
     report_folder = args.report_folder or folder
@@ -55,13 +56,20 @@ if __name__ == "__main__":
                                    word_timestamps=False)
     original_connect = socket.socket.connect
     socket.socket.connect = lambda *_: (_ for _ in ()).throw(RuntimeError("Network prohibited during model loading and inference"))
-    report = []
+    report_path = report_folder / ("results-" + args.model + ".json")
+    report = json.loads(report_path.read_text("utf-8")) if args.resume and report_path.is_file() else []
+    if len(report) > len(manifest) or any(
+        row.get("config") != clip["config"] or row.get("row") != clip["row"]
+        or ("sha256" in row and row["sha256"] != clip["sha256"])
+        for row, clip in zip(report, manifest, strict=False)
+    ):
+        raise ValueError("The partial report does not match this input manifest")
     try:
         status = engine.load_model(args.model, "auto", options=options)
         if not args.model.startswith("auto-") and status.model_id != args.model:
             raise RuntimeError(f"Benchmark aborted: requested {args.model}, loaded fallback {status.model_id}")
         print("Models loaded:", status, flush=True)
-        for clip in manifest:
+        for clip in manifest[len(report):]:
             expected = "ht" if clip["dataset"].endswith("cmu_haitian") else "ar" if clip["dataset"].endswith("Casablanca") else {
                 "cmn_hans_cn": "zh", "yue_hant_hk": "yue"}.get(clip["config"], clip["config"].split("_")[0])
             if not get_model(status.model_id).supports(expected, "transcribe"):
@@ -82,7 +90,9 @@ if __name__ == "__main__":
                 indices=[{key: segment.get(key) for key in ("recognition_index", "translation_index", "language_probability")}
                          for segment in result["segments"]])
             report.append(value)
-            (report_folder / ("results-" + args.model + ".json")).write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+            temporary = report_path.with_suffix(".json.tmp")
+            temporary.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+            temporary.replace(report_path)
             print(clip["config"], clip["row"], result.get("language"),
                   round(value["character_edits"] / max(1, value["reference_characters"]), 3), round(elapsed, 2), flush=True)
     finally:

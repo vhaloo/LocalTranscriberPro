@@ -156,7 +156,7 @@ Admission checks total and available RAM, disk space, usable backends and free V
 
 Speech, transcript, translation, voice synthesis and speaker analysis run locally. Models, requested videos and enabled update checks use Internet; no audio/text is sent to an inference service. Prepared models can be required offline. Settings/history/recovery remain outside the application runtime and survive upgrades. Exports and optional saved audio are ordinary local files under your chosen output folder (default `Documents/Transcriptions`).
 
-No application analytics or telemetry is enabled. TLS verification stays enabled. Releases have SHA-256 manifests; Windows installers currently have no Authenticode signature. [Privacy details](docs/PRIVACY.md).
+No application analytics or telemetry is enabled. TLS verification stays enabled. Releases have SHA-256 and Ed25519-signed manifests; Windows installers currently have no Authenticode signature. Confidential mode disables new automatic saving for that session, with optional password-encrypted transcript files. [Privacy details and limits](docs/PRIVACY.md).
 
 ## Developers and releases
 
@@ -179,7 +179,7 @@ The current application starts from `main.py`; native builds use `packaging/Loca
 <a id="francais"></a>
 ## Français
 
-**Transcrire, traduire et relire à voix haute sur votre ordinateur.** La 3.3.0 conserve la traduction universelle et toutes les fonctions existantes ; elle améliore les imports vidéo, le suivi du stockage et les aides au survol. [Installer Windows 3.3.0](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.0/LocalTranscriberPro-3.3.0-Windows-x64-Setup.exe).
+**Transcrire, traduire et relire à voix haute sur votre ordinateur.** La 3.3.0 conserve toutes les fonctions et ajoute le texte provisoire en direct, la révision bilingue, un écran interlocuteur indépendant, les réponses écrites et lues, la préparation hors ligne et les sessions chiffrées. [Installer Windows 3.3.0](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.0/LocalTranscriberPro-3.3.0-Windows-x64-Setup.exe).
 
 **Paquets expérimentaux 3.3.0 :** [Mac Apple Silicon](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.0/LocalTranscriberPro-3.3.0-macOS-arm64-experimental.dmg), [Linux x86-64 AppImage](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.0/LocalTranscriberPro-3.3.0-Linux-x86_64-experimental.AppImage) et [archive Linux](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.0/LocalTranscriberPro-3.3.0-Linux-x86_64-experimental.tar.gz). La reconnaissance CPU et les voix livrées passent les contrôles automatisés natifs ; installation réelle, microphone et accélération GPU restent à valider. macOS 14 et Ubuntu 24.04 servent de référence. Le Mac Intel n'est pas couvert, et le paquet Mac n'est pas notarisé par Apple. [Guide d'installation et limites](docs/EXPERIMENTAL_DESKTOP_3.3.md).
 
