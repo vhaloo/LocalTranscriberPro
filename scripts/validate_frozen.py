@@ -16,9 +16,10 @@ from platformdirs import user_cache_dir
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('executable', type=Path)
+    parser.add_argument('--folder', type=Path, default=Path('artifacts/packaged-smoke'))
     args = parser.parse_args()
     executable = args.executable.resolve()
-    folder = Path('artifacts/packaged-smoke').resolve()
+    folder = args.folder.resolve()
     folder.mkdir(parents=True, exist_ok=True)
     response = requests.get('https://raw.githubusercontent.com/openai/whisper/main/tests/jfk.flac', timeout=60)
     response.raise_for_status()

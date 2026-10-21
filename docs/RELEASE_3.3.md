@@ -1,6 +1,19 @@
 # Local Transcriber Pro 3.3.0
 
-Private conversation tools, with every previous function retained:
+La 3.3 conserve toutes les fonctions et améliore les conversations, la révision du texte et les mises à jour, avec des traitements locaux après préparation des modèles.
+
+- Aperçus provisoires du texte, suivi de l’audio restant et confirmation des langues pendant la capture.
+- Révision de l’original et de sa traduction, réécoute du passage, historique des corrections et retraduction ciblée.
+- Fenêtre interlocuteur indépendante, texte agrandissable, réponses écrites puis traduites et lues.
+- Préparation hors ligne, sessions en mémoire et sauvegardes chiffrées facultatives.
+- MADLAD 7B facultatif, contexte et glossaire ; sélection vocale tenant compte des ressources de toute la chaîne.
+- Manifestes de mise à jour signés Ed25519 et paquet Windows CPU plus léger : **0,432 Go**, contre **2,106 Go** pour le paquet CUDA + CPU.
+
+La mise à niveau Windows 3.2 → 3.3 est vérifiée sur la machine locale : paramètres, historique et fichiers conservés. Les 185 tests Windows et 12 essais de l’exécutable installé passent, dont un import YouTube public. Le code passe aussi sur macOS/Linux, et leurs archives ont été contrôlées dans les environnements natifs. Ces deux distributions restent **expérimentales**, sans validation physique des microphones/GPU. Les mesures linguistiques publiées restent des diagnostics d’erreurs, sans pourcentage de fiabilité du sens inventé.
+
+[Guide de conversation](https://github.com/vhaloo/LocalTranscriberPro/blob/v3.3.0/docs/TRANSLATION.md) · [Langues, stockage et captures](https://github.com/vhaloo/LocalTranscriberPro/blob/v3.3.0/README.md) · [Validation détaillée](https://github.com/vhaloo/LocalTranscriberPro/blob/v3.3.0/docs/VALIDATION_3.3.md)
+
+English — private conversation tools, with every previous function retained:
 
 - Provisional live text and captured-audio backlog, with final transcription priority.
 - Confirmable language candidates and language changes between turns.

@@ -40,12 +40,12 @@ No API key, subscription or cloud inference is required. Download speech/transla
 
 ## Install
 
-| Platform | Recommended package | Status |
-|---|---|---|
-| Windows 10/11 x64 | [3.3.0 installer](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.0/LocalTranscriberPro-3.3.0-Windows-x64-Setup.exe) | Self-contained, per-user installation; CUDA and CPU runtimes included |
-| Windows x64, CPU package | [Lighter CPU installer](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.0/LocalTranscriberPro-3.3.0-Windows-x64-CPU-Setup.exe) | Same functions on CPU; NVIDIA runtime omitted; updater preserves this package choice |
-| macOS, Apple Silicon (arm64) | [3.3.0 experimental DMG](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.0/LocalTranscriberPro-3.3.0-macOS-arm64-experimental.dmg) | Experimental; macOS 14 recommended, automated CPU/voice checks; no Intel package |
-| Linux x86-64 | [3.3.0 experimental AppImage](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.0/LocalTranscriberPro-3.3.0-Linux-x86_64-experimental.AppImage) · [Portable archive](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.0/LocalTranscriberPro-3.3.0-Linux-x86_64-experimental.tar.gz) | Experimental; built and checked on Ubuntu 24.04; other distributions unverified |
+| Platform | Recommended package | Compressed size, decimal GB | Status |
+|---|---|---:|---|
+| Windows 10/11 x64 | [3.3.0 installer](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.0/LocalTranscriberPro-3.3.0-Windows-x64-Setup.exe) | 2.106 | Self-contained, per-user installation; CUDA and CPU runtimes included |
+| Windows x64, CPU package | [Lighter CPU installer](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.0/LocalTranscriberPro-3.3.0-Windows-x64-CPU-Setup.exe) | 0.432 | Same functions on CPU; NVIDIA runtime omitted; updater preserves this package choice |
+| macOS, Apple Silicon (arm64) | [3.3.0 experimental DMG](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.0/LocalTranscriberPro-3.3.0-macOS-arm64-experimental.dmg) | 0.592 | Experimental; macOS 14 recommended, automated CPU/voice checks; no Intel package |
+| Linux x86-64 | [3.3.0 experimental AppImage](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.0/LocalTranscriberPro-3.3.0-Linux-x86_64-experimental.AppImage) · [Portable archive](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.0/LocalTranscriberPro-3.3.0-Linux-x86_64-experimental.tar.gz) | 0.771 / 0.766 | Experimental; built and checked on Ubuntu 24.04; other distributions unverified |
 
 **macOS/Linux are experimental distributions.** Native CPU recognition and bundled French/English voices pass automated checks, but physical installation, microphones and GPU acceleration have not been validated on these platforms. The Mac app has an ad-hoc signature and is not Apple-notarized. [Installation, first launch and known limits](docs/EXPERIMENTAL_DESKTOP_3.3.md). Windows retains its validated stable installer.
 
@@ -64,7 +64,7 @@ Windows checks the official GitHub release at startup and proposes a newer stabl
 | All current recognizers, translation, voices and optional tools | ~53 GB | **95 GB prudent budget** including preparation and possible Windows Hub duplicate caches |
 | Saved microphone audio | ~115 MB per recorded hour | Adds to the chosen output folder, plus text exports |
 
-**Windows full-runtime planning reference:** about 5.4 GB before model caches and 2.1 GB for its compressed installer. Exact verified 3.3 package sizes are shown in the release. A separate CPU-only installer is available for machines without NVIDIA acceleration. The table uses conservative planning budgets.
+**Windows full-runtime reference measured after installation:** 5.34 GB before model caches and 2.106 GB for its compressed installer. Exact verified package sizes and signed hashes are shown in the release. The separate CPU installer is 0.432 GB. The installation table uses conservative full-Windows planning budgets; CPU-only and other-platform footprints are smaller.
 
 These are conservative Windows package/catalogue estimates; Mac/Linux packages are generally smaller. **There is no finite maximum**: recordings, exports, extra model revisions and caches can continue growing. The 95 GB figure is a planning budget, not a hard ceiling. Preparing every model is optional. A build environment needs extra space beyond these user-installation budgets.
 
