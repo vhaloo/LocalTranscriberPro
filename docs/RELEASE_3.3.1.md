@@ -4,7 +4,7 @@
 
 - Original, traduction et troisième langue suivent leur propre langue, même si une autre voix a été sélectionnée manuellement.
 - Les voix locales préparées ont priorité ; les voix compatibles du système et la demande de téléchargement au besoin sont conservées. La couverture des voix est plus limitée que celle des langues reconnues/traduites.
-- Un nouveau clic remplace la lecture en cours ; **Arrêter** annule la lecture et la phrase en attente dans les deux fenêtres.
+- Un nouveau clic remplace la lecture en cours ; **■ Voix** annule la lecture et la phrase en attente dans les deux fenêtres.
 - Les sélections, doubles-clics, défilements et indices de confiance ne lancent pas la voix. Décochez la case pour modifier un transcript ordinaire.
 - Le micro se suspend pendant la lecture et reprend uniquement si l’application l’avait suspendu. Une pause de l’utilisateur est conservée.
 - Correction d’un ancien problème de conservation des premiers mots après remplacement d’une ligne entière ; association texte/langue conservée dans les paragraphes et les nouveaux imports.

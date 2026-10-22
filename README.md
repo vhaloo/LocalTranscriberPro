@@ -16,7 +16,7 @@ No API key, subscription or cloud inference is required. Download speech/transla
 
 **Click a line to speak — Lire une ligne au clic.** Enable the checkbox below the transcript controls or in the audience window. Click an original, translation or third-language line to hear that utterance in its own language. The checkbox is shared across both windows, on by default for Universal live translation, and remembered separately for that mode and all other tasks. Prepared local voices take priority; compatible system voices are a fallback. Missing voices prompt for an optional download. A manually selected foreign-language voice never overrides a clicked line's language.
 
-**En français :** cochez **Lire une ligne au clic** dans le transcript ou l’écran interlocuteur. Cliquez sur la phrase voulue : original, traduction ou troisième langue. Le choix est partagé entre les deux fenêtres et conservé au redémarrage, séparément pour le mode live (activé par défaut) et les autres modes. Une nouvelle phrase remplace la lecture en cours ; **Arrêter** l’interrompt. La capture se suspend pendant la lecture puis reprend si l’application l’avait suspendue. Décochez pour modifier un transcript ordinaire ; sélection, double-clic et défilement restent disponibles.
+**En français :** cochez **Lire une ligne au clic** dans le transcript ou l’écran interlocuteur. Cliquez sur la phrase voulue : original, traduction ou troisième langue. Le choix est partagé entre les deux fenêtres et conservé au redémarrage, séparément pour le mode live (activé par défaut) et les autres modes. Une nouvelle phrase remplace la lecture en cours ; **■ Voix** arrête la lecture. La capture se suspend pendant la lecture puis reprend si l’application l’avait suspendue. Décochez pour modifier un transcript ordinaire ; sélection, double-clic et défilement restent disponibles.
 
 Speech coverage depends on the available voice catalogue or installed compatible system voices; it is narrower than recognition/translation coverage. Quality varies by voice and language. Old imports without a language need a language correction or an explicit spoken-language choice. [Reading, voice choices and limits](docs/TRANSLATION.md#lecture-au-clic--click-to-speak).
 
@@ -89,7 +89,7 @@ These are conservative Windows package/catalogue estimates; Mac/Linux packages a
 
 The history folder contains `history.sqlite3` and `unsaved_session.json`. Cache subfolders are `models`, `omnilingual`, `translation`, `voices`, `separation`, `speechbrain`, `online-audio`, `video-engine` and `updates`. Bundled French/English voices live in the application; on-demand voices live in the cache. Temporary online audio is removed after import/transcription or cancellation. Existing exports, models, settings and history survive application upgrades. Use the actual paths in **Storage and folders**, including when XDG variables or output locations were customized.
 
-![Storage budgets and selectable local folders in version 3.3.1](docs/images/local-transcriber-pro-3.3.0-storage.png)
+![Storage budgets and selectable local folders, unchanged since 3.3.0](docs/images/local-transcriber-pro-3.3.0-storage.png)
 
 ## Online video: import, repair and fallback
 
@@ -103,7 +103,7 @@ The release bundles yt-dlp `2026.10.10.233141`, its EJS solver and a JavaScript 
 
 **En français :** collez le lien dans **Vidéo en ligne**. L’audio est téléchargé, vérifié puis transcrit localement, avec annulation effective et nettoyage des fichiers de l’essai. **Options vidéo et diagnostic** permet d’actualiser le moteur officiel, de régler la limite et de choisir un export de connexion facultatif. Le moteur et les cookies sont distincts des modèles de reconnaissance. Les messages expliquent les refus du site et proposent **Utiliser un fichier local…**. Les aides apparaissent au survol ou à la mise au point clavier des principales commandes, y compris langues, lecture, confiance, captures et mises à jour. Internet sert à récupérer la vidéo ; la reconnaissance et la traduction restent locales.
 
-![Video options, explicit authentication and verified engine update in 3.3.1](docs/images/local-transcriber-pro-3.3.0-video.png)
+![Video options and verified engine update, unchanged since 3.3.0](docs/images/local-transcriber-pro-3.3.0-video.png)
 
 ## Universal live translation
 

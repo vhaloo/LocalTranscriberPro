@@ -8,6 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from src import __version__  # noqa: E402
 from src.gui import TranscriberApp  # noqa: E402
 from src.hardware import detect_hardware  # noqa: E402
 from src.history import HistoryStore  # noqa: E402
@@ -21,7 +22,7 @@ class TestApp(TranscriberApp):
         pass
 
 
-folder = ROOT / "artifacts/gui-qa-3.3.0/workbench"
+folder = ROOT / f"artifacts/gui-qa-{__version__}/workbench"
 settings = SettingsStore(folder / "settings.json")
 settings.update({"ui_language": "fr", "preset": "universal", "check_updates": False,
                  "translation_target": "fr", "conversation_partner": "auto", "translation_third": "none",

@@ -16,7 +16,11 @@
 #define AppExeName "LocalTranscriberPro.exe"
 
 [Setup]
+#ifdef SyntaxOnly
+AppId=LocalTranscriberPro-Installer-Preflight-Test
+#else
 AppId={{B73984E1-D932-4C45-A042-CE70D7C29D4A}
+#endif
 AppName={#AppName}
 AppVersion={#AppVersion}
 AppPublisher={#AppPublisher}
@@ -50,7 +54,11 @@ DisableProgramGroupPage=yes
 LicenseFile=..\..\LICENSE
 ChangesEnvironment=no
 SetupLogging=yes
+#ifdef SyntaxOnly
+AppMutex=LocalTranscriberPro-Installer-Preflight-Test
+#else
 AppMutex=LocalTranscriberPro-Desktop-v2
+#endif
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -107,6 +115,15 @@ var
   PreflightPage: TOutputMsgMemoWizardPage;
   DetectedRamGB: Extended;
   FreeDiskGB: Extended;
+
+function FormatGB(Value: Extended): String;
+var
+  Tenths: Int64;
+begin
+  { Pascal Script float varargs are not portable across Inno versions. }
+  Tenths := Round(Value * 10);
+  Result := IntToStr(Tenths div 10) + '.' + IntToStr(Tenths mod 10);
+end;
 
 function IsAutomaticUpdate(): Boolean;
 begin
@@ -177,7 +194,7 @@ begin
   Result := True;
   if (DetectedRamGB > 0) and (DetectedRamGB < 3.5) then
   begin
-    MsgBox(FmtMessage(ExpandConstant('{cm:RamTooLow}'), [Format('%.1f', [DetectedRamGB])]), mbError, MB_OK);
+    MsgBox(FmtMessage(ExpandConstant('{cm:RamTooLow}'), [FormatGB(DetectedRamGB)]), mbError, MB_OK);
     Result := False;
   end;
 end;
@@ -186,7 +203,7 @@ procedure InitializeWizard();
 var
   Summary: String;
 begin
-  Summary := FmtMessage(ExpandConstant('{cm:PreflightSummary}'), [Format('%.1f', [DetectedRamGB]), Format('%.1f', [FreeDiskGB])]);
+  Summary := FmtMessage(ExpandConstant('{cm:PreflightSummary}'), [FormatGB(DetectedRamGB), FormatGB(FreeDiskGB)]);
   Summary := FmtMessage(ExpandConstant('{cm:StorageBudget}'), [ExpandConstant('{localappdata}\Programs\Local Transcriber Pro'), ExpandConstant('{localappdata}')]) + #13#10#13#10 + Summary;
   PreflightPage := CreateOutputMsgMemoPage(
     wpSelectDir,
@@ -195,6 +212,11 @@ begin
     ExpandConstant('{cm:PreflightSubCaption}'),
     Summary
   );
+  if Pos('/PREFLIGHTONLY', UpperCase(GetCmdTail)) > 0 then
+  begin
+    Log('LTP_PREFLIGHT_OK: wizard and hardware summary initialized; no files copied.');
+    Abort;
+  end;
 end;
 
 function PrepareToInstall(var NeedsRestart: Boolean): String;
@@ -204,5 +226,5 @@ begin
   Result := '';
   if GetSpaceOnDisk64(ExtractFileDrive(WizardDirValue) + '\', FreeBytes, TotalBytes) then
     if FreeBytes < 12000000000 then
-      Result := FmtMessage(ExpandConstant('{cm:SpaceTooLow}'), [Format('%.1f', [FreeBytes / 1000000000])]);
+      Result := FmtMessage(ExpandConstant('{cm:SpaceTooLow}'), [FormatGB(FreeBytes / 1000000000)]);
 end;
