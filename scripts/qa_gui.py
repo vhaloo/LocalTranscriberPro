@@ -24,6 +24,7 @@ if __name__ == "__main__":
     parser.add_argument("--no-preload", action="store_true")
     parser.add_argument("--self-check", action="store_true")
     parser.add_argument("--exit-after-check", action="store_true")
+    parser.add_argument("--trace-clicks", action="store_true", help="Write isolated native click diagnostics")
     parser.add_argument("--panel", choices=("review", "audience", "offline", "privacy", "storage", "video", "reading"))
     args = parser.parse_args()
     setup_logging()
@@ -42,6 +43,18 @@ if __name__ == "__main__":
 
     app = PreviewApp(hardware=detect_hardware(), settings=settings,
                          history=HistoryStore(folder / "history.sqlite3"))
+    if args.trace_clicks:
+        def trace(event):
+            widget = app.textbox._textbox
+            index = widget.index(f"@{event.x},{event.y}")
+            proof = {"type": str(event.type), "x": event.x, "y": event.y, "state": event.state,
+                "index": index, "bounds": widget.dlineinfo(index), "selected": list(map(str, widget.tag_ranges("sel"))),
+                "enabled": app.speech_click_var.get(), "pending": app.textbox._click_speech.pending,
+                "has_line": int(index.split(".")[0]) in app.textbox._speech_lines}
+            with (folder / "native-clicks.jsonl").open("a", encoding="utf-8") as stream:
+                stream.write(json.dumps(proof) + "\n")
+        for event in ("<ButtonPress-1>", "<ButtonRelease-1>", "<B1-Motion>"):
+            app.textbox._textbox.bind(event, trace, add="+")
     if args.demo:
         app.title("Local Transcriber Pro " + __version__ + " • Démonstration")
         app.transcript_data = [
@@ -58,6 +71,7 @@ if __name__ == "__main__":
         app.translation_controls.update_pair(["ar", "fr"])
         app.render_transcript()
         app._set_status("Démonstration · exemples illustratifs · aucune conversation réelle affichée")
+        app.after(1700, lambda: app.textbox.yview_moveto(0))
     if args.self_check:
         def verify():
             proof = {"demo": args.demo, "initial_height": app.textbox.winfo_height()}

@@ -9,6 +9,7 @@ from tkinter import filedialog, messagebox, simpledialog
 
 import customtkinter as ctk
 
+from src.click_speech import insert_speech_line, selected_lines
 from src.exports import write_bundle
 from src.private_session import decrypt_segments, save_private
 from src.review import audience_lines, retranslate_segment, review_values
@@ -41,7 +42,7 @@ class WorkbenchMixin:
             self.current_session_base = None
             self.tool_threads = []
         tools = ctk.CTkFrame(master, fg_color="transparent")
-        tools.grid(row=4, column=0, columnspan=2, sticky="ew", pady=(5, 2))
+        tools.grid(row=5, column=0, columnspan=2, sticky="ew", pady=(5, 2))
         for key, command in (("review_turns", self.review_turns), ("audience", self.open_audience),
                              ("typed_reply", self.compose_reply), ("offline_prepare", self.offline_prepare),
                              ("privacy_controls", self.privacy_controls)):
@@ -52,7 +53,7 @@ class WorkbenchMixin:
         self.live_preview_label = ctk.CTkLabel(master, text="", font=("Segoe UI", 17),
                                               text_color="#F3C969", anchor="w", justify="left",
                                               wraplength=1060)
-        self.live_preview_label.grid(row=5, column=0, columnspan=2, sticky="ew", pady=(3, 1))
+        self.live_preview_label.grid(row=6, column=0, columnspan=2, sticky="ew", pady=(3, 1))
 
     def _show_live_preview(self, text, language=""):
         if hasattr(self, "live_preview_label"):
@@ -64,19 +65,34 @@ class WorkbenchMixin:
             return
         box = window.box
         selected = window.languages.get(window.picker.get(), "all")
+        languages = self._audience_languages()
+        if languages != window.languages:
+            window.languages = languages
+            window.picker.configure(values=list(languages))
+            window.picker.set(next((label for label, code in languages.items() if code == selected), next(iter(languages))))
+            selected = window.languages[window.picker.get()]
         box.configure(state="normal", font=("Segoe UI", window.font_size))
         box.delete("1.0", "end")
         for tag, color in (("original", "#F5F7FB"), ("translated", "#5EE4B7")):
             box._textbox.tag_configure(tag, foreground=color, spacing3=15)
             box._textbox.tag_configure(tag + "_rtl", foreground=color, justify="right", spacing3=15)
-        window.speech_lines = {}
+        window.speech_lines = box._speech_lines = {}
         for code, text, tag in audience_lines(self.transcript_data, selected):
-            row = int(box._textbox.index("end-1c").split(".")[0])
-            window.speech_lines[row] = (text, code or self.t.language)
             shaped, rtl = display_line(text)
-            box.insert("end", shaped + "\n\n", tag + ("_rtl" if rtl else ""))
+            insert_speech_line(box, shaped, text, code or self._default_speech_language(), tag + ("_rtl" if rtl else ""))
+            box.insert("end", "\n")
         box.configure(state="disabled")
+        self._click_speech_state(box)
         box.see("end")
+
+    def _audience_languages(self):
+        codes = {self.translation_target, self.conversation_partner, self.translation_third}
+        codes.update(item.get(field) for item in self.transcript_data
+                     for field in ("language", "source_language", "target_language", "third_language"))
+        languages = {self.t("audience_both"): "all"}
+        languages.update({language_label(code, self.t.language): code for code in
+                          sorted(code for code in codes if code and code not in {"auto", "none", "und"})})
+        return languages
 
     def open_audience(self):
         if self.audience_window is not None and self.audience_window.winfo_exists():
@@ -90,10 +106,7 @@ class WorkbenchMixin:
         ctk.CTkLabel(window, text=self.t("audience_help"), wraplength=950).pack(padx=20, pady=10)
         controls = ctk.CTkFrame(window, fg_color="transparent")
         controls.pack(fill="x", padx=20)
-        codes = {self.translation_target, self.conversation_partner, self.translation_third}
-        codes.update(item.get(field) for item in self.transcript_data for field in ("source_language", "target_language", "third_language"))
-        window.languages = {self.t("audience_both"): "all"}
-        window.languages.update({language_label(code, self.t.language): code for code in sorted(code for code in codes if code and code not in {"auto", "none", "und"})})
+        window.languages = self._audience_languages()
         window.picker = ctk.CTkOptionMenu(controls, values=list(window.languages), command=lambda _: self._update_audience())
         window.picker.pack(side="left", padx=5)
         def resize(delta):
@@ -107,13 +120,20 @@ class WorkbenchMixin:
                 first = int(str(selection[0]).split(".")[0])
                 end_row, end_column = str(selection[1]).split(".")
                 last = int(end_row) - (1 if end_column == "0" else 0)
-                items = [item for row, item in window.speech_lines.items() if first <= row <= last]
+                items = selected_lines(window.speech_lines, first, last)
             else:
                 items = list(window.speech_lines.values())[-1:]
             self.speak_items(items)
         ctk.CTkButton(controls, text=self.t("speech_read_selection"), command=read_visible).pack(side="right", padx=5)
+        click_row = ctk.CTkFrame(window, fg_color="transparent")
+        click_row.pack(fill="x", padx=25, pady=(8, 0))
+        self._click_speech_checkbox(click_row).pack(side="left")
+        ctk.CTkButton(click_row, text=self.t("speech_stop"), command=self.stop_speaking,
+                      width=90, fg_color=PANEL).pack(side="right", padx=5)
+        ToolTip(click_row, self.t("speech_click_help"))
         window.box = ctk.CTkTextbox(window, wrap="word", fg_color="#111C32")
         window.box.pack(fill="both", expand=True, padx=20, pady=20)
+        self._bind_click_speech(window.box)
         self._update_audience()
 
     def review_turns(self):

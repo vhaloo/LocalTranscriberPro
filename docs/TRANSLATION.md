@@ -1,4 +1,16 @@
-# Traduction et lecture locales — 3.3.0
+# Traduction et lecture locales — 3.3.1
+
+## Lecture au clic / Click to speak
+
+Cochez **Lire une ligne au clic**, sous les commandes du transcript ou dans **Écran interlocuteur**. Cliquez sur le texte original, la traduction ou la troisième langue : toute la phrase est lue dans la langue de cette ligne. Cela fonctionne aussi dans les modes fichiers, vidéos, conférence, dictée et dans la vue de lecture agrandie. Les lignes longues renvoyées à la ligne à l’écran restent une seule phrase ; les indices de confiance et les lignes vides ne sont pas lus.
+
+Le choix est partagé entre les deux fenêtres. Il est **activé par défaut en traduction universelle live**, et mémorisé séparément pour le mode live et les autres modes. Si vous le décochez en live, ce choix reste conservé. Dans un transcript ordinaire, décochez pour modifier le texte ; recochez pour entendre sa version corrigée. Un double-clic, une sélection par glissement ou un défilement ne lance pas la lecture. Le clic simple attend environ une demi-seconde pour se distinguer d’un double-clic.
+
+Chaque clic suit la langue de la ligne, même si vous avez choisi manuellement une autre voix dans la banque. Les voix locales déjà préparées ont priorité ; une voix système compatible peut servir de secours. Une voix locale manquante est proposée au téléchargement avec votre accord et ses informations de licence. Le catalogue vocal couvre moins de langues que la reconnaissance et la traduction ; la qualité et les variantes de prononciation dépendent de chaque voix. Un ancien import sans langue doit recevoir une langue dans **Réviser les phrases**, ou une langue parlée explicite dans les réglages, avant une lecture automatique fiable.
+
+Cliquez sur une autre phrase pour remplacer la lecture en cours. **Arrêter** annule aussi la phrase en attente ; ce bouton existe dans les deux fenêtres. Pendant la lecture, la capture du micro est suspendue pour éviter de retranscrire les haut-parleurs. Elle reprend uniquement si l’application l’avait elle-même suspendue : une pause demandée par l’utilisateur est conservée. Vous pouvez préparer les langues et les voix avant un entretien pour rester entièrement hors ligne.
+
+**English:** enable **Click a line to speak** in either window. Originals, translations and third-language lines use their own language, independent of a manually selected foreign-language voice. The shared checkbox is enabled by default for Universal live translation, with independently remembered choices for live and other tasks. Clicks replace pending playback; Stop cancels it. Drag selection, double-click selection and scrolling remain silent. Uncheck to edit ordinary transcripts. Prepared local voices are preferred; missing voices retain explicit download prompts and compatible system fallback. Voice coverage is narrower than ASR/translation coverage. Capture pauses during speech and resumes only when the application owns that pause.
 
 ## Nouveautés 3.3 : converser, vérifier, partager l’écran
 

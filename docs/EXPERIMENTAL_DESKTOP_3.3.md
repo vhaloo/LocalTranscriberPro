@@ -1,19 +1,19 @@
-# macOS / Linux 3.3.0 — Experimental packages / Paquets expérimentaux
+# macOS / Linux 3.3.1 — Experimental packages / Paquets expérimentaux
 
-These packages are published for early testing. **Windows 3.3.0 retains its validated stable installer.** Native CPU transcription and bundled French/English voices pass automated checks on macOS 14 arm64 and Ubuntu 24.04 x86-64. Physical installation, microphones, GPU acceleration and other operating-system versions remain unverified. English instructions follow the French guide below.
+These packages are published for early testing. **Windows 3.3.1 retains its validated stable installer.** Native CPU transcription and bundled French/English voices pass automated checks on macOS 14 arm64 and Ubuntu 24.04 x86-64. Physical installation, microphones, GPU acceleration and other operating-system versions remain unverified. English instructions follow the French guide below.
 
 ## Télécharger et vérifier
 
 | Plateforme | Fichier expérimental |
 |---|---|
-| Mac Apple Silicon, arm64 | [DMG 3.3.0](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.0/LocalTranscriberPro-3.3.0-macOS-arm64-experimental.dmg) |
-| Linux x86-64 | [AppImage 3.3.0](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.0/LocalTranscriberPro-3.3.0-Linux-x86_64-experimental.AppImage) · [Archive portable](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.0/LocalTranscriberPro-3.3.0-Linux-x86_64-experimental.tar.gz) |
+| Mac Apple Silicon, arm64 | [DMG 3.3.1](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.1/LocalTranscriberPro-3.3.1-macOS-arm64-experimental.dmg) |
+| Linux x86-64 | [AppImage 3.3.1](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.1/LocalTranscriberPro-3.3.1-Linux-x86_64-experimental.AppImage) · [Archive portable](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.1/LocalTranscriberPro-3.3.1-Linux-x86_64-experimental.tar.gz) |
 
-Le [manifeste SHA-256](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.0/SHA256SUMS.txt) contient les empreintes de ces fichiers et du paquet Windows. Comparez l'empreinte du téléchargement avant installation :
+Le [manifeste SHA-256](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.1/SHA256SUMS.txt) contient les empreintes de ces fichiers et du paquet Windows. Comparez l'empreinte du téléchargement avant installation :
 
 ```sh
 # macOS
-shasum -a 256 LocalTranscriberPro-3.3.0-macOS-arm64-experimental.dmg
+shasum -a 256 LocalTranscriberPro-3.3.1-macOS-arm64-experimental.dmg
 
 # Linux, depuis le dossier des téléchargements et du manifeste
 sha256sum --ignore-missing --check SHA256SUMS.txt
@@ -39,14 +39,14 @@ Ubuntu 24.04 avec une session graphique sert de référence. D'autres distributi
 Rendez l'AppImage exécutable puis ouvrez-la :
 
 ```sh
-chmod u+x LocalTranscriberPro-3.3.0-Linux-x86_64-experimental.AppImage
-./LocalTranscriberPro-3.3.0-Linux-x86_64-experimental.AppImage
+chmod u+x LocalTranscriberPro-3.3.1-Linux-x86_64-experimental.AppImage
+./LocalTranscriberPro-3.3.1-Linux-x86_64-experimental.AppImage
 ```
 
 Si FUSE manque, vous pouvez utiliser la fonction d'extraction/lancement de l'AppImage :
 
 ```sh
-./LocalTranscriberPro-3.3.0-Linux-x86_64-experimental.AppImage --appimage-extract-and-run
+./LocalTranscriberPro-3.3.1-Linux-x86_64-experimental.AppImage --appimage-extract-and-run
 ```
 
 Cette méthode demande davantage d'espace temporaire. [Documentation officielle AppImage sur FUSE et l'extraction](https://docs.appimage.org/user-guide/troubleshooting/fuse.html).
@@ -54,10 +54,10 @@ Cette méthode demande davantage d'espace temporaire. [Documentation officielle 
 L'archive portable constitue une autre option et conserve les permissions Unix :
 
 ```sh
-mkdir -p "$HOME/Applications/LocalTranscriberPro-3.3.0-experimental"
-tar -xzf LocalTranscriberPro-3.3.0-Linux-x86_64-experimental.tar.gz \
-  -C "$HOME/Applications/LocalTranscriberPro-3.3.0-experimental"
-"$HOME/Applications/LocalTranscriberPro-3.3.0-experimental/LocalTranscriberPro/LocalTranscriberPro"
+mkdir -p "$HOME/Applications/LocalTranscriberPro-3.3.1-experimental"
+tar -xzf LocalTranscriberPro-3.3.1-Linux-x86_64-experimental.tar.gz \
+  -C "$HOME/Applications/LocalTranscriberPro-3.3.1-experimental"
+"$HOME/Applications/LocalTranscriberPro-3.3.1-experimental/LocalTranscriberPro/LocalTranscriberPro"
 ```
 
 La CI installe `libportaudio2` pour le runtime audio. Si une erreur PortAudio apparaît sur Ubuntu, installez ce paquet avec votre gestionnaire système, puis relancez. Le fonctionnement de tous les microphones, serveurs audio, environnements Wayland/X11 et réglages d'affichage n'est pas validé.

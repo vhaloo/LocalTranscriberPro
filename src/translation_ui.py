@@ -5,6 +5,7 @@ import unicodedata
 
 import customtkinter as ctk
 
+from src.click_speech import insert_speech_line, speech_language
 from src.confidence import confidence_caption
 from src.tooltip import ToolTip
 from src.translation_languages import language_choices, language_label
@@ -170,7 +171,10 @@ def render_conversation(textbox, segments, options, translator=None, show_confid
         widget.tag_configure(tag + "_rtl", foreground=color, justify="right", spacing1=3, spacing3=3)
     for item in segments:
         if "source_text" not in item:
-            textbox.insert("end", str(item.get("text", "")) + "\n\n", "original")
+            logical = str(item.get("text", ""))
+            visible, rtl = display_line(logical)
+            insert_speech_line(textbox, visible, logical, speech_language(item), "original_rtl" if rtl else "original")
+            textbox.insert("end", "\n")
             continue
         prefix = f"[{format_timestamp(float(item.get('start', 0)), '.')[:8]}] " if options.show_timestamps else ""
         if item.get("separated_source") and translator:
@@ -188,8 +192,9 @@ def render_conversation(textbox, segments, options, translator=None, show_confid
                 language = item.get({"original": "source_language", "translated": "target_language", "third": "third_language"}[tag])
                 logical = item.get({"original": "source_text", "translated": "text", "third": "third_text"}[tag], "")
                 if language and not (tag == "translated" and item.get("translation_pending")):
-                    row = int(widget.index("end-1c").split(".")[0])
-                    textbox._speech_lines[row] = (logical, language)
+                    visible, rtl = display_line(line)
+                    insert_speech_line(textbox, visible, logical, language, tag + ("_rtl" if rtl else ""))
+                    continue
             visible, rtl = display_line(line)
             textbox.insert("end", visible + "\n", tag + ("_rtl" if rtl else ""))
         if show_confidence and translator:

@@ -1,34 +1,18 @@
 {
-  "version": "3.3.0",
+  "version": "3.3.1",
   "images": [
     {
-      "file": "local-transcriber-pro-3.3.0-universal.png",
-      "sha256": "51f3d8051904c0b1231385e6f504d397fea6b67ce5bff2c72acfbd91e075867b"
+      "file": "local-transcriber-pro-3.3.1-universal.png",
+      "sha256": "5b19520e440711f3b1f5de3c4870fbf0af4443b27cc3a1eff512ae0afc88d5d2"
     },
     {
-      "file": "local-transcriber-pro-3.3.0-reading.png",
-      "sha256": "f5b5364def05e8116e2e8ef9848223c1607c8fcf8eeb3d352ec79e19b924d89d"
+      "file": "local-transcriber-pro-3.3.1-reading.png",
+      "sha256": "9065b1b79fabb9ca472f54cdfa3724bc1878d3b256a8cdaf477f44e71b23c632"
     },
     {
-      "file": "local-transcriber-pro-3.3.0-review.png",
-      "sha256": "2312d217b56088708740a3fa936dca50a6f5f74cbad4bc23a73f1a00e53f3ad9"
-    },
-    {
-      "file": "local-transcriber-pro-3.3.0-audience.png",
-      "sha256": "5b9e4b74dccae45f59e067915bc2a8647470955838748edd7d417243867baa15"
-    },
-    {
-      "file": "local-transcriber-pro-3.3.0-offline.png",
-      "sha256": "b7c63f5617e01fa9a20329cd401e401ff57834c626819f2e4745c3b581fecb71"
-    },
-    {
-      "file": "local-transcriber-pro-3.3.0-storage.png",
-      "sha256": "88335adba9863c3bb0c2584d60ff2d0323b06c6afcebbf31324a48fddb70e2da"
-    },
-    {
-      "file": "local-transcriber-pro-3.3.0-video.png",
-      "sha256": "818b2f08c3f5a9b75727149d73a08aa0da4ef5603e3115c7e94272fa694b5e78"
+      "file": "local-transcriber-pro-3.3.1-audience.png",
+      "sha256": "931ae78971579f7cf2ce8e35e30c8156f83014ad4a5a5230560e54f3978efb25"
     }
   ],
-  "demonstration": "Real Windows app with illustrative text; no private conversations"
+  "demonstration": "Real Windows application with illustrative Arabic/French/English text; no private conversation"
 }

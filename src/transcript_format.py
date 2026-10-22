@@ -66,6 +66,8 @@ def _blocks(segments: list[dict[str, Any]]) -> list[dict[str, Any]]:
         can_join = bool(
             previous
             and str(previous.get("speaker", "")) == speaker
+            and tuple(previous.get(key) for key in ("language", "source_language", "target_language"))
+                == tuple(segment.get(key) for key in ("language", "source_language", "target_language"))
             and start - float(previous.get("end", 0.0)) <= 2.5
             and end - float(previous.get("start", 0.0)) <= 45.0
             and len(str(previous.get("text", ""))) + len(text) < 700
@@ -74,8 +76,13 @@ def _blocks(segments: list[dict[str, Any]]) -> list[dict[str, Any]]:
             previous["text"] = f"{previous['text']} {text}"
             previous["end"] = end
         else:
-            blocks.append({"start": start, "end": end, "speaker": speaker, "text": text})
+            blocks.append({**segment, "start": start, "end": end, "speaker": speaker, "text": text})
     return blocks
+
+
+def plain_segments(segments, options):
+    """The same language-preserving paragraphs used by editor and TXT export."""
+    return _blocks(list(segments)) if options.mode == "blocks" else list(segments)
 
 
 def format_transcript(
@@ -86,10 +93,7 @@ def format_transcript(
     values = list(segments)
     if any("source_text" in item for item in values):
         return "\n\n".join(format_segment(item, selected) for item in values)
-    if selected.mode == "blocks":
-        values = _blocks(values)
-        separator = "\n\n"
-    else:
-        separator = "\n"
+    values = plain_segments(values, selected)
+    separator = "\n\n" if selected.mode == "blocks" else "\n"
     rendered = [format_segment(item, selected) for item in values]
     return separator.join(value for value in rendered if value)

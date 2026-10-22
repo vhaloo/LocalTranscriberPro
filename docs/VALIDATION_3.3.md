@@ -1,4 +1,14 @@
-# Validation 3.3.0 — 2026-10-21
+# Validation 3.3.1 — 2026-10-21
+
+## 3.3.1 line-reading update
+
+The patch adds language-bound single-click speech in every main transcript task and the independent audience display. Live reading defaults on, with independent persistent preferences for live and other tasks. Local speech engines, voice catalogue and recognition/translation models retain their 3.3 quality and coverage limits.
+
+Regression checks cover settings migration, independent defaults, exact logical Arabic/French/English routing despite a manually selected foreign voice, multiline selection, refusal of a missing-voice download, replacement/cancellation and microphone pause ownership. Real Tk checks exercise every task, both layouts, confidence on/off, audience language filters, multiline/RTL data, silent drag/double-click/scroll gestures, disabled reading and edited-text readback. Screenshots show isolated illustrative text. Native package and local upgrade evidence will be recorded below before publication.
+
+201 local regression tests pass, along with Ruff, compilation, dependency consistency and documentation/language inventory checks. Real Tk performs 23 silent dispatches across nine scenario groups with a 174-pixel normal transcript area at 1320×990. Native Windows mouse clicks also invoke local speech from both windows. These tests caught Windows Num Lock being represented as bit `0x8` (Alt uses a different mask on Windows); synthetic and native checks now include this case. Language filters update when a new language arrives without changing the active filter.
+
+## Retained 3.3.0 baseline evidence
 
 This release preserves all previous desktop functions and adds conversation review, audience display, typed replies, provisional live text, confidential sessions, offline preparation and signed manifests. The evidence below was collected on 21 October 2026 before stable publication.
 

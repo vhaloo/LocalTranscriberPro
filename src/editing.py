@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from difflib import SequenceMatcher
 from typing import Any
 
@@ -13,6 +14,21 @@ def apply_text_edits(segments: list[dict[str, Any]], rendered: str, edited: str)
         return [{"start": 0.0, "end": 0.0, "text": edited.strip(), "words": []}] if edited.strip() else []
     if not edited.strip():
         return []
+    # Align editable words, not generated timestamps/speaker labels. Replacing a
+    # whole displayed line must not discard the first words of its replacement.
+    prefixes, cursor = set(), 0
+    for item in segments:
+        original = str(item.get("text", "")).strip()
+        start = rendered.find(original, cursor) if original else -1
+        if start < 0:
+            continue
+        prefix = rendered[rendered.rfind("\n", 0, start) + 1:start]
+        if re.fullmatch(r"(?:\[[^\]\n]+\]\s*)+", prefix):
+            prefixes.add(prefix)
+        cursor = start + len(original)
+    if prefixes:
+        pattern = re.compile(r"(?m)^(?:" + "|".join(re.escape(prefix) for prefix in sorted(prefixes, key=len, reverse=True)) + ")")
+        rendered, edited = pattern.sub("", rendered), pattern.sub("", edited)
     matcher = SequenceMatcher(None, rendered, edited, autojunk=False)
     if matcher.ratio() < 0.45:
         # A complete rewrite has no trustworthy per-segment text anchors. Keep
