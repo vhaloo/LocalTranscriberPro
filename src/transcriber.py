@@ -506,6 +506,10 @@ class TranscriberEngine:
         result["backend"] = self.backend
         self._annotate_text_language(result, options)
         annotate_recognition(result)
+        if options.task == "translate":
+            for item in result.get("segments", []):
+                # Legacy Whisper translation emits English, not the detected source language.
+                item["target_language"] = "en"
         if options.target_language:
             if options.original_callback:
                 options.original_callback(result)

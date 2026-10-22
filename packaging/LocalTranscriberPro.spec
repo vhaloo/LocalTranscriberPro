@@ -155,7 +155,7 @@ if platform.system() == "Darwin":
         name="Local Transcriber Pro.app",
         icon=str(icon) if icon.exists() else None,
         bundle_identifier="com.vhaloo.localtranscriberpro",
-        version="3.3.0",
+    version="3.3.1",
         info_plist={
             "NSMicrophoneUsageDescription": "Local Transcriber Pro needs microphone access only when you start a recording.",
             "LSMinimumSystemVersion": "12.0",

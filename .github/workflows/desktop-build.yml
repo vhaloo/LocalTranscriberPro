@@ -80,6 +80,10 @@ jobs:
           python scripts/check_release_docs.py
           python scripts/generate_language_readme.py --check
           python -m pytest
+      - name: Exercise Windows installer initialization before the full build
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/check_windows_installer.ps1
       - name: Build application
         run: python -m PyInstaller --clean --noconfirm --distpath dist/${{ env.APP_VERSION }} packaging/LocalTranscriberPro.spec
       - name: Validate frozen application on Windows
@@ -104,6 +108,21 @@ jobs:
           } else {
             & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "/DAppVersion=$version" packaging\windows\installer.iss
           }
+      - name: Install and exercise the actual Windows package
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $suffix = if ($env:LTP_CPU_ONLY -eq '1') { '-CPU' } else { '' }
+          $installer = (Resolve-Path "artifacts/LocalTranscriberPro-$env:APP_VERSION-Windows-x64$suffix-Setup.exe").Path
+          $target = Join-Path $env:RUNNER_TEMP 'ltp-installed'
+          $log = Join-Path $env:RUNNER_TEMP 'ltp-installation.log'
+          $setup = Start-Process -FilePath $installer -ArgumentList @('/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/SP-',"/DIR=`"$target`"","/LOG=`"$log`"") -WindowStyle Hidden -Wait -PassThru
+          if ($setup.ExitCode -ne 0) { Get-Content -LiteralPath $log -Tail 80; throw "Installer failed: $($setup.ExitCode)" }
+          $installed = Join-Path $target 'LocalTranscriberPro.exe'
+          python scripts/verify_frozen_source.py $installed --output artifacts/windows-installed-source.json
+          if ($LASTEXITCODE -ne 0) { throw 'Installed source differs from the release.' }
+          python scripts/validate_frozen.py $installed --folder artifacts/windows-installed-smoke
+          if ($LASTEXITCODE -ne 0) { throw 'Installed runtime validation failed.' }
       - name: Package macOS DMG
         if: runner.os == 'macOS'
         run: |
@@ -153,6 +172,16 @@ jobs:
         with:
           name: ${{ matrix.os }}-native-diagnostics
           path: artifacts/packaged-smoke/report-*.json
+          if-no-files-found: ignore
+      - name: Keep actual Windows installation evidence
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installation-evidence
+          path: |
+            artifacts/installer-probe/preflight.log
+            artifacts/windows-installed-source.json
+            artifacts/windows-installed-smoke/report-*.json
           if-no-files-found: ignore
 
   release:

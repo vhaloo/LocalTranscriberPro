@@ -35,6 +35,7 @@ except ImportError:
 
 from src import __version__
 from src.audio import AudioRecorder
+from src.click_speech import insert_speech_line, speech_language
 from src.conversation_ui import ConversationMixin
 from src.diarizer import Diarizer
 from src.editing import apply_text_edits
@@ -65,7 +66,7 @@ from src.storage import MINIMUM_INSTALL_FREE, format_bytes
 from src.storage_ui import StorageDialog
 from src.tooltip import ToolTip
 from src.transcriber import EngineStatus, TranscriberEngine, TranscriptionOptions
-from src.transcript_format import TranscriptFormat, format_transcript
+from src.transcript_format import TranscriptFormat, format_segment, format_transcript, plain_segments
 from src.translation_ui import TranslationControls, render_conversation
 from src.update_ui import UpdatesMixin
 from src.utils import (
@@ -1799,6 +1800,7 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
             wrap="word",
         )
         self.textbox.grid(row=3, column=0, sticky="nsew", padx=20, pady=(10, 18))
+        self._bind_click_speech(self.textbox)
 
     def _device_display_map(self) -> dict[str, str]:
         values = {self.t("device_auto"): "auto", self.t("device_cpu"): "cpu"}
@@ -2084,6 +2086,7 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
         if self.busy or self.recorder.recording:
             return
         previous = self.preset
+        self._switch_click_speech_mode(preset)
         self.preset = preset
         if previous == "universal" and preset != "universal":
             self.translate_var.set(False)
@@ -2200,6 +2203,7 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
                 "translation_third": self.translation_third,
                 "conversation_font_size": self.conversation_font_size,
                 "show_confidence": bool(self.show_confidence_var.get()),
+                self._click_speech_setting(): bool(self.speech_click_var.get()),
                 "overlap_separation": bool(self.overlap_var.get()),
                 "speaker_detection": bool(self.speaker_var.get()),
                 "vad": bool(self.vad_var.get()),
@@ -2415,6 +2419,7 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
             elif path.suffix.lower() in AUDIO_VIDEO_EXTENSIONS:
                 accepted.append(str(path))
         if accepted:
+            self._switch_click_speech_mode("files")
             self.preset = "files"
             self._refresh_task_styles()
             self._update_source_context()
@@ -2649,20 +2654,25 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
             self.textbox.configure(state="disabled")
         elif text and self.show_confidence_var.get():
             from src.confidence import confidence_caption
-            from src.transcript_format import format_segment
             self.textbox._textbox.tag_configure("confidence", foreground=MUTED, font=("Segoe UI", 10))
             pieces = []
             for item in self.transcript_data:
                 line = format_segment(item, self.transcript_format_options())
                 pieces.append(line)
-                row = int(self.textbox._textbox.index("end-1c").split(".")[0])
-                self.textbox._speech_lines[row] = (item["text"], item.get("language") or self.t.language)
-                self.textbox.insert("end", line + "\n")
+                insert_speech_line(self.textbox, line, item["text"], speech_language(item, self._default_speech_language()))
                 self.textbox.insert("end", confidence_caption(item, self.t) + "\n", "confidence")
                 self.textbox.insert("end", "\n")
             text = "\n\n".join(pieces)
         elif text:
-            self.textbox.insert("end", text + "\n")
+            values = plain_segments(self.transcript_data, self.transcript_format_options())
+            for index, item in enumerate(values):
+                if index and self.transcript_layout == "blocks":
+                    self.textbox.insert("end", "\n")
+                insert_speech_line(self.textbox, format_segment(item, self.transcript_format_options()),
+                                   item["text"], speech_language(item, self._default_speech_language()))
+        if self.speech_click_var.get():
+            self.textbox.configure(state="disabled")
+        self._click_speech_state(self.textbox)
         self._rendered_text = text
         self.conversation_legend.configure(text=self.t("translation_legend") if bilingual or self.preset == "universal" else "")
         self.textbox.see("end")
@@ -2799,6 +2809,7 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
             )
             return
         if record.task in {"files", "conference", "dictation", "link", "universal"}:
+            self._switch_click_speech_mode(record.task)
             self.preset = record.task
             self._refresh_task_styles()
             self._update_source_context()

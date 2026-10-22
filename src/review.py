@@ -9,7 +9,9 @@ from datetime import UTC, datetime
 def audience_lines(segments, language="all"):
     result = []
     for item in segments:
-        lines = [(item.get("source_language", item.get("language")), item.get("source_text", item.get("text", "")), "original")]
+        code = (item.get("source_language") if "source_text" in item else
+                item.get("target_language") or item.get("source_language") or item.get("language"))
+        lines = [(code, item.get("source_text", item.get("text", "")), "original")]
         if "source_text" in item and not item.get("translation_pending"):
             lines.append((item.get("target_language"), item.get("text", ""), "translated"))
         if item.get("third_text") and item.get("third_language") not in {item.get("source_language"), item.get("target_language")}:

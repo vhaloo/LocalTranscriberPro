@@ -46,7 +46,7 @@ def bounded_int(value: Any, default: int, minimum: int, maximum: int) -> int:
 
 
 DEFAULTS: dict[str, Any] = {
-    "schema_version": 6,
+    "schema_version": 7,
     "ui_language": detect_ui_language(),
     "ui_mode": "simple",
     "simple_quality": "best",
@@ -61,6 +61,8 @@ DEFAULTS: dict[str, Any] = {
     "translation_third": "none",
     "conversation_font_size": 22,
     "show_confidence": True,
+    "speech_click": False,
+    "speech_click_live": True,
     "overlap_separation": False,
     "speaker_detection": False,
     "vad": True,

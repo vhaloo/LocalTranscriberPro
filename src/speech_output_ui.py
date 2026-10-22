@@ -7,6 +7,7 @@ from tkinter import messagebox
 
 import customtkinter as ctk
 
+from src.click_speech import ClickSpeechBinding, selected_lines
 from src.jobs import JobCancelled
 from src.speech_output import CATALOG, LocalSpeechOutput
 from src.system_voices import installed_voices, speak_system
@@ -20,6 +21,8 @@ class SpeechOutputMixin:
             self.speech_output = LocalSpeechOutput()
             self.voice_cancel = threading.Event()
             self.speech_thread = None
+            self._pending_speech_operation = None
+            self._speech_status = ""
             self.system_voices = []
             self.voice_choice = "auto"
             self.playback_pause_owned = False
@@ -28,6 +31,7 @@ class SpeechOutputMixin:
             self.show_confidence_var = ctk.BooleanVar(value=self.settings.get("show_confidence", True))
             self.overlap_var = ctk.BooleanVar(value=self.settings.get("overlap_separation", False))
             self.slow_voice_var = ctk.BooleanVar(value=False)
+            self.speech_click_var = ctk.BooleanVar(value=self.settings.get(self._click_speech_setting()))
             def detect():
                 self.system_voices = installed_voices()
             threading.Thread(target=detect, daemon=True, name="InstalledVoices").start()
@@ -59,6 +63,41 @@ class SpeechOutputMixin:
         self.speech_menu.add_command(label=self.t("speech_original_audio"), command=self.replay_original_audio)
         self.speech_menu.add_command(label=self.t("speech_bank"), command=self.open_voice_bank)
         self.speech_menu.add_command(label=self.t("speech_stop"), command=self.stop_speaking)
+        click_row = ctk.CTkFrame(parent, fg_color="transparent")
+        click_row.grid(row=4, column=0, columnspan=2, sticky="ew", pady=(5, 1))
+        self._click_speech_checkbox(click_row).pack(side="left", padx=3)
+        ctk.CTkLabel(click_row, text=self.t("speech_click_hint"), text_color="#9AA8BE",
+                     font=("Segoe UI", 11)).pack(side="left", padx=12)
+
+    def _click_speech_setting(self, preset=None):
+        return "speech_click_live" if (preset or self.preset) == "universal" else "speech_click"
+
+    def _default_speech_language(self):
+        return self.selected_language if self.selected_language != "auto" else "und"
+
+    def _switch_click_speech_mode(self, preset):
+        self.settings.set(self._click_speech_setting(), bool(self.speech_click_var.get()))
+        self.speech_click_var.set(self.settings.get(self._click_speech_setting(preset)))
+
+    def _click_speech_checkbox(self, parent):
+        checkbox = ctk.CTkCheckBox(parent, text=self.t("speech_click"), variable=self.speech_click_var,
+                                  command=self._click_speech_changed, font=("Segoe UI", 12),
+                                  checkbox_width=18, checkbox_height=18)
+        ToolTip(checkbox, self.t("speech_click_help"))
+        return checkbox
+
+    def _bind_click_speech(self, textbox):
+        textbox._speech_lines = {}
+        textbox._click_speech = ClickSpeechBinding(textbox, lambda: bool(self.speech_click_var.get()) and not self.closing,
+            lambda item: self.speak_items([item], follow_language=True, replace=True))
+
+    def _click_speech_changed(self):
+        self._commit_editor_changes()
+        self.persist_settings()
+        self.render_transcript()
+
+    def _click_speech_state(self, textbox):
+        textbox._textbox.configure(cursor="hand2" if self.speech_click_var.get() else "xterm")
 
     def _confidence_changed(self):
         self._commit_editor_changes()
@@ -131,6 +170,8 @@ class SpeechOutputMixin:
                 pass
             except Exception as error:
                 self._safe_ui(self._set_status, str(error))
+            finally:
+                self._safe_ui(self._speech_finished, cancel)
         self.speech_thread = threading.Thread(target=worker, daemon=True, name="VoicePreparation")
         self.speech_thread.start()
 
@@ -149,7 +190,7 @@ class SpeechOutputMixin:
             first = int(str(selection[0]).split(".")[0])
             last_index = str(selection[1]).split(".")
             last = int(last_index[0]) - (1 if last_index[1] == "0" else 0)
-            items = [mapping[row] for row in range(first, last + 1) if row in mapping]
+            items = selected_lines(mapping, first, last)
             if not items:
                 code = self.selected_language if self.selected_language != "auto" else self.t.language
                 items = [(widget.get(*selection), code)]
@@ -162,10 +203,11 @@ class SpeechOutputMixin:
     def read_transcript_lines(self):
         self.speak_items(self.selected_speech_lines())
 
-    def speak_items(self, items):
+    def speak_items(self, items, *, follow_language=False, replace=False):
         if not items:
             return
-        mode = self.voice_choice
+        # Clicks must follow each line's language even if a manual voice was selected.
+        mode = "auto" if follow_language else self.voice_choice
         if mode.startswith("local:"):
             items = [(text, mode[6:]) for text, _ in items]
         missing = {code for _, code in items if not mode.startswith("system:") and not self.speech_output.ready(code)
@@ -194,7 +236,7 @@ class SpeechOutputMixin:
                         if cancel.wait(0.1):
                             sd.stop()
                             return
-        self._start_speech_operation(operation)
+        self._start_speech_operation(operation, replace=replace)
 
     def replay_original_audio(self):
         if self.last_audio is None:
@@ -210,16 +252,21 @@ class SpeechOutputMixin:
                     return
         self._start_speech_operation(operation)
 
-    def _start_speech_operation(self, operation):
+    def _start_speech_operation(self, operation, *, replace=False):
         if self.speech_thread and self.speech_thread.is_alive():
-            self.stop_speaking()
+            if replace:
+                self._pending_speech_operation = operation
+            self.stop_speaking(clear_pending=not replace)
             return
+        self._pending_speech_operation = None
         self.voice_cancel = threading.Event()
         cancel = self.voice_cancel
-        self.playback_pause_owned = self.recorder.recording and not self.recorder.paused
-        if self.playback_pause_owned:
+        pause = self.recorder.recording and not self.recorder.paused
+        self.playback_pause_owned = self.playback_pause_owned or pause
+        if pause:
             self.recorder.pause()
-        self._set_status(self.t("speech_playing"))
+        self._speech_status = self.t("speech_playing" if self.playback_pause_owned else "speech_playing_idle")
+        self._set_status(self._speech_status)
         def worker():
             try:
                 operation(cancel)
@@ -235,11 +282,22 @@ class SpeechOutputMixin:
     def _speech_finished(self, cancel):
         if cancel is not self.voice_cancel:
             return
+        if self._pending_speech_operation is not None and not self.closing:
+            if self.speech_thread and self.speech_thread.is_alive():
+                self.after(20, self._speech_finished, cancel)
+                return
+            operation, self._pending_speech_operation = self._pending_speech_operation, None
+            self._start_speech_operation(operation)
+            return
         if self.playback_pause_owned and self.recorder.recording and not self.closing:
             self.recorder.resume()
         self.playback_pause_owned = False
+        if "status_label" in self.__dict__ and self.status_label.cget("text") == self._speech_status:
+            self._set_status(self.t("speech_finished"))
 
-    def stop_speaking(self, resume=True):
+    def stop_speaking(self, resume=True, *, clear_pending=True):
+        if clear_pending:
+            self._pending_speech_operation = None
         if hasattr(self, "voice_cancel"):
             self.voice_cancel.set()
             import sounddevice as sd

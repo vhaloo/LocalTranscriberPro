@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.3.1 — 2026-10-21
+
+- Add a synchronized **Click a line to speak** checkbox in the main transcript and independent audience display, available in every task and on by default for Universal live translation. Live and other-task preferences persist independently.
+- Read each clicked original, translation or third-language utterance using its logical Unicode and actual language. Prepared local voices take priority; existing system fallback, optional missing-voice prompts, slow reading and stop remain available.
+- Keep drag/word/paragraph selection and scrolling silent; ignore confidence/decorative rows and clicks below the last line. Read soft-wrapped and multiline utterances correctly. A new click replaces pending playback while retaining ownership of a paused microphone.
+- Keep ordinary transcript editing available when the checkbox is off. Preserve the full replacement text after editing a timestamped line, retain languages in paragraph layouts and persist recognition language on imported segments.
+- Refresh French/English help, public screenshots, documentation, native packages and installation verification. All previous functions remain available.
+- Fix installer hardware-summary formatting on Inno Setup 6.7, exercise the real initialization before packaging, and install/test both Windows packages in native CI before delivery.
+
 ## 3.3.0
 
 - Add final-priority provisional live recognition and a measured captured-audio backlog.
