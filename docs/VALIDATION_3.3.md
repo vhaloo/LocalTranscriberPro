@@ -1,74 +1,37 @@
 # Validation 3.3.1 — 2026-10-21
 
-## 3.3.1 line-reading update
+## Line reading and retained desktop functions
 
-The patch adds language-bound single-click speech in every main transcript task and the independent audience display. Live reading defaults on, with independent persistent preferences for live and other tasks. Local speech engines, voice catalogue and recognition/translation models retain their 3.3 quality and coverage limits.
+201 local tests pass. Source CI passes on all three systems: 201 tests on Windows; 200 passed and one Windows-only test skipped on macOS/Linux. Ruff, compilation, dependency consistency, release documentation and the complete language inventory pass. [Source CI](https://github.com/vhaloo/LocalTranscriberPro/actions/runs/39704303950).
 
-Regression checks cover settings migration, independent defaults, exact logical Arabic/French/English routing despite a manually selected foreign voice, multiline selection, refusal of a missing-voice download, replacement/cancellation and microphone pause ownership. Real Tk checks exercise every task, both layouts, confidence on/off, audience language filters, multiline/RTL data, silent drag/double-click/scroll gestures, disabled reading and edited-text readback. Screenshots show isolated illustrative text. Native package and local upgrade evidence will be recorded below before publication.
+Real Tk integration performs 23 silent speech dispatches across nine scenario groups: original/translation/third-language logical Unicode, audience filters and newly arriving languages, every task, both layouts, confidence on/off, selection, double-clicks, scrolling, disabled reading and edited-text readback. The normal transcript occupies 174 pixels at 1320×990. Existing paired revision, worker overlays, live language commands, reviewed exports and confidential autosave suppression also pass real Tk checks.
 
-201 local regression tests pass, along with Ruff, compilation, dependency consistency and documentation/language inventory checks. Real Tk performs 23 silent dispatches across nine scenario groups with a 174-pixel normal transcript area at 1320×990. Native Windows mouse clicks also invoke local speech from both windows. These tests caught Windows Num Lock being represented as bit `0x8` (Alt uses a different mask on Windows); synthetic and native checks now include this case. Language filters update when a new language arrives without changing the active filter.
-
-## Retained 3.3.0 baseline evidence
-
-This release preserves all previous desktop functions and adds conversation review, audience display, typed replies, provisional live text, confidential sessions, offline preparation and signed manifests. The evidence below was collected on 21 October 2026 before stable publication.
-
-## Scope and methodology
-
-- Original recordings and references from FLEURS, Casablanca and CMU stay in ignored local evaluation folders. No private conversation or licensed dataset audio is bundled or published.
-- The expanded held-out manifest contains 280 clips, eight per 35 language/corpus groups. This is a diagnostic sample, not population-level reliability or human interpretation certification.
-- ASR diagnostics block network connections during model loading and inference. A fallback aborts the requested-model comparison instead of being scored under the wrong model name.
-- Character/word error rates measure normalized text against references. They are not percentages of correct meaning. No semantic-translation reliability percentage is invented.
-- Functional UI tests use illustrative Arabic/French/English text and isolated settings/history. Real screenshots identify this demonstration.
-- macOS/Linux packages remain experimental. CI cannot establish physical microphone, display or GPU compatibility on untested machines.
-
-## New regression coverage
-
-Stable turn IDs, review overlays during capture, atomic language commands, preserved prior routing, selective retranslation, stale-result rejection, provisional scheduling, numeric review, encrypted Unicode round trips, tamper/wrong-password rejection and Ed25519 manifest binding are covered alongside retained tests.
-
-## Native checks
-
-The optional pinned MADLAD 7B model passed offline French/Arabic and Haitian Creole translation in the development runtime on this Windows machine. This verifies execution, not superiority of meaning over MADLAD 3B. Its relocated 8.33 GB cache was checked against the pinned hash and registered as the new optional cache setting. TranslateGemma access required external model authorization; Omnilingual 3B/7B lacked a native fairseq2n Windows wheel. Neither is silently installed or advertised as a validated automatic backend.
-
-A two-second physical input-stream check received 32,768 samples with no overflow, without retaining or transcribing microphone audio. End-to-end ASR/translation/voice and installation checks are recorded below.
-
-## Source and live conversation evidence
-
-- 185 local regression tests pass, with Ruff, Python compilation, dependency consistency, release-document and complete-language-inventory checks.
-- Actual Tk integration uses isolated settings/history. It verifies a 208-pixel transcript area in the normal 1320×990 layout, audience filtering, edits surviving worker snapshots, live language commands, final reviewed exports and confidential-mode autosave suppression.
-- Controlled French synthesized speech and a public Jordanian Arabic test clip pass through the real recorder, neural VAD, recognition and MADLAD pipeline with network connections blocked. No ambient sound is captured or played. The Qwen 0.6B/CUDA run finalizes all 23.35 seconds, forms the French/Arabic pair, routes both directions, adds English and shows provisional text. An automatic-profile run with word timings selects Whisper large-v3 CPU alongside CUDA translation and finalizes all 23.12 seconds in four turns. Its previews are discarded when final audio is waiting: provisional display is best effort, not a latency guarantee.
-- The same checks caught and fixed stale resource readings after MT loading, unscored Qwen language labels preventing pair formation and a possible unsupported live model switch. Qwen/Parakeet can now use the same pinned GlotLID text-language detector; missing/ambiguous hints retain manual confirmation. Combined ASR/MT memory reservation has explicit regression coverage.
-- Paired edits preserve translations explicitly corrected with the original, while unchanged old translations are invalidated. Typed replies read their own destination text even when another turn finishes concurrently, and update existing completed exports. Logical Unicode survives manual bilingual TXT export.
-
-These are execution and regression checks, not human certification of translation meaning. The controlled clips are not a representative multilingual conversation study.
-
-## Expanded language diagnostics
-
-[The complete 3.3 table](LANGUAGE_DIAGNOSTICS_3.3.md) publishes 280 scored Omnilingual clips across 35 groups and 168 scored Qwen 0.6B clips across 21 declared-coverage groups. The other 112 Qwen entries are explicitly outside its catalogue. Each scored group contains eight held-out clips. Only aggregate counters and input hashes are published.
-
-Additional Whisper CPU runs were partial and are not presented as a balanced complete comparison. The optional CUDA int8_float16 diagnostic was refused by its actual free-VRAM guard while other applications remained open. It did not change the production automatic-model policy. The historical complete 70-clip comparison stays separately labelled; no 0.6B results are relabelled as Qwen 1.7B and no semantic reliability percentages are invented. Normalized language-route agreement does not certify Cantonese/Mandarin dialect identification.
+Windows mouse clicks invoke local speech from both windows with Num Lock enabled. This catches the native Windows modifier-bit difference that synthetic events initially missed. Regression checks cover this case, independent live/general settings, matching each line's language despite a manually selected foreign voice, missing-voice refusal, replacement and owned microphone pause/resume. Completion feedback retains playback errors. Three new screenshots use isolated illustrative Arabic/French/English text; no private conversation is published.
 
 ## Exact native packages
 
-All packages contain application source from `42b4a396c33929720e9ea0d32b69bb184d931404`. Subsequent documentation and diagnostic-output-folder changes do not alter `main.py`, `src`, the five packaged catalogues or runtime requirements.
+All five packages contain application code from `c9c490b29b79c8cb39d87c8dcf221ffab1761187`. The Windows installers use the repaired preflight from `af140fb41ae1351ddbd350032419c4219c889cbf` and pass full installation/installed-runtime checks in CI. Later documentation and QA-helper changes do not alter packaged code or requirements.
 
 | Package | Bytes | Native build |
 |---|---:|---|
-| Windows x64, CUDA + CPU | 2,105,748,466 | [39675495845](https://github.com/vhaloo/LocalTranscriberPro/actions/runs/39675495845) |
-| Windows x64, CPU | 431,699,835 | [39675501078](https://github.com/vhaloo/LocalTranscriberPro/actions/runs/39675501078) |
-| macOS arm64 experimental DMG | 591,513,496 | [39675505769](https://github.com/vhaloo/LocalTranscriberPro/actions/runs/39675505769) |
-| Linux x86-64 experimental AppImage | 770,704,576 | [39675510704](https://github.com/vhaloo/LocalTranscriberPro/actions/runs/39675510704) |
-| Linux x86-64 experimental archive | 765,743,458 | Same Linux build |
+| Linux x86-64 experimental AppImage | 770,577,600 | [39697802275](https://github.com/vhaloo/LocalTranscriberPro/actions/runs/39697802275) |
+| Linux x86-64 experimental archive | 765,609,809 | [39697802275](https://github.com/vhaloo/LocalTranscriberPro/actions/runs/39697802275) |
+| Windows x64, CPU | 431,497,289 | [39704298614](https://github.com/vhaloo/LocalTranscriberPro/actions/runs/39704298614) |
+| Windows x64, CUDA + CPU | 2,105,611,824 | [39704295979](https://github.com/vhaloo/LocalTranscriberPro/actions/runs/39704295979) |
+| macOS arm64 experimental DMG | 593,087,640 | [39697799456](https://github.com/vhaloo/LocalTranscriberPro/actions/runs/39697799456) |
 
-Native frozen CPU recognition, French/English bundled voices and isolated HTTP import pass in these builds. [Container inspection and draft delivery](https://github.com/vhaloo/LocalTranscriberPro/actions/runs/39680415074) mounts and verifies the ad-hoc-signed arm64 DMG, extracts and compares Linux containers, checks frozen source parity and reruns recognition/voices/HTTP import. All five exact assets remain below GitHub's 2 GiB limit. Remote asset sizes/digests and SHA-256 match the inspected files. Their Ed25519 manifest/signature verifies against the public key compiled into 3.3. Native Authenticode and Apple notarization are not provisioned.
+Each native build passes CPU recognition, bundled French/English synthesis and isolated HTTP import. The first macOS attempt passed application checks but failed while creating its DMG with `Resource busy`; the second attempt succeeds. [Independent container inspection and delivery](https://github.com/vhaloo/LocalTranscriberPro/actions/runs/39708260328) verifies the mounted ad-hoc-signed arm64 DMG and extracted Linux containers, checks source parity and reruns recognition/voice/import checks. Every asset is below 2 GiB. Remote asset digests, SHA-256 and the Ed25519 manifest bind the five exact inspected files to the release.
 
-## Local Windows upgrade and execution
+macOS/Linux remain experimental. These checks do not establish physical microphone, speaker, display or GPU compatibility on those systems. Native Windows Authenticode and Apple notarization are not provisioned.
 
-The actual per-user installation was upgraded from 3.2.0 to 3.3.0 without elevation or Windows restart. The registry reports 3.3.0. Every one of 54 application modules and five catalogues matches the checked source; the installed executable SHA-256 is `d4973ffeb6ccef81bc1cefbee8b7217b487b813f2c88907cca4367135a947030`. The program folder occupies 5,340,784,017 bytes including its uninstaller, excluding model caches.
+## Local Windows upgrade
 
-Before first launch, settings, editor recovery and SQLite bytes were unchanged; SQLite integrity and its 78 historical sessions match the checkpoint. All 249 pre-existing output files match their hashes. The optional 7B cache path was subsequently added as one new setting while preserving every existing setting value. The prior verified installer and small data/source checkpoints remain available for rollback.
+The actual per-user installation was upgraded from 3.3.0 to 3.3.1 without elevation or a Windows restart. The application is installed on the fixed E: volume because C: had insufficient free installation space; Desktop and Start Menu shortcuts target the new location. Settings, models and transcripts retain their existing locations. The registry reports 3.3.1; every one of 55 application modules and five catalogues matches the release source. Installed executable SHA-256: `7ae5166515cf83d5d5ff99a424be297f7109d76dcd3639d90470f9e4171332e2`.
 
-Eleven installed executable checks pass: Tiny CPU, Tiny CUDA, Parakeet CPU, Qwen 0.6B CPU with word alignment, a 75-second stereo/gapped Qwen transcription with late timestamps, Whisper large-v3 CPU English translation, silence suppression, Omnilingual universal translation with the French/Arabic pair and English third language, bundled French and English synthesis, and isolated HTTP media import. The universal native check uses MADLAD 3B on CUDA. No unexpected backend substitution is accepted as proof of the requested model.
+Before first GUI launch, settings, recovery and SQLite bytes match the checkpoint; database integrity and all 78 historical sessions are preserved. All 249 existing output files match their saved hashes. Existing model caches, including the optional MADLAD 7B path, remain available. The verified 3.3.0 installer and small source/data checkpoints are retained for rollback.
 
-An additional installed public YouTube import of a short reference video succeeds on 21 October 2026, including download, conversion and Tiny CPU recognition. Temporary job audio is cleaned up. This does not guarantee future site access, restricted videos or every provider; explicit authentication and local-file alternatives remain available. No browser cookies were read for this test.
+Six installed executable checks pass: Tiny CPU recognition, bundled French and English synthesis, isolated HTTP import, Tiny CUDA recognition, and French-to-English legacy Whisper translation on CUDA with the correct English text-language metadata. No unexpected backend substitution is accepted as proof. These are execution checks, not human translation or voice-quality certification.
 
-Source CI passes on all three systems: 185 tests on Windows; 184 passed and one Windows-only test skipped on macOS/Linux. macOS/Linux remain experimental: no physical microphone/GPU or human semantic-translation certification is claimed.
+## Model quality and coverage
+
+This patch changes line reading and text/language association. It adds no new ASR/NMT model and does not relabel historical measurements. [Complete 3.3.0 validation](VALIDATION_3.3.0.md) retains prior larger-model, controlled-conversation, YouTube and installation evidence. [Expanded language diagnostics](LANGUAGE_DIAGNOSTICS_3.3.md) and the complete README catalogue retain their original model/corpus scope. Voice coverage is narrower than recognition/translation coverage; no reliability percentage is invented for unmeasured languages.
