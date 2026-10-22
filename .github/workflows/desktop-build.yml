@@ -23,7 +23,7 @@ jobs:
         os: ${{ fromJSON((inputs.platform == 'windows' || inputs.platform == 'windows-cpu') && '["windows-latest"]' || inputs.platform == 'macos' && '["macos-14"]' || inputs.platform == 'linux' && '["ubuntu-24.04"]' || '["windows-latest","macos-14","ubuntu-24.04"]') }}
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
