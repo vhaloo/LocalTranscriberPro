@@ -131,7 +131,13 @@ jobs:
           cp -R "dist/${APP_VERSION}/Local Transcriber Pro.app" dmg-root/
           ln -s /Applications dmg-root/Applications
           codesign --force --deep --sign - "dmg-root/Local Transcriber Pro.app"
-          hdiutil create -volname "Local Transcriber Pro" -srcfolder dmg-root -ov -format UDZO "artifacts/LocalTranscriberPro-${VERSION}-macOS-arm64-experimental.dmg"
+          for attempt in 1 2 3; do
+            if hdiutil create -volname "Local Transcriber Pro" -srcfolder dmg-root -ov -format UDZO "artifacts/LocalTranscriberPro-${VERSION}-macOS-arm64-experimental.dmg"; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 3 ]; then exit 1; fi
+            sleep "$((attempt * 3))"
+          done
       - name: Package Linux AppImage and archive
         if: runner.os == 'Linux'
         run: |

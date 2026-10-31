@@ -41,23 +41,40 @@ class WorkbenchMixin:
             self.audience_window = None
             self.current_session_base = None
             self.tool_threads = []
+        workspace = getattr(self, "workspace_layout", False)
+        if workspace:
+            ctk.CTkLabel(master, text=self.t("workspace_step_tools"), text_color="#9AA8BE",
+                         font=("Segoe UI", 11, "bold"), anchor="w").grid(row=0, column=0, sticky="ew", padx=5)
         tools = ctk.CTkFrame(master, fg_color="transparent")
-        tools.grid(row=5, column=0, columnspan=2, sticky="ew", pady=(5, 2))
+        tools.grid(row=1 if workspace else 5, column=0, columnspan=2, sticky="ew", pady=(5, 2))
         for key, command in (("review_turns", self.review_turns), ("audience", self.open_audience),
                              ("typed_reply", self.compose_reply), ("offline_prepare", self.offline_prepare),
                              ("privacy_controls", self.privacy_controls)):
             button = ctk.CTkButton(tools, text=self.t(key), height=28, width=145,
                                    fg_color=PANEL, command=command)
-            button.pack(side="left", padx=(0, 5))
+            if workspace:
+                button.pack(fill="x", pady=3)
+            else:
+                button.pack(side="left", padx=(0, 5))
             ToolTip(button, self.t(key + "_help"))
-        self.live_preview_label = ctk.CTkLabel(master, text="", font=("Segoe UI", 17),
+        self.live_preview_label = ctk.CTkLabel(self.preview_host if workspace else master, text="", font=("Segoe UI", 17),
                                               text_color="#F3C969", anchor="w", justify="left",
                                               wraplength=1060)
-        self.live_preview_label.grid(row=6, column=0, columnspan=2, sticky="ew", pady=(3, 1))
+        self.live_preview_label.grid(row=1 if workspace else 6, column=0, columnspan=2, sticky="ew", pady=(3, 1))
+        if workspace:
+            self.live_preview_label.grid_remove()
 
     def _show_live_preview(self, text, language=""):
         if hasattr(self, "live_preview_label"):
             self.live_preview_label.configure(text=self.t("provisional", text=text[:1000], language=language) if text else "")
+            if getattr(self, "workspace_layout", False):
+                if text:
+                    self.preview_host.grid()
+                    self.live_preview_label.grid()
+                else:
+                    self.live_preview_label.grid_remove()
+                    if not self.transcript_search.visible:
+                        self.preview_host.grid_remove()
 
     def _update_audience(self):
         window = getattr(self, "audience_window", None)

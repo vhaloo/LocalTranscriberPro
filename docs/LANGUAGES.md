@@ -1,4 +1,4 @@
-# Couverture et priorités linguistiques — 3.1.0
+# Couverture et priorités linguistiques — 3.4.0
 
 La [liste intégrale dans le README](../README.md#langues) comprend les 1 672 entrées langue/écriture/variété Omnilingual (1 650 codes de langue), les 100 identifiants Whisper, les couvertures Qwen/Parakeet, les 452 jetons de traduction et les 47 choix de voix. Chaque entrée indique explicitement l'absence de pourcentage de fiabilité sémantique mesuré. Les taux d'erreur en caractères disponibles pour 35 groupes sont publiés séparément, avec deux extraits par groupe ; ils ne constituent pas des probabilités que le sens soit correct.
 
@@ -18,15 +18,15 @@ Le premier ensemble de travail combine donc le créole haïtien ; le pendjabi, l
 |---|---|---|
 | Reconnaissance étendue | Meta Omnilingual CTC 1B v2 | Plus de 1 600 langues annoncées ; précision variable |
 | Identification de la langue du texte reconnu | GlotLID v3 | Plus de 2 000 étiquettes langue/écriture ; ni certitude acoustique ni garantie sur les phrases courtes |
-| Reconnaissance alternative | Whisper large-v3 | 100 identifiants de langue ; toutes les anciennes tailles conservées |
-| Reconnaissance générale | Qwen3-ASR | 30 langues annoncées ; profil général de précision GPU |
+| Reconnaissance par défaut | OpenAI Whisper large-v3 | 100 identifiants de langue ; toutes les anciennes tailles conservées |
+| Reconnaissance optionnelle | Qwen3-ASR | 30 langues annoncées ; sélection manuelle |
 | Reconnaissance rapide | Parakeet TDT v3 | 25 langues européennes |
 | Traduction | MADLAD-400 3B int8 | 452 jetons de langue/variantes dans le catalogue local |
 | Lecture vocale | Piper, MMS, voix système | 47 voix locales proposées, dont français/anglais inclus sous Windows ; autres voix selon disponibilité |
 
 La présence d'un jeton de traduction n'implique pas une reconnaissance ou une voix disponible pour cette langue. Les nombres de langues, variantes et étiquettes d'écriture ne s'additionnent pas. Une langue peut être transcrite correctement et identifiée incorrectement ; une traduction peut paraître fluide et changer le sens. Les indices affichés sont non calibrés.
 
-Le profil universel automatique privilégie Omnilingual quand le moteur CPU, les 16 Go de RAM totale, les 10 Go disponibles et l'espace de préparation requis sont présents. Il se replie vers le meilleur Whisper multilingue compatible. Le profil général continue de privilégier Qwen 1.7B sur un GPU compatible ; le profil rapidité privilégie Parakeet. Le choix manuel reste accessible.
+Le profil par défaut Précision OpenAI privilégie Whisper large-v3 quand ses contrôles de mémoire et de moteur sont satisfaits. Le profil distinct Multilinguisme maximal privilégie Omnilingual quand le moteur CPU, les 16 Go de RAM totale, les 10 Go disponibles et l'espace de préparation requis sont présents. Il se replie vers le meilleur Whisper multilingue compatible. Le profil rapidité privilégie Parakeet. Qwen et tous les modèles manuels restent accessibles. Ce choix de fournisseur par défaut ne transforme pas les indices relatifs du catalogue en classement de fiabilité mesurée.
 
 ## Ce qui a réellement été essayé
 

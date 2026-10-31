@@ -1,4 +1,16 @@
-# Traduction et lecture locales — 3.3.1
+# Traduction et lecture locales — 3.4.0
+
+## Interface 3.4 / Workspace
+
+Les cinq usages restent à gauche : fichiers, traduction live, conférence, dictée et vidéo en ligne. Les boutons sous les usages ouvrent la révision, l’écran interlocuteur, les réponses écrites/lues, la préparation hors ligne et la confidentialité. La source et les trois choix de langue sont au-dessus du texte. **Paramètres** (`Ctrl+,`) regroupe reconnaissance, voix/indices et stockage.
+
+Le profil **Précision OpenAI** donne priorité au modèle local complet **Whisper large-v3** dès que sa mémoire et son moteur sont compatibles. Si le GPU manque de mémoire libre, le CPU peut conserver ce modèle. Les petits ordinateurs reçoivent un Whisper plus léger. **Rapidité**, **Multilinguisme maximal** (dont Omnilingual) et les modèles manuels restent disponibles dans le catalogue. Les anciens choix automatiques du mode live migrent vers la nouvelle priorité une seule fois ; un modèle manuel est conservé.
+
+**Ctrl+F** recherche littéralement le texte affiché. **Entrée** / **Maj+Entrée** changent d’occurrence ; **Échap** ferme la recherche avant de quitter la lecture agrandie. Mille résultats sont indexés au maximum. Pour l’arabe affiché sous forme contextuelle, le texte logique est aussi recherché et la ligne complète peut être surlignée. Rechercher ne modifie pas le texte et ne déclenche pas la voix.
+
+**Ctrl+1 à Ctrl+5** changent d’usage lorsque la capture et le traitement sont arrêtés. **F11** et **A− / A+** restent disponibles au-dessus du transcript. Les indications de progression apparaissent pendant les étapes actives ; les outils détaillés ne réduisent plus la zone de lecture au repos. Les tâches fichiers et vidéos n’ouvrent pas le flux de surveillance du micro.
+
+**English:** choose a task on the left, then source and languages. Settings (`Ctrl+,`) groups recognition, voice/indices and storage. The default accuracy profile prioritizes local OpenAI Whisper large-v3 when safe, retaining manual, speed and maximum-coverage choices. `Ctrl+F` searches literally, Enter/Shift+Enter navigates, and Escape closes search. Search is bounded to 1,000 matches and can highlight complete logical Arabic lines. F11 expands reading; file/video tasks do not monitor microphone input.
 
 ## Lecture au clic / Click to speak
 
@@ -74,7 +86,7 @@ La capture écoute des fenêtres de 32 ms et recherche la parole avec Silero VAD
 
 ## Reconnaissance, traduction et voix
 
-Le profil multilingue automatique privilégie Omnilingual sur une machine compatible, puis le meilleur Whisper qui tient dans les ressources disponibles. Qwen 1.7B demeure le profil général de précision sur GPU compatible ; sa couverture de 30 langues est plus étroite. Parakeet privilégie la vitesse CPU pour 25 langues européennes. Le sélecteur affiche précision relative, rapidité et multilinguisme séparément, ainsi que les raisons matérielles d'indisponibilité.
+Le profil par défaut Précision OpenAI privilégie Whisper large-v3 sur une machine compatible. Le profil distinct Multilinguisme maximal privilégie Omnilingual, puis le meilleur Whisper qui tient dans les ressources disponibles. Qwen 1.7B reste sélectionnable manuellement ; sa couverture de 30 langues est plus étroite. Parakeet privilégie la vitesse CPU pour 25 langues européennes. Le sélecteur affiche précision relative, rapidité et multilinguisme séparément, ainsi que les raisons matérielles d'indisponibilité.
 
 Le choix automatique tient compte du couple reconnaissance/traduction. Si le premier modèle de reconnaissance laisse trop peu de mémoire au traducteur, l’application libère ce modèle, réserve la traduction puis recherche le meilleur moteur vocal compatible avec la mémoire restante. Le diagnostic indique cette réserve. Sous Windows, la mémoire disponible tient aussi compte de la limite d’engagement du système : d’autres logiciels peuvent réduire les ressources utilisables même si de la RAM physique semble libre.
 

@@ -32,7 +32,7 @@ For direct PyInstaller builds, run `python scripts/prepare_js_runtime.py` and `p
 
 The build workflow creates `Local Transcriber Pro.app`, adds the microphone usage description, applies an ad-hoc signature for artifact integrity, and packages it in a DMG. Production distribution should replace ad-hoc signing with Developer ID signing and notarization.
 
-The experimental 3.3.0 DMG is arm64 for Apple Silicon, built on macOS 14. No Intel package is provided. See [experimental distribution instructions](EXPERIMENTAL_DESKTOP_3.3.md).
+The experimental 3.4.0 DMG is arm64 for Apple Silicon, built on macOS 14. No Intel package is provided. See [experimental distribution instructions](EXPERIMENTAL_DESKTOP_3.4.md).
 
 ## Linux
 
@@ -55,7 +55,7 @@ The version 1 rollback point is the immutable `archive-v1.1-before-v2.0` tag.
 
 ## Local build file retention
 
-Keep one current source checkout, its working development environment, a verified current installer and at most one useful previous installer for rollback. The installed application, prepared model/voice caches, transcripts, settings, history and recovery data are separate from temporary packaging output and must be preserved.
+Keep one current source checkout, its working development environment, a verified current installer and at most five versioned rollback sets in total, including the current version. The installed application, prepared model/voice caches, transcripts, settings, history and recovery data are separate from temporary packaging output and must be preserved.
 
 After a successful verified installation and publication, old `build/` output, superseded unpacked applications in `dist/`, duplicate installer downloads, old update installers and extracted inspection copies can be removed. Keep small installation/data checkpoints and validation reports. Before removing an artifact, confirm its exact path, its role and the retained installer or published asset; do not follow junctions or symlinks into model caches or the development environment. Preserve uncommitted or unique source changes before consolidating checkouts.
 
@@ -76,7 +76,7 @@ The updater requires the exact asset name `LocalTranscriberPro-X.Y.Z-Windows-x64
 After native checks, `experimental-package-check.yml` can inspect Mac/Linux containers and attach all five exact package artifacts to an existing empty draft, using their completed run IDs. It verifies sizes and hashes before and after upload and will not replace a conflicting asset or publish the draft. Download the resulting exact packages, verify them against `SHA256SUMS.txt`, then run:
 
 ```text
-python scripts/sign_release.py VERIFIED_PACKAGE_FOLDER --key PRIVATE_KEY_PATH --version 3.3.0
+python scripts/sign_release.py VERIFIED_PACKAGE_FOLDER --key PRIVATE_KEY_PATH --version 3.4.0
 ```
 
 The raw 32-byte Ed25519 private key must remain outside Git, logs, artifacts and packaged files. The verifier's public key must match that key before building. Upload only the resulting public manifest and signature, with the matching checksum manifest. Do not regenerate a key during a retry. Check all published asset bytes against the signed manifest after publication. Independent update signatures do not supply Authenticode or Apple notarization; those need separately provisioned certificates.
@@ -90,3 +90,8 @@ Pass the resolved absolute `AppSource` path when the checkout path is long. Unre
 The bundled yt-dlp nightly is pinned in requirements. Changes must preserve EJS and the bundled JavaScript runtime. `main.py --video-worker` dispatches before logging/GUI/model initialization; JSONL file IPC is required because windowed Windows executables have no stdout. `validate_frozen.py` runs an actual packaged HTTP import against a local server, followed by Tiny CPU offline recognition and temporary-job cleanup, in addition to direct ASR and bundled voices. Public-site tests are recorded separately because site access is time-dependent.
 
 Before release, compare `catalogue_budget()` and the installer/README estimates with actual installed and asset sizes. Keep GB decimal and distinguish files, installation headroom, cache duplication and unlimited recordings. The storage inspector never follows links or deletes data. Independent engine updates must remain restricted to the official yt-dlp nightly repository and verified metadata/checksums.
+
+
+## Workspace regression checks (3.4)
+
+Run `python scripts/qa_workspace.py` with isolated data and no model/microphone load; Linux CI uses Xvfb. It checks all tasks at 1320×990 and 1024×768, settings, literal/bounded/Arabic search, reading restoration and language rebuild with the audience open. Also retain `qa_click_speech.py`, `qa_conversation33.py` and the original GUI self-check. Native source and installed-runtime checks complement these UI tests. Keep at most the five most recent verified local versions after a successful upgrade; never prune the active runtime, model caches or current user data.

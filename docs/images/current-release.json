@@ -1,18 +1,46 @@
 {
-  "version": "3.3.1",
+  "version": "3.4.0",
   "images": [
     {
-      "file": "local-transcriber-pro-3.3.1-universal.png",
-      "sha256": "5b19520e440711f3b1f5de3c4870fbf0af4443b27cc3a1eff512ae0afc88d5d2"
+      "file": "local-transcriber-pro-3.4.0-universal.jpg",
+      "sha256": "068ca2ec4362fe13d01f55ed5ce5c58bcacce8f8714740c7b0358a38196f1a02"
     },
     {
-      "file": "local-transcriber-pro-3.3.1-reading.png",
-      "sha256": "9065b1b79fabb9ca472f54cdfa3724bc1878d3b256a8cdaf477f44e71b23c632"
+      "file": "local-transcriber-pro-3.4.0-files.jpg",
+      "sha256": "0dfe8b77642da09738ccf00350925ab7efecb8d38ec16393a3c0d88983428936"
     },
     {
-      "file": "local-transcriber-pro-3.3.1-audience.png",
-      "sha256": "931ae78971579f7cf2ce8e35e30c8156f83014ad4a5a5230560e54f3978efb25"
+      "file": "local-transcriber-pro-3.4.0-settings.jpg",
+      "sha256": "fef6d6fae2039de37a671e00b8ddf203d63d30059fadc8c19966de4b0e4d3a03"
+    },
+    {
+      "file": "local-transcriber-pro-3.4.0-models.jpg",
+      "sha256": "81cac9c14ed482c71c9874649ce80dbc4bf885b4ad1d926ee1f3055177095e44"
+    },
+    {
+      "file": "local-transcriber-pro-3.4.0-reading.jpg",
+      "sha256": "efd18a64e36e75eb0ccfced34260d766b6582a39df61faaddd02474cf885b052"
+    },
+    {
+      "file": "local-transcriber-pro-3.4.0-audience.jpg",
+      "sha256": "607be5f17bb85d545cd8a6983f3c79c348915522eff0b51478917bfbcc0ad06f"
+    },
+    {
+      "file": "local-transcriber-pro-3.4.0-review.jpg",
+      "sha256": "5fddbf181f2e1b6f377862c0e15c6fe24241b11439078ba8fe6d6b0dc7b051ec"
+    },
+    {
+      "file": "local-transcriber-pro-3.4.0-offline.jpg",
+      "sha256": "ae63e4aeca2ae83a2db40323d983dabef5de4bb1d98e4719ba8c0916861fa5ca"
+    },
+    {
+      "file": "local-transcriber-pro-3.4.0-storage.jpg",
+      "sha256": "8c71b2d974996d72d9b3174e71af1ce06f1ccd6b498a803fb0f0fcb02dcda0b1"
+    },
+    {
+      "file": "local-transcriber-pro-3.4.0-video.jpg",
+      "sha256": "e0b0fdbc957dd2e291375ca26dbd7911287e39e9f5660bad88a71af12c80b80b"
     }
   ],
-  "demonstration": "Real Windows application with illustrative Arabic/French/English text; no private conversation"
+  "demonstration": "Actual Windows 3.4.0 interface with isolated illustrative Arabic/French/English data. No private conversation."
 }

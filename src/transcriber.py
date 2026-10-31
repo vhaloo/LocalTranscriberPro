@@ -405,6 +405,11 @@ class TranscriberEngine:
 
     def unload_model(self) -> None:
         with self._load_lock:
+            # Touch MPS's native allocator only after this engine actually used
+            # it. Merely exposing torch.mps does not initialize a Metal device;
+            # empty_cache can crash a CPU-only macOS process before first load.
+            used_mps = (self.model is not None and self.device == "metal"
+                        and self.backend in {"qwen3-asr", "openai-whisper"})
             self.model = None
             self.model_name = None
             self.current_status = None
@@ -415,7 +420,8 @@ class TranscriberEngine:
 
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
-            if hasattr(torch, "mps") and hasattr(torch.mps, "empty_cache"):
+            if (used_mps and self.hardware.torch_mps
+                    and torch.backends.mps.is_available()):
                 torch.mps.empty_cache()
         except (ImportError, RuntimeError):
             pass

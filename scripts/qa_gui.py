@@ -21,18 +21,19 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--universal", action="store_true")
     parser.add_argument("--demo", action="store_true")
+    parser.add_argument("--empty", action="store_true", help="Show the empty workspace for documentation")
     parser.add_argument("--no-preload", action="store_true")
     parser.add_argument("--self-check", action="store_true")
     parser.add_argument("--exit-after-check", action="store_true")
     parser.add_argument("--trace-clicks", action="store_true", help="Write isolated native click diagnostics")
-    parser.add_argument("--panel", choices=("review", "audience", "offline", "privacy", "storage", "video", "reading"))
+    parser.add_argument("--panel", choices=("review", "audience", "offline", "privacy", "storage", "video", "reading", "settings", "models"))
     args = parser.parse_args()
     setup_logging()
     folder = ROOT / "artifacts" / ("gui-qa-" + __version__)
     settings = SettingsStore(folder / "settings.json")
     settings.update({"ui_language": "fr", "ui_mode": "advanced" if args.universal else "simple",
                      "preset": "universal" if args.universal else "files",
-                     "model": "auto-multilingual" if args.universal else "auto-best",
+                     "model": "auto-best",
                      "device": "auto", "spoken_language": "auto", "check_updates": False,
                      "translation_target": "fr", "conversation_partner": "auto", "translation_third": "en",
                      "window_geometry": "1320x990", "output_folder": str(folder / "Transcriptions")}, save=True)
@@ -68,7 +69,9 @@ if __name__ == "__main__":
              "recognition_index": 90, "translation_index": 82, "language_probability": 0.99,
              "third_text": "I understand. We will look for a solution together.", "conversation_pair": ["ar", "fr"]},
         ]
-        app.translation_controls.update_pair(["ar", "fr"])
+        if args.empty:
+            app.transcript_data = []
+        app.translation_controls.update_pair(["ar", "fr"] if app.transcript_data else [])
         app.render_transcript()
         app._set_status("Démonstration · exemples illustratifs · aucune conversation réelle affichée")
         app.after(1700, lambda: app.textbox.yview_moveto(0))
@@ -140,6 +143,7 @@ if __name__ == "__main__":
         actions = {"review": app.review_turns, "audience": app.open_audience, "offline": app.offline_prepare,
                    "privacy": app.privacy_controls, "storage": lambda: __import__("src.storage_ui", fromlist=["StorageDialog"]).StorageDialog(app),
                    "video": lambda: __import__("src.video_ui", fromlist=["VideoOptionsDialog"]).VideoOptionsDialog(app),
-                   "reading": app.toggle_reading_view}
+                   "reading": app.toggle_reading_view, "settings": app.open_workspace_settings,
+                   "models": app.open_model_selector}
         app.after(1500, actions[args.panel])
     app.mainloop()

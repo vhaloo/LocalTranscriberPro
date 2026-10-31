@@ -849,6 +849,10 @@ from src.i18n_33 import register  # noqa: E402
 
 register(STRINGS)
 
+from src.i18n_34 import register as register_workspace  # noqa: E402
+
+register_workspace(STRINGS)
+
 
 def detect_ui_language() -> str:
     candidates = [

@@ -35,25 +35,29 @@ class SpeechOutputMixin:
             def detect():
                 self.system_voices = installed_voices()
             threading.Thread(target=detect, daemon=True, name="InstalledVoices").start()
+        workspace = getattr(self, "workspace_layout", False)
         row = ctk.CTkFrame(parent, fg_color="transparent")
-        row.grid(row=3, column=0, columnspan=2, sticky="ew", pady=(5, 0))
+        row.grid(row=0 if workspace else 3, column=0, columnspan=2, sticky="ew", pady=(5, 0))
         for key, command, width, tip in (("speech_read", self.read_transcript_lines, 155, "tip_speech_read"),
                                          ("speech_stop", self.stop_speaking, 55, "tip_speech_stop"),
                                          ("speech_bank", self.open_voice_bank, 105, "speech_bank_help")):
             button = ctk.CTkButton(row, text=self.t(key), width=width, height=28, fg_color="#16233D", command=command)
             button.pack(side="left", padx=3)
             ToolTip(button, self.t(tip))
-        slow = ctk.CTkCheckBox(row, text=self.t("speech_slow"), variable=self.slow_voice_var, width=105,
+        options = ctk.CTkFrame(parent, fg_color="transparent") if workspace else row
+        if workspace:
+            options.grid(row=1, column=0, columnspan=2, sticky="ew", pady=12)
+        slow = ctk.CTkCheckBox(options, text=self.t("speech_slow"), variable=self.slow_voice_var, width=105,
                                font=("Segoe UI", 11), checkbox_width=18, checkbox_height=18)
         slow.pack(side="left", padx=8)
         ToolTip(slow, self.t("tip_speech_slow"))
-        confidence = ctk.CTkCheckBox(row, text=self.t("confidence_toggle"), variable=self.show_confidence_var,
+        confidence = ctk.CTkCheckBox(options, text=self.t("confidence_toggle"), variable=self.show_confidence_var,
                                      font=("Segoe UI", 11), checkbox_width=18, checkbox_height=18,
                                      command=self._confidence_changed)
         confidence.pack(side="left", padx=8)
         ToolTip(confidence, self.t("tip_confidence"))
         self.voice_prompt = ctk.CTkButton(row, text="", width=210, height=28, fg_color="#1D463A")
-        overlap = ctk.CTkCheckBox(row, text=self.t("overlap_toggle"), variable=self.overlap_var,
+        overlap = ctk.CTkCheckBox(options, text=self.t("overlap_toggle"), variable=self.overlap_var,
                                   font=("Segoe UI", 11), checkbox_width=18, checkbox_height=18,
                                   command=self._overlap_changed)
         overlap.pack(side="left", padx=8)
@@ -64,9 +68,9 @@ class SpeechOutputMixin:
         self.speech_menu.add_command(label=self.t("speech_bank"), command=self.open_voice_bank)
         self.speech_menu.add_command(label=self.t("speech_stop"), command=self.stop_speaking)
         click_row = ctk.CTkFrame(parent, fg_color="transparent")
-        click_row.grid(row=4, column=0, columnspan=2, sticky="ew", pady=(5, 1))
+        click_row.grid(row=2 if workspace else 4, column=0, columnspan=2, sticky="ew", pady=(5, 1))
         self._click_speech_checkbox(click_row).pack(side="left", padx=3)
-        ctk.CTkLabel(click_row, text=self.t("speech_click_hint"), text_color="#9AA8BE",
+        ctk.CTkLabel(click_row, text=self.t("speech_click_hint"), text_color="#9AA8BE", wraplength=440 if workspace else 0,
                      font=("Segoe UI", 11)).pack(side="left", padx=12)
 
     def _click_speech_setting(self, preset=None):

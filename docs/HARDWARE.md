@@ -1,6 +1,6 @@
 # Hardware detection and safe model selection
 
-Local Transcriber Pro 3.1.0 treats a model as available only after its complete runtime route has passed conservative admission checks. Merely finding a GPU name is never considered proof that GPU inference works.
+Local Transcriber Pro 3.4.0 treats a model as available only after its complete runtime route has passed conservative admission checks. Merely finding a GPU name is never considered proof that GPU inference works.
 
 ## What is measured at startup
 
@@ -53,14 +53,14 @@ These are admission floors, not promises of speed. A 4 GB Windows computer is de
 
 The **Models and minimum requirements** window shows Qwen, Parakeet and the entire official Whisper catalogue. Each row contains its CPU RAM, GPU VRAM and download requirement.
 
-Models are sorted by estimated multilingual accuracy, with English-only variants at the end. Separate columns show relative accuracy, speed and multilingual coverage indices from 0 to 10, plus the language count. Automatic defaults to maximum compatible accuracy; speed is an explicit optional profile. The selected Automatic row displays the scores of the model it currently recommends.
+Models are sorted by estimated multilingual accuracy, with English-only variants at the end. Separate columns show relative accuracy, speed and multilingual coverage indices from 0 to 10, plus the language count. The default accuracy profile prioritizes the local OpenAI Whisper family, with large-v3 first when compatible. Speed and maximum language coverage remain explicit profiles, and every manual checkpoint remains available. The OpenAI preference does not rewrite the catalogue’s editorial cross-vendor scores. The selected Automatic row displays the scores of the model it currently recommends.
 
-These are editorial indices, not measured word accuracy percentages or a universal reliability benchmark. Accuracy normalizes the catalogue's selection priority against Qwen 1.7B (`quality_rank / 120 × 10`), informed by the linked model cards and local sample validation. Speed uses a logarithmic scale of the catalogue's initial processing estimates, with Qwen 1.7B at 1 and Parakeet CPU at 10. Different runtimes and hardware can change that order. Languages covered, noise, domain vocabulary and warm/cold state matter; session-specific ETA calibration remains independent of these indices. English-only models have no multilingual accuracy index.
+These are editorial indices, not measured word accuracy percentages or a universal reliability benchmark. Accuracy normalizes the catalogue's editorial rating against Qwen 1.7B (`quality_rank / 120 × 10`), informed by the linked model cards and local sample validation. Speed uses a logarithmic scale of the catalogue's initial processing estimates, with Qwen 1.7B at 1 and Parakeet CPU at 10. Different runtimes and hardware can change that order. Languages covered, noise, domain vocabulary and warm/cold state matter; session-specific ETA calibration remains independent of these indices. English-only models have no multilingual accuracy index.
 
 - safe rows have a **Select** button and state which device will be used
 - unsafe rows are greyed out, disabled and state the exact missing resource
 - temporary pressure is distinguished from a permanent hardware limit
-- **Safest maximum quality (Auto)** names the model it will actually use
+- **OpenAI accuracy (Auto)** names the model it will actually use
 
 The engine repeats the check even if a caller bypasses the interface. A stale or unsafe explicit model is replaced by the largest safe choice. If a native engine still refuses a valid allocation, up to two smaller admitted routes are attempted without closing the application.
 
@@ -74,9 +74,9 @@ An NVIDIA display driver is supplied by the computer/GPU manufacturer, not modif
 
 Before the first transcription, estimates use conservative real-time factors by model and device. Every successful run stores an exponential moving average of actual processing time divided by audio duration for that exact model/device pair. No audio, text, specification or benchmark is uploaded.
 
-## 3.1.0 selection policy and source revisions
+## Current selection policy and source revisions
 
-Accuracy favors Qwen 1.7B, then Qwen 0.6B on admitted CUDA/MPS routes. Automatic never chooses Qwen on CPU because cold inference can be very slow. CPU accuracy retains Whisper; Speed favors the Parakeet CPU engine, then Whisper Turbo. Language/task compatibility takes precedence over model rank. The legacy speech-to-English Whisper task excludes Qwen, Parakeet, English-only Whisper and Whisper Turbo. The 3.1 graphical translation workflow instead preserves source recognition and uses the independent MADLAD text translator, so it works with these recognition engines too. The universal profile prioritizes Omnilingual 1B v2 when its CPU route is admitted, then the broadest compatible Whisper model. Omnilingual supports a 1,600+ language recognition inventory and uses a separate GlotLID v3 text detector; its chunk timing is coarser and it provides no acoustic confidence score. Language count is coverage, not a reliability guarantee. Automatic language detection is bounded by the selected engine's language coverage.
+The default accuracy profile favors the OpenAI Whisper family, starting with full large-v3. Manual Qwen selection remains available on admitted routes; automatic profiles avoid its slow CPU route. Speed favors the Parakeet CPU engine, then Whisper Turbo. Language/task compatibility takes precedence over model rank. The legacy speech-to-English Whisper task excludes Qwen, Parakeet, English-only Whisper and Whisper Turbo. Graphical translation preserves source recognition and uses the independent MADLAD text translator, so it works with these recognition engines too. The separate maximum-coverage profile prioritizes Omnilingual 1B v2 when its CPU route is admitted, then the broadest compatible Whisper model. Omnilingual supports a 1,600+ language recognition inventory and uses a separate GlotLID v3 text detector; its chunk timing is coarser and it provides no acoustic confidence score. Language count is coverage, not a reliability guarantee. Automatic language detection is bounded by the selected engine's language coverage.
 
 Actual free memory is distinguished from unknown memory. Memory held by the resident model is counted as reclaimable for selection, and that model is unloaded before checking resources for a replacement. Admission reduces allocation failures but cannot guarantee that another application will not consume resources during inference.
 
@@ -99,3 +99,8 @@ Omnilingual's 5.60 GB first download includes ~3.91 GB recognition and ~1.69 GB 
 Coverage score is `min(10, language_count / 100 * 10)`; the displayed language count distinguishes 100 from 1,600 despite saturation at 10. Accuracy and speed are editorial starting guides. They do not constitute a measured per-language ranking. The small held-out diagnostics and their limitations are in [VALIDATION_3.1.md](VALIDATION_3.1.md).
 
 Optional SepFormer adds ~113 MB, runs bounded six-second windows on CPU and can be slower than the audio. Voices are loaded one at a time on CPU. English/French are bundled; other local voices use per-user cache. Keeping several engines resident and other applications open consumes additional RAM. Hardware admission is conservative but cannot prevent every failure caused by later resource pressure.
+
+
+## OpenAI local default in 3.4
+
+The full large-v3 Whisper checkpoint is preferred to Turbo for the accuracy profile; Turbo remains a faster option. This is a choice among downloadable local checkpoints, not a hosted transcription API integration. The [official Whisper repository](https://github.com/openai/whisper#available-models-and-languages) describes Turbo as a speed optimization of large-v3 with some accuracy degradation. Resource admission is still required on every platform. A language outside Whisper coverage can retain an admitted wider recognizer; the maximum coverage profile continues to prioritize language count.

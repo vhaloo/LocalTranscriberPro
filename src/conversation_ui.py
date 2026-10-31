@@ -48,8 +48,16 @@ class ConversationMixin(WorkbenchMixin, SpeechOutputMixin):
         self.sampling_bar.set(0)
         ToolTip(self.pipeline_label, self.t("tip_pipeline"))
         ToolTip(self.sampling_bar, self.t("tip_pipeline"))
-        self._build_speech_controls(row)
-        self._workbench_controls(row)
+        if getattr(self, "workspace_layout", False):
+            tools.grid(row=0, column=0, columnspan=2, sticky="w")
+            self.conversation_legend.grid(row=1, column=0, columnspan=2, sticky="w", pady=(3, 0))
+            self.pipeline_label.grid(row=2, column=0, columnspan=2, sticky="ew")
+            self.sampling_bar.grid(row=3, column=0, columnspan=2, sticky="ew")
+            self.pipeline_label.grid_remove()
+            self.sampling_bar.grid_remove()
+        self._build_speech_controls(self.voice_settings_host if getattr(self, "workspace_layout", False) else row)
+        if not getattr(self, "workspace_layout", False):
+            self._workbench_controls(row)
 
     def change_transcript_font(self, delta):
         self._commit_editor_changes()
@@ -109,6 +117,9 @@ class ConversationMixin(WorkbenchMixin, SpeechOutputMixin):
                                    text=self.t("resume" if self.recorder.paused else "pause"))
         self.focus_stop.configure(state="normal" if recording else "disabled")
         if recording or self.recorder.segmenting or self.pipeline_stage in {"transcribing", "translating", "separating"}:
+            if getattr(self, "workspace_layout", False):
+                self.pipeline_label.grid()
+                self.sampling_bar.grid()
             state = self.recorder.sampling_state()
             seconds = state.get("seconds", 0)
             maximum = max(1, state.get("maximum_seconds", 12))
@@ -121,6 +132,9 @@ class ConversationMixin(WorkbenchMixin, SpeechOutputMixin):
         elif not self.busy:
             self.pipeline_label.configure(text=self.t("pipeline_idle"))
             self.sampling_bar.set(0)
+            if getattr(self, "workspace_layout", False):
+                self.pipeline_label.grid_remove()
+                self.sampling_bar.grid_remove()
 
     def translation_changed(self, field, code):
         if self.busy:

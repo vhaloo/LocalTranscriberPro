@@ -1,18 +1,28 @@
-# Local Transcriber Pro 3.3.1
+# Local Transcriber Pro 3.4.0
 
 **Private transcription. Offline conversation translation. Readable, speakable results.**
 
-[Français](#francais) · [Download Windows 3.3.1](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.1/LocalTranscriberPro-3.3.1-Windows-x64-Setup.exe) · [All releases](https://github.com/vhaloo/LocalTranscriberPro/releases) · [Conversation guide](docs/TRANSLATION.md) · [Complete language list and measured error rates](#langues) · [Validation](docs/VALIDATION_3.3.md)
+[Français](#francais) · [Download Windows 3.4.0](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.4.0/LocalTranscriberPro-3.4.0-Windows-x64-Setup.exe) · [All releases](https://github.com/vhaloo/LocalTranscriberPro/releases) · [Conversation guide](docs/TRANSLATION.md) · [Complete language list and measured error rates](#langues) · [Validation](docs/VALIDATION_3.4.md)
 
-![Local Transcriber Pro 3.3.1: Arabic original, French translation and optional English](docs/images/local-transcriber-pro-3.3.1-universal.png)
+![Local Transcriber Pro 3.4.0: Arabic original, French translation and optional English](docs/images/local-transcriber-pro-3.4.0-universal.jpg)
 
 *Real Windows application, illustrative demonstration text. No private conversation is shown.*
 
-Local Transcriber Pro turns microphone recordings, audio/video files and explicitly requested online videos into text on your own computer. Version 3.3.1 adds language-aware line clicking in every task and the audience display. The 3.3 series also adds provisional live text, editable paired turns, an audience window, typed spoken replies, offline preparation, private encrypted sessions and signed update manifests. **Universal live translation** keeps original speech in white, translation underneath in green, an optional third language in blue, automatic two-language routing, local speech playback and a large reading view.
+Local Transcriber Pro turns microphone recordings, audio/video files and explicitly requested online videos into text on your own computer. Version 3.4.0 puts tasks in a stable sidebar, keeps source controls together, gives the transcript more space and moves detailed settings into their own window. The default accuracy profile prioritizes local **OpenAI Whisper large-v3** when memory permits. **Universal live translation** retains originals, reverse translation, an optional third language, per-line speech and an independent audience display.
 
 No API key, subscription or cloud inference is required. Download speech/translation models once; prepared models work offline. English and French reading voices are included in the desktop packages. Other voices are downloaded individually with your acceptance.
 
-## New in 3.3.1 / Nouveautés
+## New in 3.4.0 / Nouveautés
+
+- **Task-first workspace:** files, live translation, conference, dictation and online video stay together on the left. Review, audience display, typed replies, offline preparation and confidential sessions remain one click away. Detailed recognition, voice and storage controls live in **Settings** (`Ctrl+,`).
+- **More room for text:** the live transcript is 449 pixels high at 1320×990 and 227 at 1024×768 in the controlled Windows layout check. File mode provides 654 and 432 pixels respectively. Fonts, F11 reading, pause/stop and the audience window remain available. These are measured layouts, not a promise for every display scale.
+- **OpenAI accuracy by default:** the full local Whisper large-v3 checkpoint is preferred when its memory/runtime checks pass. CPU remains an option when GPU memory is occupied; smaller Whisper models serve smaller computers. Qwen, Parakeet and the maximum language-coverage profile remain selectable. This provider preference does not claim measured superiority over every other recognizer.
+- **Find in transcript:** `Ctrl+F`, literal search, Enter/Shift+Enter navigation, Escape to close, and a 1,000-result bound. Shaped Arabic display also searches associated logical text and may highlight the complete matching line. Search never edits or speaks the transcript.
+- **Clearer behavior:** empty-workspace guidance stays out of exports; file/video tasks do not open microphone monitoring; language changes preserve the active conversation and reopen the audience display. Loaded-model summaries follow the actual engine status.
+
+**En français :** choisissez un usage à gauche, puis la source et les langues ; le transcript occupe l’essentiel de la fenêtre. **Paramètres** regroupe les réglages détaillés. Le profil **Précision OpenAI** privilégie Whisper large-v3 quand la mémoire le permet. **Ctrl+F** recherche dans le texte ; **F11** agrandit la lecture. Les fonctions existantes, dont les voix au clic dans les deux fenêtres, sont conservées.
+
+### Retained line reading / Lecture au clic conservée
 
 **Click a line to speak — Lire une ligne au clic.** Enable the checkbox below the transcript controls or in the audience window. Click an original, translation or third-language line to hear that utterance in its own language. The checkbox is shared across both windows, on by default for Universal live translation, and remembered separately for that mode and all other tasks. Prepared local voices take priority; compatible system voices are a fallback. Missing voices prompt for an optional download. A manually selected foreign-language voice never overrides a clicked line's language.
 
@@ -32,30 +42,41 @@ Speech coverage depends on the available voice catalogue or installed compatible
 - **Optional MADLAD 7B:** verified 8.33 GB local translation model, pinned to a fixed revision; requires 28 GB total RAM and 14 GB available, and may be slow on CPU. MADLAD 3B remains the standard engine; larger size is not a guarantee of better meaning.
 - **Distribution:** separate lighter Windows CPU package and Ed25519-signed release manifests. Native Windows Authenticode and Apple notarization still require maintainer certificates.
 
-**En français :** texte provisoire en direct, correction des langues sans arrêter la capture, révision bilingue avec réécoute et historique, écran interlocuteur indépendant, réponses écrites et lues, préparation hors ligne, fichiers de session chiffrés et paquet CPU plus léger. Toutes les fonctions précédentes sont conservées. [Guide complet 3.3](docs/TRANSLATION.md).
+**En français :** texte provisoire en direct, correction des langues sans arrêter la capture, révision bilingue avec réécoute et historique, écran interlocuteur indépendant, réponses écrites et lues, préparation hors ligne, fichiers de session chiffrés et paquet CPU plus léger. Toutes les fonctions précédentes sont conservées. [Guide complet 3.4](docs/TRANSLATION.md).
 
 
 
-### Conversation tools / Outils de conversation
+### Workspace and conversation tools / Interface et outils
 
-![Review originals, translations and language choices](docs/images/local-transcriber-pro-3.3.0-review.png)
+<details>
+<summary>Open the current screenshot gallery / Voir les captures de la 3.4</summary>
 
-![Independent audience window with per-line speech in each language](docs/images/local-transcriber-pro-3.3.1-audience.png)
+![File workspace with empty-state guidance](docs/images/local-transcriber-pro-3.4.0-files.jpg)
 
-![Offline preparation, optional 7B model and glossary](docs/images/local-transcriber-pro-3.3.0-offline.png)
+![Separate recognition, voice and storage settings](docs/images/local-transcriber-pro-3.4.0-settings.jpg)
 
-*The main, reading and audience views are new 3.3.1 captures. Unchanged review, preparation, storage and video dialogs retain their 3.3.0 illustrations. All use demonstration text; no private conversation is shown.*
+![OpenAI accuracy default and retained model catalogue](docs/images/local-transcriber-pro-3.4.0-models.jpg)
+
+![Review originals, translations and language choices](docs/images/local-transcriber-pro-3.4.0-review.jpg)
+
+![Independent audience window with per-line speech in each language](docs/images/local-transcriber-pro-3.4.0-audience.jpg)
+
+![Offline preparation, optional 7B model and glossary](docs/images/local-transcriber-pro-3.4.0-offline.jpg)
+
+*All ten current captures show the actual 3.4.0 Windows interface with isolated demonstration data; no private conversation is shown.*
+
+</details>
 
 ## Install
 
 | Platform | Recommended package | Compressed size, decimal GB | Status |
 |---|---|---:|---|
-| Windows 10/11 x64 | [3.3.1 installer](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.1/LocalTranscriberPro-3.3.1-Windows-x64-Setup.exe) | 2.106 | Self-contained, per-user installation; CUDA and CPU runtimes included |
-| Windows x64, CPU package | [Lighter CPU installer](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.1/LocalTranscriberPro-3.3.1-Windows-x64-CPU-Setup.exe) | 0.432 | Same functions on CPU; NVIDIA runtime omitted; updater preserves this package choice |
-| macOS, Apple Silicon (arm64) | [3.3.1 experimental DMG](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.1/LocalTranscriberPro-3.3.1-macOS-arm64-experimental.dmg) | 0.593 | Experimental; macOS 14 recommended, automated CPU/voice checks; no Intel package |
-| Linux x86-64 | [3.3.1 experimental AppImage](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.1/LocalTranscriberPro-3.3.1-Linux-x86_64-experimental.AppImage) · [Portable archive](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.1/LocalTranscriberPro-3.3.1-Linux-x86_64-experimental.tar.gz) | 0.771 / 0.766 | Experimental; built and checked on Ubuntu 24.04; other distributions unverified |
+| Windows 10/11 x64 | [3.4.0 installer](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.4.0/LocalTranscriberPro-3.4.0-Windows-x64-Setup.exe) | 2.107 | Self-contained, per-user installation; CUDA and CPU runtimes included |
+| Windows x64, CPU package | [Lighter CPU installer](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.4.0/LocalTranscriberPro-3.4.0-Windows-x64-CPU-Setup.exe) | 0.433 | Same functions on CPU; NVIDIA runtime omitted; updater preserves this package choice |
+| macOS, Apple Silicon (arm64) | [3.4.0 experimental DMG](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.4.0/LocalTranscriberPro-3.4.0-macOS-arm64-experimental.dmg) | 0.595 | Experimental; macOS 14 recommended, automated CPU/voice checks; no Intel package |
+| Linux x86-64 | [3.4.0 experimental AppImage](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.4.0/LocalTranscriberPro-3.4.0-Linux-x86_64-experimental.AppImage) · [Portable archive](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.4.0/LocalTranscriberPro-3.4.0-Linux-x86_64-experimental.tar.gz) | 0.774 / 0.769 | Experimental; built and checked on Ubuntu 24.04; other distributions unverified |
 
-**macOS/Linux are experimental distributions.** Native CPU recognition and bundled French/English voices pass automated checks, but physical installation, microphones and GPU acceleration have not been validated on these platforms. The Mac app has an ad-hoc signature and is not Apple-notarized. [Installation, first launch and known limits](docs/EXPERIMENTAL_DESKTOP_3.3.md). Windows retains its validated stable installer.
+**macOS/Linux are experimental distributions.** Native CPU recognition and bundled French/English voices pass automated checks, but physical installation, microphones and GPU acceleration have not been validated on these platforms. The Mac app has an ad-hoc signature and is not Apple-notarized. [Installation, first launch and known limits](docs/EXPERIMENTAL_DESKTOP_3.4.md). Windows retains its validated stable installer.
 
 Run the Windows installer, then choose **Files**, **Conference**, **Dictation**, **Universal live translation**, or **Online video**. Python, FFmpeg and a CUDA toolkit do not need separate installation. An installed NVIDIA driver is still needed for NVIDIA acceleration. Allow storage for the application runtime and selected models. The first download can take several minutes; the interface stays responsive and explains preparation.
 
@@ -63,20 +84,21 @@ Windows checks the official GitHub release at startup and proposes a newer stabl
 
 ## Storage requirements and locations / Stockage et dossiers
 
-**Allow at least 12 GB free before installing.** The Windows installer and the always-visible **Storage and folders / Stockage et dossiers** button explain the budgets and show actual locations, measured file sizes and free space. GB/Go below are decimal (1 GB = 1,000,000,000 bytes).
+**Allow at least 12 GB free before installing.** The Windows installer explains storage budgets. The sidebar **Storage and folders / Stockage et dossiers** button and the storage settings tab show actual locations, measured file sizes and free space. GB/Go below are decimal (1 GB = 1,000,000,000 bytes).
 
 | Prepared configuration | Estimated application + model files | Space to allow |
 |---|---:|---|
 | Smallest usable setup, with Whisper Tiny | ~5.9 GB | At least **12 GB free** for installation and temporary copying |
-| Universal conversation, Omnilingual + MADLAD | ~14.4 GB | Additional download/preparation space; actual caches vary |
+| Default universal conversation, Whisper large-v3 + MADLAD | ~11.9 GB | Extra preparation space; existing caches can be reused |
+| Maximum coverage, Omnilingual + MADLAD | ~14.4 GB | Additional download/preparation space; actual caches vary |
 | All current recognizers, translation, voices and optional tools | ~53 GB | **95 GB prudent budget** including preparation and possible Windows Hub duplicate caches |
 | Saved microphone audio | ~115 MB per recorded hour | Adds to the chosen output folder, plus text exports |
 
-**Windows full-runtime reference measured after installation:** 5.34 GB before model caches and 2.106 GB for its compressed installer. Exact verified package sizes and signed hashes are shown in the release. The separate CPU installer is 0.432 GB. The installation table uses conservative full-Windows planning budgets; CPU-only and other-platform footprints are smaller.
+**Windows full-runtime reference measured after installation:** 5.34 GB before model caches and 2.107 GB for its compressed installer. Exact verified package sizes and signed hashes are shown in the release. The separate CPU installer is 0.433 GB. The installation table uses conservative full-Windows planning budgets; CPU-only and other-platform footprints are smaller.
 
 These are conservative Windows package/catalogue estimates; Mac/Linux packages are generally smaller. **There is no finite maximum**: recordings, exports, extra model revisions and caches can continue growing. The 95 GB figure is a planning budget, not a hard ceiling. Preparing every model is optional. A build environment needs extra space beyond these user-installation budgets.
 
-**En français :** minimum pratique d’environ **5,9 Go**, avec **12 Go libres avant installation** ; environ **14,4 Go** pour la conversation universelle, **53 Go** pour les fichiers de tout le catalogue et **95 Go à prévoir** avec les préparations/caches. L’audio du micro ajoute environ **115 Mo par heure**. Aucun maximum absolu ne peut être promis. Le panneau **Stockage et dossiers**, accessible en haut de la fenêtre, donne les chemins réels, les tailles mesurées en arrière-plan et l’espace libre ; les liens/jonctions sont ignorés et les mesures incomplètes sont signalées.
+**En français :** minimum pratique d’environ **5,9 Go**, avec **12 Go libres avant installation** ; environ **11,9 Go** pour la conversation par défaut avec Whisper large-v3, **14,4 Go** pour la couverture maximale avec Omnilingual, **53 Go** pour les fichiers de tout le catalogue et **95 Go à prévoir** avec les préparations/caches. L’audio du micro ajoute environ **115 Mo par heure**. Aucun maximum absolu ne peut être promis. Le panneau **Stockage et dossiers**, accessible dans la barre latérale ou les paramètres, donne les chemins réels, les tailles mesurées en arrière-plan et l’espace libre ; les liens/jonctions sont ignorés et les mesures incomplètes sont signalées.
 
 | Files / Fichiers | Windows | macOS | Linux |
 |---|---|---|---|
@@ -89,7 +111,7 @@ These are conservative Windows package/catalogue estimates; Mac/Linux packages a
 
 The history folder contains `history.sqlite3` and `unsaved_session.json`. Cache subfolders are `models`, `omnilingual`, `translation`, `voices`, `separation`, `speechbrain`, `online-audio`, `video-engine` and `updates`. Bundled French/English voices live in the application; on-demand voices live in the cache. Temporary online audio is removed after import/transcription or cancellation. Existing exports, models, settings and history survive application upgrades. Use the actual paths in **Storage and folders**, including when XDG variables or output locations were customized.
 
-![Storage budgets and selectable local folders, unchanged since 3.3.0](docs/images/local-transcriber-pro-3.3.0-storage.png)
+![Current storage budgets and selectable local folders](docs/images/local-transcriber-pro-3.4.0-storage.jpg)
 
 ## Online video: import, repair and fallback
 
@@ -103,7 +125,7 @@ The release bundles yt-dlp `2026.10.10.233141`, its EJS solver and a JavaScript 
 
 **En français :** collez le lien dans **Vidéo en ligne**. L’audio est téléchargé, vérifié puis transcrit localement, avec annulation effective et nettoyage des fichiers de l’essai. **Options vidéo et diagnostic** permet d’actualiser le moteur officiel, de régler la limite et de choisir un export de connexion facultatif. Le moteur et les cookies sont distincts des modèles de reconnaissance. Les messages expliquent les refus du site et proposent **Utiliser un fichier local…**. Les aides apparaissent au survol ou à la mise au point clavier des principales commandes, y compris langues, lecture, confiance, captures et mises à jour. Internet sert à récupérer la vidéo ; la reconnaissance et la traduction restent locales.
 
-![Video options and verified engine update, unchanged since 3.3.0](docs/images/local-transcriber-pro-3.3.0-video.png)
+![Current video options and official engine update](docs/images/local-transcriber-pro-3.4.0-video.jpg)
 
 ## Universal live translation
 
@@ -113,9 +135,9 @@ The release bundles yt-dlp `2026.10.10.233141`, its EJS solver and a JavaScript 
 4. Record and take turns. The app ends a speech chunk after a pause, shows the original before translation, and displays capture/processing/queue status.
 5. Use **A− / A+**, **F11** or **Escape** for a readable, adjustable conversation view. Select lines and choose **Read lines**, or right-click to read/replay audio.
 
-![Large local conversation reading view](docs/images/local-transcriber-pro-3.3.1-reading.png)
+![Large local conversation reading view](docs/images/local-transcriber-pro-3.4.0-reading.jpg)
 
-The default multilingual profile favors Omnilingual CTC 1B v2 on a compatible computer, falling back to the strongest compatible Whisper model. **Omnilingual CTC 1B v2** adds 1,600+ language recognition for broader coverage. Choosing a conversation language outside Whisper's language list selects Omnilingual when the computer can run it. Its separate GlotLID v3 text detector covers 2,000+ language/script labels; recognition and automatic identification have distinct coverage and limitations. Recognition, translation and speech synthesis have different coverage and quality. [Language coverage and priorities](docs/LANGUAGES.md).
+The default **OpenAI accuracy** profile prioritizes Whisper large-v3 on a compatible computer. The separate **Maximum multilingual coverage** profile favors **Omnilingual CTC 1B v2**, which adds 1,600+ language recognition for broader coverage. Choosing a conversation language outside Whisper's language list selects Omnilingual when the computer can run it. Its separate GlotLID v3 text detector covers 2,000+ language/script labels; recognition and automatic identification have distinct coverage and limitations. Recognition, translation and speech synthesis have different coverage and quality. [Language coverage and priorities](docs/LANGUAGES.md).
 
 The translation catalogue exposes **452 MADLAD language tokens/variants**. This is a catalogue count, not a claim of equal accuracy in 452 languages. Short speech, code-switching, dialects, names, numbers, noisy microphones and underrepresented languages can fail. Our small tests include Haitian Creole, South Asian and African languages, East/Southeast Asian languages and eight Arabic dialect groups; results and weaknesses are published in the [validation report](docs/VALIDATION_3.1.md).
 
@@ -150,10 +172,10 @@ Bilingual text is protected against accidental rewriting of original/translation
 
 | Recognizer | Coverage advertised by publisher | Typical model download | Practical role |
 |---|---:|---:|---|
-| Qwen3-ASR 1.7B | 30 languages | ~6.2 GB including aligner | General accuracy auto on a compatible strong GPU; manual CPU choice |
+| Qwen3-ASR 1.7B | 30 languages | ~6.2 GB including aligner | Optional 30-language recognizer; manual selection preserved |
 | Qwen3-ASR 0.6B | 30 languages | ~2.9 GB including aligner | Smaller Qwen option |
-| Whisper large-v3 | 100 language IDs | ~3.1 GB | Broad multilingual alternative; preferred on smaller compatible computers |
-| Omnilingual CTC 1B v2 | 1,600+ recognition languages | ~5.60 GB including GlotLID | Universal auto on capable computers; CPU, 16 GB total RAM / 10 GB available |
+| Whisper large-v3 | 100 language IDs | ~3.1 GB | Default OpenAI accuracy model on compatible computers |
+| Omnilingual CTC 1B v2 | 1,600+ recognition languages | ~5.60 GB including GlotLID | Maximum coverage profile; CPU, 16 GB total RAM / 10 GB available |
 | Parakeet TDT v3 int8 | 25 European languages | ~0.64 GB | Fast CPU profile |
 | Whisper Tiny → Medium, Large v1/v2, Turbo and English variants | Model dependent | ~0.08–3.1 GB | All previous choices remain available |
 
@@ -190,9 +212,9 @@ The current application starts from `main.py`; native builds use `packaging/Loca
 <a id="francais"></a>
 ## Français
 
-**Transcrire, traduire et relire à voix haute sur votre ordinateur.** La 3.3.1 ajoute la lecture au clic dans tous les modes et sur l’écran interlocuteur, activée par défaut en traduction universelle live. Elle conserve les fonctions de la série 3.3 : texte provisoire en direct, révision bilingue, réponses écrites et lues, préparation hors ligne et sessions chiffrées. [Installer Windows 3.3.1](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.1/LocalTranscriberPro-3.3.1-Windows-x64-Setup.exe).
+**Transcrire, traduire et relire à voix haute sur votre ordinateur.** La 3.4.0 réorganise les usages, agrandit le transcript, sépare les paramètres et ajoute une recherche au clavier. Le profil Précision OpenAI privilégie Whisper large-v3 sur le matériel compatible. La traduction live, les voix au clic, la révision, les réponses écrites et lues, la préparation hors ligne et les sessions chiffrées sont conservées. [Installer Windows 3.4.0](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.4.0/LocalTranscriberPro-3.4.0-Windows-x64-Setup.exe).
 
-**Paquets expérimentaux 3.3.1 :** [Mac Apple Silicon](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.1/LocalTranscriberPro-3.3.1-macOS-arm64-experimental.dmg), [Linux x86-64 AppImage](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.1/LocalTranscriberPro-3.3.1-Linux-x86_64-experimental.AppImage) et [archive Linux](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.3.1/LocalTranscriberPro-3.3.1-Linux-x86_64-experimental.tar.gz). La reconnaissance CPU et les voix livrées passent les contrôles automatisés natifs ; installation réelle, microphone et accélération GPU restent à valider. macOS 14 et Ubuntu 24.04 servent de référence. Le Mac Intel n'est pas couvert, et le paquet Mac n'est pas notarisé par Apple. [Guide d'installation et limites](docs/EXPERIMENTAL_DESKTOP_3.3.md).
+**Paquets expérimentaux 3.4.0 :** [Mac Apple Silicon](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.4.0/LocalTranscriberPro-3.4.0-macOS-arm64-experimental.dmg), [Linux x86-64 AppImage](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.4.0/LocalTranscriberPro-3.4.0-Linux-x86_64-experimental.AppImage) et [archive Linux](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.4.0/LocalTranscriberPro-3.4.0-Linux-x86_64-experimental.tar.gz). La reconnaissance CPU et les voix livrées passent les contrôles automatisés natifs ; installation réelle, microphone et accélération GPU restent à valider. macOS 14 et Ubuntu 24.04 servent de référence. Le Mac Intel n'est pas couvert, et le paquet Mac n'est pas notarisé par Apple. [Guide d'installation et limites](docs/EXPERIMENTAL_DESKTOP_3.4.md).
 
 Choisissez votre langue, lancez l'enregistrement et parlez chacun votre tour. L'original apparaît en blanc, la traduction juste dessous en vert. Deux langues détectées avec suffisamment de confiance forment automatiquement une paire : chaque interlocuteur est traduit vers l'autre. Vous pouvez fixer l'autre langue et ajouter une troisième traduction en bleu. Les menus permettent une recherche par nom ou code de langue.
 
@@ -202,17 +224,17 @@ Sélectionnez une ou plusieurs lignes, puis **Lire les lignes**, ou utilisez le 
 
 Les petits **indices de confiance** s'activent ou se masquent. Ils reflètent les scores internes disponibles, pas une certitude sur le sens. **2 voix superposées · essai** est une option expérimentale désactivée par défaut : elle tente de séparer deux voix, sans garantir leur reconstruction ni leur identité.
 
-La reconnaissance utilise Whisper, Qwen, Parakeet ou le nouveau **Omnilingual 1B v2**, selon le profil choisi et le matériel. Omnilingual annonce plus de 1 600 langues de reconnaissance ; la traduction expose 452 langues/variantes MADLAD. Ces nombres décrivent des couvertures différentes, avec une précision variable. La sélection automatique multilingue privilégie Omnilingual sur une machine compatible, avec repli vers Whisper ; les autres modèles restent sélectionnables. Les langues fréquemment utiles au Canada sont placées en accès rapide, avec des essais réels en créole haïtien, en langues sud-asiatiques et africaines, dans huit groupes de dialectes arabes et en langues asiatiques. [Couverture, priorités et limites](docs/LANGUAGES.md).
+La reconnaissance utilise Whisper, Qwen, Parakeet ou le nouveau **Omnilingual 1B v2**, selon le profil choisi et le matériel. Omnilingual annonce plus de 1 600 langues de reconnaissance ; la traduction expose 452 langues/variantes MADLAD. Ces nombres décrivent des couvertures différentes, avec une précision variable. Le profil par défaut privilégie les modèles OpenAI Whisper. Le profil distinct Multilinguisme maximal privilégie Omnilingual sur une machine compatible ; tous les modèles restent sélectionnables. Les langues fréquemment utiles au Canada sont placées en accès rapide, avec des essais réels en créole haïtien, en langues sud-asiatiques et africaines, dans huit groupes de dialectes arabes et en langues asiatiques. [Couverture, priorités et limites](docs/LANGUAGES.md).
 
 L'application conserve les fichiers audio/vidéo, les conférences, la dictée sans fin, les vidéos en ligne, les étiquettes de personnes, le vocabulaire, l'historique, la récupération et les exports TXT/SRT/VTT/CSV/JSON. Les modèles préparés fonctionnent hors ligne ; seul leur téléchargement initial, les vidéos explicitement demandées et la vérification activée des mises à jour utilisent Internet. Les voix MMS ont une licence non commerciale indiquée dans la banque.
 
-Au démarrage, une nouvelle version officielle est proposée. Sous Windows, accepter lance le téléchargement vérifié, la sauvegarde, l'installation et le redémarrage de l'application. Les données existantes sont conservées. [Mode d'emploi complet](docs/TRANSLATION.md) · [Vérifications 3.3.1](docs/VALIDATION_3.3.md) · [Mesures multilingues antérieures](docs/VALIDATION_3.1.md).
+Au démarrage, une nouvelle version officielle est proposée. Sous Windows, accepter lance le téléchargement vérifié, la sauvegarde, l'installation et le redémarrage de l'application. Les données existantes sont conservées. [Mode d'emploi complet](docs/TRANSLATION.md) · [Vérifications 3.4.0](docs/VALIDATION_3.4.md) · [Mesures multilingues antérieures](docs/VALIDATION_3.1.md).
 
 <!-- BEGIN GENERATED LANGUAGE INVENTORY -->
 <a id="langues"></a>
 ## Liste complète des langues et fiabilité
 
-**Complete language inventory / Inventaire intégral — version 3.3.1, sources vérifiées le 2026-10-08.** Toutes les listes figurent ci-dessous dans ce README. Dépliez les tableaux pour parcourir les langues ; les codes permettent de distinguer les variantes et écritures.
+**Complete language inventory / Inventaire intégral — version 3.4.0, sources vérifiées le 2026-10-08.** Toutes les listes figurent ci-dessous dans ce README. Dépliez les tableaux pour parcourir les langues ; les codes permettent de distinguer les variantes et écritures.
 
 [Mesures disponibles](#mesures-langues) · [Omnilingual](#langues-omnilingual) · [Whisper / Qwen / Parakeet](#langues-autres-asr) · [Traduction](#langues-traduction) · [Voix](#langues-voix)
 

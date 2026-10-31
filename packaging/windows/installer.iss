@@ -1,6 +1,6 @@
 #define AppName "Local Transcriber Pro"
 #ifndef AppVersion
-#define AppVersion "3.3.1"
+#define AppVersion "3.4.0"
 #endif
 #ifndef AppSource
   #define AppSource "..\..\dist\" + AppVersion + "\LocalTranscriberPro"
