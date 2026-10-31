@@ -46,7 +46,6 @@ from src.history import HistoryStore, SessionRecord
 from src.i18n import Translator
 from src.jobs import JobCancelled, check_cancelled
 from src.media import RecordingSpool
-from src.meter import TapeMeter
 from src.models import (
     AUTO_FAST_MODEL_ID,
     AUTO_MODEL_ID,
@@ -62,19 +61,17 @@ from src.recording_ui import RecordingMixin
 from src.segments import shift_segments, validate_segments
 from src.session import SessionController, identified
 from src.settings import SettingsStore, bounded_int, ensure_output_folder
-from src.storage import MINIMUM_INSTALL_FREE, format_bytes
-from src.storage_ui import StorageDialog
 from src.tooltip import ToolTip
 from src.transcriber import EngineStatus, TranscriberEngine, TranscriptionOptions
 from src.transcript_format import TranscriptFormat, format_segment, format_transcript, plain_segments
-from src.translation_ui import TranslationControls, render_conversation
+from src.translation_ui import render_conversation
 from src.update_ui import UpdatesMixin
 from src.utils import (
     atomic_write_text,
     create_srt_content,
     timestamped_name,
 )
-from src.video_ui import VideoOptionsDialog
+from src.workspace_ui import WorkspaceMixin
 from src.youtube_utils import (
     VideoDownloadError,
     cleanup_online_audio,
@@ -180,11 +177,15 @@ class HelpDialog(ctk.CTkToplevel):
         guide = ctk.CTkScrollableFrame(self, fg_color=PANEL, corner_radius=18)
         guide.pack(fill="both", expand=True, padx=28, pady=(0, 18))
         items = [
+            ("workspace_step_source", "workspace_quick_guide"),
+            ("task_universal", "task_universal_help"),
+            ("workspace_find", "workspace_search_help"),
+            ("settings", "workspace_settings_help"),
             ("task_files", "task_files_help"),
             ("task_conference", "task_conference_help"),
             ("task_dictation", "task_dictation_help"),
             ("task_link", "task_link_help"),
-            ("model", "model_help"),
+            ("model", "workspace_openai_policy"),
             ("first_run", "first_run"),
         ]
         for title_key, body_key in items:
@@ -701,7 +702,7 @@ class ModelManagerDialog(ctk.CTkToplevel):
             messagebox.showerror(self.t("error"), self.t("job_error", error=path), parent=self)
 
 
-class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
+class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, TkinterDnD.DnDWrapper):
     def __init__(
         self,
         hardware: HardwareProfile | None = None,
@@ -747,9 +748,7 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
             self.selected_model_id = AUTO_FAST_MODEL_ID if self.simple_quality == "fast" else AUTO_MODEL_ID
             self.selected_device = "auto"
         if self.preset == "universal":
-            self.selected_model_id = self.settings.get("model", AUTO_MULTILINGUAL_MODEL_ID)
-            if self.selected_model_id in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID}:
-                self.selected_model_id = AUTO_MULTILINGUAL_MODEL_ID
+            self.selected_model_id = self.settings.get("model", AUTO_MODEL_ID)
             self.selected_language = "auto"
         available_devices = {"auto", "cpu"}
         if self.hardware.ctranslate_cuda or self.hardware.torch_cuda:
@@ -955,508 +954,19 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
         self.blocking_progress.stop()
         self.blocking_overlay.place_forget()
 
-    def build_ui(self) -> None:
-        for widget in self.winfo_children():
-            widget.destroy()
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(4, weight=0)
-        self.grid_rowconfigure(2, weight=1)
-        self._build_header()
-        self.controls_container = ctk.CTkScrollableFrame(self, fg_color="transparent",
-            height=min(300, max(150, round(self.winfo_screenheight() * 0.22))))
-        self.controls_container.grid(row=1, column=0, sticky="ew")
-        self.controls_container.grid_columnconfigure(0, weight=1)
-        self._build_simple_dashboard()
-        self._build_tasks()
-        self._build_source_card()
-        self._build_advanced_panel()
-        self._build_output()
-        self._apply_mode_visibility()
-        self._refresh_task_styles()
-        self._update_source_context()
-        self._update_hardware_chip()
-        self._setup_dnd_target()
-        self._build_blocking_overlay()
 
-    def _build_header(self) -> None:
-        header = ctk.CTkFrame(self, fg_color="transparent")
-        self.header_frame = header
-        header.grid(row=0, column=0, sticky="ew", padx=28, pady=(22, 12))
-        header.grid_columnconfigure(0, weight=1)
 
-        title_box = ctk.CTkFrame(header, fg_color="transparent")
-        title_box.grid(row=0, column=0, sticky="w")
-        ctk.CTkLabel(
-            title_box,
-            text="Local Transcriber Pro",
-            font=("Segoe UI", 27, "bold"),
-            text_color=TEXT,
-        ).pack(anchor="w")
-        ctk.CTkLabel(
-            title_box,
-            text=self.t("app_subtitle"),
-            font=("Segoe UI", 13),
-            text_color=MUTED,
-        ).pack(anchor="w", pady=(2, 0))
 
-        controls = ctk.CTkFrame(header, fg_color="transparent")
-        controls.grid(row=0, column=1, sticky="e")
-        self.hardware_btn = ctk.CTkButton(
-            controls,
-            text="",
-            width=180,
-            height=36,
-            fg_color=PANEL,
-            hover_color=PANEL_ALT,
-            text_color=ACCENT,
-            command=lambda: HardwareDialog(self),
-        )
-        self.hardware_btn.pack(side="left", padx=5)
-        ToolTip(self.hardware_btn, self.t("hardware_details"))
-        self.models_button = ctk.CTkButton(
-            controls,
-            text=self.t("model_manager"),
-            width=128,
-            height=36,
-            fg_color=PANEL,
-            hover_color=PANEL_ALT,
-            command=lambda: ModelManagerDialog(self),
-        )
-        self.models_button.pack(side="left", padx=5)
-        ToolTip(self.models_button, self.t("tip_model_manager"))
-        self.history_button = ctk.CTkButton(
-            controls,
-            text=self.t("history"),
-            width=94,
-            height=36,
-            fg_color=PANEL,
-            hover_color=PANEL_ALT,
-            command=lambda: HistoryDialog(self),
-            cursor="hand2",
-        )
-        self.history_button.pack(side="left", padx=5)
-        ToolTip(self.history_button, self.t("tip_history"))
-        self.help_button = ctk.CTkButton(
-            controls,
-            text=self.t("help"),
-            width=68,
-            height=36,
-            fg_color=PANEL,
-            hover_color=PANEL_ALT,
-            command=lambda: HelpDialog(self),
-        )
-        self.help_button.pack(side="left", padx=5)
-        ToolTip(self.help_button, self.t("tip_help"))
-        self.updates_button = ctk.CTkButton(
-            controls, text="↻", width=36, height=36, fg_color=PANEL, hover_color=PANEL_ALT,
-            font=("Segoe UI", 20), command=self.check_updates,
-        )
-        self.updates_button.pack(side="left", padx=5)
-        ToolTip(self.updates_button, self.t("updates"))
-        self.language_button = ctk.CTkButton(
-            controls,
-            text=self.t("language_name"),
-            width=52,
-            height=36,
-            fg_color=PANEL,
-            hover_color=PANEL_ALT,
-            command=self.toggle_language,
-        )
-        self.language_button.pack(side="left", padx=5)
-        ToolTip(self.language_button, self.t("tip_language"))
-        self.mode_button = ctk.CTkButton(
-            controls,
-            text=self.t("advanced" if self.ui_mode == "simple" else "simple"),
-            width=88,
-            height=36,
-            fg_color=ACCENT_DARK,
-            hover_color=ACCENT,
-            text_color="#06140F",
-            command=self.toggle_mode,
-        )
-        self.mode_button.pack(side="left", padx=(5, 0))
-        ToolTip(self.mode_button, self.t("tip_mode"))
-        self.header_controls = controls
-        self._header_stacked = None
-        header.bind("<Configure>", self._responsive_header, add="+")
-        locations = ctk.CTkFrame(header, fg_color="transparent")
-        locations.grid(row=2, column=0, columnspan=2, sticky="ew", pady=(8, 0))
-        locations.grid_columnconfigure(2, weight=1)
-        self.storage_button = ctk.CTkButton(locations, text=self.t("storage_short"), height=27, width=158,
-                                            fg_color=PANEL, command=lambda: StorageDialog(self))
-        self.storage_button.grid(row=0, column=0, padx=(0, 12))
-        ToolTip(self.storage_button, self.t("storage_summary_tip"))
-        ctk.CTkLabel(locations, text=self.t("storage_compact", minimum=format_bytes(MINIMUM_INSTALL_FREE, self.t.language)),
-                    font=("Segoe UI", 11), text_color=ACCENT).grid(row=0, column=1, padx=(0, 12))
-        self.storage_output = ctk.CTkEntry(locations, height=27, fg_color=BACKGROUND, border_width=0)
-        self.storage_output.insert(0, str(self.output_folder))
-        self.storage_output.configure(state="readonly")
-        self.storage_output.grid(row=0, column=2, sticky="ew")
-        self.storage_output_tip = ToolTip(self.storage_output, self.t("storage_output_tip", path=self.output_folder))
 
-    def _responsive_header(self, event):
-        stacked = event.width < 1120
-        if stacked == self._header_stacked:
-            return
-        self._header_stacked = stacked
-        self.header_controls.grid(row=1 if stacked else 0, column=0 if stacked else 1,
-                                  columnspan=2 if stacked else 1, sticky="w" if stacked else "e",
-                                  pady=(8, 0) if stacked else 0)
 
-    def _build_simple_dashboard(self) -> None:
-        self.simple_panel = ctk.CTkFrame(self.controls_container, fg_color=PANEL, corner_radius=28)
-        self.simple_panel.grid(row=1, column=0, sticky="ew", padx=28, pady=(4, 8))
-        self.simple_panel.grid_columnconfigure(0, weight=1)
-
-        heading = ctk.CTkFrame(self.simple_panel, fg_color="transparent")
-        heading.grid(row=0, column=0, sticky="ew", padx=20, pady=(15, 8))
-        heading.grid_columnconfigure(0, weight=1)
-        ctk.CTkLabel(
-            heading,
-            text=self.t("step_one"),
-            font=("Segoe UI", 17, "bold"),
-            text_color=TEXT,
-        ).grid(row=0, column=0, sticky="w")
-        ctk.CTkLabel(
-            heading,
-            text=self.t("simple_tagline"),
-            font=("Segoe UI", 12),
-            text_color=MUTED,
-        ).grid(row=0, column=1, sticky="e")
-
-        task_row = ctk.CTkFrame(self.simple_panel, fg_color="transparent")
-        task_row.grid(row=1, column=0, sticky="ew", padx=16)
-        self.simple_task_buttons: dict[str, ctk.CTkButton] = {}
-        simple_tasks = [
-            ("files", "simple_task_files", "task_files_help"),
-            ("conference", "simple_task_conference", "task_conference_help"),
-            ("dictation", "simple_task_dictation", "task_dictation_help"),
-            ("universal", "simple_task_universal", "task_universal_help"),
-            ("link", "simple_task_link", "task_link_help"),
-        ]
-        for index, (task_id, title_key, help_key) in enumerate(simple_tasks):
-            task_row.grid_columnconfigure(index, weight=1)
-            button = ctk.CTkButton(
-                task_row,
-                text=self.t(title_key),
-                height=76,
-                corner_radius=25,
-                border_width=1,
-                border_color="#2A4760",
-                font=("Segoe UI", 13, "bold"),
-                command=lambda value=task_id: self.select_preset(value),
-            )
-            button.grid(row=0, column=index, sticky="ew", padx=4)
-            ToolTip(button, self.t(help_key))
-            self.simple_task_buttons[task_id] = button
-
-        choices = ctk.CTkFrame(self.simple_panel, fg_color="transparent")
-        self.simple_choices = choices
-        choices.grid(row=2, column=0, sticky="ew", padx=20, pady=(11, 6))
-        for column in range(3):
-            choices.grid_columnconfigure(column, weight=1)
-
-        quality_box = ctk.CTkFrame(choices, fg_color="transparent")
-        quality_box.grid(row=0, column=0, sticky="ew", padx=(0, 12))
-        ctk.CTkLabel(quality_box, text=self.t("simple_quality"), text_color=MUTED).pack(anchor="w")
-        self.quality_control = ctk.CTkSegmentedButton(
-            quality_box, values=[self.t("quality_best"), self.t("quality_fast")],
-            height=38, corner_radius=19, selected_color=ACCENT_DARK,
-            unselected_color=PANEL_ALT, command=self._simple_quality_changed,
-        )
-        self.quality_control.pack(fill="x", pady=(4, 0))
-        self.quality_control.set(self.t("quality_fast" if self.simple_quality == "fast" else "quality_best"))
-        ToolTip(self.quality_control, self.t("tip_quality_automatic"))
-
-        language_box = ctk.CTkFrame(choices, fg_color="transparent")
-        language_box.grid(row=0, column=1, sticky="ew", padx=6)
-        ctk.CTkLabel(language_box, text=self.t("simple_language"), text_color=MUTED).pack(anchor="w")
-        self.simple_language_map = {
-            self.t("language_auto"): "auto",
-            self.t("language_fr"): "fr",
-            self.t("language_en"): "en",
-        }
-        self.simple_language_control = ctk.CTkSegmentedButton(
-            language_box,
-            values=list(self.simple_language_map),
-            height=38,
-            corner_radius=19,
-            selected_color=BLUE,
-            selected_hover_color="#86BBFF",
-            unselected_color=PANEL_ALT,
-            unselected_hover_color="#233654",
-            command=self._simple_language_changed,
-        )
-        self.simple_language_control.pack(fill="x", pady=(4, 0))
-        selected_language = next(
-            (label for label, value in self.simple_language_map.items() if value == self.selected_language),
-            self.t("language_auto"),
-        )
-        self.simple_language_control.set(selected_language)
-        ToolTip(self.simple_language_control, self.t("tip_simple_language"))
-
-        voices_box = ctk.CTkFrame(choices, fg_color="transparent")
-        voices_box.grid(row=0, column=2, sticky="ew", padx=(12, 0))
-        ctk.CTkLabel(voices_box, text=self.t("simple_voices"), text_color=MUTED).pack(anchor="w")
-        self.simple_speaker_switch = ctk.CTkSwitch(
-            voices_box,
-            text=self.t("voices_separate"),
-            variable=self.speaker_var,
-            height=38,
-            corner_radius=19,
-            progress_color=ACCENT_DARK,
-            command=self.persist_settings,
-        )
-        self.simple_speaker_switch.pack(anchor="w", pady=(4, 0))
-        ToolTip(self.simple_speaker_switch, self.t("tip_simple_speakers"))
-
-        automatic_model = self.hardware.recommended_model(
-            self.selected_device, self.engine.cached_model_ids()
-        )
-        self.simple_auto_summary_label = ctk.CTkLabel(
-            self.simple_panel,
-            text=self.t(
-                "simple_automatic_summary",
-                model=automatic_model,
-                device=self.hardware.display_device,
-            ),
-            font=("Segoe UI", 11),
-            text_color=ACCENT if self.hardware_ready else RED,
-        )
-        self.simple_auto_summary_label.grid(row=3, column=0, sticky="w", padx=22, pady=(3, 13))
-
-    def _build_tasks(self) -> None:
-        self.task_frame = ctk.CTkFrame(self.controls_container, fg_color="transparent")
-        self.task_frame.grid(row=1, column=0, sticky="ew", padx=28, pady=(4, 10))
-        ctk.CTkLabel(
-            self.task_frame,
-            text=self.t("task_title"),
-            font=("Segoe UI", 17, "bold"),
-            text_color=TEXT,
-        ).pack(anchor="w", pady=(0, 8))
-        row = ctk.CTkFrame(self.task_frame, fg_color="transparent")
-        row.pack(fill="x")
-        self.task_buttons: dict[str, ctk.CTkButton] = {}
-        tasks = [
-            ("files", "task_files", "task_files_help"),
-            ("conference", "task_conference", "task_conference_help"),
-            ("dictation", "task_dictation", "task_dictation_help"),
-            ("universal", "task_universal", "task_universal_help"),
-            ("link", "task_link", "task_link_help"),
-        ]
-        for index, (task_id, title_key, help_key) in enumerate(tasks):
-            row.grid_columnconfigure(index, weight=1)
-            button = ctk.CTkButton(
-                row,
-                text=self.t(title_key),
-                height=48,
-                corner_radius=14,
-                font=("Segoe UI", 13, "bold"),
-                command=lambda value=task_id: self.select_preset(value),
-            )
-            button.grid(row=0, column=index, sticky="ew", padx=(0 if index == 0 else 5, 0))
-            ToolTip(button, self.t(help_key))
-            self.task_buttons[task_id] = button
-
-    def _build_source_card(self) -> None:
-        self.source_card = ctk.CTkFrame(self.controls_container, fg_color=PANEL, corner_radius=28)
-        self.source_card.grid(row=2, column=0, sticky="ew", padx=28, pady=6)
-        self.source_card.grid_columnconfigure(0, weight=1)
-        self.source_title = ctk.CTkLabel(
-            self.source_card,
-            text="",
-            font=("Segoe UI", 18, "bold"),
-            text_color=TEXT,
-        )
-        self.source_title.grid(row=0, column=0, sticky="w", padx=22, pady=(18, 2))
-        self.source_help = ctk.CTkLabel(
-            self.source_card,
-            text="",
-            font=("Segoe UI", 13),
-            text_color=MUTED,
-            wraplength=1040,
-            justify="left",
-        )
-        self.source_help.grid(row=1, column=0, sticky="w", padx=22, pady=(0, 10))
-
-        self.microphone_panel = ctk.CTkFrame(
-            self.source_card,
-            fg_color="#0B1724",
-            corner_radius=20,
-            border_width=1,
-            border_color="#29445A",
-        )
-        self.microphone_panel.grid(row=2, column=0, sticky="ew", padx=20, pady=(0, 12))
-        self.microphone_panel.grid_columnconfigure(1, weight=1)
-        microphone_info = ctk.CTkFrame(self.microphone_panel, fg_color="transparent", width=300)
-        microphone_info.grid(row=0, column=0, sticky="nsew", padx=(16, 12), pady=12)
-        self.microphone_status_label = ctk.CTkLabel(
-            microphone_info,
-            text=self.t("microphone_ready"),
-            font=("Segoe UI", 12, "bold"),
-            text_color=ACCENT,
-            fg_color="#12392F",
-            corner_radius=13,
-            padx=10,
-            pady=4,
-        )
-        self.microphone_status_label.pack(anchor="w")
-        self.microphone_selection_label = ctk.CTkLabel(
-            microphone_info,
-            text="",
-            font=("Segoe UI", 12, "bold"),
-            text_color=TEXT,
-            justify="left",
-            wraplength=285,
-        )
-        self.microphone_selection_label.pack(anchor="w", pady=(7, 2))
-        self.microphone_privacy_label = ctk.CTkLabel(
-            microphone_info,
-            text=self.t("microphone_level_only"),
-            font=("Segoe UI", 10),
-            text_color=MUTED,
-            justify="left",
-            wraplength=285,
-        )
-        self.microphone_privacy_label.pack(anchor="w")
-        self.microphone_meter = TapeMeter(self.microphone_panel, height=104)
-        self.microphone_meter.grid(row=0, column=1, sticky="ew", padx=(0, 12), pady=10)
-
-        self.file_controls = ctk.CTkFrame(self.source_card, fg_color="transparent")
-        self.file_controls.grid(row=4, column=0, sticky="ew", padx=22, pady=(0, 18))
-        self.file_controls.grid_columnconfigure(0, weight=1)
-        self.file_hint = ctk.CTkLabel(
-            self.file_controls,
-            text=self.t("drop_help"),
-            text_color=MUTED,
-            font=("Segoe UI", 12),
-        )
-        self.file_hint.grid(row=0, column=0, sticky="w")
-        self.choose_button = ctk.CTkButton(
-            self.file_controls,
-            text=self.t("choose_files"),
-            width=170,
-            height=46,
-            corner_radius=23,
-            fg_color=BLUE,
-            hover_color="#86BBFF",
-            text_color="#07111F",
-            font=("Segoe UI", 13, "bold"),
-            command=self.choose_files,
-        )
-        self.choose_button.grid(row=0, column=1, padx=(12, 0))
-        ToolTip(self.choose_button, self.t("tip_choose"))
-
-        self.record_controls = ctk.CTkFrame(self.source_card, fg_color="transparent")
-        self.record_controls.grid(row=4, column=0, sticky="ew", padx=22, pady=(0, 18))
-        self.record_controls.grid_columnconfigure(1, weight=1)
-        ctk.CTkLabel(
-            self.record_controls,
-            text=self.t("microphone"),
-            text_color=MUTED,
-            font=("Segoe UI", 12),
-        ).grid(row=0, column=0, sticky="w", padx=(0, 8))
-        self.microphone_combo = ctk.CTkComboBox(
-            self.record_controls,
-            values=[],
-            height=38,
-            fg_color=PANEL_ALT,
-            border_color="#2A3C5E",
-            dropdown_fg_color=PANEL_ALT,
-            command=self._microphone_changed,
-        )
-        self.microphone_combo.grid(row=0, column=1, sticky="ew", padx=(0, 14))
-        self._populate_microphones()
-        ToolTip(self.microphone_combo, self.t("tip_microphone"))
-        self.record_button = ctk.CTkButton(
-            self.record_controls,
-            text=self.t("record"),
-            width=112,
-            height=46,
-            corner_radius=23,
-            fg_color=RED,
-            hover_color="#FF8290",
-            font=("Segoe UI", 13, "bold"),
-            command=self.start_recording,
-        )
-        self.record_button.grid(row=0, column=2, padx=4)
-        ToolTip(self.record_button, self.t("tip_record"))
-        self.pause_button = ctk.CTkButton(
-            self.record_controls,
-            text=self.t("pause"),
-            width=96,
-            height=46,
-            corner_radius=23,
-            state="disabled",
-            fg_color=AMBER,
-            hover_color="#FFDE8A",
-            text_color="#181207",
-            command=self.toggle_pause,
-        )
-        self.pause_button.grid(row=0, column=3, padx=4)
-        ToolTip(self.pause_button, self.t("tip_pause"))
-        self.stop_button = ctk.CTkButton(
-            self.record_controls,
-            text=self.t("stop"),
-            width=122,
-            height=50,
-            corner_radius=25,
-            state="disabled",
-            fg_color="#60708A",
-            hover_color=RED,
-            font=("Segoe UI", 13, "bold"),
-            command=self.stop_recording,
-            cursor="hand2",
-        )
-        self.stop_button.grid(row=0, column=4, padx=(4, 0))
-        ToolTip(self.stop_button, self.t("tip_stop"))
-
-        self.link_controls = ctk.CTkFrame(self.source_card, fg_color="transparent")
-        self.link_controls.grid(row=4, column=0, sticky="ew", padx=22, pady=(0, 18))
-        self.link_controls.grid_columnconfigure(0, weight=1)
-        self.url_entry = ctk.CTkEntry(
-            self.link_controls,
-            placeholder_text=self.t("url_placeholder"),
-            height=46,
-            corner_radius=23,
-            fg_color=PANEL_ALT,
-            border_color="#2A3C5E",
-        )
-        self.url_entry.grid(row=0, column=0, sticky="ew", padx=(0, 12))
-        ToolTip(self.url_entry, self.t("video_url_tip"))
-        self.url_entry.bind("<Return>", lambda _event: self.start_link())
-        self.link_button = ctk.CTkButton(
-            self.link_controls,
-            text=self.t("download_start"),
-            width=190,
-            height=46,
-            corner_radius=23,
-            fg_color=BLUE,
-            hover_color="#86BBFF",
-            text_color="#07111F",
-            font=("Segoe UI", 13, "bold"),
-            command=self.start_link,
-        )
-        self.link_button.grid(row=0, column=1)
-        ToolTip(self.link_button, self.t("tip_link"))
-        video_options = ctk.CTkButton(self.link_controls, text=self.t("video_options"), width=190, height=28,
-                                      fg_color=PANEL_ALT, command=lambda: VideoOptionsDialog(self))
-        video_options.grid(row=1, column=0, sticky="w", pady=(8, 0))
-        ToolTip(video_options, self.t("video_options_tip"))
-        local_video = ctk.CTkButton(self.link_controls, text=self.t("video_local_file"), width=190, height=28,
-                                    fg_color=PANEL_ALT, command=self.choose_files)
-        local_video.grid(row=1, column=1, pady=(8, 0))
-        ToolTip(local_video, self.t("video_local_tip"))
-        self.translation_controls = TranslationControls(self, self.source_card)
-        self.translation_controls.grid(row=3, column=0, sticky="ew", padx=20, pady=(0, 10))
 
     def open_model_selector(self) -> None:
         if not self.busy and not self.recorder.recording:
             ModelSelectorDialog(self)
 
     def _build_advanced_panel(self) -> None:
-        self.advanced_panel = ctk.CTkFrame(self.controls_container, fg_color=PANEL, corner_radius=20)
-        self.advanced_panel.grid(row=3, column=0, sticky="ew", padx=28, pady=6)
+        self.advanced_panel = ctk.CTkFrame(self.settings_body, fg_color=PANEL, corner_radius=20)
+        self.advanced_panel.grid(row=0, column=0, sticky="ew", padx=4, pady=6)
         for column in range(4):
             self.advanced_panel.grid_columnconfigure(column, weight=1)
         ctk.CTkLabel(
@@ -1576,7 +1086,7 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
         ctk.CTkLabel(tuning, text=self.t("chunk"), text_color=MUTED).pack(side="left")
         self.chunk_combo = ctk.CTkComboBox(
             tuning,
-            values=["5", "10", "15", "20", "30"],
+            values=["5", "8", "10", "12", "15", "20", "30", "45", "60"],
             variable=self.chunk_var,
             width=76,
             height=32,
@@ -1599,14 +1109,7 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
         )
         self.beam_combo.pack(side="left", padx=7)
         ToolTip(self.beam_combo, self.t("tip_beam"))
-        ctk.CTkLabel(
-            tuning,
-            text=self.t("model_help"),
-            text_color=MUTED,
-            font=("Segoe UI", 11),
-            wraplength=610,
-            justify="left",
-        ).pack(side="left", padx=(16, 0))
+        ToolTip(tuning, self.t("model_help"))
 
         formatting = ctk.CTkFrame(self.advanced_panel, fg_color="transparent")
         formatting.grid(row=4, column=0, columnspan=4, sticky="ew", padx=20, pady=(0, 15))
@@ -1695,112 +1198,6 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
         combo.pack(fill="x", pady=(4, 0))
         return combo
 
-    def _build_output(self) -> None:
-        output = ctk.CTkFrame(self, fg_color=PANEL, corner_radius=20)
-        self.output_card = output
-        output.grid(row=2, column=0, sticky="nsew", padx=28, pady=(6, 22))
-        output.grid_columnconfigure(0, weight=1)
-        output.grid_rowconfigure(3, weight=1)
-
-        progress_row = ctk.CTkFrame(output, fg_color="transparent")
-        progress_row.grid(row=0, column=0, sticky="ew", padx=20, pady=(16, 6))
-        progress_row.grid_columnconfigure(0, weight=1)
-        self.status_label = ctk.CTkLabel(
-            progress_row,
-            text=self.t("progress_ready"),
-            font=("Segoe UI", 14, "bold"),
-            text_color=TEXT,
-        )
-        self.status_label.grid(row=0, column=0, sticky="w")
-        self.eta_label = ctk.CTkLabel(
-            progress_row,
-            text="",
-            font=("Segoe UI", 12),
-            text_color=MUTED,
-        )
-        self.eta_label.grid(row=0, column=1, sticky="e")
-        self.cancel_button = ctk.CTkButton(progress_row, text=self.t("cancel_job"), width=88, height=29,
-                                          fg_color="#5A2430", hover_color=RED, state="disabled",
-                                          command=self.cancel_job)
-        self.cancel_button.grid(row=0, column=2, padx=(12, 0))
-        self.progress_bar = ctk.CTkProgressBar(
-            output,
-            height=8,
-            progress_color=ACCENT,
-            fg_color="#26344D",
-        )
-        self.progress_bar.grid(row=1, column=0, sticky="ew", padx=20, pady=(0, 12))
-        self.progress_bar.set(0)
-
-        toolbar = ctk.CTkFrame(output, fg_color="transparent")
-        toolbar.grid(row=2, column=0, sticky="ew", padx=20)
-        toolbar.grid_columnconfigure(0, weight=1)
-        ctk.CTkLabel(
-            toolbar,
-            text=self.t("transcript"),
-            font=("Segoe UI", 15, "bold"),
-            text_color=TEXT,
-        ).grid(row=0, column=0, sticky="w")
-        self.copy_button = ctk.CTkButton(
-            toolbar,
-            text=self.t("copy"),
-            width=78,
-            height=31,
-            fg_color=PANEL_ALT,
-            hover_color="#233654",
-            command=self.copy_transcript,
-        )
-        self.copy_button.grid(row=0, column=1, padx=4)
-        ToolTip(self.copy_button, self.t("tip_copy"))
-        self.clear_button = ctk.CTkButton(
-            toolbar,
-            text=self.t("clear"),
-            width=78,
-            height=31,
-            fg_color=PANEL_ALT,
-            hover_color="#233654",
-            command=self.clear_transcript,
-        )
-        self.clear_button.grid(row=0, column=2, padx=4)
-        ToolTip(self.clear_button, self.t("tip_clear"))
-        self.vocabulary_button = ctk.CTkButton(toolbar, text=self.t("vocabulary"), width=108, height=31,
-                                              fg_color=PANEL_ALT, command=self.edit_vocabulary)
-        self.vocabulary_button.grid(row=0, column=4, padx=(8, 0))
-        export_values = [
-            self.t("export_txt"),
-            self.t("export_srt"),
-            self.t("export_vtt"),
-            self.t("export_json"),
-            self.t("export_csv"),
-        ]
-        self.export_menu = ctk.CTkOptionMenu(
-            toolbar,
-            values=export_values,
-            command=self.export_selected,
-            width=155,
-            height=31,
-            fg_color=ACCENT_DARK,
-            button_color=ACCENT_DARK,
-            button_hover_color=ACCENT,
-        )
-        self.export_menu.set(self.t("export"))
-        self.export_menu.grid(row=0, column=3, padx=(4, 0))
-        ToolTip(self.export_menu, self.t("tip_export"))
-        self._build_conversation_toolbar(toolbar)
-
-        self.textbox = ctk.CTkTextbox(
-            output,
-            height=250,
-            fg_color="#0B1425",
-            border_width=1,
-            border_color="#243653",
-            corner_radius=13,
-            font=("Segoe UI", 14),
-            text_color=TEXT,
-            wrap="word",
-        )
-        self.textbox.grid(row=3, column=0, sticky="nsew", padx=20, pady=(10, 18))
-        self._bind_click_speech(self.textbox)
 
     def _device_display_map(self) -> dict[str, str]:
         values = {self.t("device_auto"): "auto", self.t("device_cpu"): "cpu"}
@@ -1820,42 +1217,6 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
     def _update_hardware_chip(self) -> None:
         self.hardware_btn.configure(text=self.t("hardware_ready", device=self.hardware.display_device))
 
-    def _apply_mode_visibility(self) -> None:
-        if self.reading_view:
-            self.controls_container.grid_remove()
-            for frame in (self.header_frame, self.simple_panel, self.task_frame, self.source_card, self.advanced_panel):
-                frame.grid_remove()
-            self.output_card.grid_configure(padx=12, pady=12)
-            return
-        self.controls_container.grid()
-        self.header_frame.grid()
-        self.source_card.grid()
-        self.output_card.grid_configure(padx=28, pady=(6, 22))
-        if self.ui_mode == "advanced":
-            self.simple_panel.grid_remove()
-            self.task_frame.grid()
-            self.advanced_panel.grid()
-            self.source_title.grid_remove()
-            self.source_help.grid_remove()
-            self.microphone_meter.configure(height=74)
-            self.microphone_privacy_label.pack_forget()
-        else:
-            self.task_frame.grid_remove()
-            self.simple_panel.grid()
-            self.advanced_panel.grid_remove()
-            self.source_title.grid()
-            self.source_help.grid()
-            self.microphone_meter.configure(height=104)
-            self.microphone_privacy_label.pack(anchor="w")
-        self.mode_button.configure(text=self.t("advanced" if self.ui_mode == "simple" else "simple"))
-        if self.preset == "universal":
-            self.advanced_panel.grid_remove()
-            self.simple_choices.grid_remove()
-            self.source_title.grid_remove()
-            self.source_help.grid_remove()
-            self.microphone_meter.configure(height=56)
-        else:
-            self.simple_choices.grid()
 
     def _refresh_task_styles(self) -> None:
         for task_id, button in self.task_buttons.items():
@@ -1892,7 +1253,7 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
                 "link": "action_link",
                 "universal": "action_universal",
             }.get(self.preset, "action_files")
-            self.source_title.configure(text=self.t("step_two"))
+            self.source_title.configure(text=self.t(title_key))
             self.source_help.configure(text=self.t(action_key))
         else:
             self.source_title.configure(text=self.t(title_key))
@@ -1911,6 +1272,11 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
             self.translation_controls.refresh()
         else:
             self.translation_controls.grid_remove()
+        if self.preset in {"universal", "conference", "dictation"}:
+            self.after_idle(self._start_microphone_monitor)
+        else:
+            self.recorder.stop_monitor()
+        self._workspace_refresh()
 
     def _setup_dnd_target(self) -> None:
         if not HAS_DND or not self.TkdndVersion:
@@ -1958,7 +1324,7 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
             return None
 
     def _start_microphone_monitor(self) -> None:
-        if not self.running or self.recorder.recording:
+        if not self.running or self.recorder.recording or self.preset not in {"universal", "conference", "dictation"}:
             return
         available = self.recorder.start_monitor(self._selected_microphone_index())
         try:
@@ -2054,7 +1420,7 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
         self.translate_var.set(False)
         self.speaker_var.set(preset == "conference")
         if preset == "universal":
-            self.selected_model_id = AUTO_MULTILINGUAL_MODEL_ID
+            self.selected_model_id = AUTO_MODEL_ID
             self.selected_language = "auto"
             self.translate_var.set(True)
             self.chunk_var.set("12")
@@ -2095,7 +1461,7 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
             self._apply_maximum_quality_defaults(preset)
             self._update_model_indicators()
         elif preset == "universal":
-            self.selected_model_id = AUTO_MULTILINGUAL_MODEL_ID
+            self.selected_model_id = AUTO_MODEL_ID
             self.selected_device = "auto"
             self.selected_language = "auto"
             self.translate_var.set(True)
@@ -2169,11 +1535,17 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
                 self.selected_device,
                 self.engine.cached_model_ids(),
             )
+            route = self.hardware.model_compatibility(resolved, self.selected_device,
+                resolved in self.engine.cached_model_ids()).device or "cpu"
+            status = self.last_engine_status
+            if (status is not None and status.requested_model_id == self.selected_model_id
+                    and getattr(self.engine, "model_name", None) == status.model_id):
+                resolved, route = status.model_id, status.device
             self.simple_auto_summary_label.configure(
                 text=self.t(
-                    "universal_automatic_summary" if self.preset == "universal" else "simple_automatic_summary",
-                    model=resolved,
-                    device=self.hardware.display_device,
+                    "workspace_profile_summary",
+                    model=("OpenAI Whisper " if get_model(resolved).family == "whisper" else "") + resolved,
+                    device=route.upper(),
                     count=get_model(resolved).language_count,
                 )
             )
@@ -2354,6 +1726,7 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
             return
         self.last_engine_status = status
         self.model_preloading = False
+        self._update_model_indicators()
         self._show_preloaded_model_ready()
         if not self.busy and not self.recorder.recording:
             self.record_button.configure(state="normal", text=self.t("record"))
@@ -2675,10 +2048,15 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
         self._click_speech_state(self.textbox)
         self._rendered_text = text
         self.conversation_legend.configure(text=self.t("translation_legend") if bilingual or self.preset == "universal" else "")
+        if bilingual or self.preset == "universal":
+            self.conversation_legend.grid()
+        else:
+            self.conversation_legend.grid_remove()
         self.textbox.see("end")
         self.textbox.bind("<Button-3>", self._transcript_context_menu)
         self._offer_detected_voice()
         self._update_audience()
+        self._workspace_refresh()
 
     def copy_transcript(self) -> None:
         text = (format_transcript(self.transcript_data, self.transcript_format_options())
@@ -2894,6 +2272,7 @@ class TranscriberApp(RecordingMixin, ConversationMixin, UpdatesMixin, ctk.CTk, T
         if self.recorder.recording:
             self.record_button.configure(state="disabled")
         self.translation_controls.set_enabled(state == "normal" and not self.recorder.recording)
+        self._workspace_refresh()
 
     def _set_status(self, text: str) -> None:
         if self.__dict__.get("private_mode", False):

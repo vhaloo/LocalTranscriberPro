@@ -46,7 +46,7 @@ def bounded_int(value: Any, default: int, minimum: int, maximum: int) -> int:
 
 
 DEFAULTS: dict[str, Any] = {
-    "schema_version": 7,
+    "schema_version": 8,
     "ui_language": detect_ui_language(),
     "ui_mode": "simple",
     "simple_quality": "best",
@@ -100,6 +100,10 @@ class SettingsStore:
             loaded = json.loads(self.path.read_text(encoding="utf-8"))
             if isinstance(loaded, dict):
                 self.data.update(loaded)
+                if (bounded_int(loaded.get("schema_version"), 0, 0, 100) < 8
+                        and loaded.get("preset") == "universal"
+                        and loaded.get("model") == AUTO_MULTILINGUAL_MODEL_ID):
+                    self.data["model"] = AUTO_MODEL_ID
                 if "translation_target" not in loaded and loaded.get("translate") is True:
                     self.data["translation_target"] = "en"
                 if self.data.get("window_geometry") == "1180x860":

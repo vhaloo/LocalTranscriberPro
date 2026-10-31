@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.4.0 — 2026-10-30
+
+- Replace the stacked dashboard with task-first navigation, compact source controls, a larger transcript, separate settings tabs and contextual empty-state guidance.
+- Prioritize full local OpenAI Whisper large-v3 in the default accuracy profile when admitted; keep speed, maximum coverage and all manual model choices. Migrate the old live default once without overriding explicit checkpoint choices.
+- Add bounded literal transcript search, logical Arabic fallback and keyboard navigation. Preserve current search position across refreshes and keep all hints out of exports.
+- Keep microphone monitoring exclusive to microphone tasks; show loaded engine/model status accurately; preserve conversation and audience state when rebuilding the interface language.
+- Retain per-line speech, all conversation/revision/privacy/media/export functions, bundled French/English voices and signed updates.
+- Add real Tk workspace regression coverage on compact screens and Linux CI; retry transient macOS disk-image creation failures before rejecting the build.
+- Refresh guides, full language inventory, screenshots and native release evidence for all five distribution assets.
+
 ## 3.3.1 — 2026-10-21
 
 - Add a synchronized **Click a line to speak** checkbox in the main transcript and independent audience display, available in every task and on by default for Universal live translation. Live and other-task preferences persist independently.

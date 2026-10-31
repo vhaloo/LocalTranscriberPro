@@ -44,7 +44,8 @@ def catalogue_budget() -> dict[str, int]:
     return {
         "minimum_files": int(APPLICATION_BUDGET + 0.08 * GB),
         "minimum_free": int(MINIMUM_INSTALL_FREE),
-        "universal_files": int(APPLICATION_BUDGET + (5.60 + 2.96) * GB),
+        "universal_files": int(APPLICATION_BUDGET + (3.10 + 2.96) * GB),
+        "coverage_files": int(APPLICATION_BUDGET + (5.60 + 2.96) * GB),
         "catalogue_files": math.ceil(stored / GB) * GB,
         "catalogue_free_budget": math.ceil(preparation / (5 * GB)) * 5 * GB,
         "recording_hour": 16_000 * 2 * 3600,

@@ -20,17 +20,21 @@ def gpu(**changes):
     return HardwareProfile(**values)
 
 
-def test_twelve_gb_gpu_keeps_large_qwen_with_context_overhead():
-    assert gpu(gpu_vram_free_gb=7.9).recommended_model() == "qwen3-asr-1.7b"
-    assert gpu(gpu_vram_free_gb=7.0).recommended_model() == "qwen3-asr-0.6b"
+def test_manual_qwen_keeps_its_context_memory_guards():
+    assert gpu(gpu_vram_free_gb=7.9).model_compatibility("qwen3-asr-1.7b", "cuda").supported
+    assert not gpu(gpu_vram_free_gb=7.0).model_compatibility("qwen3-asr-1.7b", "cuda").supported
+    assert gpu(gpu_vram_free_gb=7.0).model_compatibility("qwen3-asr-0.6b", "cuda").supported
 
 
-def test_powerful_gpu_selects_recent_multilingual_model():
-    assert gpu().resolve_model(AUTO_MODEL_ID) == "qwen3-asr-1.7b"
+def test_powerful_gpu_prioritizes_the_full_openai_model():
+    assert gpu().resolve_model(AUTO_MODEL_ID) == "large-v3"
+    assert gpu().model_compatibility("large-v3").device == "cuda"
 
 
-def test_busy_gpu_selects_smaller_recent_model():
-    assert gpu(gpu_vram_free_gb=6).resolve_model(AUTO_MODEL_ID) == "qwen3-asr-0.6b"
+def test_busy_gpu_retains_full_openai_precision_on_available_cpu():
+    hardware = gpu(gpu_vram_free_gb=6)
+    assert hardware.resolve_model(AUTO_MODEL_ID) == "large-v3"
+    assert hardware.model_compatibility("large-v3").device == "cpu"
 
 
 def test_zero_free_gpu_memory_is_not_treated_as_full_capacity():
@@ -74,9 +78,23 @@ def test_optional_runtime_missing_keeps_whisper_functional():
 
 
 def test_unknown_saved_model_cannot_reach_a_model_downloader():
-    assert gpu().resolve_model("user/remote-code-model") == "qwen3-asr-1.7b"
+    assert gpu().resolve_model("user/remote-code-model") == "large-v3"
     with pytest.raises(ValueError):
         get_model("user/remote-code-model")
+
+
+def test_explicit_other_engines_are_still_available():
+    assert gpu().resolve_model("qwen3-asr-1.7b") == "qwen3-asr-1.7b"
+    assert gpu().resolve_model("parakeet-tdt-0.6b-v3") == "parakeet-tdt-0.6b-v3"
+
+
+def test_forced_small_gpu_uses_a_safe_openai_checkpoint():
+    assert gpu(gpu_vram_free_gb=6).resolve_model(AUTO_MODEL_ID, "cuda") == "large-v3-turbo"
+    assert gpu(gpu_vram_free_gb=6).resolve_model(AUTO_MODEL_ID, "cuda", task="translate") == "medium"
+
+
+def test_language_outside_whisper_retains_the_wider_recognizer():
+    assert gpu().resolve_model(AUTO_MODEL_ID, language="ti") == "omnilingual-1b-v2"
 
 
 def test_cancellation_happens_between_audio_windows(monkeypatch):

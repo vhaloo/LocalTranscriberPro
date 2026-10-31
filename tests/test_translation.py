@@ -29,7 +29,7 @@ def test_universal_automatic_prefers_coverage_before_general_accuracy():
     hardware = HardwareProfile("Windows", "11", "AMD64", "CPU", 16, 64, available_ram_gb=32,
                                gpu_vram_gb=12, gpu_vram_free_gb=10, nvidia_detected=True,
                                ctranslate_cuda=True, torch_cuda=True, qwen_available=True, parakeet_available=True)
-    assert hardware.resolve_model("auto-best") == "qwen3-asr-1.7b"
+    assert hardware.resolve_model("auto-best") == "large-v3"
     assert hardware.resolve_model(AUTO_MULTILINGUAL_MODEL_ID) == "omnilingual-1b-v2"
     hardware.available_ram_gb = 8
     assert hardware.resolve_model(AUTO_MULTILINGUAL_MODEL_ID) == "large-v3"

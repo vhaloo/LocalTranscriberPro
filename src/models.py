@@ -152,7 +152,7 @@ def ranked_models() -> tuple[ModelSpec, ...]:
 
 def model_label(model_id: str, language: str = "en") -> str:
     if model_id == AUTO_MODEL_ID:
-        return "Qualité maximale sûre (Auto)" if language == "fr" else "Safest maximum quality (Auto)"
+        return "Précision OpenAI (Auto)" if language == "fr" else "OpenAI accuracy (Auto)"
     if model_id == AUTO_FAST_MODEL_ID:
         return "Rapidité (Auto)" if language == "fr" else "Fast transcription (Auto)"
     if model_id == AUTO_MULTILINGUAL_MODEL_ID:
@@ -163,8 +163,8 @@ def model_label(model_id: str, language: str = "en") -> str:
         "qwen3-asr-0.6b": ("multilingue compact 2026", "2026 compact multilingual"),
         "parakeet-tdt-0.6b-v3": ("25 langues, CPU rapide", "25 languages, fast CPU"),
         "omnilingual-1b-v2": ("1600+ langues · CTC · CPU · à vérifier", "1600+ languages · CTC · CPU · review needed"),
-        "large-v3": ("multilingue, traduction", "multilingual, translation"),
-        "large-v3-turbo": ("très rapide", "very fast"),
+        "large-v3": ("OpenAI · précision · multilingue", "OpenAI · accuracy · multilingual"),
+        "large-v3-turbo": ("OpenAI · très rapide", "OpenAI · very fast"),
         "tiny": ("PC 4 Go", "4 GB PC"),
         "tiny.en": ("anglais, PC 4 Go", "English, 4 GB PC"),
     }

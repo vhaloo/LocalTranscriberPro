@@ -269,7 +269,10 @@ class HardwareProfile:
         cached = set(cached_model_ids)
         candidates = sorted(
             (spec for spec in MODEL_CATALOG if spec.multilingual and spec.automatic and spec.supports(language, task)),
-            key=lambda spec: spec.quality_rank,
+            # The default quality profile follows the user's local-OpenAI
+            # preference. Other engines keep their own catalogue ranking and
+            # remain available manually and in the speed/coverage profiles.
+            key=lambda spec: (spec.family == "whisper", spec.quality_rank),
             reverse=True,
         )
         for spec in candidates:

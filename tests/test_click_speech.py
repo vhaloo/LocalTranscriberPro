@@ -22,7 +22,7 @@ def test_old_settings_enable_live_reading_without_overriding_explicit_choices(tm
     path.write_text(json.dumps({"schema_version": 6, **saved}), "utf-8")
     store = SettingsStore(path)
     assert (store.get("speech_click"), store.get("speech_click_live")) == expected
-    assert store.get("schema_version") == 7
+    assert store.get("schema_version") == 8
     store.save()
     assert SettingsStore(path).data == store.data
 
