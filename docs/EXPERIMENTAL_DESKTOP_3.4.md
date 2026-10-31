@@ -19,7 +19,7 @@ shasum -a 256 LocalTranscriberPro-3.4.0-macOS-arm64-experimental.dmg
 sha256sum --ignore-missing --check SHA256SUMS.txt
 ```
 
-Les versions précédentes restent disponibles dans [Releases](https://github.com/vhaloo/LocalTranscriberPro/releases). Sauvegardez vos données et conservez votre ancienne application avant cet essai. Les paquets 3.2 utilisent les mêmes emplacements de préférences, d'historique et de modèles ; une sauvegarde reste utile pour revenir à une ancienne version.
+Les versions précédentes restent disponibles dans [Releases](https://github.com/vhaloo/LocalTranscriberPro/releases). Sauvegardez vos données et conservez votre ancienne application avant cet essai. Les paquets 3.4 utilisent les mêmes emplacements de préférences, d'historique et de modèles ; une sauvegarde reste utile pour revenir à une ancienne version.
 
 ## Mac Apple Silicon
 
@@ -68,7 +68,7 @@ Préparez d'abord un petit modèle et transcrivez un court fichier, puis essayez
 
 Les mises à jour macOS/Linux ouvrent la page de release ; le remplacement de l'application reste manuel. La présence de fichiers expérimentaux sur cette release ne transforme pas le canal Windows en préversion.
 
-Signalez les problèmes dans les [issues GitHub](https://github.com/vhaloo/LocalTranscriberPro/issues) en précisant système, architecture, mémoire, modèle, CPU/GPU et message d'erreur. Évitez de joindre une conversation privée. [Résultats et limites des essais](VALIDATION_3.3.md).
+Signalez les problèmes dans les [issues GitHub](https://github.com/vhaloo/LocalTranscriberPro/issues) en précisant système, architecture, mémoire, modèle, CPU/GPU et message d'erreur. Évitez de joindre une conversation privée. [Résultats et limites des essais](VALIDATION_3.4.md).
 
 ## English quick start
 
