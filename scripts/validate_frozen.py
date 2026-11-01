@@ -5,7 +5,9 @@ import argparse
 import functools
 import http.server
 import json
+import shutil
 import subprocess
+import tempfile
 import threading
 from pathlib import Path
 
@@ -17,6 +19,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('executable', type=Path)
     parser.add_argument('--folder', type=Path, default=Path('artifacts/packaged-smoke'))
+    parser.add_argument('--case', type=int, choices=range(5), help='Run one native case when investigating a fixture failure')
     args = parser.parse_args()
     executable = args.executable.resolve()
     folder = args.folder.resolve()
@@ -32,10 +35,22 @@ if __name__ == '__main__':
         def log_message(self, *_args):
             pass
 
+        def handle(self):
+            try:
+                super().handle()
+            except (ConnectionResetError, BrokenPipeError):
+                # Extractors may stop a format probe before consuming its body.
+                pass
+
     server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), functools.partial(QuietHandler, directory=str(folder)))
     server.daemon_threads = True
     server_thread = threading.Thread(target=server.serve_forever, daemon=True)
     server_thread.start()
+    # Repository checkouts can be synchronized or read-only on a workstation.
+    # Keep transient imports in the OS temp area, independently of saved reports.
+    temporary_import = tempfile.TemporaryDirectory(prefix='ltp-packaged-import-')
+    import_folder = Path(temporary_import.name).resolve()
+    assert import_folder.parent == Path(tempfile.gettempdir()).resolve()
     cases = [
         ['--smoke-test', str(sample), '--model', 'tiny', '--device', 'cpu', '--offline'],
         ['--voice-test', 'fr', '--voice-text', 'Bonjour, ceci est une vérification locale.', '--offline'],
@@ -45,8 +60,13 @@ if __name__ == '__main__':
     ]
     try:
         for index, command in enumerate(cases):
+            if args.case is not None and args.case != index:
+                continue
             report = folder / f'report-{index}.json'
-            completed = subprocess.run([str(executable), *command, '--diagnostic-output', str(report)], timeout=300)
+            diagnostic = import_folder / report.name if index == 3 else report
+            completed = subprocess.run([str(executable), *command, '--diagnostic-output', str(diagnostic)], timeout=300)
+            if diagnostic != report and diagnostic.is_file():
+                shutil.copyfile(diagnostic, report)
             if not report.is_file():
                 raise RuntimeError(f'Packaged diagnostic {index} exited {completed.returncode} without a report')
             result = json.loads(report.read_text('utf-8'))
@@ -57,9 +77,13 @@ if __name__ == '__main__':
             if index == 4:
                 assert result['status']['memory_mode'] == 'virtual' and result['status']['worker_pid']
                 assert result['status']['requested_device'] == 'cpu-virtual' and not result['status']['fallback_reason']
-        assert not list((folder / 'youtube-qa').glob('ltp-video-*')), 'Online import left temporary audio behind'
+        assert not list((import_folder / 'youtube-qa').glob('ltp-video-*')), 'Online import left temporary audio behind'
     finally:
         server.shutdown()
         server.server_close()
         server_thread.join(timeout=2)
-    print('Native CPU ASR, isolated CPU paging worker, bundled French/English voices and HTTP audio import passed.')
+        temporary_import.cleanup()
+    if args.case is None:
+        print('Native CPU ASR, isolated CPU paging worker, bundled French/English voices and HTTP audio import passed.')
+    else:
+        print(f'Native packaged case {args.case} passed.')

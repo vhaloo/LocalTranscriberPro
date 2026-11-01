@@ -87,7 +87,7 @@ Speech coverage depends on the available voice catalogue or installed compatible
 |---|---|---:|---|
 | Windows 10/11 x64 | [3.5.0 installer](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.5.0/LocalTranscriberPro-3.5.0-Windows-x64-Setup.exe) | 2.107 | Self-contained, per-user installation; CUDA and CPU runtimes included |
 | Windows x64, CPU package | [Lighter CPU installer](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.5.0/LocalTranscriberPro-3.5.0-Windows-x64-CPU-Setup.exe) | 0.433 | Same functions on CPU; NVIDIA runtime omitted; updater preserves this package choice |
-| macOS, Apple Silicon (arm64) | [3.5.0 experimental DMG](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.5.0/LocalTranscriberPro-3.5.0-macOS-arm64-experimental.dmg) | 0.595 | Experimental; macOS 14 recommended, automated CPU/voice checks; no Intel package |
+| macOS, Apple Silicon (arm64) | [3.5.0 experimental DMG](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.5.0/LocalTranscriberPro-3.5.0-macOS-arm64-experimental.dmg) | 0.594 | Experimental; macOS 14 recommended, automated CPU/voice checks; no Intel package |
 | Linux x86-64 | [3.5.0 experimental AppImage](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.5.0/LocalTranscriberPro-3.5.0-Linux-x86_64-experimental.AppImage) · [Portable archive](https://github.com/vhaloo/LocalTranscriberPro/releases/download/v3.5.0/LocalTranscriberPro-3.5.0-Linux-x86_64-experimental.tar.gz) | 0.774 / 0.769 | Experimental; built and checked on Ubuntu 24.04; other distributions unverified |
 
 **macOS/Linux are experimental distributions.** Native CPU recognition and bundled French/English voices pass automated checks, but physical installation, microphones and GPU acceleration have not been validated on these platforms. The Mac app has an ad-hoc signature and is not Apple-notarized. [Installation, first launch and known limits](docs/EXPERIMENTAL_DESKTOP_3.5.md). Windows retains its validated stable installer.
@@ -110,7 +110,7 @@ Windows quietly checks official GitHub releases at each enabled startup. A new v
 | All current recognizers, translation, voices and optional tools | ~53 GB | **95 GB prudent budget** including preparation and possible Windows Hub duplicate caches |
 | Saved microphone audio | ~115 MB per recorded hour | Adds to the chosen output folder, plus text exports |
 
-**Windows full-runtime reference measured after installation:** 5.34 GB before model caches and 2.107 GB for its compressed installer. Exact verified package sizes and signed hashes are shown in the release. The separate CPU installer is 0.433 GB. The installation table uses conservative full-Windows planning budgets; CPU-only and other-platform footprints are smaller.
+**Windows full-runtime reference measured after installation:** 5.34 GB before model caches and 2.107 GB for its compressed installer. The separate CPU installer is 0.433 GB. Exact byte counts and signed hashes appear in the release. Storage tables use conservative full-Windows planning budgets; CPU-only and other-platform footprints are smaller.
 
 These are conservative Windows package/catalogue estimates; Mac/Linux packages are generally smaller. **There is no finite maximum**: recordings, exports, extra model revisions and caches can continue growing. The 95 GB figure is a planning budget, not a hard ceiling. Preparing every model is optional. A build environment needs extra space beyond these user-installation budgets.
 

@@ -12,3 +12,5 @@
 Les modèles préparés traitent audio et texte localement. Internet est nécessaire aux téléchargements et vérifications de version ; aucun audio ni transcript n'est envoyé à GitHub. Mac/Linux restent expérimentaux avec remplacement manuel, sans validation physique du micro/GPU.
 
 [Guide et captures](https://github.com/vhaloo/LocalTranscriberPro#readme) · [Validation](https://github.com/vhaloo/LocalTranscriberPro/blob/main/docs/VALIDATION_3.5.md)
+
+Validation : 253 tests Windows, tests sources/natifs Mac/Linux réussis, dix contrôles du runtime Windows installé et installation automatique réelle avec relance après plus de 60 secondes d’inactivité. Les 82 sessions et 269 fichiers existants sont préservés.
