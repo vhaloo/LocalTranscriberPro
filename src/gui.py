@@ -118,6 +118,8 @@ VIDEO_EXTENSIONS = {".mp4", ".mkv", ".mov", ".avi", ".webm", ".flv", ".wmv", ".m
 
 def compatibility_text(t: Translator, compatibility: ModelCompatibility) -> str:
     if compatibility.supported:
+        if compatibility.reason_code == "cpu_virtual":
+            return t("cpu_virtual_ready")
         return t("model_ready_on", device=compatibility.device.upper())
     if compatibility.reason_code in {"cpu_runtime", "gpu_runtime", "model_runtime"}:
         return t(f"compat_{compatibility.reason_code}")
@@ -616,19 +618,25 @@ class ModelSelectorDialog(ctk.CTkToplevel):
             text_color=ACCENT if compatibility.supported else AMBER,
         ).pack(anchor="w", pady=(3, 0))
         self._add_scores(row, model_id)
+        virtual = (not compatibility.supported and compatibility.reason_code in {"ram", "available_ram"}
+                   and self.parent_app.hardware.model_compatibility(model_id, "cpu-virtual", model_id in self.cached).supported)
         ctk.CTkButton(
             row,
-            text=self.t("selected" if selected else ("select" if compatibility.supported else "unavailable")),
+            text=self.t("cpu_virtual_select" if virtual else "selected" if selected else ("select" if compatibility.supported else "unavailable")),
             width=112,
-            state="disabled" if selected or not compatibility.supported else "normal",
+            state="normal" if virtual else "disabled" if selected or not compatibility.supported else "normal",
             fg_color=ACCENT_DARK if compatibility.supported else "#293244",
             hover_color=ACCENT,
             text_color_disabled="#647084",
-            command=lambda value=model_id: self._select(value),
+            command=lambda value=model_id, force=virtual: self._select(value, force),
         ).grid(row=0, column=4, padx=14)
 
-    def _select(self, model_id: str) -> None:
+    def _select(self, model_id: str, virtual: bool = False) -> None:
+        if virtual:
+            self.parent_app.selected_device = "cpu-virtual"
         self.parent_app._select_model(model_id)
+        if virtual:
+            self.parent_app._sync_device_control()
         self.destroy()
 
 
@@ -744,13 +752,13 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
             else 5
         )
         self.maximum_quality_chunk = 30 if self.hardware.ram_gb >= 6 else 20
-        if self.ui_mode == "simple":
+        if self.ui_mode == "simple" and self.selected_device != "cpu-virtual":
             self.selected_model_id = AUTO_FAST_MODEL_ID if self.simple_quality == "fast" else AUTO_MODEL_ID
             self.selected_device = "auto"
         if self.preset == "universal":
             self.selected_model_id = self.settings.get("model", AUTO_MODEL_ID)
             self.selected_language = "auto"
-        available_devices = {"auto", "cpu"}
+        available_devices = {"auto", "cpu", "cpu-virtual"}
         if self.hardware.ctranslate_cuda or self.hardware.torch_cuda:
             available_devices.add("cuda")
         if self.hardware.mlx_available or self.hardware.torch_mps:
@@ -775,6 +783,7 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         self.closing = False
         self.update_checking = False
         self.cancel_event = threading.Event()
+        self.preload_cancel = threading.Event()
         self.ui_tasks: queue.Queue = queue.Queue()
         self.worker_thread: threading.Thread | None = None
         self._rendered_text = ""
@@ -787,6 +796,7 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         self.last_engine_status = preloaded_status
         self.preload_generation = 0
         self.model_preloading = False
+        self.preload_threads = []
         self.active_recording_base: Path | None = None
         self.translation_target = self.settings.get("translation_target", "fr" if self.t.language == "fr" else "en")
         self.conversation_partner = self.settings.get("conversation_partner", "auto")
@@ -838,6 +848,7 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         self.after(80, self._update_microphone_meter)
         self.after(25, self._drain_ui_tasks)
         self.after(2000, self._autosave_editor)
+        self.start_update_monitor()
         if self.settings.get("check_updates", True):
             self.after(3500, lambda: self.check_updates(silent=True))
 
@@ -1006,7 +1017,7 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         self.device_combo = self._labeled_combo(
             1, 1, self.t("device"), device_values, selected_device_label, self._device_changed
         )
-        ToolTip(self.device_combo, self.t("tip_device"))
+        ToolTip(self.device_combo, self.t("tip_device") + "\n\n" + self.t("cpu_virtual_help"))
 
         self.language_display_map = self._language_display_map()
         selected_language_label = next(
@@ -1071,9 +1082,18 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         self.update_var = ctk.BooleanVar(value=self.settings.get("check_updates", True))
         update_check = ctk.CTkCheckBox(checks, text=self.t("update_automatic"), variable=self.update_var,
                        font=("Segoe UI", 12), checkbox_width=20, checkbox_height=20,
-                       fg_color=ACCENT_DARK, command=self.persist_settings)
+                       fg_color=ACCENT_DARK, command=self._update_preferences_changed)
         update_check.grid(row=1, column=2, sticky="w", padx=6, pady=7)
         ToolTip(update_check, self.t("tip_update_automatic"))
+        self.auto_update_var = ctk.BooleanVar(value=self.settings.get("auto_install_updates", True))
+        auto_update_check = ctk.CTkCheckBox(checks, text=self.t("update_auto_install"), variable=self.auto_update_var,
+                       font=("Segoe UI", 12), checkbox_width=20, checkbox_height=20,
+                       fg_color=ACCENT_DARK, command=self._update_preferences_changed)
+        auto_update_check.grid(row=2, column=0, columnspan=2, sticky="w", padx=6, pady=7)
+        ToolTip(auto_update_check, self.t("tip_update_auto_install"))
+        ctk.CTkLabel(checks, text=self.t("cpu_virtual_short"), text_color=MUTED,
+                     wraplength=480, justify="left", font=("Segoe UI", 11)).grid(
+                         row=2, column=2, columnspan=2, sticky="w", padx=6, pady=7)
         self.keep_audio_var = ctk.BooleanVar(value=self.settings.get("keep_recording_audio", True))
         keep_audio_check = ctk.CTkCheckBox(checks, text=self.t("keep_audio"), variable=self.keep_audio_var,
                        font=("Segoe UI", 12), checkbox_width=20, checkbox_height=20,
@@ -1200,7 +1220,8 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
 
 
     def _device_display_map(self) -> dict[str, str]:
-        values = {self.t("device_auto"): "auto", self.t("device_cpu"): "cpu"}
+        values = {self.t("device_auto"): "auto", self.t("device_cpu"): "cpu",
+                  self.t("device_cpu_virtual"): "cpu-virtual"}
         if self.hardware.ctranslate_cuda or self.hardware.torch_cuda:
             values[self.t("device_cuda")] = "cuda"
         if self.hardware.mlx_available or self.hardware.torch_mps:
@@ -1410,8 +1431,9 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
 
     def _apply_maximum_quality_defaults(self, preset: str) -> None:
         """Make Simple mode choose quality and stability, never speed."""
-        self.selected_model_id = AUTO_FAST_MODEL_ID if self.simple_quality == "fast" else AUTO_MODEL_ID
-        self.selected_device = "auto"
+        if self.selected_device != "cpu-virtual":
+            self.selected_model_id = AUTO_FAST_MODEL_ID if self.simple_quality == "fast" else AUTO_MODEL_ID
+            self.selected_device = "auto"
         self.beam_var.set(str(self.maximum_quality_beam))
         self.chunk_var.set(str(self.maximum_quality_chunk))
         self.vad_var.set(True)
@@ -1420,7 +1442,8 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         self.translate_var.set(False)
         self.speaker_var.set(preset == "conference")
         if preset == "universal":
-            self.selected_model_id = AUTO_MODEL_ID
+            if self.selected_device != "cpu-virtual":
+                self.selected_model_id = AUTO_MODEL_ID
             self.selected_language = "auto"
             self.translate_var.set(True)
             self.chunk_var.set("12")
@@ -1526,6 +1549,11 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         self.persist_settings()
         self.preload_selected_model()
 
+    def _sync_device_control(self):
+        if hasattr(self, "device_combo"):
+            self.device_combo.set(next(label for label, value in self.device_display_map.items()
+                                       if value == self.selected_device))
+
     def _update_model_indicators(self) -> None:
         if hasattr(self, "model_button"):
             self.model_button.configure(text=model_label(self.selected_model_id, self.t.language))
@@ -1545,7 +1573,7 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
                 text=self.t(
                     "workspace_profile_summary",
                     model=("OpenAI Whisper " if get_model(resolved).family == "whisper" else "") + resolved,
-                    device=route.upper(),
+                    device=self.t("device_cpu_virtual") if self.selected_device == "cpu-virtual" else route.upper(),
                     count=get_model(resolved).language_count,
                 )
             )
@@ -1585,6 +1613,7 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
                 "chunk_seconds": bounded_int(self.chunk_var.get(), 30, 5, 60),
                 "beam_size": bounded_int(self.beam_var.get(), 8, 1, 10),
                 "check_updates": bool(self.update_var.get()),
+                "auto_install_updates": bool(self.auto_update_var.get()),
                 "keep_recording_audio": bool(self.keep_audio_var.get()),
                 "transcript_layout": self.transcript_layout,
                 "show_timestamps": self.show_timestamps,
@@ -1655,6 +1684,7 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
             "safe_fallback": "load_safe_fallback",
             "translation_prepare": "load_translation_prepare",
             "separation_prepare": "load_separation_prepare",
+            "cpu_virtual": "load_cpu_virtual",
         }.get(stage, "progress_loading")
         self._safe_ui(
             self._set_status,
@@ -1690,23 +1720,33 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
             self.after(1000, self.preload_selected_model)
             return
         self.preload_generation += 1
+        if self.model_preloading:
+            self.preload_cancel.set()
+            self.engine.cancel_cpu_worker()
+        self.preload_cancel = threading.Event()
         generation = self.preload_generation
         model = self.selected_model_id
         device = self.selected_device
         options = self.transcribe_options(self.job_config())
+        options.cancel_event = self.preload_cancel
         self.model_preloading = True
+        if device == "cpu-virtual":
+            self.cancel_button.configure(state="normal")
         resolved = self.hardware.resolve_model(model, device, self.engine.cached_model_ids(),
                                                options.language, options.task)
         self._set_status(self.t("model_arming", model=resolved))
         if self.preset in {"conference", "dictation", "universal"}:
             self.record_button.configure(state="disabled", text=self.t("arming"))
 
-        threading.Thread(
+        thread = threading.Thread(
             target=self._preload_worker,
             args=(generation, model, device, options),
             daemon=True,
             name="model-preload",
-        ).start()
+        )
+        self.preload_threads = [item for item in self.preload_threads if item.is_alive()]
+        self.preload_threads.append(thread)
+        thread.start()
 
     def _preload_worker(self, generation: int, model: str, device: str, options: TranscriptionOptions) -> None:
         try:
@@ -1714,7 +1754,8 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
                 lambda stage, selected, mode: self._safe_ui(self._preload_progress, generation, stage, selected, mode), options)
             self._safe_ui(self._finish_preload, generation, status)
         except Exception as error:
-            logging.exception("Background model preload failed")
+            if not isinstance(error, JobCancelled):
+                logging.exception("Background model preload failed")
             self._safe_ui(self._fail_preload, generation, error)
 
     def _preload_progress(self, generation: int, stage: str, model: str, device: str) -> None:
@@ -1730,14 +1771,17 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         self._show_preloaded_model_ready()
         if not self.busy and not self.recorder.recording:
             self.record_button.configure(state="normal", text=self.t("record"))
+            self.cancel_button.configure(state="disabled")
 
     def _fail_preload(self, generation: int, error: Exception) -> None:
         if generation != self.preload_generation:
             return
         self.model_preloading = False
-        self._set_status(self.t("model_preload_failed", error=error))
+        self._set_status(self.t("job_cancelled") if isinstance(error, JobCancelled)
+                         else self.t("model_preload_failed", error=error))
         if not self.busy and not self.recorder.recording:
             self.record_button.configure(state="normal", text=self.t("record"))
+            self.cancel_button.configure(state="disabled")
 
     def _model_is_armed(self, config: dict[str, Any]) -> bool:
         if self.model_preloading:
@@ -2349,7 +2393,16 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         self.after(2000, self._autosave_editor)
 
     def cancel_job(self) -> None:
-        if self.recorder.recording:
+        if self.model_preloading and not self.busy and not self.recorder.recording:
+            self.preload_cancel.set()
+            self.engine.cancel_cpu_worker()
+            self.preload_generation += 1
+            self.model_preloading = False
+            self.last_engine_status = None
+            self.cancel_button.configure(state="disabled")
+            self.record_button.configure(state="normal", text=self.t("record"))
+            self._set_status(self.t("job_cancelled"))
+        elif self.recorder.recording:
             self.stop_recording()
         elif self.busy:
             self.cancel_event.set()
@@ -2403,6 +2456,9 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         if self.closing:
             return
         self.closing = True
+        self.preload_cancel.set()
+        self.engine.cancel_cpu_worker()
+        self.stop_update_tasks()
         self.stop_speaking(resume=False)
         if self.recorder.recording:
             self.stop_recording()

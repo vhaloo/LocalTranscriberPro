@@ -6,7 +6,10 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
+import sys
+import tempfile
 import threading
 import urllib.error
 import urllib.request
@@ -129,7 +132,9 @@ def expected_checksum(content: str, filename: str) -> str:
 
 
 def download_update(info: UpdateInfo, folder: Path, progress: Callable[[float], None] | None = None,
-                    cancel_event: threading.Event | None = None) -> Path:
+                    cancel_event: threading.Event | None = None,
+                    *, verified_checksum: Callable[[str], None] | None = None) -> Path:
+    check_cancelled(cancel_event)
     if Path(info.filename).name != info.filename or not info.filename.endswith(("-Windows-x64-Setup.exe", "-Windows-x64-CPU-Setup.exe")):
         raise ValueError("Invalid update filename")
     version_tuple(info.version)
@@ -158,6 +163,18 @@ def download_update(info: UpdateInfo, folder: Path, progress: Callable[[float], 
             raise ValueError("Signed and SHA-256 manifests disagree")
     folder.mkdir(parents=True, exist_ok=True)
     destination = folder / info.filename
+    if destination.is_file() and destination.stat().st_size == info.size:
+        with destination.open("rb") as handle:
+            digest = hashlib.file_digest(handle, "sha256").hexdigest()
+        check_cancelled(cancel_event)
+        if digest == expected:
+            if verified_checksum:
+                verified_checksum(expected)
+            if progress:
+                progress(1.0)
+            return destination
+    if shutil.disk_usage(folder).free < info.size + 512 * 1024**2:
+        raise OSError("Insufficient free storage to download this update")
     temporary = destination.with_suffix(".exe.part")
     digest = hashlib.sha256()
     downloaded = 0
@@ -180,6 +197,8 @@ def download_update(info: UpdateInfo, folder: Path, progress: Callable[[float], 
         if downloaded != info.size or digest.hexdigest() != expected:
             raise ValueError("The downloaded update failed SHA-256 verification")
         temporary.replace(destination)
+        if verified_checksum:
+            verified_checksum(expected)
         if progress:
             progress(1.0)
         return destination
@@ -187,11 +206,30 @@ def download_update(info: UpdateInfo, folder: Path, progress: Callable[[float], 
         temporary.unlink(missing_ok=True)
 
 
+def installation_directory() -> Path:
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+    return Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "Programs/Local Transcriber Pro"
+
+
+def validate_installer_file(path: Path, expected: str) -> None:
+    """Recheck bytes and installation headroom before closing the running app."""
+    with path.open("rb") as handle:
+        if hashlib.file_digest(handle, "sha256").hexdigest() != expected:
+            raise ValueError("The prepared installer changed after verification")
+    from src.storage import MINIMUM_INSTALL_FREE, available_bytes
+    for folder, required in ((installation_directory(), MINIMUM_INSTALL_FREE),
+                             (Path(tempfile.gettempdir()), 1024**3)):
+        free = available_bytes(folder)
+        if free is None or free < required:
+            raise OSError("Insufficient free storage to install the update; the application remains open")
+
+
 def launch_installer(path: Path) -> None:
     if os.name != "nt" or not path.is_file() or path.suffix.lower() != ".exe":
         raise ValueError("Automatic installation requires a verified Windows installer")
     # Inno Setup waits for the old application's mutex, then launches the new
     # version. User data lives outside the installation directory.
-    subprocess.Popen([str(path), "/SILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/CLOSEAPPLICATIONS", "/AUTOUPDATE",
-                      f"/WAITPID={os.getpid()}"],
+    subprocess.Popen([str(path), "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/CLOSEAPPLICATIONS", "/AUTOUPDATE",
+                      f"/WAITPID={os.getpid()}", f"/DIR={installation_directory()}"],
                      creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)

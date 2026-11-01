@@ -46,7 +46,7 @@ def bounded_int(value: Any, default: int, minimum: int, maximum: int) -> int:
 
 
 DEFAULTS: dict[str, Any] = {
-    "schema_version": 8,
+    "schema_version": 9,
     "ui_language": detect_ui_language(),
     "ui_mode": "simple",
     "simple_quality": "best",
@@ -78,6 +78,7 @@ DEFAULTS: dict[str, Any] = {
     "benchmarks": {},
     "window_geometry": "1220x940",
     "check_updates": True,
+    "auto_install_updates": True,
     "video_max_mb": 2000,
     "keep_recording_audio": True,
     "vocabulary": "",
@@ -111,7 +112,7 @@ class SettingsStore:
                 self.data["schema_version"] = DEFAULTS["schema_version"]
                 for key, choices in {
                     "ui_language": {"en", "fr"}, "ui_mode": {"simple", "advanced"},
-                    "simple_quality": {"best", "fast"}, "device": {"auto", "cpu", "cuda", "metal"},
+                    "simple_quality": {"best", "fast"}, "device": {"auto", "cpu", "cpu-virtual", "cuda", "metal"},
                     "transcript_layout": {"blocks", "lines"},
                     "model": {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID, *MODEL_BY_ID},
                     "preset": {"files", "conference", "dictation", "link", "universal"},

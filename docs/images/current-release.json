@@ -1,46 +1,54 @@
 {
-  "version": "3.4.0",
+  "version": "3.5.0",
   "images": [
     {
-      "file": "local-transcriber-pro-3.4.0-universal.jpg",
-      "sha256": "068ca2ec4362fe13d01f55ed5ce5c58bcacce8f8714740c7b0358a38196f1a02"
+      "file": "local-transcriber-pro-3.5.0-universal.jpg",
+      "sha256": "46ddf7fb634fa154c9ab3e10c3432f31d1f1137b83dfcda2ef2d13bfc57c6156"
     },
     {
-      "file": "local-transcriber-pro-3.4.0-files.jpg",
-      "sha256": "0dfe8b77642da09738ccf00350925ab7efecb8d38ec16393a3c0d88983428936"
+      "file": "local-transcriber-pro-3.5.0-files.jpg",
+      "sha256": "17a41cad85b215e6f6eb2e5fc14f7962017b0d5809b06ee556e81980f4e317b0"
     },
     {
-      "file": "local-transcriber-pro-3.4.0-settings.jpg",
-      "sha256": "fef6d6fae2039de37a671e00b8ddf203d63d30059fadc8c19966de4b0e4d3a03"
+      "file": "local-transcriber-pro-3.5.0-settings.jpg",
+      "sha256": "62ae84f98ea40c28dff21fba7e9758f1d3b42e0a74265def45f5f89b3b7adcd3"
     },
     {
-      "file": "local-transcriber-pro-3.4.0-models.jpg",
-      "sha256": "81cac9c14ed482c71c9874649ce80dbc4bf885b4ad1d926ee1f3055177095e44"
+      "file": "local-transcriber-pro-3.5.0-models.jpg",
+      "sha256": "8f37735b899b284b17eeeb5f17e91d513049c23e4bcda31aefaf4dfe2993842e"
     },
     {
-      "file": "local-transcriber-pro-3.4.0-reading.jpg",
-      "sha256": "efd18a64e36e75eb0ccfced34260d766b6582a39df61faaddd02474cf885b052"
+      "file": "local-transcriber-pro-3.5.0-reading.jpg",
+      "sha256": "5ee8a5c77c8d7de8dcd6abbd4afe7051a7183c7991aff4a20a70d2c12529fe7c"
     },
     {
-      "file": "local-transcriber-pro-3.4.0-audience.jpg",
-      "sha256": "607be5f17bb85d545cd8a6983f3c79c348915522eff0b51478917bfbcc0ad06f"
+      "file": "local-transcriber-pro-3.5.0-audience.jpg",
+      "sha256": "c113b5e8c8145ffef7308cb402e62507c82a795d39e9ad6c0ae81465ebf68d22"
     },
     {
-      "file": "local-transcriber-pro-3.4.0-review.jpg",
-      "sha256": "5fddbf181f2e1b6f377862c0e15c6fe24241b11439078ba8fe6d6b0dc7b051ec"
+      "file": "local-transcriber-pro-3.5.0-review.jpg",
+      "sha256": "e29b9057d8c3cf096248689c2b12312b2f337cfc8fa986efae2872b75c9d8d11"
     },
     {
-      "file": "local-transcriber-pro-3.4.0-offline.jpg",
-      "sha256": "ae63e4aeca2ae83a2db40323d983dabef5de4bb1d98e4719ba8c0916861fa5ca"
+      "file": "local-transcriber-pro-3.5.0-offline.jpg",
+      "sha256": "939b97a05f20df53864da3130d8a6acb71464ba62377614cd49571717c39226d"
     },
     {
-      "file": "local-transcriber-pro-3.4.0-storage.jpg",
-      "sha256": "8c71b2d974996d72d9b3174e71af1ce06f1ccd6b498a803fb0f0fcb02dcda0b1"
+      "file": "local-transcriber-pro-3.5.0-storage.jpg",
+      "sha256": "a07925e4b44b973c999f0057157db8f7f022b8e1fa3b584bed4493357b245b72"
     },
     {
-      "file": "local-transcriber-pro-3.4.0-video.jpg",
-      "sha256": "e0b0fdbc957dd2e291375ca26dbd7911287e39e9f5660bad88a71af12c80b80b"
+      "file": "local-transcriber-pro-3.5.0-video.jpg",
+      "sha256": "424cef17fd822650547f386e37dcc9b0660aa2706ae2fb94c4623bb8b7df0444"
+    },
+    {
+      "file": "local-transcriber-pro-3.5.0-memory.jpg",
+      "sha256": "aa1dee918f19b583c3a183ec4bafa73c9290c21451ef66d579b293c901607459"
+    },
+    {
+      "file": "local-transcriber-pro-3.5.0-updates.jpg",
+      "sha256": "48bd39f9332c98def2de0cd971cc51a3daa850d10e0ec08d71f4dfe081403572"
     }
   ],
-  "demonstration": "Actual Windows 3.4.0 interface with isolated illustrative Arabic/French/English data. No private conversation."
+  "demonstration": "Actual Windows 3.5.0 interface; isolated illustrative conversation. Update dialog uses the current-version preview fixture and performs no download or installation."
 }

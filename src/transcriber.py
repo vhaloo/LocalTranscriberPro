@@ -13,6 +13,7 @@ import logging
 import os
 import re
 import shutil
+import sys
 import threading
 import time
 from collections.abc import Callable, Iterable
@@ -76,10 +77,12 @@ class EngineStatus:
     compute_type: str
     requested_model_id: str = ""
     fallback_reason: str = ""
+    memory_mode: str = "standard"
+    worker_pid: int | None = None
 
 
 class TranscriberEngine:
-    def __init__(self, hardware: HardwareProfile | None = None):
+    def __init__(self, hardware: HardwareProfile | None = None, *, isolated_cpu: bool = True):
         self.hardware = hardware or detect_hardware()
         self.model: Any = None
         self.model_name: str | None = None
@@ -88,6 +91,8 @@ class TranscriberEngine:
         self.compute_type = "int8"
         self.current_status: EngineStatus | None = None
         self._load_lock = threading.RLock()
+        self._isolated_cpu = isolated_cpu
+        self._cpu_worker = None
         self.translator = TranslationEngine()
         self.separator = OverlapSeparator()
         self.language_identifier = None
@@ -111,14 +116,7 @@ class TranscriberEngine:
 
     @staticmethod
     def _normalize_device(device_mode: str) -> str:
-        value = (device_mode or "auto").lower()
-        if "cuda" in value or "nvidia" in value:
-            return "cuda"
-        if "mps" in value or "metal" in value or "apple" in value:
-            return "metal"
-        if "cpu" in value or "processeur" in value:
-            return "cpu"
-        return "auto"
+        return HardwareProfile.normalize_device(device_mode)
 
     def _resolve_device(self, requested: str) -> str:
         requested = self._normalize_device(requested)
@@ -153,9 +151,10 @@ class TranscriberEngine:
                 if status_callback:
                     status_callback("translation_prepare", "MADLAD-400", status.device)
                 try:
-                    self.translator.load(self.hardware, allow_download=not options.offline, cancel_event=options.cancel_event)
+                    extra = {"allow_cpu_virtual_memory": True} if self._normalize_device(device_mode) == "cpu-virtual" else {}
+                    self.translator.load(self.hardware, allow_download=not options.offline, cancel_event=options.cancel_event, **extra)
                 except TranslationResourceError:
-                    if model_id not in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID}:
+                    if self._normalize_device(device_mode) == "cpu-virtual" or model_id not in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID}:
                         raise
                     # Admit the combined pipeline, not two independent models.
                     # Reserve MT first after an actual resource refusal, then
@@ -169,11 +168,11 @@ class TranscriberEngine:
                         status_callback("safe_fallback", status.model_id, status.device)
             else:
                 self.translator.unload()
-            if options and options.overlap_separation:
+            if options and options.overlap_separation and getattr(self, "_cpu_worker", None) is None:
                 if status_callback:
                     status_callback("separation_prepare", "SepFormer · 2", "cpu")
                 self.separator.load(allow_download=not options.offline, cancel_event=options.cancel_event)
-            if options and options.conversation and self.backend in {"qwen3-asr", "parakeet-onnx"}:
+            if options and options.conversation and getattr(self, "_cpu_worker", None) is None and self.backend in {"qwen3-asr", "parakeet-onnx"}:
                 if self.language_identifier is None:
                     try:
                         from src.omnilingual import TextLanguageIdentifier
@@ -208,6 +207,7 @@ class TranscriberEngine:
             and self.current_status is not None
             and self.current_status.requested_model_id == model_id
             and self.current_status.requested_device == normalized_device
+            and (self._cpu_worker is None or self._cpu_worker.alive)
             and (options is None or get_model(self.current_status.model_id).supports(options.language, options.task))
         ):
             report("model_cached", self.current_status.model_id, self.current_status.device)
@@ -233,6 +233,32 @@ class TranscriberEngine:
                 f"{compatibility.detected:.1f}/{compatibility.required:.1f} GB)."
             )
         target_device = compatibility.device
+        if normalized_device == "cpu-virtual" and self._isolated_cpu:
+            from src.cpu_worker import CPUWorkerClient, options_payload
+            worker = self._cpu_worker = CPUWorkerClient()
+            report("cpu_virtual", requested_model, "cpu")
+
+            def receive(kind, value):
+                if kind == "load_status":
+                    report(*value)
+
+            try:
+                values = worker.call("load_asr", {
+                    "model": requested_model, "hardware": self.hardware.as_dict(),
+                    "options": options_payload(options or TranscriptionOptions()),
+                }, cancel_event=options.cancel_event if options else None, event=receive)
+                if values["model_id"] != requested_model or values["device"] != "cpu":
+                    raise RuntimeError("The CPU worker returned a different model/device")
+                values.update(requested_model_id=model_id, requested_device=normalized_device,
+                              memory_mode="virtual", worker_pid=worker.pid)
+                self.current_status = EngineStatus(**values)
+                self.model, self.model_name = worker, requested_model
+                self.device, self.backend, self.compute_type = "cpu", values["backend"], values["compute_type"]
+                return self.current_status
+            except BaseException:
+                worker.close()
+                self._cpu_worker = self.model = self.current_status = None
+                raise
         available_before_load = self.hardware.effective_free_vram_gb
         fallback_reason = "" if model_id in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID, requested_model} else "hardware_or_task_guard"
         report("model_cached" if requested_model in cached else "model_download", requested_model, target_device)
@@ -255,6 +281,10 @@ class TranscriberEngine:
                     self.model = ParakeetBackend(spec, self.model_cache, self.hardware.cpu_threads)
                     backend, compute, target_device = "parakeet-onnx", "int8", "cpu"
             except Exception as error:
+                if normalized_device == "cpu-virtual":
+                    self.unload_model()
+                    raise RuntimeError(f"The requested CPU model {requested_model} could not load. "
+                                       f"Check OS virtual memory and free disk space: {error}") from error
                 logging.exception("Modern ASR load failed; trying a safe Whisper checkpoint")
                 self.unload_model()
                 self.hardware.refresh_resources()
@@ -295,6 +325,8 @@ class TranscriberEngine:
                         attempts.append((requested_model, "cpu"))
                 requested_rank = get_model(requested_model).quality_rank
                 for spec in sorted(MODEL_CATALOG, key=lambda item: item.quality_rank, reverse=True):
+                    if normalized_device == "cpu-virtual":
+                        break
                     if spec.family != "whisper" or not spec.multilingual or spec.quality_rank >= requested_rank:
                         continue
                     if options and not spec.supports(options.language, options.task):
@@ -382,6 +414,7 @@ class TranscriberEngine:
             compute_type=compute,
             requested_model_id=model_id,
             fallback_reason=fallback_reason,
+            memory_mode="virtual" if normalized_device == "cpu-virtual" else "standard",
         )
         return self.current_status
 
@@ -391,6 +424,7 @@ class TranscriberEngine:
             and self.current_status is not None
             and self.current_status.requested_model_id == model_id
             and self.current_status.requested_device == self._normalize_device(device_mode)
+            and (self._cpu_worker is None or self._cpu_worker.alive)
         )
 
     def _load_openai_fallback(self, model_id: str, device: str) -> None:
@@ -405,6 +439,9 @@ class TranscriberEngine:
 
     def unload_model(self) -> None:
         with self._load_lock:
+            if self._cpu_worker is not None:
+                self._cpu_worker.close()
+                self._cpu_worker = None
             # Touch MPS's native allocator only after this engine actually used
             # it. Merely exposing torch.mps does not initialize a Metal device;
             # empty_cache can crash a CPU-only macOS process before first load.
@@ -416,7 +453,9 @@ class TranscriberEngine:
             self.hardware.reclaimable_vram_gb = 0.0
             gc.collect()
         try:
-            import torch
+            torch = sys.modules.get("torch")
+            if torch is None:
+                return
 
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
@@ -425,6 +464,13 @@ class TranscriberEngine:
                 torch.mps.empty_cache()
         except (ImportError, RuntimeError):
             pass
+
+    def cancel_cpu_worker(self) -> None:
+        # No inference lock: cancelling must also interrupt native model loading.
+        worker = self._cpu_worker
+        if worker is not None:
+            worker.close()
+        self.translator.cancel_cpu_worker()
 
     def transcribe_file(
         self,
@@ -473,6 +519,8 @@ class TranscriberEngine:
                 options = replace(options, task="transcribe")
             if self.model_name and not get_model(self.model_name).supports(options.language, options.task):
                 mode = self.current_status.requested_device if self.current_status else "auto"
+                if mode == "cpu-virtual":
+                    raise RuntimeError("The requested model does not support this language/task. Choose another model explicitly.")
                 self._load_model_unlocked(AUTO_MODEL_ID, mode, options=options)
             return self._transcribe_locked(source, options, progress_callback)
 
@@ -483,14 +531,17 @@ class TranscriberEngine:
         if self.model is None or not self.model_name:
             raise RuntimeError("Model not loaded")
 
-        if options.overlap_separation:
+        if options.overlap_separation and getattr(self, "_cpu_worker", None) is None:
             return self._transcribe_overlap(source, options, progress_callback)
 
         duration = self.audio_duration(source)
         started = time.monotonic()
         if options.activity_callback:
             options.activity_callback("transcribing")
-        if self.backend in {"qwen3-asr", "parakeet-onnx", "omnilingual-onnx"}:
+        if getattr(self, "_cpu_worker", None) is not None:
+            pair = self.translator.router.pair if self.translator.router else ()
+            result = self._cpu_worker.transcribe(source, options, progress_callback, conversation_pair=pair)
+        elif self.backend in {"qwen3-asr", "parakeet-onnx", "omnilingual-onnx"}:
             from src.modern_backends import transcribe_modern
 
             result = transcribe_modern(self.model, source, options, duration, progress_callback)
@@ -510,8 +561,9 @@ class TranscriberEngine:
         result["model"] = self.model_name
         result["device"] = self.device
         result["backend"] = self.backend
-        self._annotate_text_language(result, options)
-        annotate_recognition(result)
+        if getattr(self, "_cpu_worker", None) is None:
+            self._annotate_text_language(result, options)
+            annotate_recognition(result)
         if options.task == "translate":
             for item in result.get("segments", []):
                 # Legacy Whisper translation emits English, not the detected source language.
@@ -521,8 +573,22 @@ class TranscriberEngine:
                 options.original_callback(result)
             if options.activity_callback:
                 options.activity_callback("translating")
-            result = self.translator.translate_result(result, options.target_language, options.conversation,
-                                                      options.third_language, options.cancel_event)
+            if result.get("overlap_experimental"):
+                # The remote separator can return a different language for each
+                # voice. Do not merge them into the last detected language.
+                translated = []
+                for item in result.get("segments", []):
+                    partial = {"text": item.get("text", ""), "segments": [item],
+                               "language": item.get("language", result.get("language")),
+                               "language_probability": item.get("language_probability")}
+                    value = self.translator.translate_result(partial, options.target_language, options.conversation,
+                                                             options.third_language, options.cancel_event)
+                    translated.extend(value.get("segments", []))
+                result.update(segments=translated, text=" ".join(item["text"] for item in translated),
+                              conversation_pair=list(self.translator.router.pair) if self.translator.router else [])
+            else:
+                result = self.translator.translate_result(result, options.target_language, options.conversation,
+                                                          options.third_language, options.cancel_event)
             result["translation_device"] = self.translator.device
             result["processing_seconds"] = time.monotonic() - started
         check_cancelled(options.cancel_event)

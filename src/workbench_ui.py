@@ -228,7 +228,8 @@ class WorkbenchMixin:
             if retranslate:
                 def operation():
                     with self.engine._load_lock:
-                        self.engine.translator.load(self.hardware, allow_download=False)
+                        self.engine.translator.load(self.hardware, allow_download=False,
+                            allow_cpu_virtual_memory=self.selected_device == "cpu-virtual")
                         return retranslate_segment(corrected, self.engine.translator)
                 def finished(result):
                     self._apply_retranslation(result)
@@ -326,7 +327,8 @@ class WorkbenchMixin:
             dialog.destroy()
             def operation():
                 with self.engine._load_lock:
-                    self.engine.translator.load(self.hardware, allow_download=False)
+                    self.engine.translator.load(self.hardware, allow_download=False,
+                        allow_cpu_virtual_memory=self.selected_device == "cpu-virtual")
                     result = identified([{"start": position, "end": position, "source_text": value,
                                           "source_language": source_language, "target_language": target,
                                           "text": "", "input_mode": "typed", "words": []}])[0]

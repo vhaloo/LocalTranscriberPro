@@ -172,6 +172,8 @@ class RecordingMixin:
             self.recording_spool = None
 
     def _adapt_conversation_model(self, options):
+        if getattr(self, "selected_device", "auto") == "cpu-virtual":
+            return
         pair = self.engine.translator.router.pair if self.engine.translator.router else ()
         if len(pair) != 2:
             return

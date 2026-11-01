@@ -41,6 +41,7 @@ if __name__ == '__main__':
         ['--voice-test', 'fr', '--voice-text', 'Bonjour, ceci est une vérification locale.', '--offline'],
         ['--voice-test', 'en', '--voice-text', 'Hello, this is a local verification.', '--offline'],
         ['--youtube-test', f'http://127.0.0.1:{server.server_port}/jfk.flac', '--model', 'tiny', '--device', 'cpu', '--offline'],
+        ['--smoke-test', str(sample), '--model', 'tiny', '--device', 'cpu-virtual', '--offline'],
     ]
     try:
         for index, command in enumerate(cases):
@@ -50,12 +51,15 @@ if __name__ == '__main__':
                 raise RuntimeError(f'Packaged diagnostic {index} exited {completed.returncode} without a report')
             result = json.loads(report.read_text('utf-8'))
             assert completed.returncode == 0 and result['success'], result
-            if index in (0, 3):
+            if index in (0, 3, 4):
                 assert result['status']['model_id'] == 'tiny' and result['status']['device'] == 'cpu'
                 assert result['progress_completed']
+            if index == 4:
+                assert result['status']['memory_mode'] == 'virtual' and result['status']['worker_pid']
+                assert result['status']['requested_device'] == 'cpu-virtual' and not result['status']['fallback_reason']
         assert not list((folder / 'youtube-qa').glob('ltp-video-*')), 'Online import left temporary audio behind'
     finally:
         server.shutdown()
         server.server_close()
         server_thread.join(timeout=2)
-    print('Native CPU ASR, bundled French/English voices and isolated HTTP audio import passed.')
+    print('Native CPU ASR, isolated CPU paging worker, bundled French/English voices and HTTP audio import passed.')

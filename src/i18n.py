@@ -853,6 +853,10 @@ from src.i18n_34 import register as register_workspace  # noqa: E402
 
 register_workspace(STRINGS)
 
+from src.i18n_35 import register as register_memory_updates  # noqa: E402
+
+register_memory_updates(STRINGS)
+
 
 def detect_ui_language() -> str:
     candidates = [

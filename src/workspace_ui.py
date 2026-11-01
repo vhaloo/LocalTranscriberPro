@@ -91,7 +91,7 @@ class WorkspaceMixin:
         specs = (
             ("history_button", "history", lambda: HistoryDialog(self), 90),
             ("help_button", "help", lambda: HelpDialog(self), 60),
-            ("updates_button", "workspace_updates", self.check_updates, 36),
+            ("updates_button", "workspace_updates", self.open_update_or_check, 36),
             ("language_button", "language_name", self.toggle_language, 44),
             ("settings_button", "settings", self.open_workspace_settings, 115),
         )
@@ -108,7 +108,7 @@ class WorkspaceMixin:
             )
             button.pack(side="left", padx=3)
             setattr(self, name, button)
-            ToolTip(
+            tip = ToolTip(
                 button,
                 self.t(
                     "workspace_settings_help"
@@ -122,6 +122,9 @@ class WorkspaceMixin:
                     else "tip_language"
                 ),
             )
+            if key == "workspace_updates":
+                self.update_tooltip = tip
+        self._refresh_update_badge()
 
     def _build_tasks(self):
         self.task_frame = ctk.CTkFrame(self.sidebar_body, fg_color="transparent")

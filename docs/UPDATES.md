@@ -1,24 +1,28 @@
-# Application updates / Mises à jour
+# Quiet application updates — 3.5.0
 
-At startup, an enabled background check queries only the official repository's latest stable GitHub release. No audio or transcript is sent. Offline startup and API failures remain usable and quiet; the manual ↻ check explains failures. Drafts, pre-releases, older versions and releases without the required Windows installer, checksum and signed-manifest assets are ignored.
+At every enabled startup the app checks only the official GitHub latest-stable release endpoint in a background thread. Offline, timeout, unavailable metadata and already-current results never open an error or modal dialog. The app remains usable. Manual checks report a short status; startup checks stay quiet. Audio, transcripts, vocabulary and hardware details are not sent to GitHub.
 
-The proposal shows the version and requires the user's acceptance. Download is cancellable. HTTPS redirects are restricted to GitHub asset hosts; the asset URLs must belong to this exact repository and release. Both the announced byte count and SHA-256 must match before the temporary download becomes executable.
+The header update button displays a newer version, download progress and readiness. Clicking it opens details with **Install** and **Later**. Checking at startup and automatic idle installation are separate settings under **Settings → Recognition**, both enabled by default. Explicitly disabled existing check preferences remain disabled. Source-development sessions do not auto-install over a maintained desktop installation.
 
-Before installation the app must be idle. It saves editor corrections, recovery and settings, starts the per-user Inno installer, then exits and releases the application mutex. `/AUTOUPDATE` instructs the installer to relaunch the installed version after copying. No Windows restart, administrator elevation or user-data deletion is requested.
+## Windows
 
-`/WAITPID` passes the actual retiring process ID. During `InitializeSetup`, the installer opens a synchronization-only process handle and waits for its exit before Inno checks the application mutex or replaces native libraries. A timeout stops the update before replacement. This avoids a startup race with the application's final save/close callbacks and uses Windows directly, with no shell helper.
+The packaged Windows app can download in the background, verify the publisher's Ed25519 manifest, exact asset name/version/size and SHA-256, and install automatically after 60 seconds without keyboard/mouse interaction in the application. Recording, recognition/preloading, speech, tool workers, visible dialogs and private text defer unattended installation. Hidden settings do not block it. **Later** defers installation for this launch; the next startup can retry. Disable automatic installation to choose when to install manually.
 
-The bundled `_internal` runtime is replaced completely to prevent obsolete native libraries or dependency metadata from shadowing the new versions. Settings, history, downloaded models and recordings are outside that runtime directory and are preserved.
+An unchanged cached installer is reused only after rechecking its actual bytes against freshly verified release metadata. HTTPS redirects are restricted to GitHub asset hosts. Before closing, the app hashes the prepared file again and checks 12 GB of free installation space plus temporary headroom. Failed downloads, signatures, storage checks or process handoff leave the app open with a retry indicator. No unverified package is launched. The final idle check runs again after background preparation, so activity during verification defers installation.
 
-Windows supports installation and relaunch. On macOS/Linux the accepted proposal opens the official release page for a platform-appropriate installation. Those platforms do not yet have automated replacement.
+The app commits editor changes, saves recovery/settings, starts the per-user installer and exits. `/WAITPID` waits on the retiring app process before Inno checks its mutex or replaces files; `/AUTOUPDATE` relaunches the new version. The current custom installation folder and full/CPU runtime flavor are preserved. No Windows restart, elevation or system/pagefile-setting change is requested. Settings/history/models/recordings live outside the replaced `_internal` runtime.
 
-The stable 3.3.0 release also carries explicitly labelled **experimental** macOS Apple Silicon and Linux x86-64 assets. This per-platform status does not change the stable Windows updater channel. Mac/Linux users install these packages manually; see [the experimental installation guide](EXPERIMENTAL_DESKTOP_3.3.md).
+An explicit manual installation may close an in-memory private session; export it first if needed. Automatic installation defers while any private text is present, including uncommitted editor text.
+
+## macOS / Linux
+
+Startup checks and the version indicator are quiet; **Install** opens the official release page for manual replacement. These distributions remain experimental. There is no automatic package replacement or elevation on these platforms. [Platform guide](EXPERIMENTAL_DESKTOP_3.5.md).
 
 ## Français
 
-La vérification en arrière-plan est activée par défaut et se désactive dans Avancé. Le bouton ↻ lance une vérification manuelle. Une nouvelle version stable officielle est proposée ; aucune installation ne commence sans accepter. L'audio, le texte, le vocabulaire et les informations matérielles ne sont pas envoyés.
+À chaque ouverture activée, vérification discrète de la dernière release stable officielle : aucune erreur ni fenêtre intrusive sans Internet ou si le logiciel est à jour. Le bouton de l'en-tête indique une nouvelle version, sa progression et sa disponibilité. Les options **Vérifier au démarrage** et **Installer automatiquement au repos** sont séparées dans Paramètres → Reconnaissance ; les choix de désactivation existants sont respectés.
 
-Accepter télécharge et vérifie le paquet, sauvegarde la session, ferme l'application, installe pour le compte Windows actuel et relance la nouvelle version. Un fichier incomplet, modifié, sans SHA-256 ou sans signature valide bloque l'installation depuis la 3.3. Annuler conserve l'application actuelle. Les enregistrements et transcriptions actifs doivent être terminés avant installation.
+Windows télécharge, vérifie signature Ed25519 et SHA-256, attend au moins 60 secondes d'inactivité et la fin des tâches, sauvegarde, installe dans le dossier actuel et relance. Les fenêtres visibles et sessions privées contenant du texte reportent l'installation automatique. « Plus tard » reporte à la prochaine ouverture. Un téléchargement/contrôle indisponible laisse l'application ouverte. Mac/Linux : remplacement manuel expérimental depuis la page officielle.
 
 ## Release requirements
 

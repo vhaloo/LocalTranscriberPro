@@ -20,7 +20,7 @@ _ALREADY_EXISTS = 183
 STARTUP_TEXT = {
     "en": {
         "title": "Local Transcriber Pro",
-        "version": "VERSION 3.3  •  PRIVATE AND LOCAL",
+        "version": "VERSION 3.5  •  PRIVATE AND LOCAL",
         "starting": "Opening the application…",
         "libraries": "Loading the private audio engine…",
         "hardware_memory": "Checking memory and available storage…",
@@ -37,7 +37,7 @@ STARTUP_TEXT = {
     },
     "fr": {
         "title": "Local Transcriber Pro",
-        "version": "VERSION 3.3  •  PRIVÉE ET LOCALE",
+        "version": "VERSION 3.5  •  PRIVÉE ET LOCALE",
         "starting": "Ouverture de l’application…",
         "libraries": "Chargement du moteur audio privé…",
         "hardware_memory": "Vérification de la mémoire et de l’espace disponible…",

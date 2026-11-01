@@ -1,4 +1,4 @@
-# Traduction et lecture locales — 3.4.0
+# Traduction et lecture locales — 3.5.0
 
 ## Interface 3.4 / Workspace
 
@@ -127,3 +127,11 @@ Pour les noms, nombres et décisions importants, réécoutez et faites confirmer
 Les principales commandes montrent une aide au survol et au focus clavier. **Stockage et dossiers**, en haut de la fenêtre, affiche les besoins, les dossiers exacts des modèles/voix/historique/exports et leurs tailles. Comptez environ 5,9 Go pour le minimum avec Tiny, 14,4 Go pour Omnilingual + traduction et 53 Go pour tout le catalogue ; prévoyez 12 Go libres avant installation ou 95 Go avec les caches de toutes les options. L’audio enregistré ajoute environ 115 Mo/heure et il n’existe pas de maximum absolu.
 
 **Vidéo en ligne** accepte YouTube, les autres sites pris en charge et les liens média HTTP(S). **Options vidéo et diagnostic** actualise le moteur officiel vérifié et règle la limite. L’audio compressé est vérifié puis traité localement ; l’annulation arrête aussi le téléchargement. Une connexion éventuelle utilise uniquement l’export de cookies que vous choisissez, via une copie temporaire. **Utiliser un fichier local…** offre un autre parcours lorsqu’un site refuse l’import. [Dossiers, budgets et procédure détaillée](../README.md#storage-requirements-and-locations--stockage-et-dossiers).
+
+## Mémoire virtuelle CPU et mises à jour — 3.5
+
+**Paramètres → Reconnaissance → Processeur → CPU — mémoire virtuelle** autorise la tentative du modèle de reconnaissance choisi et du traducteur, même sous les seuils normaux de RAM. Les deux chargements sont isolés et annulables ; le modèle n'est pas remplacé silencieusement. La mémoire virtuelle est gérée par le système : il faut du disque libre et une limite mémoire suffisante, et une forte pagination peut être très lente. Aucun réglage Windows/macOS/Linux n'est modifié. Le mode automatique conserve ses contrôles prudents. [Explication complète](HARDWARE.md#cpu-virtual-memory-35).
+
+Le bouton de mise à jour de l'en-tête indique une nouvelle version, son téléchargement ou sa disponibilité. Les vérifications hors ligne/à jour ne montrent aucune erreur. Windows peut installer et relancer automatiquement après 60 secondes d'inactivité ; enregistrement, traitement, voix, outils, fenêtres ouvertes et session privée contenant du texte reportent cette installation. Les deux options sont dans Paramètres → Reconnaissance. « Plus tard » reporte à la prochaine ouverture. Mac/Linux restent en remplacement manuel expérimental. [Guide des mises à jour](UPDATES.md).
+
+**English:** explicit CPU paging retains your requested recognizer/translator with cancellable worker isolation, without changing OS settings. Normal automatic mode remains guarded. Quiet startup checks use a header badge; Windows signed updates may install after 60 idle seconds with active work and private text protected. Both preferences are in Settings → Recognition. Mac/Linux retain manual experimental replacement.

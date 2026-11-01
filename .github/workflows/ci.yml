@@ -39,3 +39,6 @@ jobs:
       - name: Exercise workspace on a virtual display
         if: runner.os == 'Linux'
         run: xvfb-run -a -s "-screen 0 1920x1200x24" python scripts/qa_workspace.py
+      - name: Exercise quiet updates on a virtual display
+        if: runner.os == 'Linux'
+        run: xvfb-run -a -s "-screen 0 1920x1200x24" python scripts/qa_updates35.py
