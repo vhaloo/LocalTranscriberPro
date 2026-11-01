@@ -7,6 +7,7 @@ import sys
 import threading
 import time
 from pathlib import Path
+from tkinter import TclError
 
 import customtkinter as ctk
 from platformdirs import user_cache_dir
@@ -122,9 +123,23 @@ class UpdatesMixin:
         if self._update_monitor_started:
             return
         self._update_monitor_started = True
+        # Run before widget/class handlers, including handlers returning "break".
+        # This tracks activity only inside this Tk application, never globally.
         for event in ("<KeyPress>", "<ButtonPress>", "<MouseWheel>", "<Motion>"):
-            self.bind_all(event, self._update_activity, add="+")
+            self.bind_class("LTPUpdateActivity", event, self._update_activity, add="+")
+        self._watch_update_widget(self)
+        self.bind_all("<Map>", lambda event: self._watch_update_widget(event.widget), add="+")
         self.after(5000, self._update_idle_tick)
+
+    def _watch_update_widget(self, widget):
+        try:
+            tags = widget.bindtags()
+            if "LTPUpdateActivity" not in tags:
+                widget.bindtags(("LTPUpdateActivity", *tags))
+            for child in widget.winfo_children():
+                self._watch_update_widget(child)
+        except (TclError, AttributeError):
+            return
 
     def _update_activity(self, _event=None):
         self._update_last_activity = time.monotonic()

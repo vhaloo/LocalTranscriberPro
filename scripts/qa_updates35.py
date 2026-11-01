@@ -79,14 +79,21 @@ def main():
         app.settings_window.withdraw()
         app._update_last_activity = time.monotonic() - 70
         assert not updates.install_blocked(app, automatic=True)
-        app.event_generate("<MouseWheel>", delta=-120)
+        app.textbox._textbox.bind("<MouseWheel>", lambda _event: "break", add="+")
+        app.textbox._textbox.event_generate("<MouseWheel>", delta=-120)
         app.update()
         assert updates.install_blocked(app, automatic=True), "Scrolling must defer installation"
         app._update_last_activity = time.monotonic() - 70
         app.event_generate("<Motion>", x=20, y=20)
         app.update()
         assert updates.install_blocked(app, automatic=True), "Pointer activity must defer installation"
+        app._update_last_activity = time.monotonic() - 70
+        app.bind("<KeyPress-F8>", lambda _event: "break")
+        app.event_generate("<KeyPress-F8>")
+        app.update()
+        assert updates.install_blocked(app, automatic=True), "Handled keyboard shortcuts must defer installation"
         cases.append("scrolling-and-pointer-activity-reset-the-idle-period")
+        cases.append("widget-and-keyboard-break-handlers-cannot-hide-activity")
         app._update_last_activity = time.monotonic() - 70
         app._update_idle_tick()
         pump_until(lambda: "close" in events)
