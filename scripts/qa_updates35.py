@@ -79,6 +79,15 @@ def main():
         app.settings_window.withdraw()
         app._update_last_activity = time.monotonic() - 70
         assert not updates.install_blocked(app, automatic=True)
+        app.event_generate("<MouseWheel>", delta=-120)
+        app.update()
+        assert updates.install_blocked(app, automatic=True), "Scrolling must defer installation"
+        app._update_last_activity = time.monotonic() - 70
+        app.event_generate("<Motion>", x=20, y=20)
+        app.update()
+        assert updates.install_blocked(app, automatic=True), "Pointer activity must defer installation"
+        cases.append("scrolling-and-pointer-activity-reset-the-idle-period")
+        app._update_last_activity = time.monotonic() - 70
         app._update_idle_tick()
         pump_until(lambda: "close" in events)
         assert events == ["verified", "handoff", "close"]

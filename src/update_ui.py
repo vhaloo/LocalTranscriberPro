@@ -122,8 +122,8 @@ class UpdatesMixin:
         if self._update_monitor_started:
             return
         self._update_monitor_started = True
-        self.bind_all("<KeyPress>", self._update_activity, add="+")
-        self.bind_all("<ButtonPress>", self._update_activity, add="+")
+        for event in ("<KeyPress>", "<ButtonPress>", "<MouseWheel>", "<Motion>"):
+            self.bind_all(event, self._update_activity, add="+")
         self.after(5000, self._update_idle_tick)
 
     def _update_activity(self, _event=None):
