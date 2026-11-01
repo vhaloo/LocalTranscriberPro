@@ -1,6 +1,6 @@
 # Hardware detection and safe model selection
 
-Local Transcriber Pro 3.4.0 treats a model as available only after its complete runtime route has passed conservative admission checks. Merely finding a GPU name is never considered proof that GPU inference works.
+Local Transcriber Pro 3.5.0 treats a model as available only after its complete runtime route has passed conservative admission checks. Merely finding a GPU name is never considered proof that GPU inference works.
 
 ## What is measured at startup
 
@@ -104,3 +104,15 @@ Optional SepFormer adds ~113 MB, runs bounded six-second windows on CPU and can 
 ## OpenAI local default in 3.4
 
 The full large-v3 Whisper checkpoint is preferred to Turbo for the accuracy profile; Turbo remains a faster option. This is a choice among downloadable local checkpoints, not a hosted transcription API integration. The [official Whisper repository](https://github.com/openai/whisper#available-models-and-languages) describes Turbo as a speed optimization of large-v3 with some accuracy degradation. Resource admission is still required on every platform. A language outside Whisper coverage can retain an admitted wider recognizer; the maximum coverage profile continues to prioritize language count.
+
+## CPU virtual memory (3.5)
+
+Settings → Recognition → Processor → **CPU — virtual memory** retains an explicit requested model and attempts its CPU allocation despite low total/free physical RAM. The catalogue offers a direct CPU action when RAM is the only blocker. RAM/commit admission thresholds are bypassed only in this explicit mode; GPU safety, runtime, language/task, disk and model-integrity checks remain. Automatic mode keeps normal admission and OpenAI large-v3 preference. A worker load failure does not silently select a smaller checkpoint.
+
+ASR and translation each own a cancellable CPU process. Int8 Whisper/CTranslate2 and single MT replicas reduce memory use; other CPU backends retain their supported numerical format. Local IPC uses an authenticated named pipe (Windows) or private Unix socket, JSON and float32 frames, without pickle or new audio/transcript files. Native allocation can be interrupted by Cancel; only owned worker processes are stopped. Existing text remains in the parent. Forced CPU language/task incompatibility requires an explicit different model.
+
+Normal allocations are virtual memory managed by the OS. Windows commit capacity is physical memory plus pagefiles; a system-managed pagefile can grow subject to disk/system limits. The application never resizes pagefiles, changes swap policy, requests administrator access or promises an allocation beyond those limits. Very heavy paging can freeze inference for long periods; keep free disk space and use Cancel if needed. macOS/Linux apply their own swap and allocation policies. No deliberate RAM-exhaustion stress test is performed on a user's workstation.
+
+Private-session suppression concerns application-created audio/transcript/history files. The OS may still page process memory to disk; the app does not claim to erase or prevent OS swap. Translation and prepared speech processing remain local.
+
+[Microsoft: introduction to pagefiles](https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/introduction-to-the-page-file) · [CTranslate2 performance and CPU quantization](https://opennmt.net/CTranslate2/performance.html)

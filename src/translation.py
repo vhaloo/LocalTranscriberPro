@@ -59,8 +59,8 @@ class ConversationRouter:
 
 
 class TranslationEngine:
-    def __init__(self, cache: Path | None = None):
-        self.cache = cache or Path(user_cache_dir("LocalTranscriberPro", "Vhaloo")) / "translation/madlad400-3b"
+    def __init__(self, cache: Path | None = None, *, isolated_cpu: bool = True):
+        self.cache = Path(cache) if cache else Path(user_cache_dir("LocalTranscriberPro", "Vhaloo")) / "translation/madlad400-3b"
         self.model: Any = None
         self.tokenizer: Any = None
         self.device = "cpu"
@@ -73,6 +73,9 @@ class TranslationEngine:
         self.context = []
         self.glossary = ""
         self.optional_cache = None
+        self._isolated_cpu = isolated_cpu
+        self._cpu_worker = None
+        self._virtual_memory = False
 
     def configure(self, model_id="madlad400-3b", cache=None, context=False, glossary=""):
         if model_id not in {"madlad400-3b", "madlad400-7b"}:
@@ -133,13 +136,33 @@ class TranslationEngine:
         atomic_write_text(receipt_path, json.dumps(receipt))
         return self.cache
 
-    def load(self, hardware, allow_download: bool = True, cancel_event=None) -> None:
+    def load(self, hardware, allow_download: bool = True, cancel_event=None,
+             *, allow_cpu_virtual_memory: bool = False) -> None:
         with self._lock:
-            if self.model is not None:
+            if (self.model is not None and self._virtual_memory == allow_cpu_virtual_memory
+                    and (self._cpu_worker is None or self._cpu_worker.alive)):
                 return
+            self.unload()
+            self._virtual_memory = allow_cpu_virtual_memory
+            if allow_cpu_virtual_memory and self._isolated_cpu:
+                from src.cpu_worker import CPUWorkerClient
+                worker = self._cpu_worker = CPUWorkerClient()
+                try:
+                    result = worker.call("load_translation", {
+                        "model": self.model_id, "cache": str(self.cache),
+                        "hardware": hardware.as_dict(), "allow_download": allow_download,
+                    }, cancel_event=cancel_event)
+                    if result != {"device": "cpu", "model": self.model_id}:
+                        raise RuntimeError("The CPU translation worker returned a different model/device")
+                    self.model, self.device = worker, "cpu"
+                    return
+                except BaseException:
+                    worker.close()
+                    self._cpu_worker = self.model = None
+                    raise
             hardware.refresh_resources()
             required_ram = 14 if self.model_id.endswith("7b") else 6
-            if hardware.effective_available_ram_gb < required_ram or hardware.ram_gb < required_ram * 2:
+            if not allow_cpu_virtual_memory and (hardware.effective_available_ram_gb < required_ram or hardware.ram_gb < required_ram * 2):
                 raise TranslationResourceError(f"Traduction {self.model_id}: {required_ram * 2} Go de RAM totale et {required_ram} Go disponibles nécessaires.")
             self.cache.mkdir(parents=True, exist_ok=True)
             import shutil
@@ -153,7 +176,7 @@ class TranslationEngine:
             self.tokenizer = sentencepiece.SentencePieceProcessor(model_file=str(folder / ("spiece.model" if self.model_id.endswith("7b") else "sentencepiece.model")))
             # ASR remains resident: its memory cannot be reclaimed to admit MT.
             free_vram = hardware.gpu_vram_free_gb if hardware.gpu_vram_free_gb is not None else hardware.gpu_vram_gb
-            self.device = "cuda" if hardware.ctranslate_cuda and free_vram >= (10 if self.model_id.endswith("7b") else 4) else "cpu"
+            self.device = "cuda" if not allow_cpu_virtual_memory and hardware.ctranslate_cuda and free_vram >= (10 if self.model_id.endswith("7b") else 4) else "cpu"
             try:
                 self.model = ctranslate2.Translator(str(folder), device=self.device,
                     compute_type="int8_float16" if self.device == "cuda" else "int8",
@@ -181,6 +204,12 @@ class TranslationEngine:
         with self._lock:
             if self.model is None:
                 raise RuntimeError("Local translation engine is not loaded")
+            if self._cpu_worker is not None:
+                result = self._cpu_worker.call("translate", {
+                    "text": text, "target": target, "glossary": self.glossary,
+                }, cancel_event=cancel_event)
+                self.last_index = result["index"]
+                return result["text"]
             original = text
             substitutions = []
             for line in self.glossary.splitlines()[:40]:
@@ -312,5 +341,14 @@ class TranslationEngine:
 
     def unload(self) -> None:
         with self._lock:
+            if self._cpu_worker is not None:
+                self._cpu_worker.close()
+                self._cpu_worker = None
             self.model = self.tokenizer = None
             gc.collect()
+
+    def cancel_cpu_worker(self) -> None:
+        # Deliberately no model lock: a native allocation may still be running.
+        worker = self._cpu_worker
+        if worker is not None:
+            worker.close()

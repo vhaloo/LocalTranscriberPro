@@ -70,9 +70,11 @@ def test_download_verifies_the_actual_bytes_before_publishing_package(tmp_path, 
     manifest = f"{hashlib.sha256(binary).hexdigest()}  {info.filename}\n".encode()
     monkeypatch.setattr("src.updater._open", lambda url: io.BytesIO(manifest if url == info.checksum_url else binary))
     progress = []
-    path = download_update(info, tmp_path, progress.append)
+    checksums = []
+    path = download_update(info, tmp_path, progress.append, verified_checksum=checksums.append)
     assert path.read_bytes() == binary
     assert progress[-1] == 1
+    assert checksums == [hashlib.sha256(binary).hexdigest()]
     assert not list(tmp_path.glob("*.part"))
 
 
@@ -149,3 +151,33 @@ def test_forged_update_object_is_rejected_before_network_access(tmp_path, monkey
     monkeypatch.setattr("src.updater._open", lambda *_args: pytest.fail("Must reject before download"))
     with pytest.raises(ValueError):
         download_update(replace(info, installer_url="https://evil.example/setup.exe"), tmp_path)
+
+
+def test_prepared_package_is_reused_only_when_its_actual_hash_matches(tmp_path, monkeypatch):
+    info = parse_release(release(), "3.0.0")
+    binary = b"installer"
+    manifest = f"{hashlib.sha256(binary).hexdigest()}  {info.filename}\n".encode()
+    requests = []
+    def transport(url):
+        requests.append(url)
+        return io.BytesIO(manifest if url == info.checksum_url else binary)
+    monkeypatch.setattr("src.updater._open", transport)
+    path = tmp_path / info.filename
+    path.write_bytes(binary)
+    assert download_update(info, tmp_path) == path
+    assert requests == [info.checksum_url]
+    requests.clear()
+    path.write_bytes(b"tampered!")
+    assert download_update(info, tmp_path).read_bytes() == binary
+    assert requests == [info.checksum_url, info.installer_url]
+
+
+def test_installer_tampering_or_missing_disk_space_keeps_the_application_open(tmp_path, monkeypatch):
+    from src.updater import validate_installer_file
+    path = tmp_path / "setup.exe"
+    path.write_bytes(b"installer")
+    with pytest.raises(ValueError, match="changed"):
+        validate_installer_file(path, "0" * 64)
+    monkeypatch.setattr("src.storage.available_bytes", lambda _: 0)
+    with pytest.raises(OSError, match="remains open"):
+        validate_installer_file(path, hashlib.sha256(path.read_bytes()).hexdigest())

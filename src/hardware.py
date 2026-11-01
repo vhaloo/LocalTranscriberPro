@@ -100,6 +100,8 @@ class HardwareProfile:
     @staticmethod
     def normalize_device(device_mode: str) -> str:
         value = (device_mode or "auto").lower()
+        if value == "cpu-virtual":
+            return "cpu-virtual"
         if "cuda" in value or "nvidia" in value:
             return "cuda"
         if "mps" in value or "metal" in value or "apple" in value:
@@ -120,12 +122,14 @@ class HardwareProfile:
             detected=self.disk_free_gb,
         )
 
-    def _cpu_compatibility(self, spec: ModelSpec) -> ModelCompatibility:
+    def _cpu_compatibility(self, spec: ModelSpec, *, virtual_memory: bool = False) -> ModelCompatibility:
         runtime = self.torch_cpu_available if spec.family == "qwen" else (
             self.parakeet_available if spec.family in {"parakeet", "omnilingual"} else self.cpu_backend_available
         )
         if not runtime:
             return ModelCompatibility(spec.model_id, False, "cpu", "cpu_runtime")
+        if virtual_memory:
+            return ModelCompatibility(spec.model_id, True, "cpu", "cpu_virtual")
         if self.ram_gb < spec.ram_gb:
             return ModelCompatibility(
                 spec.model_id, False, "cpu", "ram", required=spec.ram_gb, detected=self.ram_gb
@@ -228,6 +232,8 @@ class HardwareProfile:
             return disk_problem
 
         device = self.normalize_device(device_mode)
+        if device == "cpu-virtual":
+            return self._cpu_compatibility(spec, virtual_memory=True)
         if device == "cpu":
             return self._cpu_compatibility(spec)
         if device == "cuda":
@@ -319,6 +325,12 @@ class HardwareProfile:
         task: str = "transcribe",
     ) -> str:
         cached = set(cached_model_ids)
+        if self.normalize_device(device_mode) == "cpu-virtual" and requested not in {
+            AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID,
+        }:
+            # An explicit paging request must never turn into a different model.
+            # The engine still enforces runtime, disk and language/task support.
+            return get_model(requested).model_id
         if requested == AUTO_MODEL_ID:
             return self.recommended_model(device_mode, cached, language, task)
         if requested == AUTO_FAST_MODEL_ID:

@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.5.0 — 2026-11-01
+
+- Explicit CPU virtual-memory mode bypasses physical-RAM admission only; requested checkpoints are retained, with runtime/language/disk/integrity checks.
+- Cancellable, owned CPU ASR/MT subprocesses use authenticated local JSON/audio pipes without transcript/audio temp files; Windows launcher descendants and parent-exit cleanup are covered.
+- Quiet startup update checks, visible version/progress/readiness badge, signed background downloads and opt-out idle Windows installation/relaunch. Offline/current checks have no error or popup; active work, visible dialogs and private text defer automatic installation.
+- Installer reuse requires actual-byte hash verification; final bytes and installation/temp free space are checked again before closing the app. Custom installation folder and CPU-only flavor are preserved.
+- Bilingual help, settings migration, current screenshots/documentation and native worker checks for all desktop packages. All 3.4 functions retained; macOS/Linux remain experimental.
+
 ## 3.4.0 — 2026-10-30
 
 - Replace the stacked dashboard with task-first navigation, compact source controls, a larger transcript, separate settings tabs and contextual empty-state guidance.

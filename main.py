@@ -56,6 +56,7 @@ def run_packaged_smoke_test(args: argparse.Namespace) -> int:
 
     payload: dict[str, object] = {"success": False}
     downloaded = None
+    engine = None
     try:
         source = args.smoke_test
         if args.youtube_test:
@@ -97,6 +98,10 @@ def run_packaged_smoke_test(args: argparse.Namespace) -> int:
     except Exception as exc:  # The JSON report is the frozen-app diagnostic surface.
         payload["error"] = f"{type(exc).__name__}: {exc}"
     finally:
+        if engine is not None:
+            engine.cancel_cpu_worker()
+            engine.unload_model()
+            engine.translator.unload()
         if downloaded:
             from src.youtube_utils import cleanup_online_audio
 
@@ -131,6 +136,7 @@ def run_voice_smoke_test(args: argparse.Namespace) -> int:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("--video-worker")
+    parser.add_argument("--cpu-worker")
     parser.add_argument("--smoke-test")
     parser.add_argument("--youtube-test")
     parser.add_argument("--diagnostic-output")
@@ -158,6 +164,9 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    if args.cpu_worker:
+        from src.cpu_worker import run_worker
+        return run_worker(args.cpu_worker)
     if args.video_worker:
         from src.video_worker import main as video_worker_main
 

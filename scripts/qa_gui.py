@@ -23,19 +23,22 @@ if __name__ == "__main__":
     parser.add_argument("--demo", action="store_true")
     parser.add_argument("--empty", action="store_true", help="Show the empty workspace for documentation")
     parser.add_argument("--no-preload", action="store_true")
+    parser.add_argument("--cpu-virtual", action="store_true", help="Preview the explicit CPU paging route")
     parser.add_argument("--self-check", action="store_true")
     parser.add_argument("--exit-after-check", action="store_true")
+    parser.add_argument("--exit-after", type=int, default=0, help="Close this isolated preview after N seconds")
     parser.add_argument("--trace-clicks", action="store_true", help="Write isolated native click diagnostics")
-    parser.add_argument("--panel", choices=("review", "audience", "offline", "privacy", "storage", "video", "reading", "settings", "models"))
+    parser.add_argument("--panel", choices=("review", "audience", "offline", "privacy", "storage", "video", "reading", "settings", "models", "updates"))
     args = parser.parse_args()
     setup_logging()
     folder = ROOT / "artifacts" / ("gui-qa-" + __version__)
     settings = SettingsStore(folder / "settings.json")
     settings.update({"ui_language": "fr", "ui_mode": "advanced" if args.universal else "simple",
                      "preset": "universal" if args.universal else "files",
-                     "model": "auto-best",
-                     "device": "auto", "spoken_language": "auto", "check_updates": False,
+                     "model": "large-v3" if args.cpu_virtual else "auto-best",
+                     "device": "cpu-virtual" if args.cpu_virtual else "auto", "spoken_language": "auto", "check_updates": False,
                      "translation_target": "fr", "conversation_partner": "auto", "translation_third": "en",
+                     "translate": args.universal,
                      "window_geometry": "1320x990", "output_folder": str(folder / "Transcriptions")}, save=True)
     class PreviewApp(TranscriberApp):
         def preload_selected_model(self):
@@ -44,6 +47,7 @@ if __name__ == "__main__":
 
     app = PreviewApp(hardware=detect_hardware(), settings=settings,
                          history=HistoryStore(folder / "history.sqlite3"))
+    app.bind_all("<Control-Shift-Q>", lambda _event: app.on_close(), add="+")
     if args.trace_clicks:
         def trace(event):
             widget = app.textbox._textbox
@@ -140,10 +144,20 @@ if __name__ == "__main__":
                 app.after(100, app.on_close)
         app.after(1100, verify)
     if args.panel:
+        def preview_update():
+            from src.update_ui import UpdateDialog
+            from src.updater import UpdateInfo
+            # Screenshot fixture only; does not check, download or install.
+            base = f"https://github.com/vhaloo/LocalTranscriberPro/releases/download/v{__version__}/"
+            name = f"LocalTranscriberPro-{__version__}-Windows-x64-Setup.exe"
+            UpdateDialog(app, UpdateInfo(__version__, base.replace("download/", "tag/").rstrip("/"),
+                                        base + name, base + "SHA256SUMS.txt", name, 1))
         actions = {"review": app.review_turns, "audience": app.open_audience, "offline": app.offline_prepare,
                    "privacy": app.privacy_controls, "storage": lambda: __import__("src.storage_ui", fromlist=["StorageDialog"]).StorageDialog(app),
                    "video": lambda: __import__("src.video_ui", fromlist=["VideoOptionsDialog"]).VideoOptionsDialog(app),
                    "reading": app.toggle_reading_view, "settings": app.open_workspace_settings,
-                   "models": app.open_model_selector}
+                   "models": app.open_model_selector, "updates": preview_update}
         app.after(1500, actions[args.panel])
+    if args.exit_after:
+        app.after(max(5, args.exit_after) * 1000, app.on_close)
     app.mainloop()
