@@ -459,13 +459,17 @@ class HardwareDialog(ctk.CTkToplevel):
 
 
 class ModelSelectorDialog(ctk.CTkToplevel):
-    """Show every model while making unsafe choices visibly impossible."""
+    """Select, download or remove individual models without loading their weights."""
 
     def __init__(self, parent: TranscriberApp):
         super().__init__(parent)
         self.parent_app = parent
         self.t = parent.t
         self.cached = parent.engine.cached_model_ids()
+        self.download_cancel = None
+        self.download_worker = None
+        self.closed = False
+        self.protocol("WM_DELETE_WINDOW", self.destroy)
         parent.hardware.refresh_resources()
         self.title(self.t("model_requirements"))
         self.geometry(f"{min(1180, parent.winfo_screenwidth() - 40)}x760")
@@ -491,20 +495,33 @@ class ModelSelectorDialog(ctk.CTkToplevel):
 
         self.scroll = ctk.CTkScrollableFrame(self, fg_color=PANEL, corner_radius=18)
         self.scroll.pack(fill="both", expand=True, padx=28, pady=4)
+        self.action_label = ctk.CTkLabel(self, text=self.t("model_download_help"), wraplength=1040,
+                                       text_color=MUTED, justify="left")
+        self.action_label.pack(fill="x", padx=28, pady=6)
+        self.download_progress = ctk.CTkProgressBar(self, mode="determinate", height=4)
+        self.download_progress.pack(fill="x", padx=28, pady=(0, 4))
+        self.download_progress.set(0)
+        self.download_cancel_button = ctk.CTkButton(self, text=self.t("model_cancel_download"), state="disabled",
+            command=self.cancel_download, width=220)
+        self.download_cancel_button.pack(pady=(0, 4))
+        self.refresh()
+
+        ctk.CTkButton(self, text=self.t("close"), command=self.destroy, fg_color=ACCENT_DARK,
+                      hover_color=ACCENT, width=120).pack(pady=(4, 14))
+
+    def refresh(self):
+        from src.model_store import ModelStore
+        self.store = ModelStore.from_engine(self.parent_app.engine, self.parent_app.selected_device)
+        self.entries = self.store.entries()
+        self.model_rows = {}
+        self.cached = self.parent_app.engine.cached_model_ids()
+        for widget in self.scroll.winfo_children():
+            widget.destroy()
         self._add_auto_row()
         self._add_auto_row(AUTO_FAST_MODEL_ID)
         self._add_auto_row(AUTO_MULTILINGUAL_MODEL_ID)
         for spec in ranked_models():
             self._add_model_row(spec.model_id)
-
-        ctk.CTkButton(
-            self,
-            text=self.t("close"),
-            command=self.destroy,
-            fg_color=ACCENT_DARK,
-            hover_color=ACCENT,
-            width=120,
-        ).pack(pady=(12, 20))
 
     def _add_auto_row(self, profile_id: str = AUTO_MODEL_ID) -> None:
         recommended = self.parent_app.hardware.resolve_model(
@@ -512,9 +529,11 @@ class ModelSelectorDialog(ctk.CTkToplevel):
             self.parent_app.selected_language,
             "transcribe",
         )
-        supported = self.parent_app.hardware.has_safe_model(
-            self.parent_app.selected_device, self.cached
+        selection = self.parent_app.hardware.selection_compatibility(
+            profile_id, self.parent_app.selected_device, self.cached,
+            self.parent_app.selected_language,
         )
+        supported = selection.supported
         selected = self.parent_app.selected_model_id == profile_id
         row = ctk.CTkFrame(
             self.scroll,
@@ -536,7 +555,8 @@ class ModelSelectorDialog(ctk.CTkToplevel):
         ctk.CTkLabel(
             text,
             text=self.t("auto_multilingual_will_use" if profile_id == AUTO_MULTILINGUAL_MODEL_ID else (
-                "auto_fast_will_use" if profile_id == AUTO_FAST_MODEL_ID else "auto_will_use"), model=recommended),
+                "auto_fast_will_use" if profile_id == AUTO_FAST_MODEL_ID else "auto_will_use"), model=recommended)
+                 + ("\n" + self.t("cpu_virtual_ready") if selection.reason_code == "cpu_virtual" else ""),
             font=("Segoe UI", 12),
             text_color=ACCENT if supported else RED,
         ).pack(anchor="w", pady=(3, 0))
@@ -586,6 +606,7 @@ class ModelSelectorDialog(ctk.CTkToplevel):
             border_color=ACCENT if selected else ("#2A3C5E" if compatibility.supported else "#222C3E"),
         )
         row.pack(fill="x", padx=8, pady=5)
+        self.model_rows[model_id] = row
         row.grid_columnconfigure(0, weight=1)
         text = ctk.CTkFrame(row, fg_color="transparent")
         text.grid(row=0, column=0, sticky="nsew", padx=15, pady=11)
@@ -618,10 +639,17 @@ class ModelSelectorDialog(ctk.CTkToplevel):
             text_color=ACCENT if compatibility.supported else AMBER,
         ).pack(anchor="w", pady=(3, 0))
         self._add_scores(row, model_id)
+        present = any(entry["model_id"] == model_id for entry in self.entries)
+        ctk.CTkLabel(text, text=self.t("model_on_disk" if model_id in self.cached else
+                        "model_partial" if present else "model_missing"),
+                     text_color=ACCENT if model_id in self.cached else MUTED,
+                     font=("Segoe UI", 11)).pack(anchor="w", pady=(3, 0))
         virtual = (not compatibility.supported and compatibility.reason_code in {"ram", "available_ram"}
                    and self.parent_app.hardware.model_compatibility(model_id, "cpu-virtual", model_id in self.cached).supported)
+        actions = ctk.CTkFrame(row, fg_color="transparent")
+        actions.grid(row=0, column=4, padx=12, pady=10)
         ctk.CTkButton(
-            row,
+            actions,
             text=self.t("cpu_virtual_select" if virtual else "selected" if selected else ("select" if compatibility.supported else "unavailable")),
             width=112,
             state="normal" if virtual else "disabled" if selected or not compatibility.supported else "normal",
@@ -629,7 +657,104 @@ class ModelSelectorDialog(ctk.CTkToplevel):
             hover_color=ACCENT,
             text_color_disabled="#647084",
             command=lambda value=model_id, force=virtual: self._select(value, force),
-        ).grid(row=0, column=4, padx=14)
+        ).pack(pady=3)
+        ctk.CTkButton(actions, text=self.t("model_download"), width=112,
+            state="disabled" if model_id in self.cached else "normal", fg_color="#244D78",
+            command=lambda value=model_id: self.download(value)).pack(pady=3)
+        ctk.CTkButton(actions, text=self.t("delete"), width=112, fg_color="#793548",
+            state="normal" if present else "disabled",
+            command=lambda value=model_id: self.delete_model(value)).pack(pady=3)
+
+    def _busy(self):
+        app = self.parent_app
+        return (app.busy or app.recorder.recording or app.model_preloading
+                or self.download_cancel is not None or getattr(app, "model_download_cancel", None) is not None)
+
+    def download(self, model_id):
+        if self._busy():
+            messagebox.showinfo(self.t("model_manager"), self.t("model_delete_busy"), parent=self)
+            return
+        from src.cpu_worker import CPUWorkerClient
+        cancel = self.download_cancel = threading.Event()
+        app = self.parent_app
+        app.model_download_cancel = cancel
+        self.download_cancel_button.configure(state="normal")
+        self.download_progress.configure(mode="indeterminate")
+        self.download_progress.start()
+        self.action_label.configure(text=self.t("model_download_running", model=model_id), text_color=ACCENT)
+        store = self.store
+
+        def work():
+            client, error = None, None
+            try:
+                check_cancelled(cancel)
+                client = self.download_worker = CPUWorkerClient()
+                app.model_download_worker = client
+                client.call("download_model", {"model": model_id, "cache": str(store.root),
+                            "prefer_mlx": store.prefer_mlx, "omnilingual_root": str(store.omnilingual_root)}, cancel_event=cancel)
+            except Exception as caught:
+                error = caught
+            finally:
+                if client is not None:
+                    client.close()
+                self.download_worker = None
+                app.model_download_worker = None
+                app.model_download_cancel = None
+            app._safe_ui(self._download_done, model_id, error)
+
+        thread = threading.Thread(target=work, name="selected-model-download", daemon=True)
+        app.tool_threads = [item for item in app.tool_threads if item.is_alive()]
+        app.tool_threads.append(thread)
+        thread.start()
+
+    def _download_done(self, model_id, error):
+        if self.closed:
+            return
+        self.download_cancel = None
+        self.download_cancel_button.configure(state="disabled")
+        self.download_progress.stop()
+        self.download_progress.configure(mode="determinate")
+        self.download_progress.set(0 if error else 1)
+        self.action_label.configure(text=self.t("job_cancelled") if isinstance(error, JobCancelled) else
+            self.t("model_download_failed", error=error) if error else self.t("model_download_done", model=model_id),
+            text_color=AMBER if error else ACCENT)
+        self.refresh()
+        self.parent_app.preload_selected_model()
+
+    def cancel_download(self):
+        if getattr(self, "download_cancel", None) is not None:
+            self.download_cancel.set()
+        if getattr(self, "download_worker", None) is not None:
+            self.download_worker.close()
+
+    def delete_model(self, model_id):
+        if self._busy():
+            messagebox.showinfo(self.t("model_manager"), self.t("model_delete_busy"), parent=self)
+            return
+        entries = self.store.model_entries(model_id, measure=True)
+        if not entries:
+            self.refresh()
+            return
+        detail = "\n".join(f"{entry['size']} · {entry['path']}" for entry in entries)
+        if not messagebox.askyesno(self.t("model_manager"),
+                self.t("model_remove_question", model=model_id, details=detail), parent=self):
+            return
+        app = self.parent_app
+        if app.engine.model_name == model_id:
+            app.engine.unload_model()
+            app.last_engine_status = None
+        success = all([app.engine.delete_model_file(entry["path"]) for entry in entries])
+        self.refresh()
+        app.preload_selected_model()
+        self.action_label.configure(text=self.t("model_remove_done" if success else "model_remove_failed"),
+                                   text_color=ACCENT if success else AMBER)
+
+    def destroy(self):
+        if getattr(self, "closed", False):
+            return
+        self.closed = True
+        self.cancel_download()
+        super().destroy()
 
     def _select(self, model_id: str, virtual: bool = False) -> None:
         if virtual:
@@ -659,6 +784,8 @@ class ModelManagerDialog(ctk.CTkToplevel):
         self.scroll = ctk.CTkScrollableFrame(self, fg_color=PANEL, corner_radius=16)
         self.scroll.pack(fill="both", expand=True, padx=26, pady=8)
         self.refresh()
+        ctk.CTkButton(self, text=self.t("model_browse_download"),
+                      command=lambda: (self.destroy(), ModelSelectorDialog(parent))).pack(pady=4)
         ctk.CTkButton(
             self,
             text=self.t("close"),
@@ -699,13 +826,17 @@ class ModelManagerDialog(ctk.CTkToplevel):
             ).pack(side="right", padx=12)
 
     def delete(self, path: str) -> None:
-        if self.parent_app.busy or self.parent_app.recorder.recording or self.parent_app.model_preloading:
+        if (self.parent_app.busy or self.parent_app.recorder.recording or self.parent_app.model_preloading
+                or getattr(self.parent_app, "model_download_cancel", None) is not None):
             messagebox.showinfo(self.t("model_manager"), self.t("model_delete_busy"), parent=self)
             return
         if not messagebox.askyesno(self.t("model_manager"), self.t("confirm_delete"), parent=self):
             return
+        self.parent_app.engine.unload_model()
+        self.parent_app.last_engine_status = None
         if self.parent_app.engine.delete_model_file(path):
             self.refresh()
+            self.parent_app.preload_selected_model()
         else:
             messagebox.showerror(self.t("error"), self.t("job_error", error=path), parent=self)
 
@@ -1558,22 +1689,22 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         if hasattr(self, "model_button"):
             self.model_button.configure(text=model_label(self.selected_model_id, self.t.language))
         if hasattr(self, "simple_auto_summary_label"):
-            resolved = self.hardware.resolve_model(
-                self.selected_model_id,
-                self.selected_device,
-                self.engine.cached_model_ids(),
-            )
-            route = self.hardware.model_compatibility(resolved, self.selected_device,
-                resolved in self.engine.cached_model_ids()).device or "cpu"
+            selection = self.hardware.selection_compatibility(self.selected_model_id, self.selected_device,
+                self.engine.cached_model_ids(), self.selected_language)
+            resolved = selection.model_id
+            route = selection.device or "cpu"
+            virtual = selection.reason_code == "cpu_virtual"
             status = self.last_engine_status
             if (status is not None and status.requested_model_id == self.selected_model_id
+                    and status.requested_device == self.selected_device
                     and getattr(self.engine, "model_name", None) == status.model_id):
                 resolved, route = status.model_id, status.device
+                virtual = status.memory_mode == "virtual"
             self.simple_auto_summary_label.configure(
                 text=self.t(
                     "workspace_profile_summary",
                     model=("OpenAI Whisper " if get_model(resolved).family == "whisper" else "") + resolved,
-                    device=self.t("device_cpu_virtual") if self.selected_device == "cpu-virtual" else route.upper(),
+                    device=self.t("device_cpu_virtual") if virtual else route.upper(),
                     count=get_model(resolved).language_count,
                 )
             )
@@ -1714,15 +1845,40 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
                                     device=self.engine.translator.device.upper()))
 
     def preload_selected_model(self) -> None:
-        if self.closing:
-            return
-        if self.busy or self.recorder.recording:
-            self.after(1000, self.preload_selected_model)
+        """Preview a choice without downloading or loading anything on navigation."""
+        if self.closing or self.busy or self.recorder.recording:
             return
         self.preload_generation += 1
         if self.model_preloading:
             self.preload_cancel.set()
             self.engine.cancel_cpu_worker()
+        self.model_preloading = False
+        cached = self.engine.cached_model_ids()
+        selection = self.hardware.selection_compatibility(self.selected_model_id, self.selected_device,
+            cached, self.selected_language)
+        model = selection.model_id
+        ready = self.engine.is_ready(self.selected_model_id, self.selected_device)
+        if hasattr(self, "prepare_model_button"):
+            self.prepare_model_button.configure(text=self.t("model_prepared" if ready else "model_prepare"),
+                                               state="disabled" if ready or not selection.supported else "normal")
+        self._update_model_indicators()
+        if ready:
+            self._show_preloaded_model_ready()
+        else:
+            self._set_status(self.t("model_waiting_cached" if model in cached else "model_waiting_download",
+                                    model=model, size=get_model(model).size_gb))
+        self.cancel_button.configure(state="disabled")
+        self.record_button.configure(state="normal", text=self.t("record"))
+
+    def prepare_selected_model(self) -> None:
+        """Explicit preparation downloads only the selected job's dependencies."""
+        if self.closing:
+            return
+        if self.busy or self.recorder.recording or self.model_preloading:
+            return
+        if not self._can_start_safely():
+            return
+        self.preload_generation += 1
         self.preload_cancel = threading.Event()
         generation = self.preload_generation
         model = self.selected_model_id
@@ -1730,8 +1886,9 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         options = self.transcribe_options(self.job_config())
         options.cancel_event = self.preload_cancel
         self.model_preloading = True
-        if device == "cpu-virtual":
-            self.cancel_button.configure(state="normal")
+        self.cancel_button.configure(state="normal")
+        if hasattr(self, "prepare_model_button"):
+            self.prepare_model_button.configure(state="disabled")
         resolved = self.hardware.resolve_model(model, device, self.engine.cached_model_ids(),
                                                options.language, options.task)
         self._set_status(self.t("model_arming", model=resolved))
@@ -1769,6 +1926,8 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         self.model_preloading = False
         self._update_model_indicators()
         self._show_preloaded_model_ready()
+        if hasattr(self, "prepare_model_button"):
+            self.prepare_model_button.configure(text=self.t("model_prepared"), state="disabled")
         if not self.busy and not self.recorder.recording:
             self.record_button.configure(state="normal", text=self.t("record"))
             self.cancel_button.configure(state="disabled")
@@ -1777,6 +1936,8 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         if generation != self.preload_generation:
             return
         self.model_preloading = False
+        if hasattr(self, "prepare_model_button"):
+            self.prepare_model_button.configure(text=self.t("model_prepare"), state="normal")
         self._set_status(self.t("job_cancelled") if isinstance(error, JobCancelled)
                          else self.t("model_preload_failed", error=error))
         if not self.busy and not self.recorder.recording:
@@ -1793,8 +1954,12 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
             return False
 
     def _can_start_safely(self) -> bool:
+        if getattr(self, "model_download_cancel", None) is not None:
+            messagebox.showinfo(self.t("model_manager"), self.t("model_delete_busy"), parent=self)
+            return False
         cached = self.engine.cached_model_ids()
-        if self.hardware.has_safe_model(self.selected_device, cached):
+        if self.hardware.selection_compatibility(self.selected_model_id, self.selected_device,
+                cached, self.selected_language).supported:
             return True
         messagebox.showerror(
             self.t("error"),
@@ -1859,8 +2024,8 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         total_audio = sum(durations)
         cached = self.engine.cached_model_ids()
         resolved_model = self.hardware.resolve_model(config["model"], config["device"], cached)
-        compatibility = self.hardware.model_compatibility(
-            resolved_model, config["device"], resolved_model in cached
+        compatibility = self.hardware.selection_compatibility(
+            config["model"], config["device"], cached, config["language"], config["task"]
         )
         resolved_device = compatibility.device
         estimate = self.estimator.estimate(total_audio, resolved_model, resolved_device)
@@ -2309,7 +2474,7 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
             button.configure(state=state)
         for button in getattr(self, "simple_task_buttons", {}).values():
             button.configure(state=state)
-        for name in ("choose_button", "link_button", "record_button"):
+        for name in ("choose_button", "link_button", "record_button", "prepare_model_button"):
             widget = getattr(self, name, None)
             if widget is not None:
                 widget.configure(state=state)
@@ -2398,6 +2563,8 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
             self.engine.cancel_cpu_worker()
             self.preload_generation += 1
             self.model_preloading = False
+            if hasattr(self, "prepare_model_button"):
+                self.prepare_model_button.configure(text=self.t("model_prepare"), state="normal")
             self.last_engine_status = None
             self.cancel_button.configure(state="disabled")
             self.record_button.configure(state="normal", text=self.t("record"))
@@ -2456,6 +2623,10 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         if self.closing:
             return
         self.closing = True
+        if getattr(self, "model_download_cancel", None) is not None:
+            self.model_download_cancel.set()
+        if getattr(self, "model_download_worker", None) is not None:
+            self.model_download_worker.close()
         self.preload_cancel.set()
         self.engine.cancel_cpu_worker()
         self.stop_update_tasks()

@@ -44,19 +44,19 @@ def _sentence(words: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 class QwenBackend:
-    def __init__(self, spec: ModelSpec, device: str, cache: Path):
+    def __init__(self, spec: ModelSpec, device: str, cache: Path, *, allow_download: bool = True):
         import torch
         from qwen_asr import Qwen3ASRModel
 
         self.device = "mps" if device == "metal" else device
         dtype = torch.float16 if device != "cpu" else torch.float32
         self.model = Qwen3ASRModel.from_pretrained(
-            str(modern_model_path(cache, spec)), dtype=dtype, device_map=self.device,
+            str(modern_model_path(cache, spec, allow_download=allow_download)), dtype=dtype, device_map=self.device,
             attn_implementation="sdpa", max_inference_batch_size=1, max_new_tokens=512,
             local_files_only=True,
         )
         self.aligner = None
-        self.aligner_folder, self.aligner_dtype = aligner_path(cache), dtype
+        self.aligner_folder, self.aligner_dtype = aligner_path(cache, allow_download=allow_download), dtype
 
     def transcribe_chunk(self, audio: np.ndarray, options: Any) -> tuple[str | None, list[dict[str, Any]], str]:
         language = QWEN_LANGUAGES.get(options.language)
@@ -98,10 +98,10 @@ class QwenBackend:
 
 
 class ParakeetBackend:
-    def __init__(self, spec: ModelSpec, cache: Path, threads: int):
+    def __init__(self, spec: ModelSpec, cache: Path, threads: int, *, allow_download: bool = True):
         import sherpa_onnx
 
-        path = modern_model_path(cache, spec)
+        path = modern_model_path(cache, spec, allow_download=allow_download)
         self.recognizer = sherpa_onnx.OfflineRecognizer.from_transducer(
             encoder=str(path / "encoder.int8.onnx"), decoder=str(path / "decoder.int8.onnx"),
             joiner=str(path / "joiner.int8.onnx"), tokens=str(path / "tokens.txt"),

@@ -282,12 +282,32 @@ class HardwareProfile:
             reverse=True,
         )
         for spec in candidates:
-            compatibility = self.model_compatibility(spec.model_id, device_mode, spec.model_id in cached)
+            compatibility = self._quality_compatibility(spec.model_id, device_mode, spec.model_id in cached)
             if spec.auto_gpu_only and compatibility.device == "cpu":
                 continue
             if compatibility.supported:
                 return spec.model_id
         return "tiny"
+
+    def _quality_compatibility(self, model_id: str, device_mode: str, cached: bool) -> ModelCompatibility:
+        """Accuracy may trade speed for paging; never bypass runtime or storage checks."""
+        check = self.model_compatibility(model_id, device_mode, cached)
+        if (not check.supported and check.reason_code in {"ram", "available_ram"}
+                and self.normalize_device(device_mode) in {"auto", "cpu"}
+                and self.architecture.lower() in {"amd64", "x86_64", "arm64", "aarch64"}):
+            return self.model_compatibility(model_id, "cpu-virtual", cached)
+        return check
+
+    def selection_compatibility(
+        self, requested: str, device_mode: str = "auto", cached_model_ids: Iterable[str] = (),
+        language: str | None = None, task: str = "transcribe",
+    ) -> ModelCompatibility:
+        """One decision shared by the UI and loader, including the paging route."""
+        cached = set(cached_model_ids)
+        model_id = self.resolve_model(requested, device_mode, cached, language, task)
+        if requested == AUTO_MODEL_ID:
+            return self._quality_compatibility(model_id, device_mode, model_id in cached)
+        return self.model_compatibility(model_id, device_mode, model_id in cached)
 
     def fast_recommended_model(
         self,
@@ -300,7 +320,12 @@ class HardwareProfile:
         for model_id in ("parakeet-tdt-0.6b-v3", "large-v3-turbo", "medium", "small", "base", "tiny"):
             if get_model(model_id).supports(language, task) and self.model_compatibility(model_id, device_mode, model_id in cached).supported:
                 return model_id
-        return self.recommended_model(device_mode, cached, language, task)
+        for spec in sorted(MODEL_CATALOG, key=lambda item: item.quality_rank, reverse=True):
+            check = self.model_compatibility(spec.model_id, device_mode, spec.model_id in cached)
+            if (spec.automatic and spec.multilingual and spec.supports(language, task) and check.supported
+                    and not (spec.auto_gpu_only and check.device == "cpu")):
+                return spec.model_id
+        return "tiny"
 
     def multilingual_recommended_model(self, device_mode: str = "auto", cached_model_ids: Iterable[str] = (),
                                       language: str | None = None, task: str = "transcribe") -> str:
@@ -314,7 +339,7 @@ class HardwareProfile:
         return "tiny"
 
     def has_safe_model(self, device_mode: str = "auto", cached_model_ids: Iterable[str] = ()) -> bool:
-        return bool(self.safe_models(device_mode, cached_model_ids))
+        return self.selection_compatibility(AUTO_MODEL_ID, device_mode, cached_model_ids).supported
 
     def resolve_model(
         self,
@@ -347,7 +372,9 @@ class HardwareProfile:
         compatibility = self.model_compatibility(requested, device_mode, requested in cached)
         if compatibility.supported:
             return requested
-        return self.recommended_model(device_mode, cached, language, task)
+        # Manual choices retain the conservative RAM guard. Paging is explicit
+        # for a manual checkpoint; the automatic accuracy profile enables it.
+        return self.fast_recommended_model(device_mode, cached, language, task)
 
     def compute_type(self, device: str) -> str:
         if device == "cuda":

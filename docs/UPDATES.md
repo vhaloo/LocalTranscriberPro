@@ -1,4 +1,4 @@
-# Quiet application updates — 3.5.0
+# Quiet application updates — 3.6.0
 
 At every enabled startup the app checks only the official GitHub latest-stable release endpoint in a background thread. Offline, timeout, unavailable metadata and already-current results never open an error or modal dialog. The app remains usable. Manual checks report a short status; startup checks stay quiet. Audio, transcripts, vocabulary and hardware details are not sent to GitHub.
 
@@ -16,7 +16,7 @@ An explicit manual installation may close an in-memory private session; export i
 
 ## macOS / Linux
 
-Startup checks and the version indicator are quiet; **Install** opens the official release page for manual replacement. These distributions remain experimental. There is no automatic package replacement or elevation on these platforms. [Platform guide](EXPERIMENTAL_DESKTOP_3.5.md).
+Startup checks and the version indicator are quiet; **Install** opens the official release page for manual replacement. These distributions remain experimental. There is no automatic package replacement or elevation on these platforms. [Platform guide](EXPERIMENTAL_DESKTOP_3.6.md).
 
 ## Français
 

@@ -59,6 +59,7 @@ def test_model_summary_uses_loaded_status_only_for_the_current_request(requested
     app = SimpleNamespace(
         selected_model_id="auto-best",
         selected_device="auto",
+        selected_language="auto",
         hardware=HardwareProfile("Windows", "11", "AMD64", "CPU", 8, 32, available_ram_gb=16),
         engine=SimpleNamespace(model_name="tiny", cached_model_ids=lambda: []),
         last_engine_status=EngineStatus("tiny", "auto", "cpu", "faster-whisper", "int8", requested),

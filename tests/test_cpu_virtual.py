@@ -52,6 +52,7 @@ def test_forced_native_cpu_failure_does_not_attempt_a_smaller_model(tmp_path, mo
     hardware = low_memory()
     hardware.refresh_resources = lambda: None
     engine = TranscriberEngine(hardware, isolated_cpu=False)
+    engine.cached_model_ids = lambda: {"large-v3"}
     with pytest.raises(RuntimeError, match="OS commit limit"):
         engine.load_model("large-v3", "cpu-virtual", options=TranscriptionOptions(offline=True))
     assert calls == [("large-v3", "cpu")]

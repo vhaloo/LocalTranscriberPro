@@ -262,6 +262,11 @@ def run_worker(address):
                 operation = request["operation"]
                 if operation == "ping":
                     result = {"pid": os.getpid(), "cpu_only": os.environ.get("CUDA_VISIBLE_DEVICES") == ""}
+                elif operation == "download_model":
+                    from src.model_store import ModelStore
+                    store = ModelStore(payload["cache"], prefer_mlx=payload.get("prefer_mlx", False),
+                                       omnilingual_root=payload.get("omnilingual_root"))
+                    result = {"model": payload["model"], "path": store.download(payload["model"])}
                 elif operation == "load_asr":
                     from dataclasses import asdict
 

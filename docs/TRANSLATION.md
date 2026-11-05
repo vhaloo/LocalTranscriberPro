@@ -1,4 +1,4 @@
-# Traduction et lecture locales — 3.5.0
+# Traduction et lecture locales — 3.6.0
 
 ## Interface 3.4 / Workspace
 
@@ -134,4 +134,14 @@ Les principales commandes montrent une aide au survol et au focus clavier. **Sto
 
 Le bouton de mise à jour de l'en-tête indique une nouvelle version, son téléchargement ou sa disponibilité. Les vérifications hors ligne/à jour ne montrent aucune erreur. Windows peut installer et relancer automatiquement après 60 secondes d'inactivité ; enregistrement, traitement, voix, outils, fenêtres ouvertes et session privée contenant du texte reportent cette installation. Les deux options sont dans Paramètres → Reconnaissance. « Plus tard » reporte à la prochaine ouverture. Mac/Linux restent en remplacement manuel expérimental. [Guide des mises à jour](UPDATES.md).
 
-**English:** explicit CPU paging retains your requested recognizer/translator with cancellable worker isolation, without changing OS settings. Normal automatic mode remains guarded. Quiet startup checks use a header badge; Windows signed updates may install after 60 idle seconds with active work and private text protected. Both preferences are in Settings → Recognition. Mac/Linux retain manual experimental replacement.
+**English:** explicit CPU paging retains your requested recognizer/translator with cancellable worker isolation, without changing OS settings. Default accuracy can also use isolated CPU paging when physical RAM is insufficient; Speed keeps physical-memory admission. Quiet startup checks use a header badge; Windows signed updates may install after 60 idle seconds with active work and private text protected. Both preferences are in Settings → Recognition. Mac/Linux retain manual experimental replacement.
+
+
+## Préparation à la demande — 3.6.0
+
+Le démarrage et les changements de mode ne téléchargent aucun modèle. Le profil retenu et le processeur prévu apparaissent dans le panneau de gauche. **Préparer ce modèle** ou le premier traitement télécharge uniquement le modèle de reconnaissance retenu, puis le moteur de traduction et les composants nécessaires aux fonctions activées. Les voix françaises et anglaises sont incluses ; les autres restent proposées au cas par cas. Les modèles déjà préparés sont réutilisés.
+
+Le profil Précision privilégie Whisper large-v3 même sur petit ordinateur via un processus CPU isolé, int8 et mémoire virtuelle si nécessaire. Il peut devenir extrêmement lent ou échouer si le système ne peut plus allouer de mémoire. Le choix Rapidité est disponible et aucun réglage système n'est modifié. Une erreur de chargement ne lance pas le téléchargement d'une série d'autres reconnaisseurs. Pour des langues hors couverture Whisper, sélectionnez un profil ou modèle qui les prend en charge. La préparation hors ligne vérifie les éléments locaux sans accéder au réseau.
+
+
+Dans **Choisir un modèle**, les commandes **Télécharger** et **Supprimer** permettent la préparation ou le nettoyage individuel. Télécharger conserve les fichiers sans charger l'IA en RAM. Fermer la fenêtre ou Annuler arrête le téléchargement ; un nouvel essai peut réutiliser les fichiers reçus. Supprimer demande confirmation et indique les chemins et tailles estimées. Les transcriptions, enregistrements et composants partagés ne sont pas supprimés avec un modèle ; les composants communs restent gérables explicitement dans **Modèles téléchargés**.

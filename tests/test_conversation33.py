@@ -167,7 +167,7 @@ def test_unscored_recognizer_uses_real_local_language_hints_without_overriding_d
     assert "language_probability" not in unscored and unscored["text"] == "Bonjour"
 
 
-def test_automatic_conversation_reserves_translation_memory_before_reselecting_asr():
+def test_automatic_conversation_pages_translation_without_downloading_a_second_asr():
     import threading
 
     from src.transcriber import EngineStatus, TranscriberEngine, TranscriptionOptions
@@ -191,13 +191,14 @@ def test_automatic_conversation_reserves_translation_memory_before_reselecting_a
         events.append("mt")
         if events.count("mt") == 1:
             raise TranslationResourceError("Combined memory")
+        assert kwargs["allow_cpu_virtual_memory"] is True
     engine._load_model_unlocked = load_asr
     engine.unload_model = lambda: events.append("unload-asr")
     engine.translator = SimpleNamespace(unload=lambda: None, configure=lambda *_: None, load=load_translation)
     result = engine.load_model("auto-multilingual", options=TranscriptionOptions(
         target_language="fr", conversation=True, offline=True))
-    assert events == ["asr:omnilingual-1b-v2", "mt", "unload-asr", "mt", "asr:large-v3"]
-    assert result.model_id == "large-v3" and "translation_memory_reservation" in result.fallback_reason
+    assert events == ["asr:omnilingual-1b-v2", "mt", "mt"]
+    assert result.model_id == "omnilingual-1b-v2" and "translation_cpu_paging" in result.fallback_reason
 
 
 def test_live_adaptation_never_replaces_a_working_arabic_pair_with_european_only_asr(monkeypatch):

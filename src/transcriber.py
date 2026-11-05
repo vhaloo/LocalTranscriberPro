@@ -12,11 +12,10 @@ import gc
 import logging
 import os
 import re
-import shutil
 import sys
 import threading
 import time
-from collections.abc import Callable, Iterable
+from collections.abc import Callable
 from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
@@ -27,14 +26,13 @@ from platformdirs import user_cache_dir
 from src.confidence import annotate_recognition
 from src.hardware import HardwareProfile, detect_hardware
 from src.jobs import check_cancelled
-from src.model_cache import complete_modern_ids
+from src.model_cache import complete_modern_ids, local_whisper_path
 from src.models import (
     AUTO_FAST_MODEL_ID,
     AUTO_MODEL_ID,
     AUTO_MULTILINGUAL_MODEL_ID,
     MODEL_CATALOG,
     get_model,
-    mlx_repository,
 )
 from src.overlap import OverlapSeparator
 from src.translation import TranslationEngine, TranslationResourceError
@@ -151,21 +149,19 @@ class TranscriberEngine:
                 if status_callback:
                     status_callback("translation_prepare", "MADLAD-400", status.device)
                 try:
-                    extra = {"allow_cpu_virtual_memory": True} if self._normalize_device(device_mode) == "cpu-virtual" else {}
+                    extra = {"allow_cpu_virtual_memory": True} if status.memory_mode == "virtual" else {}
                     self.translator.load(self.hardware, allow_download=not options.offline, cancel_event=options.cancel_event, **extra)
                 except TranslationResourceError:
-                    if self._normalize_device(device_mode) == "cpu-virtual" or model_id not in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID}:
+                    if self._normalize_device(device_mode) not in {"auto", "cpu"} or model_id not in {AUTO_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID}:
                         raise
-                    # Admit the combined pipeline, not two independent models.
-                    # Reserve MT first after an actual resource refusal, then
-                    # choose the strongest ASR that fits what really remains.
-                    self.language_identifier = None
-                    self.unload_model()
-                    self.translator.load(self.hardware, allow_download=not options.offline, cancel_event=options.cancel_event)
-                    status = self._load_model_unlocked(model_id, device_mode, status_callback, options)
-                    status.fallback_reason = ";".join(filter(None, (status.fallback_reason, "translation_memory_reservation")))
+                    # Keep the selected speech checkpoint. Paging the same
+                    # translator avoids downloading a second ASR after MT
+                    # reserves resources that the recognizer also needs.
                     if status_callback:
-                        status_callback("safe_fallback", status.model_id, status.device)
+                        status_callback("cpu_virtual", "MADLAD-400", "cpu")
+                    self.translator.load(self.hardware, allow_download=not options.offline,
+                                         cancel_event=options.cancel_event, allow_cpu_virtual_memory=True)
+                    status.fallback_reason = ";".join(filter(None, (status.fallback_reason, "translation_cpu_paging")))
             else:
                 self.translator.unload()
             if options and options.overlap_separation and getattr(self, "_cpu_worker", None) is None:
@@ -201,6 +197,7 @@ class TranscriberEngine:
             if status_callback:
                 status_callback(stage, selected_model, device)
 
+        check_cancelled(options.cancel_event if options else None)
         normalized_device = self._normalize_device(device_mode)
         if (
             self.model is not None
@@ -217,48 +214,27 @@ class TranscriberEngine:
         self.unload_model()
         self.hardware.refresh_resources()
         cached = self.cached_model_ids()
-        requested_model = self.hardware.resolve_model(
+        compatibility = self.hardware.selection_compatibility(
             model_id, device_mode, cached,
             options.language if options else None, options.task if options else "transcribe",
         )
+        requested_model = compatibility.model_id
         if not get_model(requested_model).supports(options.language if options else None, options.task if options else "transcribe"):
             raise RuntimeError("No speech model supports the requested language/task with the current resources.")
         requested_device = self._normalize_device(device_mode)
-        compatibility = self.hardware.model_compatibility(
-            requested_model, device_mode, requested_model in cached
-        )
         if not compatibility.supported:
             raise RuntimeError(
                 f"No speech model can be started safely ({compatibility.reason_code}: "
                 f"{compatibility.detected:.1f}/{compatibility.required:.1f} GB)."
             )
         target_device = compatibility.device
-        if normalized_device == "cpu-virtual" and self._isolated_cpu:
-            from src.cpu_worker import CPUWorkerClient, options_payload
-            worker = self._cpu_worker = CPUWorkerClient()
-            report("cpu_virtual", requested_model, "cpu")
-
-            def receive(kind, value):
-                if kind == "load_status":
-                    report(*value)
-
-            try:
-                values = worker.call("load_asr", {
-                    "model": requested_model, "hardware": self.hardware.as_dict(),
-                    "options": options_payload(options or TranscriptionOptions()),
-                }, cancel_event=options.cancel_event if options else None, event=receive)
-                if values["model_id"] != requested_model or values["device"] != "cpu":
-                    raise RuntimeError("The CPU worker returned a different model/device")
-                values.update(requested_model_id=model_id, requested_device=normalized_device,
-                              memory_mode="virtual", worker_pid=worker.pid)
-                self.current_status = EngineStatus(**values)
-                self.model, self.model_name = worker, requested_model
-                self.device, self.backend, self.compute_type = "cpu", values["backend"], values["compute_type"]
-                return self.current_status
-            except BaseException:
-                worker.close()
-                self._cpu_worker = self.model = self.current_status = None
-                raise
+        virtual = compatibility.reason_code == "cpu_virtual"
+        check_cancelled(options.cancel_event if options else None)
+        if options and options.offline and requested_model not in cached:
+            raise RuntimeError(f"The selected model {requested_model} is not prepared for offline use. "
+                               "Prepare this model while connected, then retry.")
+        if virtual and self._isolated_cpu:
+            return self._load_cpu_worker(requested_model, model_id, normalized_device, report, options)
         available_before_load = self.hardware.effective_free_vram_gb
         fallback_reason = "" if model_id in {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID, requested_model} else "hardware_or_task_guard"
         report("model_cached" if requested_model in cached else "model_download", requested_model, target_device)
@@ -270,7 +246,8 @@ class TranscriberEngine:
             try:
                 spec = get_model(requested_model)
                 if spec.family == "qwen":
-                    self.model = QwenBackend(spec, target_device, self.model_cache)
+                    self.model = QwenBackend(spec, target_device, self.model_cache,
+                                            allow_download=not bool(options and options.offline))
                     backend, compute = "qwen3-asr", "float32" if target_device == "cpu" else "float16"
                 elif spec.family == "omnilingual":
                     from src.omnilingual import OmnilingualBackend
@@ -278,33 +255,26 @@ class TranscriberEngine:
                         offline=bool(options and options.offline), cancel_event=options.cancel_event if options else None)
                     backend, compute, target_device = "omnilingual-onnx", "float32", "cpu"
                 else:
-                    self.model = ParakeetBackend(spec, self.model_cache, self.hardware.cpu_threads)
+                    self.model = ParakeetBackend(spec, self.model_cache, self.hardware.cpu_threads,
+                                                allow_download=not bool(options and options.offline))
                     backend, compute, target_device = "parakeet-onnx", "int8", "cpu"
             except Exception as error:
-                if normalized_device == "cpu-virtual":
-                    self.unload_model()
-                    raise RuntimeError(f"The requested CPU model {requested_model} could not load. "
-                                       f"Check OS virtual memory and free disk space: {error}") from error
-                logging.exception("Modern ASR load failed; trying a safe Whisper checkpoint")
+                check_cancelled(options.cancel_event if options else None)
+                logging.exception("Selected ASR model failed; no alternative checkpoint will be downloaded")
                 self.unload_model()
-                self.hardware.refresh_resources()
-                candidates = [spec for spec in MODEL_CATALOG if spec.family == "whisper" and spec.multilingual
-                              and spec.supports(options.language if options else None, options.task if options else "transcribe")]
-                candidate = next((spec for spec in candidates if self.hardware.model_compatibility(
-                    spec.model_id, device_mode, spec.model_id in cached).supported), None)
-                if candidate is None:
-                    raise RuntimeError(f"No local fallback can run safely: {error}") from error
-                report("safe_fallback", candidate.model_id, target_device)
-                status = self._load_model_unlocked(candidate.model_id, device_mode, status_callback, options)
-                status.requested_model_id = model_id
-                status.fallback_reason = f"{get_model(requested_model).family}: {type(error).__name__}: {error}"
-                return status
+                raise RuntimeError(f"The selected model {requested_model} could not load; "
+                                   f"no other speech model was downloaded. Retry or choose another model: {error}") from error
         elif target_device == "metal" and self.hardware.mlx_available:
             # MLX loads lazily inside transcribe(); retaining a marker keeps the
             # same lifecycle as the other backends without duplicating memory.
             backend, compute = "mlx", "float16"
             if self.model_name != requested_model or self.backend != backend or self.device != target_device:
                 self.unload_model()
+                from src.model_cache import prepare_mlx_model
+                self._mlx_model_path = local_whisper_path(self.cache_roots(), requested_model, mlx=True)
+                if self._mlx_model_path is None:
+                    self._mlx_model_path = prepare_mlx_model(self.model_cache, requested_model,
+                                                            allow_download=not bool(options and options.offline))
                 self.model = True
         else:
             backend = "faster-whisper"
@@ -317,44 +287,34 @@ class TranscriberEngine:
             ):
                 self.unload_model()
                 attempts: list[tuple[str, str]] = [(requested_model, target_device)]
-                if target_device in {"cuda", "metal"}:
+                if target_device in {"cuda", "metal"} and normalized_device == "auto":
                     cpu_check = self.hardware.model_compatibility(
                         requested_model, "cpu", requested_model in cached
                     )
                     if cpu_check.supported:
                         attempts.append((requested_model, "cpu"))
-                requested_rank = get_model(requested_model).quality_rank
-                for spec in sorted(MODEL_CATALOG, key=lambda item: item.quality_rank, reverse=True):
-                    if normalized_device == "cpu-virtual":
-                        break
-                    if spec.family != "whisper" or not spec.multilingual or spec.quality_rank >= requested_rank:
-                        continue
-                    if options and not spec.supports(options.language, options.task):
-                        continue
-                    check = self.hardware.model_compatibility(
-                        spec.model_id, device_mode, spec.model_id in cached
-                    )
-                    candidate = (spec.model_id, check.device)
-                    if check.supported and candidate not in attempts:
-                        attempts.append(candidate)
-                    if len(attempts) >= 3:
-                        break
 
                 errors: list[Exception] = []
                 loaded = False
                 for attempt_model, attempt_device in attempts:
+                    check_cancelled(options.cancel_event if options else None)
                     attempt_compute = self.hardware.compute_type(attempt_device)
                     report("engine_start", attempt_model, attempt_device)
                     try:
                         from faster_whisper import WhisperModel
 
+                        local_path = local_whisper_path(self.cache_roots(), attempt_model)
+                        if local_path is None and not bool(options and options.offline):
+                            disk_problem = self.hardware._disk_check(get_model(attempt_model), False)
+                            if disk_problem:
+                                raise OSError(f"The selected model needs {disk_problem.required:.1f} GB free for this backend")
                         self.model = WhisperModel(
-                            attempt_model,
+                            str(local_path) if local_path else attempt_model,
                             device="cuda" if attempt_device == "cuda" else "cpu",
                             compute_type=attempt_compute,
                             cpu_threads=max(1, min(self.hardware.cpu_threads, 12)),
                             download_root=str(self.model_cache),
-                            local_files_only=attempt_model in cached or bool(options and options.offline),
+                            local_files_only=local_path is not None or bool(options and options.offline),
                         )
                         if (attempt_model, attempt_device) != attempts[0]:
                             fallback_reason = "engine_retry"
@@ -387,9 +347,18 @@ class TranscriberEngine:
                         except Exception as fallback_error:
                             errors.append(fallback_error)
                 if not loaded:
+                    check_cancelled(options.cancel_event if options else None)
+                    # A GPU failure may retry the same checkpoint in an isolated
+                    # CPU process. Do not fetch smaller or older checkpoints.
+                    if (self._isolated_cpu and model_id == AUTO_MODEL_ID
+                            and normalized_device in {"auto", "cpu"}
+                            and self.hardware.model_compatibility(requested_model, "cpu-virtual", requested_model in cached).supported):
+                        return self._load_cpu_worker(requested_model, model_id, normalized_device,
+                                                     report, options, "same_model_cpu_retry")
                     detail = errors[-1] if errors else "unknown engine error"
                     raise RuntimeError(
-                        f"The safe local engine could not load a compatible model: {detail}"
+                        f"The selected model {requested_model} could not load. No other speech model "
+                        f"was downloaded. Check OS memory/storage or choose another model: {detail}"
                     ) from (errors[-1] if errors else None)
 
         self.model_name = requested_model
@@ -414,9 +383,39 @@ class TranscriberEngine:
             compute_type=compute,
             requested_model_id=model_id,
             fallback_reason=fallback_reason,
-            memory_mode="virtual" if normalized_device == "cpu-virtual" else "standard",
+            memory_mode="virtual" if virtual else "standard",
         )
         return self.current_status
+
+    def _load_cpu_worker(self, selected, requested, device_mode, report, options, fallback_reason=""):
+        from src.cpu_worker import CPUWorkerClient, options_payload
+
+        self.unload_model()
+        check_cancelled(options.cancel_event if options else None)
+        worker = self._cpu_worker = CPUWorkerClient()
+        report("cpu_virtual", selected, "cpu")
+
+        def receive(kind, value):
+            if kind == "load_status":
+                report(*value)
+
+        try:
+            values = worker.call("load_asr", {
+                "model": selected, "hardware": self.hardware.as_dict(),
+                "options": options_payload(options or TranscriptionOptions()),
+            }, cancel_event=options.cancel_event if options else None, event=receive)
+            if values["model_id"] != selected or values["device"] != "cpu":
+                raise RuntimeError("The CPU worker returned a different model/device")
+            values.update(requested_model_id=requested, requested_device=device_mode,
+                          memory_mode="virtual", worker_pid=worker.pid, fallback_reason=fallback_reason)
+            self.current_status = EngineStatus(**values)
+            self.model, self.model_name = worker, selected
+            self.device, self.backend, self.compute_type = "cpu", values["backend"], values["compute_type"]
+            return self.current_status
+        except BaseException:
+            worker.close()
+            self._cpu_worker = self.model = self.current_status = None
+            raise
 
     def is_ready(self, model_id: str, device_mode: str = "auto") -> bool:
         return bool(
@@ -431,8 +430,13 @@ class TranscriberEngine:
         import whisper
 
         torch_device = "mps" if device == "metal" else device
+        # This format is a compatibility fallback, never a second download.
+        local = next((path for path in (self.model_cache / "openai" / f"{model_id}.pt",
+                      Path.home() / ".cache" / "whisper" / f"{model_id}.pt") if path.is_file()), None)
+        if local is None:
+            raise RuntimeError("No cached OpenAI-format checkpoint; keeping the selected download only")
         self.model = whisper.load_model(
-            model_id,
+            str(local),
             device=torch_device,
             download_root=str(self.model_cache / "openai"),
         )
@@ -727,7 +731,7 @@ class TranscriberEngine:
         language = whisper_language(options.language)
         result = mlx_whisper.transcribe(
             source,
-            path_or_hf_repo=mlx_repository(self.model_name or "large-v3"),
+            path_or_hf_repo=str(self._mlx_model_path),
             task=options.task,
             language=language,
             word_timestamps=bool(options.word_timestamps),
@@ -823,32 +827,16 @@ class TranscriberEngine:
 
     def cached_model_ids(self) -> set[str]:
         """Identify cached checkpoints without recursively measuring their size."""
-        checkpoints: list[Path] = []
-        for root in self.cache_roots():
-            if not root.exists():
-                continue
-            try:
-                checkpoints.extend(root.iterdir())
-            except OSError:
-                continue
         found: set[str] = complete_modern_ids(self.model_cache)
         from src.omnilingual import cached_checkpoint
-        if cached_checkpoint():
+        if cached_checkpoint(getattr(self, "omnilingual_cache_root", None)):
             found.add("omnilingual-1b-v2")
         for spec in sorted(MODEL_CATALOG, key=lambda item: len(item.model_id), reverse=True):
             if spec.family != "whisper":
                 continue
-            token = spec.model_id.lower()
-            for path in checkpoints:
-                name = path.name.lower().replace("--", "-")
-                if name == f"{token}.pt" and path.is_file() and path.stat().st_size > 0:
-                    found.add(spec.model_id)
-                elif name.endswith(token) and path.is_dir():
-                    snapshots = [path, *path.glob("snapshots/*")]
-                    if any(all((folder / filename).is_file() and (folder / filename).stat().st_size > 0
-                               for filename in ("model.bin", "config.json", "tokenizer.json"))
-                           for folder in snapshots):
-                        found.add(spec.model_id)
+            if (local_whisper_path(self.cache_roots(), spec.model_id)
+                    or self.hardware.mlx_available and local_whisper_path(self.cache_roots(), spec.model_id, mlx=True)):
+                found.add(spec.model_id)
         return found
 
     @staticmethod
@@ -868,64 +856,15 @@ class TranscriberEngine:
         return size
 
     def get_downloaded_models(self) -> list[dict[str, Any]]:
-        found: list[dict[str, Any]] = []
-        seen: set[Path] = set()
-        model_tokens = {spec.model_id.replace("-", "--") for spec in MODEL_CATALOG}
-        for root in self.cache_roots():
-            if not root.exists():
-                continue
-            candidates: Iterable[Path]
-            if root.name == "hub":
-                candidates = (path for path in root.glob("models--*") if any(
-                    token in path.name.lower() for token in ("whisper", "qwen3-asr", "forcedaligner", "parakeet")))
-            else:
-                candidates = root.iterdir()
-            for path in candidates:
-                if path in seen:
-                    continue
-                lower = path.name.lower()
-                if not any(token in lower for token in ("whisper", "qwen3-asr", "forcedaligner", "parakeet")) and not any(token in lower for token in model_tokens):
-                    continue
-                seen.add(path)
-                size = self._folder_size(path)
-                found.append(
-                    {
-                        "name": path.name,
-                        "size": f"{size / 1024**3:.2f} GB" if size >= 1024**3 else f"{size / 1024**2:.1f} MB",
-                        "bytes": size,
-                        "path": str(path),
-                    }
-                )
-        return sorted(found, key=lambda item: item["bytes"], reverse=True)
+        from src.model_store import ModelStore
+        return sorted(ModelStore.from_engine(self).entries(measure=True), key=lambda item: item["bytes"], reverse=True)
 
     def delete_model_file(self, path: str | os.PathLike[str]) -> bool:
-        original = Path(path).expanduser()
-        if original.is_symlink() or getattr(original, "is_junction", lambda: False)():
-            return False
-        candidate = original.resolve()
-        allowed = False
-        for root in self.cache_roots():
-            try:
-                relative = candidate.relative_to(root.resolve())
-                # Never accept a cache root itself or a generic subdirectory.
-                allowed = len(relative.parts) == 1 and any(token in relative.parts[0].lower() for token in
-                    ("whisper", "qwen3-asr", "forcedaligner", "parakeet", *(spec.model_id for spec in MODEL_CATALOG)))
-                if candidate.is_symlink():
-                    allowed = False
-                if allowed:
-                    break
-            except (OSError, ValueError):
-                continue
-        if not allowed or not candidate.exists():
-            return False
         try:
-            if candidate.is_dir():
-                shutil.rmtree(candidate)
-            else:
-                candidate.unlink()
-            return True
+            from src.model_store import ModelStore
+            return ModelStore.from_engine(self).delete_path(path)
         except OSError:
-            logging.exception("Could not delete model cache item: %s", candidate)
+            logging.exception("Could not delete model cache item: %s", path)
             return False
 
 

@@ -23,8 +23,12 @@ def test_model_labels_round_trip_in_both_languages():
         assert model_id_from_label(auto, language) == AUTO_MODEL_ID
 
 
-def test_4gb_cpu_machine_gets_tiny_model():
-    assert profile(ram_gb=4).recommended_model() == "tiny"
+def test_4gb_cpu_accuracy_keeps_the_full_model_using_paging():
+    hardware = profile(ram_gb=4)
+    assert hardware.recommended_model() == "large-v3"
+    choice = hardware.selection_compatibility(AUTO_MODEL_ID)
+    assert choice.supported and choice.device == "cpu" and choice.reason_code == "cpu_virtual"
+    assert hardware.fast_recommended_model() == "tiny"
 
 
 def test_large_gpu_gets_maximum_accuracy_model():
@@ -57,7 +61,8 @@ def test_busy_machine_temporarily_disables_models_that_need_free_memory():
     assert not compatibility.supported
     assert compatibility.temporary
     assert compatibility.reason_code == "available_ram"
-    assert hardware.recommended_model("cpu") == "small"
+    assert hardware.recommended_model("cpu") == "large-v3"
+    assert hardware.selection_compatibility(AUTO_MODEL_ID, "cpu").reason_code == "cpu_virtual"
 
 
 def test_forced_gpu_model_is_blocked_when_vram_is_too_small():
