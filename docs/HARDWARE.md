@@ -47,7 +47,7 @@ Manual CUDA and Metal choices appear only when their packaged runtime has actual
 
 The first download also requires approximately `model size × 1.35 + 0.25 GB` of free storage for temporary files and the final cache. A downloaded model no longer needs that download-space reserve.
 
-These are admission floors, not promises of speed. A 4 GB Windows computer is deliberately routed to Tiny on CPU; it can be slow but remains supported.
+These are physical-memory admission floors for resident execution, not promises of speed. On a 4 GB Windows computer, **Speed** selects Tiny when it fits; **OpenAI accuracy** can instead attempt full large-v3 in an isolated CPU process with OS virtual memory. Allocation still depends on the OS commit limit.
 
 ## What the user sees
 
@@ -58,11 +58,12 @@ Models are sorted by estimated multilingual accuracy, with English-only variants
 These are editorial indices, not measured word accuracy percentages or a universal reliability benchmark. Accuracy normalizes the catalogue's editorial rating against Qwen 1.7B (`quality_rank / 120 × 10`), informed by the linked model cards and local sample validation. Speed uses a logarithmic scale of the catalogue's initial processing estimates, with Qwen 1.7B at 1 and Parakeet CPU at 10. Different runtimes and hardware can change that order. Languages covered, noise, domain vocabulary and warm/cold state matter; session-specific ETA calibration remains independent of these indices. English-only models have no multilingual accuracy index.
 
 - safe rows have a **Select** button and state which device will be used
-- unsafe rows are greyed out, disabled and state the exact missing resource
+- execution-unavailable rows state the missing resource; Download can still prepare their files without loading inference, and RAM-only limits offer Force on CPU
+- per-checkpoint Download/Delete actions expose missing/local state; deletion lists exact paths and estimated size, while shared components remain separately manageable
 - temporary pressure is distinguished from a permanent hardware limit
 - **OpenAI accuracy (Auto)** names the model it will actually use
 
-The engine repeats the check even if a caller bypasses the interface. A stale or unsafe explicit model is replaced by the largest safe choice. If a native engine still refuses a valid allocation, up to two smaller admitted routes are attempted without closing the application.
+The engine repeats resource and language/task checks before loading. The automatic profile selects one checkpoint; a failed Whisper GPU load can retry that same checkpoint on CPU, including isolated paging when permitted. It does not download smaller or older recognizers after a failure. Explicit CPU paging keeps the exact model, while explicit CUDA/Metal choices retain their GPU route. A different checkpoint can be selected deliberately from the catalogue.
 
 ## Packaged prerequisites
 
@@ -92,7 +93,7 @@ Qwen supports 30 languages; word alignment supports 11. Unsupported alignment la
 
 ## Additional local engines
 
-MADLAD-400 3B int8 adds approximately 2.96 GB of prepared files. Universal translation requires 12 GB total system RAM and 6 GB available. The translator uses CUDA only if at least 4 GB VRAM remains after recognition has loaded; resident recognition memory cannot be reclaimed for this admission. A failed CUDA initialization falls back to the admitted CPU translator. Preparation needs 4 GB free disk space. CPU inference can lag behind real-time conversation.
+MADLAD-400 3B int8 adds approximately 2.96 GB of prepared files. Standard resident translation admission uses 12 GB total system RAM and 6 GB available. Default accuracy/coverage or explicit CPU paging can attempt translation below those thresholds in an owned CPU process, subject to OS allocation. The translator uses CUDA only if at least 4 GB VRAM remains after recognition has loaded; resident recognition memory cannot be reclaimed for this admission. A failed CUDA initialization falls back to the admitted CPU translator. Preparation needs 4 GB free disk space. CPU inference can lag behind real-time conversation.
 
 Omnilingual's 5.60 GB first download includes ~3.91 GB recognition and ~1.69 GB GlotLID v3 identification. It uses Sherpa ONNX on CPU, with at most eight threads, and needs 16 GB total / 10 GB available RAM. It does not require a GPU. Selecting manual CUDA/Metal cannot force a nonexistent GPU route for this backend. GlotLID predictions come from text and remain fallible, especially on short utterances.
 

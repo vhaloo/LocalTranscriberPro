@@ -6,7 +6,7 @@ import platform
 import shutil
 from pathlib import Path
 
-from PyInstaller.utils.hooks import collect_data_files, collect_submodules, copy_metadata
+from PyInstaller.utils.hooks import collect_data_files, collect_delvewheel_libs_directory, collect_submodules, copy_metadata
 
 
 # SPECPATH is the directory containing this spec (repo/packaging).
@@ -27,6 +27,10 @@ if not (ROOT / "artifacts/default-voices/fr").is_dir():
     raise RuntimeError("Run scripts/prepare_default_voices.py before packaging")
 datas += [(str(ROOT / "artifacts/default-voices"), "default-voices")]
 binaries = []
+if platform.system() == "Windows":
+    # Delvewheel dependencies live beside the Python package. Import analysis
+    # alone can miss renamed VC runtimes used by Windows tokenizer wheels.
+    datas, binaries = collect_delvewheel_libs_directory("sentencepiece", datas=datas, binaries=binaries)
 hiddenimports = [
     "faster_whisper.audio",
     "faster_whisper.vad",

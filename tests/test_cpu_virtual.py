@@ -85,6 +85,17 @@ def test_cancel_terminates_owned_cpu_process_before_an_operation():
         worker.close()
 
 
+def test_translation_runtime_imports_in_the_isolated_worker_without_weights():
+    worker = CPUWorkerClient()
+    try:
+        result = worker.call("check_translation_runtime")
+        assert result["tokenizer_version"] == "0.2.2"
+        assert result["tokenizer_pieces"] == 0 and result["cpu_compute_types"]
+    finally:
+        worker.close()
+    assert not worker.alive
+
+
 def test_native_worker_exit_is_recoverable_in_the_parent():
     worker = CPUWorkerClient()
     try:
