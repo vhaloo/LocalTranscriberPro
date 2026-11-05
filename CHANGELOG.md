@@ -10,6 +10,7 @@
 - Prepare MLX weights before capture and use a local directory for inference; compatibility OpenAI-format fallback never downloads a second format.
 - Allow Windows installation below the former 3.5 GB physical-RAM floor, with a clear paging explanation. Retain existing conversation, speech, display, media, privacy, export and signed-update functions.
 - Refresh bilingual in-app help, README, hardware/translation guides, screenshots and native release packages.
+- Pin the validated translation tokenizer runtime, collect Windows sidecar DLLs and exercise native tokenizer loading in every packaged/installed platform check.
 
 ## 3.5.0 — 2026-11-01
 

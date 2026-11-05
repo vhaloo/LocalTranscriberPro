@@ -103,7 +103,7 @@ Windows quietly checks official GitHub releases at each enabled startup. A new v
 
 | Prepared configuration | Estimated application + model files | Space to allow |
 |---|---:|---|
-| Smallest usable setup, with Whisper Tiny | ~5.9 GB | At least **12 GB free** for installation and temporary copying |
+| Full Windows runtime with the smallest model, Whisper Tiny | ~5.9 GB | At least **12 GB free** for installation and temporary copying |
 | Default accuracy, Whisper large-v3 | ~9.0 GB | Only the selected recognizer; paging may need extra OS-drive space |
 | Default universal conversation, Whisper large-v3 + MADLAD | ~11.9 GB | Extra preparation space; existing caches can be reused |
 | Maximum coverage, Omnilingual + MADLAD | ~14.4 GB | Additional download/preparation space; actual caches vary |
@@ -114,7 +114,7 @@ Windows quietly checks official GitHub releases at each enabled startup. A new v
 
 These are conservative Windows package/catalogue estimates; Mac/Linux packages are generally smaller. **There is no finite maximum**: recordings, exports, extra model revisions and caches can continue growing. The 95 GB figure is a planning budget, not a hard ceiling. Preparing every model is optional and is never automatic. The minimum Tiny budget describes the optional lightweight choice; the default accuracy checkpoint needs its own ~3.1 GB download. OS paging needs additional free space outside these model-file estimates. A build environment needs extra space beyond these user-installation budgets.
 
-**En français :** minimum pratique d’environ **5,9 Go**, avec **12 Go libres avant installation** ; environ **11,9 Go** pour la conversation par défaut avec Whisper large-v3, **14,4 Go** pour la couverture maximale avec Omnilingual, **53 Go** pour les fichiers de tout le catalogue et **95 Go à prévoir** avec les préparations/caches. L’audio du micro ajoute environ **115 Mo par heure**. Aucun maximum absolu ne peut être promis. Le panneau **Stockage et dossiers**, accessible dans la barre latérale ou les paramètres, donne les chemins réels, les tailles mesurées en arrière-plan et l’espace libre ; les liens/jonctions sont ignorés et les mesures incomplètes sont signalées.
+**En français :** pour la version Windows complète, minimum pratique d’environ **5,9 Go**, avec **12 Go libres avant installation** ; environ **11,9 Go** pour la conversation par défaut avec Whisper large-v3, **14,4 Go** pour la couverture maximale avec Omnilingual, **53 Go** pour les fichiers de tout le catalogue et **95 Go à prévoir** avec les préparations/caches. Le paquet CPU et les autres plateformes occupent moins d’espace. L’audio du micro ajoute environ **115 Mo par heure**. Aucun maximum absolu ne peut être promis. Le panneau **Stockage et dossiers**, accessible dans la barre latérale ou les paramètres, donne les chemins réels, les tailles mesurées en arrière-plan et l’espace libre ; les liens/jonctions sont ignorés et les mesures incomplètes sont signalées.
 
 | Files / Fichiers | Windows | macOS | Linux |
 |---|---|---|---|
