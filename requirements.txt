@@ -15,7 +15,8 @@ tkinterdnd2>=0.4.3,<0.5
 yt-dlp[default]==2026.10.10.233141.dev0
 certifi>=2025.6.15
 cryptography>=50.0.2,<51
-sentencepiece>=0.2,<0.3
+# Keep the tokenizer runtime identical to the native translation validation.
+sentencepiece==0.2.2
 arabic-reshaper>=3,<4
 python-bidi>=0.6,<0.7
 fasttext-wheel==0.9.2

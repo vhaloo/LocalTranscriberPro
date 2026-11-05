@@ -185,6 +185,12 @@ class WorkspaceMixin:
             fg_color=ALT,
             command=self.open_model_selector,
         ).grid(row=1, column=0, sticky="ew")
+        self.prepare_model_button = ctk.CTkButton(
+            self.simple_choices, text=self.t("model_prepare"), height=30, fg_color=ALT,
+            command=self.prepare_selected_model,
+        )
+        self.prepare_model_button.grid(row=2, column=0, sticky="ew", pady=(6, 0))
+        ToolTip(self.prepare_model_button, self.t("model_prepare_help"))
         self.simple_language_map = {
             self.t("language_auto"): "auto",
             self.t("language_fr"): "fr",
@@ -196,7 +202,7 @@ class WorkspaceMixin:
             text_color=MUTED,
             anchor="w",
             font=("Segoe UI", 11),
-        ).grid(row=2, column=0, sticky="ew", pady=(10, 3))
+        ).grid(row=3, column=0, sticky="ew", pady=(10, 3))
         self.simple_language_control = ctk.CTkSegmentedButton(
             self.simple_choices,
             values=list(self.simple_language_map),
@@ -205,7 +211,7 @@ class WorkspaceMixin:
             unselected_color=ALT,
             command=self._simple_language_changed,
         )
-        self.simple_language_control.grid(row=3, column=0, sticky="ew")
+        self.simple_language_control.grid(row=4, column=0, sticky="ew")
         self.simple_language_control.set(
             next(
                 (key for key, value in self.simple_language_map.items() if value == self.selected_language),
@@ -221,7 +227,7 @@ class WorkspaceMixin:
             font=("Segoe UI", 11),
             progress_color="#2BB98D",
         )
-        self.simple_speaker_switch.grid(row=4, column=0, sticky="w", pady=(10, 2))
+        self.simple_speaker_switch.grid(row=5, column=0, sticky="w", pady=(10, 2))
         ToolTip(self.simple_speaker_switch, self.t("tip_simple_speakers"))
         self.simple_auto_summary_label = ctk.CTkLabel(
             self.simple_panel,

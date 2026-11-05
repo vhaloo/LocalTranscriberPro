@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.6.0 — 2026-11-05
+
+- Preview one hardware-selected checkpoint at startup; download/load only on first use or explicit preparation. Task/model navigation no longer launches queued downloads.
+- Retain full Whisper large-v3 for default accuracy on small 64-bit computers using isolated int8 CPU paging when physical RAM is insufficient. Keep the lighter Speed profile and explicit CPU/processor choices.
+- Share the selected model and paging route between admission, catalogue, summaries and loading. Preserve disk/runtime/language guards and surface OS allocation failures.
+- Add per-model cache-only Download, cancellable owned download processes, installed/missing state and scoped Delete actions. Preserve shared components and user transcripts; handle read-only Windows cache attributes without changing ACLs.
+- Retry the same Whisper checkpoint on CPU after automatic GPU failure; prevent cascades into other model downloads. Reject cancelled queued work before download and keep explicit offline snapshot preparation network-free.
+- Prepare MLX weights before capture and use a local directory for inference; compatibility OpenAI-format fallback never downloads a second format.
+- Allow Windows installation below the former 3.5 GB physical-RAM floor, with a clear paging explanation. Retain existing conversation, speech, display, media, privacy, export and signed-update functions.
+- Refresh bilingual in-app help, README, hardware/translation guides, screenshots and native release packages.
+- Pin the validated translation tokenizer runtime, collect Windows sidecar DLLs and exercise native tokenizer loading in every packaged/installed platform check.
+
 ## 3.5.0 — 2026-11-01
 
 - Explicit CPU virtual-memory mode bypasses physical-RAM admission only; requested checkpoints are retained, with runtime/language/disk/integrity checks.

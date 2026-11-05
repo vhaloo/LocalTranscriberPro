@@ -5,13 +5,62 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from src.models import ALIGNER_REPOSITORY, ALIGNER_REVISION, MODEL_CATALOG, ModelSpec
+from src.models import ALIGNER_REPOSITORY, ALIGNER_REVISION, MODEL_CATALOG, ModelSpec, mlx_repository
 
 MODEL_PATTERNS = ["*.json", "*.safetensors", "*.txt", "*.model", "*.tiktoken"]
 PARAKEET_FILES = ["encoder.int8.onnx", "decoder.int8.onnx", "joiner.int8.onnx", "tokens.txt"]
 
 
-def snapshot(root: Path, repository: str, revision: str, patterns: list[str]) -> Path:
+def whisper_repository(model_id: str) -> str:
+    return ("mobiuslabsgmbh/faster-whisper-large-v3-turbo" if model_id == "large-v3-turbo"
+            else "Systran/faster-whisper-" + model_id)
+
+
+def local_whisper_path(roots, model_id: str, *, mlx: bool = False) -> Path | None:
+    """Reuse complete application/shared Hub snapshots, including offline revisions."""
+    repository = mlx_repository(model_id) if mlx else whisper_repository(model_id)
+    for root in roots:
+        folder = Path(root) / ("models--" + repository.replace("/", "--"))
+        try:
+            snapshots = [folder, *sorted(folder.glob("snapshots/*"), key=lambda item: item.stat().st_mtime, reverse=True)]
+            for path in snapshots:
+                complete = mlx_snapshot_complete(path) if mlx else all(
+                    (path / name).is_file() and (path / name).stat().st_size > 0
+                    for name in ("config.json", "model.bin", "tokenizer.json"))
+                if complete:
+                    return path
+        except OSError:
+            continue
+    return None
+
+
+def mlx_snapshot_complete(path: Path) -> bool:
+    return ((path / "config.json").is_file()
+            and any(item.is_file() and item.stat().st_size > 0
+                    for pattern in ("*.npz", "*.safetensors") for item in path.glob(pattern)))
+
+
+def prepare_mlx_model(root: Path, model_id: str, *, allow_download: bool = True) -> Path:
+    """Resolve the chosen MLX checkpoint before recording, then use its local path."""
+    from huggingface_hub import snapshot_download
+
+    repository = mlx_repository(model_id)
+    try:
+        cached = Path(snapshot_download(repository, cache_dir=root, local_files_only=True))
+        if mlx_snapshot_complete(cached):
+            return cached
+    except (OSError, ValueError):
+        pass
+    if not allow_download:
+        raise FileNotFoundError(f"Selected MLX model {model_id} is not prepared for offline use")
+    folder = Path(snapshot_download(repository, cache_dir=root,
+                                   allow_patterns=["*.json", "*.npz", "*.safetensors", "*.tiktoken"]))
+    if not mlx_snapshot_complete(folder):
+        raise ValueError(f"Incomplete MLX checkpoint: {model_id}")
+    return folder
+
+
+def snapshot(root: Path, repository: str, revision: str, patterns: list[str], *, allow_download: bool = True) -> Path:
     from huggingface_hub import snapshot_download
 
     # A fully cached pinned revision works without contacting the Hub.
@@ -21,6 +70,8 @@ def snapshot(root: Path, repository: str, revision: str, patterns: list[str]) ->
             return cached
     except (OSError, ValueError):
         pass
+    if not allow_download:
+        raise FileNotFoundError(f"Selected model {repository} is not fully prepared for offline use")
     return Path(snapshot_download(repository, revision=revision, cache_dir=root, allow_patterns=patterns))
 
 
@@ -39,13 +90,13 @@ def snapshot_complete(path: Path, patterns: list[str]) -> bool:
         return False
 
 
-def modern_model_path(root: Path, spec: ModelSpec) -> Path:
+def modern_model_path(root: Path, spec: ModelSpec, *, allow_download: bool = True) -> Path:
     patterns = PARAKEET_FILES if spec.family == "parakeet" else MODEL_PATTERNS
-    return snapshot(root, spec.repository, spec.revision, patterns)
+    return snapshot(root, spec.repository, spec.revision, patterns, allow_download=allow_download)
 
 
-def aligner_path(root: Path) -> Path:
-    return snapshot(root, ALIGNER_REPOSITORY, ALIGNER_REVISION, MODEL_PATTERNS)
+def aligner_path(root: Path, *, allow_download: bool = True) -> Path:
+    return snapshot(root, ALIGNER_REPOSITORY, ALIGNER_REVISION, MODEL_PATTERNS, allow_download=allow_download)
 
 
 def complete_modern_ids(root: Path) -> set[str]:

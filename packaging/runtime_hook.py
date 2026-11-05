@@ -16,6 +16,7 @@ if getattr(sys, "frozen", False) and platform.system() == "Windows":
         bundle_root / "torch" / "lib",
         bundle_root / "torchaudio" / "lib",
         bundle_root / "ctranslate2",
+        bundle_root / "sentencepiece.libs",
     )
     available = [str(path) for path in native_directories if path.is_dir()]
     if available:

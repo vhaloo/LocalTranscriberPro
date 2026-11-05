@@ -857,6 +857,10 @@ from src.i18n_35 import register as register_memory_updates  # noqa: E402
 
 register_memory_updates(STRINGS)
 
+from src.i18n_36 import register as register_model_preparation  # noqa: E402
+
+register_model_preparation(STRINGS)
+
 
 def detect_ui_language() -> str:
     candidates = [

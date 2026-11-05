@@ -83,7 +83,9 @@ jobs:
       - name: Exercise Windows installer initialization before the full build
         if: runner.os == 'Windows'
         shell: pwsh
-        run: ./scripts/check_windows_installer.ps1
+        run: |
+          ./scripts/check_windows_installer.ps1
+          ./scripts/check_windows_installer.ps1 -OutputRoot artifacts/installer-low-memory -SimulateLowMemory
       - name: Build application
         run: python -m PyInstaller --clean --noconfirm --distpath dist/${{ env.APP_VERSION }} packaging/LocalTranscriberPro.spec
       - name: Validate frozen application on Windows
@@ -186,6 +188,7 @@ jobs:
           name: windows-installation-evidence
           path: |
             artifacts/installer-probe/preflight.log
+            artifacts/installer-low-memory/preflight.log
             artifacts/windows-installed-source.json
             artifacts/windows-installed-smoke/report-*.json
           if-no-files-found: ignore

@@ -133,6 +133,25 @@ def run_voice_smoke_test(args: argparse.Namespace) -> int:
     return 0 if payload["success"] else 2
 
 
+def run_translation_runtime_test(args: argparse.Namespace) -> int:
+    """Check the native tokenizer in the same isolated process as translation."""
+    from src.cpu_worker import CPUWorkerClient
+
+    output = Path(args.diagnostic_output).expanduser().resolve()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    payload = {"success": False}
+    worker = CPUWorkerClient()
+    try:
+        result = worker.call("check_translation_runtime")
+        payload.update(result, success=bool(result["cpu_compute_types"]), worker_pid=worker.pid)
+    except Exception as error:
+        payload["error"] = f"{type(error).__name__}: {error}"
+    finally:
+        worker.close()
+    output.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return 0 if payload["success"] else 2
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("--video-worker")
@@ -153,12 +172,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--offline", action="store_true")
     parser.add_argument("--overlap", action="store_true")
     parser.add_argument("--voice-test")
+    parser.add_argument("--translation-runtime-test", action="store_true")
     parser.add_argument("--voice-text", default="Bonjour. Hello.")
     parser.add_argument("--expect-silence", action="store_true")
     parser.add_argument("--diarize", action="store_true")
     args, _ = parser.parse_known_args()
-    if (args.smoke_test or args.youtube_test or args.voice_test) and not args.diagnostic_output:
-        parser.error("--diagnostic-output is required with --smoke-test")
+    if (args.smoke_test or args.youtube_test or args.voice_test or args.translation_runtime_test) and not args.diagnostic_output:
+        parser.error("--diagnostic-output is required with a runtime test")
     return args
 
 
@@ -172,6 +192,8 @@ def main() -> int:
 
         return video_worker_main(args.video_worker)
     setup_logging()
+    if args.translation_runtime_test:
+        return run_translation_runtime_test(args)
     if args.voice_test:
         return run_voice_smoke_test(args)
     if args.smoke_test or args.youtube_test:

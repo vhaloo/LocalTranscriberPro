@@ -20,11 +20,12 @@ def cache_root():
     return Path(user_cache_dir("LocalTranscriberPro", "Vhaloo")) / "omnilingual"
 
 
-def cached_checkpoint():
-    folder = cache_root() / "1b-v2"
+def cached_checkpoint(root=None):
+    root = Path(root) if root is not None else cache_root()
+    folder = root / "1b-v2"
     try:
         return all((base / name).is_file() and (base / name).stat().st_size == spec["size"]
-                   for base, files in ((folder, METADATA["files"]), (cache_root() / "glotlid", METADATA["lid"]["files"]))
+                   for base, files in ((folder, METADATA["files"]), (root / "glotlid", METADATA["lid"]["files"]))
                    for name, spec in files.items())
     except OSError:
         return False

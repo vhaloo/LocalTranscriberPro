@@ -52,6 +52,7 @@ def test_forced_native_cpu_failure_does_not_attempt_a_smaller_model(tmp_path, mo
     hardware = low_memory()
     hardware.refresh_resources = lambda: None
     engine = TranscriberEngine(hardware, isolated_cpu=False)
+    engine.cached_model_ids = lambda: {"large-v3"}
     with pytest.raises(RuntimeError, match="OS commit limit"):
         engine.load_model("large-v3", "cpu-virtual", options=TranscriptionOptions(offline=True))
     assert calls == [("large-v3", "cpu")]
@@ -82,6 +83,17 @@ def test_cancel_terminates_owned_cpu_process_before_an_operation():
         assert not worker.alive
     finally:
         worker.close()
+
+
+def test_translation_runtime_imports_in_the_isolated_worker_without_weights():
+    worker = CPUWorkerClient()
+    try:
+        result = worker.call("check_translation_runtime")
+        assert result["tokenizer_version"] == "0.2.2"
+        assert result["tokenizer_pieces"] == 0 and result["cpu_compute_types"]
+    finally:
+        worker.close()
+    assert not worker.alive
 
 
 def test_native_worker_exit_is_recoverable_in_the_parent():

@@ -19,7 +19,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('executable', type=Path)
     parser.add_argument('--folder', type=Path, default=Path('artifacts/packaged-smoke'))
-    parser.add_argument('--case', type=int, choices=range(5), help='Run one native case when investigating a fixture failure')
+    parser.add_argument('--case', type=int, choices=range(6), help='Run one native case when investigating a fixture failure')
     args = parser.parse_args()
     executable = args.executable.resolve()
     folder = args.folder.resolve()
@@ -57,6 +57,7 @@ if __name__ == '__main__':
         ['--voice-test', 'en', '--voice-text', 'Hello, this is a local verification.', '--offline'],
         ['--youtube-test', f'http://127.0.0.1:{server.server_port}/jfk.flac', '--model', 'tiny', '--device', 'cpu', '--offline'],
         ['--smoke-test', str(sample), '--model', 'tiny', '--device', 'cpu-virtual', '--offline'],
+        ['--translation-runtime-test', '--offline'],
     ]
     try:
         for index, command in enumerate(cases):
@@ -77,6 +78,8 @@ if __name__ == '__main__':
             if index == 4:
                 assert result['status']['memory_mode'] == 'virtual' and result['status']['worker_pid']
                 assert result['status']['requested_device'] == 'cpu-virtual' and not result['status']['fallback_reason']
+            if index == 5:
+                assert result['tokenizer_version'] == '0.2.2' and result['cpu_compute_types'] and result['worker_pid']
         assert not list((import_folder / 'youtube-qa').glob('ltp-video-*')), 'Online import left temporary audio behind'
     finally:
         server.shutdown()
@@ -84,6 +87,6 @@ if __name__ == '__main__':
         server_thread.join(timeout=2)
         temporary_import.cleanup()
     if args.case is None:
-        print('Native CPU ASR, isolated CPU paging worker, bundled French/English voices and HTTP audio import passed.')
+        print('Native CPU ASR, isolated CPU paging, translation tokenizer, bundled voices and HTTP audio import passed.')
     else:
         print(f'Native packaged case {args.case} passed.')

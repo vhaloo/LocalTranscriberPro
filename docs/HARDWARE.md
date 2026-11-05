@@ -1,13 +1,13 @@
 # Hardware detection and safe model selection
 
-Local Transcriber Pro 3.5.0 treats a model as available only after its complete runtime route has passed conservative admission checks. Merely finding a GPU name is never considered proof that GPU inference works.
+Local Transcriber Pro 3.6.0 selects a complete runtime route before preparing a model. Standard routes retain physical-memory admission; the default accuracy profile may instead permit an isolated CPU paging attempt on a 64-bit computer. The OS still controls allocation success. Merely finding a GPU name is never considered proof that GPU inference works.
 
 ## What is measured at startup
 
 - operating system and architecture
 - processor and logical thread count
 - physical RAM and currently available RAM
-- swap/page-file capacity for diagnostics (not used to justify an unsafe model)
+- swap/page-file capacity and Windows commit headroom; isolated CPU paging remains subject to the OS allocation limit
 - free space on the model-cache drive
 - NVIDIA model, driver, total VRAM and currently free VRAM
 - CTranslate2 CPU compute types and CUDA device availability
@@ -16,7 +16,7 @@ Local Transcriber Pro 3.5.0 treats a model as available only after its complete 
 
 The same free-memory and free-storage snapshot is refreshed immediately before a model is loaded. This protects against an old saved setting or another application consuming memory after Local Transcriber Pro started.
 
-The admitted model is loaded in the background after the interface opens. Changing the model or processor starts a background replacement load immediately. Record therefore uses the already-armed engine in the normal case; the full-window initialization message remains only as a truthful fallback if preloading has not completed or the resource check changed.
+Startup and navigation only preview the selected checkpoint and route. No model is loaded or downloaded until the first job or the explicit **Prepare this model** action. Preparation is visible; recording waits until its required pipeline is ready. Only the chosen speech checkpoint is fetched, together with dependencies required by the enabled task. A failed load never downloads a series of smaller/older models. Cached checkpoints are reused.
 
 ## Device routing
 
@@ -47,7 +47,7 @@ Manual CUDA and Metal choices appear only when their packaged runtime has actual
 
 The first download also requires approximately `model size × 1.35 + 0.25 GB` of free storage for temporary files and the final cache. A downloaded model no longer needs that download-space reserve.
 
-These are admission floors, not promises of speed. A 4 GB Windows computer is deliberately routed to Tiny on CPU; it can be slow but remains supported.
+These are physical-memory admission floors for resident execution, not promises of speed. On a 4 GB Windows computer, **Speed** selects Tiny when it fits; **OpenAI accuracy** can instead attempt full large-v3 in an isolated CPU process with OS virtual memory. Allocation still depends on the OS commit limit.
 
 ## What the user sees
 
@@ -58,11 +58,12 @@ Models are sorted by estimated multilingual accuracy, with English-only variants
 These are editorial indices, not measured word accuracy percentages or a universal reliability benchmark. Accuracy normalizes the catalogue's editorial rating against Qwen 1.7B (`quality_rank / 120 × 10`), informed by the linked model cards and local sample validation. Speed uses a logarithmic scale of the catalogue's initial processing estimates, with Qwen 1.7B at 1 and Parakeet CPU at 10. Different runtimes and hardware can change that order. Languages covered, noise, domain vocabulary and warm/cold state matter; session-specific ETA calibration remains independent of these indices. English-only models have no multilingual accuracy index.
 
 - safe rows have a **Select** button and state which device will be used
-- unsafe rows are greyed out, disabled and state the exact missing resource
+- execution-unavailable rows state the missing resource; Download can still prepare their files without loading inference, and RAM-only limits offer Force on CPU
+- per-checkpoint Download/Delete actions expose missing/local state; deletion lists exact paths and estimated size, while shared components remain separately manageable
 - temporary pressure is distinguished from a permanent hardware limit
 - **OpenAI accuracy (Auto)** names the model it will actually use
 
-The engine repeats the check even if a caller bypasses the interface. A stale or unsafe explicit model is replaced by the largest safe choice. If a native engine still refuses a valid allocation, up to two smaller admitted routes are attempted without closing the application.
+The engine repeats resource and language/task checks before loading. The automatic profile selects one checkpoint; a failed Whisper GPU load can retry that same checkpoint on CPU, including isolated paging when permitted. It does not download smaller or older recognizers after a failure. Explicit CPU paging keeps the exact model, while explicit CUDA/Metal choices retain their GPU route. A different checkpoint can be selected deliberately from the catalogue.
 
 ## Packaged prerequisites
 
@@ -92,7 +93,7 @@ Qwen supports 30 languages; word alignment supports 11. Unsupported alignment la
 
 ## Additional local engines
 
-MADLAD-400 3B int8 adds approximately 2.96 GB of prepared files. Universal translation requires 12 GB total system RAM and 6 GB available. The translator uses CUDA only if at least 4 GB VRAM remains after recognition has loaded; resident recognition memory cannot be reclaimed for this admission. A failed CUDA initialization falls back to the admitted CPU translator. Preparation needs 4 GB free disk space. CPU inference can lag behind real-time conversation.
+MADLAD-400 3B int8 adds approximately 2.96 GB of prepared files. Standard resident translation admission uses 12 GB total system RAM and 6 GB available. Default accuracy/coverage or explicit CPU paging can attempt translation below those thresholds in an owned CPU process, subject to OS allocation. The translator uses CUDA only if at least 4 GB VRAM remains after recognition has loaded; resident recognition memory cannot be reclaimed for this admission. A failed CUDA initialization falls back to the admitted CPU translator. Preparation needs 4 GB free disk space. CPU inference can lag behind real-time conversation.
 
 Omnilingual's 5.60 GB first download includes ~3.91 GB recognition and ~1.69 GB GlotLID v3 identification. It uses Sherpa ONNX on CPU, with at most eight threads, and needs 16 GB total / 10 GB available RAM. It does not require a GPU. Selecting manual CUDA/Metal cannot force a nonexistent GPU route for this backend. GlotLID predictions come from text and remain fallible, especially on short utterances.
 
@@ -107,7 +108,7 @@ The full large-v3 Whisper checkpoint is preferred to Turbo for the accuracy prof
 
 ## CPU virtual memory (3.5)
 
-Settings → Recognition → Processor → **CPU — virtual memory** retains an explicit requested model and attempts its CPU allocation despite low total/free physical RAM. The catalogue offers a direct CPU action when RAM is the only blocker. RAM/commit admission thresholds are bypassed only in this explicit mode; GPU safety, runtime, language/task, disk and model-integrity checks remain. Automatic mode keeps normal admission and OpenAI large-v3 preference. A worker load failure does not silently select a smaller checkpoint.
+Settings → Recognition → Processor → **CPU — virtual memory** retains an explicit requested model and attempts its CPU allocation despite low total/free physical RAM. The catalogue offers a direct CPU action when RAM is the only blocker. The default accuracy profile also permits this isolated CPU route on 64-bit computers when RAM thresholds prevent a resident load; GPU safety, runtime, language/task, disk and model-integrity checks remain. The Speed profile and forced GPU choices retain physical-memory admission. Default accuracy prioritizes full OpenAI large-v3 even when it must run slowly on CPU. A worker load failure does not silently select a smaller checkpoint.
 
 ASR and translation each own a cancellable CPU process. Int8 Whisper/CTranslate2 and single MT replicas reduce memory use; other CPU backends retain their supported numerical format. Local IPC uses an authenticated named pipe (Windows) or private Unix socket, JSON and float32 frames, without pickle or new audio/transcript files. Native allocation can be interrupted by Cancel; only owned worker processes are stopped. Existing text remains in the parent. Forced CPU language/task incompatibility requires an explicit different model.
 
@@ -116,3 +117,19 @@ Normal allocations are virtual memory managed by the OS. Windows commit capacity
 Private-session suppression concerns application-created audio/transcript/history files. The OS may still page process memory to disk; the app does not claim to erase or prevent OS swap. Translation and prepared speech processing remain local.
 
 [Microsoft: introduction to pagefiles](https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/introduction-to-the-page-file) · [CTranslate2 performance and CPU quantization](https://opennmt.net/CTranslate2/performance.html)
+
+
+## One selected model and small computers (3.6)
+
+The accuracy profile ranks local OpenAI Whisper checkpoints first, retaining large-v3 whenever runtime, language/task and cache/download storage allow it. The presence of a cached Tiny model does not downgrade this choice. An admitted CUDA/MLX route has priority; a busy GPU can use CPU. On a 64-bit machine whose CPU route fails only physical/free RAM admission, the plan uses the same isolated CPU virtual-memory path as an explicit forced choice. A 2/4/8 GB profile can therefore attempt large-v3 rather than being confined to Tiny. These are attempt permissions, not a promise that a machine with inadequate swap/commit capacity can finish the job.
+
+The model catalogue remains available. **Speed** chooses a physical-RAM-compatible model and a manual **CPU — virtual memory** choice retains its exact checkpoint. Explicit CUDA/Metal never silently changes to CPU. Disk and runtime checks still apply before download; an already cached checkpoint can run without new download space, while OS paging may require room on another drive. No system setting is modified and no hosted inference is used.
+
+Browsing profiles or tasks only updates the prediction. **Prepare this model** and first use prepare one selected recognizer; there is no bulk catalogue downloader. Translation, aligners, optional language hints, separation and voices have their own task-specific weights. They are not other automatically selected speech recognizers. Existing caches are retained. If model loading fails, Whisper can retry the same checkpoint on CPU, while a different checkpoint requires a deliberate selection. An OpenAI-format compatibility fallback uses existing local weights only. MLX prepares its selected snapshot before capture and inference uses a local directory.
+
+
+## Model storage controls (3.6)
+
+The model catalogue keeps absent models visible and selectable whenever their execution route is admitted. **Download** prepares only the chosen checkpoint and required alignment/language components, without allocating inference weights; downloading does not require enough physical RAM to run that model. A missing runtime still prevents execution but does not prevent storing its files. One owned download process runs at a time; closing the catalogue or Cancel terminates it, and a later attempt reuses complete/partial Hub files.
+
+**Delete** lists the exact known cache paths for that checkpoint and estimated sizes, asks for confirmation, then removes only those paths. Loaded recognition is unloaded first when necessary, and active capture/transcription/preparation prevents deletion. Shared Qwen alignment and GlotLID components are retained when removing a checkpoint; they can be managed explicitly from **Downloaded models**. Sizes are logical estimates and may differ from recovered disk space when links are shared. Exact catalogue names are required for deletion; arbitrary folders, roots, nested paths and directory junctions are rejected. Windows DOS read-only attributes on those model files/directories can be cleared for removal; ACLs are never changed.
