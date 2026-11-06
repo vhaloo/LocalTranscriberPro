@@ -1,6 +1,6 @@
 # macOS / Linux 3.7.0 — Experimental packages / Paquets expérimentaux
 
-These packages are published for early testing. **Windows 3.7.0 retains its validated stable installer.** Native CPU transcription and bundled French/English voices pass automated checks on macOS 14 arm64 and Ubuntu 24.04 x86-64. Physical installation, microphones, GPU acceleration and other operating-system versions remain unverified. English instructions follow the French guide below.
+These packages are published for early testing. **Windows 3.7.0 retains its validated stable installer.** Native CPU transcription and bundled French/English voices pass automated checks on macOS 15 arm64 and Ubuntu 24.04 x86-64. Physical installation, microphones, GPU acceleration and other operating-system versions remain unverified. English instructions follow the French guide below.
 
 ## Télécharger et vérifier
 
@@ -23,7 +23,7 @@ Les versions précédentes restent disponibles dans [Releases](https://github.co
 
 ## Mac Apple Silicon
 
-Le paquet cible les puces Apple M1 et suivantes, **pas les Mac Intel**. macOS 14 est la version de référence des essais automatisés ; les versions plus anciennes n'ont pas été essayées.
+Le paquet cible les puces Apple M1 et suivantes, **pas les Mac Intel**. macOS 15 est la version de référence des essais automatisés ; les versions plus anciennes n'ont pas été essayées.
 
 1. Ouvrez le DMG puis glissez **Local Transcriber Pro.app** dans **Applications**.
 2. Ouvrez l'application depuis Applications. Le paquet possède une signature ad-hoc ; il n'a ni signature Developer ID ni notarisation Apple.
@@ -72,7 +72,7 @@ Signalez les problèmes dans les [issues GitHub](https://github.com/vhaloo/Local
 
 ## English quick start
 
-- **Mac:** download the arm64 experimental DMG, open it and drag the app into Applications. Apple Silicon only; macOS 14 is the automated-test reference. The app is ad-hoc signed and not Apple-notarized. If blocked, follow [Apple's per-app opening instructions](https://support.apple.com/en-us/102445) after verifying the download. Grant microphone permission when recording.
+- **Mac:** download the arm64 experimental DMG, open it and drag the app into Applications. Apple Silicon only; macOS 15 is the automated-test reference. The app is ad-hoc signed and not Apple-notarized. If blocked, follow [Apple's per-app opening instructions](https://support.apple.com/en-us/102445) after verifying the download. Grant microphone permission when recording.
 - **Linux:** download the x86-64 experimental AppImage, use `chmod u+x` and run it. Ubuntu 24.04 is the build/test reference. If FUSE is unavailable, pass `--appimage-extract-and-run` or use the portable tar archive. A graphical desktop and working system audio are needed; `libportaudio2` is installed in CI.
 - Back up existing data and keep your previous app for rollback. Prepare models once before offline use; French/English voices are bundled. Updates on these platforms open the release page and require manual replacement.
 - These are **experimental platform packages**. Native CPU ASR and voice smoke checks do not establish physical installation, microphone, GUI or GPU reliability. Windows remains stable. Verify file integrity with `SHA256SUMS.txt` from the same release.
