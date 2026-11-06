@@ -2,6 +2,7 @@
 import os
 import stat
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -11,6 +12,23 @@ from src.models import ALIGNER_REPOSITORY, get_model
 
 def store(tmp_path):
     return ModelStore(tmp_path / "models", omnilingual_root=tmp_path / "omnilingual")
+
+
+@pytest.mark.parametrize("nested", [False, True])
+def test_windows_reparse_guards_do_not_depend_on_python_is_junction(tmp_path, monkeypatch, nested):
+    selected = store(tmp_path)
+    root = model_files(selected.root / "models--Systran--faster-whisper-tiny")
+    suspect = root / "linked-folder" if nested else root
+    if nested:
+        suspect.mkdir()
+    original_stat = Path.lstat
+    def metadata(path):
+        actual = original_stat(path)
+        return SimpleNamespace(st_mode=actual.st_mode, st_file_attributes=0x400) if path == suspect else actual
+    monkeypatch.setattr(Path, "is_junction", lambda _path: False, raising=False)
+    monkeypatch.setattr(Path, "lstat", metadata)
+    assert selected.delete_path(root) is False
+    assert (root / "model.bin").is_file()
 
 
 def model_files(path):

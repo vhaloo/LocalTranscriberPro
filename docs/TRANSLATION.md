@@ -1,8 +1,8 @@
-# Traduction et lecture locales — 3.6.0
+# Traduction et lecture locales — 3.7.0
 
-## Interface 3.4 / Workspace
+## Interface 3.7 / Workspace
 
-Les cinq usages restent à gauche : fichiers, traduction live, conférence, dictée et vidéo en ligne. Les boutons sous les usages ouvrent la révision, l’écran interlocuteur, les réponses écrites/lues, la préparation hors ligne et la confidentialité. La source et les trois choix de langue sont au-dessus du texte. **Paramètres** (`Ctrl+,`) regroupe reconnaissance, voix/indices et stockage.
+Les cinq usages restent à gauche : fichiers, traduction live, conférence, dictée et vidéo en ligne. Les outils pertinents restent visibles ; **Autres outils de session** donne accès à la révision, à l’écran interlocuteur, aux réponses écrites/lues, à la préparation hors ligne et à la confidentialité. La source et les trois choix de langue sont au-dessus du texte. **Paramètres** (`Ctrl+,`) contient quatre pages : **Application**, **Reconnaissance**, **Texte et voix**, **Fichiers et stockage**. Chaque réglage explique son effet, avec aide au survol/focus, touche F1 et bouton **?**. **M’aider à choisir** ouvre quatre étapes avec récapitulatif, sans démarrer de capture ni de téléchargement. [Démarrage et réglages détaillés](GETTING_STARTED.md).
 
 Le profil **Précision OpenAI** donne priorité au modèle local complet **Whisper large-v3**. Si le GPU manque de mémoire libre, le CPU peut conserver ce modèle ; sur petit ordinateur 64 bits, un processus isolé peut tenter la mémoire virtuelle, au prix d'une très forte lenteur et sous réserve des limites du système. **Rapidité** choisit un modèle adapté à la RAM physique. **Multilinguisme maximal** (dont Omnilingual) et les modèles manuels restent disponibles dans le catalogue. Les anciens choix automatiques du mode live migrent vers la nouvelle priorité une seule fois ; un modèle manuel est conservé.
 
@@ -10,7 +10,7 @@ Le profil **Précision OpenAI** donne priorité au modèle local complet **Whisp
 
 **Ctrl+1 à Ctrl+5** changent d’usage lorsque la capture et le traitement sont arrêtés. **F11** et **A− / A+** restent disponibles au-dessus du transcript. Les indications de progression apparaissent pendant les étapes actives ; les outils détaillés ne réduisent plus la zone de lecture au repos. Les tâches fichiers et vidéos n’ouvrent pas le flux de surveillance du micro.
 
-**English:** choose a task on the left, then source and languages. Settings (`Ctrl+,`) groups recognition, voice/indices and storage. The default accuracy profile prioritizes local OpenAI Whisper large-v3 when safe, retaining manual, speed and maximum-coverage choices. `Ctrl+F` searches literally, Enter/Shift+Enter navigates, and Escape closes search. Search is bounded to 1,000 matches and can highlight complete logical Arabic lines. F11 expands reading; file/video tasks do not monitor microphone input.
+**English:** choose a task on the left, then source and languages. Settings (`Ctrl+,`) groups Application, Recognition, Text & voices, and Files & storage; every setting has inline and contextual help. Help me choose opens the four-step questionnaire. The default accuracy profile prioritizes local OpenAI Whisper large-v3 when safe, retaining manual, speed and maximum-coverage choices. `Ctrl+F` searches literally, Enter/Shift+Enter navigates, and Escape closes search. Search is bounded to 1,000 matches and can highlight complete logical Arabic lines. F11 expands reading; file/video tasks do not monitor microphone input.
 
 ## Lecture au clic / Click to speak
 
@@ -137,7 +137,7 @@ Le bouton de mise à jour de l'en-tête indique une nouvelle version, son télé
 **English:** explicit CPU paging retains your requested recognizer/translator with cancellable worker isolation, without changing OS settings. Default accuracy can also use isolated CPU paging when physical RAM is insufficient; Speed keeps physical-memory admission. Quiet startup checks use a header badge; Windows signed updates may install after 60 idle seconds with active work and private text protected. Both preferences are in Settings → Recognition. Mac/Linux retain manual experimental replacement.
 
 
-## Préparation à la demande — 3.6.0
+## Préparation à la demande — 3.7.0
 
 Le démarrage et les changements de mode ne téléchargent aucun modèle. Le profil retenu et le processeur prévu apparaissent dans le panneau de gauche. **Préparer ce modèle** ou le premier traitement télécharge uniquement le modèle de reconnaissance retenu, puis le moteur de traduction et les composants nécessaires aux fonctions activées. Les voix françaises et anglaises sont incluses ; les autres restent proposées au cas par cas. Les modèles déjà préparés sont réutilisés.
 

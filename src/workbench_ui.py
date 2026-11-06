@@ -17,13 +17,16 @@ from src.session import SessionController, identified
 from src.tooltip import ToolTip
 from src.translation_languages import language_label, normalize_language
 from src.translation_ui import LanguagePickerDialog, display_line
+from src.ui_lifecycle import ManagedToplevel
 
 PANEL = "#16233D"
 
 
 class WorkbenchMixin:
     def _tool_dialog(self, title, width, height):
-        dialog = ctk.CTkToplevel(self)
+        width = min(width, self.winfo_screenwidth()-60)
+        height = min(height, self.winfo_screenheight()-100)
+        dialog = ManagedToplevel(self)
         dialog.title(title)
         x = self.winfo_rootx() + max(0, (self.winfo_width() - width) // 2)
         y = self.winfo_rooty() + max(0, min(60, (self.winfo_height() - height) // 2))
@@ -47,6 +50,7 @@ class WorkbenchMixin:
                          font=("Segoe UI", 11, "bold"), anchor="w").grid(row=0, column=0, sticky="ew", padx=5)
         tools = ctk.CTkFrame(master, fg_color="transparent")
         tools.grid(row=1 if workspace else 5, column=0, columnspan=2, sticky="ew", pady=(5, 2))
+        self.session_tool_buttons = {}
         for key, command in (("review_turns", self.review_turns), ("audience", self.open_audience),
                              ("typed_reply", self.compose_reply), ("offline_prepare", self.offline_prepare),
                              ("privacy_controls", self.privacy_controls)):
@@ -57,6 +61,12 @@ class WorkbenchMixin:
             else:
                 button.pack(side="left", padx=(0, 5))
             ToolTip(button, self.t(key + "_help"))
+            self.session_tool_buttons[key] = button
+        if workspace:
+            self.session_tools_toggle = ctk.CTkButton(master, text=self.t("workspace_tools_more"), height=27,
+                fg_color="transparent", border_width=1, border_color="#304864", command=self._toggle_session_tools)
+            self.session_tools_toggle.grid(row=2, column=0, sticky="ew", pady=(3, 0))
+            ToolTip(self.session_tools_toggle, self.t("workspace_tools_help"))
         self.live_preview_label = ctk.CTkLabel(self.preview_host if workspace else master, text="", font=("Segoe UI", 17),
                                               text_color="#F3C969", anchor="w", justify="left",
                                               wraplength=1060)
@@ -115,7 +125,7 @@ class WorkbenchMixin:
         if self.audience_window is not None and self.audience_window.winfo_exists():
             self.audience_window.lift()
             return
-        window = self.audience_window = ctk.CTkToplevel(self)
+        window = self.audience_window = ManagedToplevel(self)
         window.title(self.t("audience"))
         window.geometry("1050x720")
         window.configure(fg_color="#08101F")
@@ -350,43 +360,56 @@ class WorkbenchMixin:
             self._set_status(self.t("tools_idle"))
             return
         dialog = self._tool_dialog(self.t("offline_prepare"), 800, 730)
-        ctk.CTkLabel(dialog, text=self.t("offline_prepare_help"), wraplength=710, justify="left").pack(padx=25, pady=20)
+        content = ctk.CTkScrollableFrame(dialog, fg_color="transparent")
+        content.pack(fill="both", expand=True, padx=8, pady=8)
+        ctk.CTkLabel(content, text=self.t("offline_prepare_help"), wraplength=710, justify="left").pack(padx=25, pady=20)
         codes = [self.translation_target, self.conversation_partner, self.translation_third]
         codes += [item.get(field) for item in self.transcript_data[-20:] for field in ("source_language", "target_language", "third_language")]
         codes = list(dict.fromkeys(code for code in codes if code and code not in {"auto", "none", "und"}))
-        ctk.CTkLabel(dialog, text=" · ".join(language_label(code, self.t.language) for code in codes), wraplength=700).pack(pady=10)
+        ctk.CTkLabel(content, text=" · ".join(language_label(code, self.t.language) for code in codes), wraplength=700).pack(pady=10)
         model_choices = {"MADLAD 3B · 452 · standard": "madlad400-3b", "MADLAD 7B · 452 · expérimental / experimental · 8.3 GB": "madlad400-7b"}
-        model_picker = ctk.CTkOptionMenu(dialog, values=list(model_choices), width=700)
+        model_picker = ctk.CTkOptionMenu(content, values=list(model_choices), width=700)
         model_picker.set(next(label for label, code in model_choices.items() if code == self.settings.get("translation_model", "madlad400-3b")))
         model_picker.pack(pady=8)
-        ctk.CTkLabel(dialog, text=self.t("translation_model_resources"), wraplength=710, justify="left").pack(padx=25, pady=3)
+        ToolTip(model_picker, self.t("translation_model_resources"))
+        ctk.CTkLabel(content, text=self.t("translation_model_resources"), wraplength=710, justify="left").pack(padx=25, pady=3)
         context = ctk.BooleanVar(value=bool(self.settings.get("translation_context", False)))
-        ctk.CTkCheckBox(dialog, text=self.t("context_translation"), variable=context).pack(pady=7)
-        ctk.CTkLabel(dialog, text=self.t("glossary_label")).pack(anchor="w", padx=25, pady=(6, 0))
-        glossary = ctk.CTkTextbox(dialog, height=90)
+        context_check = ctk.CTkCheckBox(content, text=self.t("context_translation"), variable=context)
+        context_check.pack(pady=7)
+        ToolTip(context_check, self.t("context_translation_help"))
+        ctk.CTkLabel(content, text=self.t("glossary_label")).pack(anchor="w", padx=25, pady=(6, 0))
+        glossary = ctk.CTkTextbox(content, height=90)
         glossary.insert("1.0", self.settings.get("translation_glossary", ""))
         glossary.pack(fill="x", padx=25, pady=7)
         ToolTip(glossary, self.t("glossary_help"))
-        cache_label = ctk.CTkLabel(dialog, text=self.settings.get("translation_cache", "") or self.t("default_cache"), wraplength=700)
+        cache_label = ctk.CTkLabel(content, text=self.settings.get("translation_cache", "") or self.t("default_cache"), wraplength=700)
         cache_label.pack()
         def choose_cache():
             folder = filedialog.askdirectory(parent=dialog, title=self.t("translation_cache_choose"))
             if folder:
                 self.settings.set("translation_cache", folder, save=True)
                 cache_label.configure(text=folder)
-        ctk.CTkButton(dialog, text=self.t("translation_cache_choose"), command=choose_cache, width=330).pack(pady=7)
-        report = ctk.CTkLabel(dialog, text="", wraplength=700, justify="left")
+        cache_button = ctk.CTkButton(content, text=self.t("translation_cache_choose"), command=choose_cache, width=330)
+        cache_button.pack(pady=7)
+        ToolTip(cache_button, self.t("translation_cache_help"))
+        report = ctk.CTkLabel(content, text="", wraplength=700, justify="left")
         report.pack(padx=25, pady=20)
         buttons = []
+        def save_preferences():
+            self.settings.update({"translation_model": model_choices[model_picker.get()],
+                                  "translation_context": bool(context.get()),
+                                  "translation_glossary": glossary.get("1.0", "end-1c")[:6000]}, save=True)
+            report.configure(text=self.t("translation_saved"))
+        save = ctk.CTkButton(content, text=self.t("translation_save"), command=save_preferences, width=330)
+        save.pack(pady=7)
+        buttons.append(save)
+        ToolTip(save, self.t("translation_save_help"))
         def prepare(download):
             if download and not messagebox.askyesno(self.t("offline_prepare"), self._voice_download_message(codes), parent=dialog):
                 return
             for button in buttons:
                 button.configure(state="disabled")
-            config = self.job_config()
-            self.settings.update({"translation_model": model_choices[model_picker.get()],
-                                  "translation_context": bool(context.get()),
-                                  "translation_glossary": glossary.get("1.0", "end-1c")[:6000]}, save=True)
+            save_preferences()
             config = self.job_config()
             options = replace(self.transcribe_options(config), offline=not download, original_callback=None, activity_callback=None)
             self._set_source_buttons_state("disabled")
@@ -412,9 +435,10 @@ class WorkbenchMixin:
             self.tool_threads.append(thread)
             thread.start()
         for key, download in (("offline_verify", False), ("offline_download", True)):
-            button = ctk.CTkButton(dialog, text=self.t(key), command=lambda value=download: prepare(value), width=330)
+            button = ctk.CTkButton(content, text=self.t(key), command=lambda value=download: prepare(value), width=330)
             button.pack(pady=7)
             buttons.append(button)
+            ToolTip(button, self.t("offline_verify_help" if not download else "offline_prepare_help"))
 
     def privacy_controls(self):
         if self.busy or self.recorder.recording:
@@ -426,9 +450,13 @@ class WorkbenchMixin:
         def change():
             self.private_mode = bool(active.get())
             self._set_status(self.t("private_active" if self.private_mode else "private_inactive"))
-        ctk.CTkCheckBox(dialog, text=self.t("private_toggle"), variable=active, command=change).pack(pady=12)
-        ctk.CTkButton(dialog, text=self.t("private_save"), command=lambda: self.private_file(False)).pack(pady=10)
-        ctk.CTkButton(dialog, text=self.t("private_open"), command=lambda: self.private_file(True)).pack(pady=10)
+        toggle = ctk.CTkCheckBox(dialog, text=self.t("private_toggle"), variable=active, command=change)
+        toggle.pack(pady=12)
+        ToolTip(toggle, self.t("privacy_controls_help"))
+        for key, opening in (("private_save", False), ("private_open", True)):
+            button = ctk.CTkButton(dialog, text=self.t(key), command=lambda value=opening: self.private_file(value))
+            button.pack(pady=10)
+            ToolTip(button, self.t("privacy_controls_help"))
 
     def private_file(self, opening=False):
         if self.busy or self.recorder.recording:

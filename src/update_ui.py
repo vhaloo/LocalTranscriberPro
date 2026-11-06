@@ -14,6 +14,7 @@ from platformdirs import user_cache_dir
 
 from src import __version__
 from src.jobs import JobCancelled
+from src.ui_lifecycle import ManagedToplevel
 from src.updater import (
     UpdateInfo,
     check_for_update,
@@ -49,7 +50,7 @@ def install_blocked(app, *, automatic=False, now=None):
     return False
 
 
-class UpdateDialog(ctk.CTkToplevel):
+class UpdateDialog(ManagedToplevel):
     def __init__(self, parent, info: UpdateInfo):
         super().__init__(parent)
         self.parent_app, self.info = parent, info

@@ -61,10 +61,10 @@ from src.recording_ui import RecordingMixin
 from src.segments import shift_segments, validate_segments
 from src.session import SessionController, identified
 from src.settings import SettingsStore, bounded_int, ensure_output_folder
-from src.tooltip import ToolTip
 from src.transcriber import EngineStatus, TranscriberEngine, TranscriptionOptions
 from src.transcript_format import TranscriptFormat, format_segment, format_transcript, plain_segments
 from src.translation_ui import render_conversation
+from src.ui_lifecycle import ManagedToplevel, cancel_widget_timers
 from src.update_ui import UpdatesMixin
 from src.utils import (
     atomic_write_text,
@@ -151,7 +151,7 @@ LANGUAGE_OPTIONS = {
 }
 
 
-class HelpDialog(ctk.CTkToplevel):
+class HelpDialog(ManagedToplevel):
     def __init__(self, parent: TranscriberApp):
         super().__init__(parent)
         self.t = parent.t
@@ -179,6 +179,8 @@ class HelpDialog(ctk.CTkToplevel):
         guide = ctk.CTkScrollableFrame(self, fg_color=PANEL, corner_radius=18)
         guide.pack(fill="both", expand=True, padx=28, pady=(0, 18))
         items = [
+            ("setup_open", "setup_subtitle"),
+            ("ui_language_setting", "ui_language_help"),
             ("workspace_step_source", "workspace_quick_guide"),
             ("task_universal", "task_universal_help"),
             ("workspace_find", "workspace_search_help"),
@@ -216,7 +218,7 @@ class HelpDialog(ctk.CTkToplevel):
         ).pack(pady=(0, 22))
 
 
-class HistoryDialog(ctk.CTkToplevel):
+class HistoryDialog(ManagedToplevel):
     """Review every completed session without exposing database details."""
 
     def __init__(self, parent: TranscriberApp):
@@ -346,7 +348,7 @@ class HistoryDialog(ctk.CTkToplevel):
         self.destroy()
 
 
-class HardwareDialog(ctk.CTkToplevel):
+class HardwareDialog(ManagedToplevel):
     def __init__(self, parent: TranscriberApp):
         super().__init__(parent)
         self.t = parent.t
@@ -458,7 +460,7 @@ class HardwareDialog(ctk.CTkToplevel):
         ).pack(side="right")
 
 
-class ModelSelectorDialog(ctk.CTkToplevel):
+class ModelSelectorDialog(ManagedToplevel):
     """Select, download or remove individual models without loading their weights."""
 
     def __init__(self, parent: TranscriberApp):
@@ -765,7 +767,7 @@ class ModelSelectorDialog(ctk.CTkToplevel):
         self.destroy()
 
 
-class ModelManagerDialog(ctk.CTkToplevel):
+class ModelManagerDialog(ManagedToplevel):
     def __init__(self, parent: TranscriberApp):
         super().__init__(parent)
         self.parent_app = parent
@@ -849,6 +851,7 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         preloaded_status: EngineStatus | None = None,
         settings: SettingsStore | None = None,
         history: HistoryStore | None = None,
+        show_onboarding: bool | None = None,
     ):
         super().__init__()
         ctk.set_appearance_mode("dark")
@@ -856,6 +859,8 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         self.configure(fg_color=BACKGROUND)
 
         self.settings = settings or SettingsStore()
+        self._show_onboarding = (show_onboarding if show_onboarding is not None else
+                                 settings is None and history is None and self.settings.first_run)
         self.t = Translator(self.settings.get("ui_language"))
         self.hardware: HardwareProfile = hardware or detect_hardware()
         self.engine = engine or TranscriberEngine(self.hardware)
@@ -883,9 +888,6 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
             else 5
         )
         self.maximum_quality_chunk = 30 if self.hardware.ram_gb >= 6 else 20
-        if self.ui_mode == "simple" and self.selected_device != "cpu-virtual":
-            self.selected_model_id = AUTO_FAST_MODEL_ID if self.simple_quality == "fast" else AUTO_MODEL_ID
-            self.selected_device = "auto"
         if self.preset == "universal":
             self.selected_model_id = self.settings.get("model", AUTO_MODEL_ID)
             self.selected_language = "auto"
@@ -949,11 +951,7 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         self.smart_subtitles_var = ctk.BooleanVar(value=bool(self.settings.get("smart_subtitles", True)))
         self.chunk_var = ctk.StringVar(value=str(self.settings.get("chunk_seconds", 30)))
         self.beam_var = ctk.StringVar(value=str(self.settings.get("beam_size", 8)))
-        if self.ui_mode == "simple":
-            self.chunk_var.set(str(self.maximum_quality_chunk))
-            self.beam_var.set(str(self.maximum_quality_beam))
         if self.preset == "universal":
-            self.chunk_var.set("12")
             self.speaker_var.set(False)
         self.layout_var = ctk.StringVar(value=self.transcript_layout)
         self.show_timestamps_var = ctk.BooleanVar(value=self.show_timestamps)
@@ -970,6 +968,11 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         self.build_ui()
         self._bind_shortcuts()
         self.render_transcript()
+        try:
+            self.settings.save()
+        except OSError:
+            logging.warning("Could not persist migrated preferences", exc_info=True)
+            self._set_status(self.t("settings_save_unavailable"))
         if preloaded_status is not None:
             self.after(80, self._show_preloaded_model_ready)
         else:
@@ -982,6 +985,12 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         self.start_update_monitor()
         if self.settings.get("check_updates", True):
             self.after(3500, lambda: self.check_updates(silent=True))
+        if self._show_onboarding and not self.settings.get("guided_setup_done", False):
+            self.after(900, self.maybe_show_guided_setup)
+
+    def destroy(self):
+        cancel_widget_timers(self)
+        super().destroy()
 
     def _bind_shortcuts(self) -> None:
         def action(callback):
@@ -1107,248 +1116,9 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
             ModelSelectorDialog(self)
 
     def _build_advanced_panel(self) -> None:
-        self.advanced_panel = ctk.CTkFrame(self.settings_body, fg_color=PANEL, corner_radius=20)
-        self.advanced_panel.grid(row=0, column=0, sticky="ew", padx=4, pady=6)
-        for column in range(4):
-            self.advanced_panel.grid_columnconfigure(column, weight=1)
-        ctk.CTkLabel(
-            self.advanced_panel,
-            text=self.t("settings"),
-            font=("Segoe UI", 16, "bold"),
-            text_color=TEXT,
-        ).grid(row=0, column=0, columnspan=4, sticky="w", padx=20, pady=(16, 10))
+        from src.settings_ui import build_recognition_settings
 
-        model_box = ctk.CTkFrame(self.advanced_panel, fg_color="transparent")
-        model_box.grid(row=1, column=0, sticky="ew", padx=10, pady=4)
-        ctk.CTkLabel(
-            model_box,
-            text=self.t("model"),
-            font=("Segoe UI", 11),
-            text_color=MUTED,
-        ).pack(anchor="w")
-        self.model_button = ctk.CTkButton(
-            model_box,
-            text=model_label(self.selected_model_id, self.t.language),
-            height=34,
-            fg_color=PANEL_ALT,
-            hover_color="#233654",
-            border_width=1,
-            border_color=ACCENT,
-            command=lambda: ModelSelectorDialog(self),
-        )
-        self.model_button.pack(fill="x", pady=(4, 0))
-        ToolTip(self.model_button, self.t("model_help"))
-
-        self.device_display_map = self._device_display_map()
-        device_values = list(self.device_display_map)
-        selected_device_label = next(
-            (label for label, value in self.device_display_map.items() if value == self.selected_device),
-            device_values[0],
-        )
-        self.device_combo = self._labeled_combo(
-            1, 1, self.t("device"), device_values, selected_device_label, self._device_changed
-        )
-        ToolTip(self.device_combo, self.t("tip_device") + "\n\n" + self.t("cpu_virtual_help"))
-
-        self.language_display_map = self._language_display_map()
-        selected_language_label = next(
-            (label for label, value in self.language_display_map.items() if value == self.selected_language),
-            next(iter(self.language_display_map)),
-        )
-        self.language_combo = self._labeled_combo(
-            1,
-            2,
-            self.t("spoken_language"),
-            list(self.language_display_map),
-            selected_language_label,
-            self._spoken_language_changed,
-        )
-        ToolTip(self.language_combo, self.t("tip_language_setting"))
-
-        output_box = ctk.CTkFrame(self.advanced_panel, fg_color="transparent")
-        output_box.grid(row=1, column=3, sticky="ew", padx=10, pady=4)
-        ctk.CTkLabel(
-            output_box,
-            text=self.t("output_folder"),
-            font=("Segoe UI", 11),
-            text_color=MUTED,
-        ).pack(anchor="w")
-        self.output_folder_button = ctk.CTkButton(
-            output_box,
-            text=self.t("change"),
-            height=34,
-            fg_color=PANEL_ALT,
-            hover_color="#233654",
-            command=self.change_output_folder,
-        )
-        self.output_folder_button.pack(fill="x", pady=(4, 0))
-        ToolTip(self.output_folder_button, self.t("tip_output"))
-
-        checks = ctk.CTkFrame(self.advanced_panel, fg_color="transparent")
-        checks.grid(row=2, column=0, columnspan=4, sticky="ew", padx=14, pady=(8, 6))
-        for column in range(4):
-            checks.grid_columnconfigure(column, weight=1)
-        check_specs = [
-            ("translate", self.translate_var, "tip_translate"),
-            ("speaker_detection", self.speaker_var, "tip_speakers"),
-            ("vad", self.vad_var, "tip_vad"),
-            ("cleanup", self.cleanup_var, "tip_cleanup"),
-            ("open_result", self.open_result_var, "tip_open"),
-            ("smart_subtitles", self.smart_subtitles_var, "tip_subtitles"),
-        ]
-        for index, (key, variable, tip_key) in enumerate(check_specs):
-            widget = ctk.CTkCheckBox(
-                checks,
-                text=self.t(key),
-                variable=variable,
-                checkbox_width=20,
-                checkbox_height=20,
-                fg_color=ACCENT_DARK,
-                hover_color=ACCENT,
-                font=("Segoe UI", 12),
-                command=self._translation_toggled if key == "translate" else self.persist_settings,
-            )
-            widget.grid(row=index // 4, column=index % 4, sticky="w", padx=6, pady=7)
-            ToolTip(widget, self.t(tip_key))
-        self.update_var = ctk.BooleanVar(value=self.settings.get("check_updates", True))
-        update_check = ctk.CTkCheckBox(checks, text=self.t("update_automatic"), variable=self.update_var,
-                       font=("Segoe UI", 12), checkbox_width=20, checkbox_height=20,
-                       fg_color=ACCENT_DARK, command=self._update_preferences_changed)
-        update_check.grid(row=1, column=2, sticky="w", padx=6, pady=7)
-        ToolTip(update_check, self.t("tip_update_automatic"))
-        self.auto_update_var = ctk.BooleanVar(value=self.settings.get("auto_install_updates", True))
-        auto_update_check = ctk.CTkCheckBox(checks, text=self.t("update_auto_install"), variable=self.auto_update_var,
-                       font=("Segoe UI", 12), checkbox_width=20, checkbox_height=20,
-                       fg_color=ACCENT_DARK, command=self._update_preferences_changed)
-        auto_update_check.grid(row=2, column=0, columnspan=2, sticky="w", padx=6, pady=7)
-        ToolTip(auto_update_check, self.t("tip_update_auto_install"))
-        ctk.CTkLabel(checks, text=self.t("cpu_virtual_short"), text_color=MUTED,
-                     wraplength=480, justify="left", font=("Segoe UI", 11)).grid(
-                         row=2, column=2, columnspan=2, sticky="w", padx=6, pady=7)
-        self.keep_audio_var = ctk.BooleanVar(value=self.settings.get("keep_recording_audio", True))
-        keep_audio_check = ctk.CTkCheckBox(checks, text=self.t("keep_audio"), variable=self.keep_audio_var,
-                       font=("Segoe UI", 12), checkbox_width=20, checkbox_height=20,
-                       fg_color=ACCENT_DARK, command=self.persist_settings)
-        keep_audio_check.grid(row=1, column=3, sticky="w", padx=6, pady=7)
-        ToolTip(keep_audio_check, self.t("tip_keep_audio"))
-
-        tuning = ctk.CTkFrame(self.advanced_panel, fg_color="transparent")
-        tuning.grid(row=3, column=0, columnspan=4, sticky="ew", padx=20, pady=(2, 14))
-        ctk.CTkLabel(tuning, text=self.t("chunk"), text_color=MUTED).pack(side="left")
-        self.chunk_combo = ctk.CTkComboBox(
-            tuning,
-            values=["5", "8", "10", "12", "15", "20", "30", "45", "60"],
-            variable=self.chunk_var,
-            width=76,
-            height=32,
-            command=lambda _: self.persist_settings(),
-            fg_color=PANEL_ALT,
-            border_color="#2A3C5E",
-        )
-        self.chunk_combo.pack(side="left", padx=(7, 20))
-        ToolTip(self.chunk_combo, self.t("tip_chunk"))
-        ctk.CTkLabel(tuning, text=self.t("beam"), text_color=MUTED).pack(side="left")
-        self.beam_combo = ctk.CTkComboBox(
-            tuning,
-            values=["1", "3", "5", "8"],
-            variable=self.beam_var,
-            width=76,
-            height=32,
-            command=lambda _: self.persist_settings(),
-            fg_color=PANEL_ALT,
-            border_color="#2A3C5E",
-        )
-        self.beam_combo.pack(side="left", padx=7)
-        ToolTip(self.beam_combo, self.t("tip_beam"))
-        ToolTip(tuning, self.t("model_help"))
-
-        formatting = ctk.CTkFrame(self.advanced_panel, fg_color="transparent")
-        formatting.grid(row=4, column=0, columnspan=4, sticky="ew", padx=20, pady=(0, 15))
-        ctk.CTkLabel(
-            formatting,
-            text=self.t("transcript_layout"),
-            text_color=MUTED,
-        ).pack(side="left")
-        self.layout_display_map = {
-            self.t("layout_blocks"): "blocks",
-            self.t("layout_lines"): "lines",
-        }
-        selected_layout = next(
-            (
-                label
-                for label, value in self.layout_display_map.items()
-                if value == self.transcript_layout
-            ),
-            self.t("layout_blocks"),
-        )
-        self.layout_combo = ctk.CTkComboBox(
-            formatting,
-            values=list(self.layout_display_map),
-            width=150,
-            height=32,
-            fg_color=PANEL_ALT,
-            border_color="#2A3C5E",
-            dropdown_fg_color=PANEL_ALT,
-            command=self._layout_changed,
-        )
-        self.layout_combo.set(selected_layout)
-        self.layout_combo.pack(side="left", padx=(7, 20))
-        ToolTip(self.layout_combo, self.t("tip_layout"))
-        self.timestamps_check = ctk.CTkCheckBox(
-            formatting,
-            text=self.t("show_timestamps"),
-            variable=self.show_timestamps_var,
-            checkbox_width=20,
-            checkbox_height=20,
-            fg_color=ACCENT_DARK,
-            hover_color=ACCENT,
-            command=self._format_options_changed,
-        )
-        self.timestamps_check.pack(side="left", padx=8)
-        ToolTip(self.timestamps_check, self.t("tip_timestamps"))
-        self.duration_check = ctk.CTkCheckBox(
-            formatting,
-            text=self.t("show_duration"),
-            variable=self.show_duration_var,
-            checkbox_width=20,
-            checkbox_height=20,
-            fg_color=ACCENT_DARK,
-            hover_color=ACCENT,
-            command=self._format_options_changed,
-        )
-        self.duration_check.pack(side="left", padx=8)
-        ToolTip(self.duration_check, self.t("tip_duration"))
-
-    def _labeled_combo(
-        self,
-        row: int,
-        column: int,
-        title: str,
-        values: list[str],
-        selected: str,
-        command: Callable[[str], None],
-    ) -> ctk.CTkComboBox:
-        box = ctk.CTkFrame(self.advanced_panel, fg_color="transparent")
-        box.grid(row=row, column=column, sticky="ew", padx=10, pady=4)
-        ctk.CTkLabel(
-            box,
-            text=title,
-            font=("Segoe UI", 11),
-            text_color=MUTED,
-        ).pack(anchor="w")
-        combo = ctk.CTkComboBox(
-            box,
-            values=values,
-            height=34,
-            command=command,
-            fg_color=PANEL_ALT,
-            border_color="#2A3C5E",
-            dropdown_fg_color=PANEL_ALT,
-        )
-        combo.set(selected)
-        combo.pack(fill="x", pady=(4, 0))
-        return combo
-
+        build_recognition_settings(self)
 
     def _device_display_map(self) -> dict[str, str]:
         values = {self.t("device_auto"): "auto", self.t("device_cpu"): "cpu",
@@ -1538,10 +1308,12 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
 
     def _simple_quality_changed(self, label: str) -> None:
         if self.busy or self.recorder.recording:
-            self.quality_control.set(self.t("quality_fast" if self.simple_quality == "fast" else "quality_best"))
+            self._update_model_indicators()
             return
-        self.simple_quality = "fast" if label == self.t("quality_fast") else "best"
-        self.selected_model_id = AUTO_FAST_MODEL_ID if self.simple_quality == "fast" else AUTO_MODEL_ID
+        profiles = {self.t("quality_best"): AUTO_MODEL_ID, self.t("quality_fast"): AUTO_FAST_MODEL_ID,
+                    self.t("quality_coverage"): AUTO_MULTILINGUAL_MODEL_ID}
+        self.selected_model_id = profiles.get(label, self.selected_model_id)
+        self.simple_quality = "fast" if self.selected_model_id == AUTO_FAST_MODEL_ID else "best"
         self.persist_settings()
         self._update_model_indicators()
         self.preload_selected_model()
@@ -1561,11 +1333,7 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         self.render_transcript()
 
     def _apply_maximum_quality_defaults(self, preset: str) -> None:
-        """Make Simple mode choose quality and stability, never speed."""
-        if self.selected_device != "cpu-virtual":
-            self.selected_model_id = AUTO_FAST_MODEL_ID if self.simple_quality == "fast" else AUTO_MODEL_ID
-            self.selected_device = "auto"
-        self.beam_var.set(str(self.maximum_quality_beam))
+        """Apply task defaults without replacing an explicit model or processor."""
         self.chunk_var.set(str(self.maximum_quality_chunk))
         self.vad_var.set(True)
         self.cleanup_var.set(True)
@@ -1573,29 +1341,17 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         self.translate_var.set(False)
         self.speaker_var.set(preset == "conference")
         if preset == "universal":
-            if self.selected_device != "cpu-virtual":
-                self.selected_model_id = AUTO_MODEL_ID
             self.selected_language = "auto"
             self.translate_var.set(True)
             self.chunk_var.set("12")
 
     def toggle_language(self) -> None:
-        self._commit_editor_changes()
-        self.t.set_language("fr" if self.t.language == "en" else "en")
-        self.settings.set("ui_language", self.t.language, save=True)
-        self.build_ui()
-        self.render_transcript()
+        self.set_ui_language("fr" if self.t.language == "en" else "en")
 
     def toggle_mode(self) -> None:
         if self.busy or self.recorder.recording:
             return
         self.ui_mode = "advanced" if self.ui_mode == "simple" else "simple"
-        if self.ui_mode == "simple":
-            self._apply_maximum_quality_defaults(self.preset)
-            if self.selected_language not in {"auto", "fr", "en"}:
-                self.selected_language = "auto"
-                self.simple_language_control.set(self.t("language_auto"))
-            self._update_model_indicators()
         self.settings.set("ui_mode", self.ui_mode, save=True)
         self._apply_mode_visibility()
         self._update_source_context()
@@ -1603,20 +1359,17 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
         self.preload_selected_model()
 
     def select_preset(self, preset: str) -> None:
-        if self.busy or self.recorder.recording:
+        if self.busy or self.recorder.recording or preset == self.preset:
             return
         previous = self.preset
         self._switch_click_speech_mode(preset)
         self.preset = preset
         if previous == "universal" and preset != "universal":
             self.translate_var.set(False)
-            self.selected_model_id = AUTO_MODEL_ID
         if self.ui_mode == "simple":
             self._apply_maximum_quality_defaults(preset)
             self._update_model_indicators()
         elif preset == "universal":
-            self.selected_model_id = AUTO_MODEL_ID
-            self.selected_device = "auto"
             self.selected_language = "auto"
             self.translate_var.set(True)
             self.speaker_var.set(False)
@@ -1686,6 +1439,9 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
                                        if value == self.selected_device))
 
     def _update_model_indicators(self) -> None:
+        if hasattr(self, "quality_control"):
+            self.quality_control.set(self.t({AUTO_MODEL_ID: "quality_best", AUTO_FAST_MODEL_ID: "quality_fast",
+                                             AUTO_MULTILINGUAL_MODEL_ID: "quality_coverage"}.get(self.selected_model_id, "quality_custom")))
         if hasattr(self, "model_button"):
             self.model_button.configure(text=model_label(self.selected_model_id, self.t.language))
         if hasattr(self, "simple_auto_summary_label"):
@@ -1710,6 +1466,8 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
             )
 
     def _spoken_language_changed(self, label: str) -> None:
+        if self.busy or self.recorder.recording:
+            return
         self.selected_language = self.language_display_map.get(label, "auto")
         simple_label = next(
             (name for name, value in self.simple_language_map.items() if value == self.selected_language),
@@ -1734,6 +1492,7 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
                 "translation_third": self.translation_third,
                 "conversation_font_size": self.conversation_font_size,
                 "show_confidence": bool(self.show_confidence_var.get()),
+                "speech_slow": bool(self.slow_voice_var.get()),
                 self._click_speech_setting(): bool(self.speech_click_var.get()),
                 "overlap_separation": bool(self.overlap_var.get()),
                 "speaker_detection": bool(self.speaker_var.get()),
@@ -1741,8 +1500,8 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
                 "cleanup": bool(self.cleanup_var.get()),
                 "open_result": bool(self.open_result_var.get()),
                 "smart_subtitles": bool(self.smart_subtitles_var.get()),
-                "chunk_seconds": bounded_int(self.chunk_var.get(), 30, 5, 60),
-                "beam_size": bounded_int(self.beam_var.get(), 8, 1, 10),
+                "chunk_seconds": bounded_int(self.chunk_var.get(), self.settings.get("chunk_seconds", 30), 5, 60),
+                "beam_size": bounded_int(self.beam_var.get(), self.settings.get("beam_size", 8), 1, 10),
                 "check_updates": bool(self.update_var.get()),
                 "auto_install_updates": bool(self.auto_update_var.get()),
                 "keep_recording_audio": bool(self.keep_audio_var.get()),
@@ -2474,10 +2233,11 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
             button.configure(state=state)
         for button in getattr(self, "simple_task_buttons", {}).values():
             button.configure(state=state)
-        for name in ("choose_button", "link_button", "record_button", "prepare_model_button"):
+        for name in ("choose_button", "link_button", "record_button", "prepare_model_button", "model_button",
+                     "device_combo", "language_combo", "quality_control", "chunk_combo", "beam_combo"):
             widget = getattr(self, name, None)
             if widget is not None:
-                widget.configure(state=state)
+                widget.configure(state="readonly" if state == "normal" and getattr(widget, "_ltp_readonly", False) else state)
         if self.recorder.recording:
             self.record_button.configure(state="disabled")
         self.translation_controls.set_enabled(state == "normal" and not self.recorder.recording)
@@ -2577,7 +2337,7 @@ class TranscriberApp(WorkspaceMixin, RecordingMixin, ConversationMixin, UpdatesM
             self._set_status(self.t("job_cancelling"))
 
     def edit_vocabulary(self) -> None:
-        dialog = ctk.CTkToplevel(self)
+        dialog = ManagedToplevel(self)
         dialog.title(self.t("vocabulary"))
         dialog.geometry("600x330")
         dialog.transient(self)

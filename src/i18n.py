@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import locale as system_locale
 import os
+import re
+import sys
 
 STRINGS: dict[str, dict[str, str]] = {
     "en": {
@@ -861,26 +863,62 @@ from src.i18n_36 import register as register_model_preparation  # noqa: E402
 
 register_model_preparation(STRINGS)
 
+from src.i18n_37 import register as register_guidance  # noqa: E402
+
+register_guidance(STRINGS)
+
+
+def _native_ui_locale() -> str:
+    """Prefer the display language to Windows' independent regional format."""
+    try:
+        if sys.platform == "win32":
+            import ctypes
+
+            language_id = ctypes.windll.kernel32.GetUserDefaultUILanguage()
+            return system_locale.windows_locale.get(language_id, "")
+        if sys.platform == "darwin":
+            import subprocess
+
+            result = subprocess.run(["/usr/bin/defaults", "read", "-g", "AppleLanguages"],
+                                    capture_output=True, text=True, encoding="utf-8", timeout=1)
+            match = re.search(r"\b[a-z]{2,3}(?:[-_][A-Za-z0-9]{2,8})*\b", result.stdout)
+            return match[0] if result.returncode == 0 and match else ""
+    except (AttributeError, OSError, ValueError, TimeoutError):
+        pass
+    except Exception:
+        # A missing OS command/API must never prevent the interface opening.
+        pass
+    return ""
+
+
+def system_ui_locale() -> str:
+    native = _native_ui_locale()
+    if native:
+        return native.replace("_", "-")
+    for key in ("LC_ALL", "LC_MESSAGES", "LANGUAGE", "LANG"):
+        value = os.environ.get(key, "").split(":")[0].split(".")[0].split("@")[0].strip()
+        if value:
+            return value.replace("_", "-")
+    try:
+        return (system_locale.getlocale()[0] or "en").replace("_", "-")
+    except (ValueError, TypeError):
+        return "en"
+
 
 def detect_ui_language() -> str:
-    candidates = [
-        os.environ.get("LANG", ""),
-        os.environ.get("LC_ALL", ""),
-    ]
-    try:
-        candidates.append(system_locale.getlocale()[0] or "")
-    except (ValueError, TypeError):
-        pass
-    return "fr" if any(value.lower().startswith("fr") for value in candidates) else "en"
+    language = system_ui_locale().split("-")[0].lower()
+    return language if language in STRINGS else "en"
 
 
 class Translator:
     def __init__(self, language: str | None = None):
-        self.language = language if language in STRINGS else detect_ui_language()
+        self.preference = language if language in {*STRINGS, "auto"} else "auto"
+        self.language = self.preference if self.preference in STRINGS else detect_ui_language()
 
     def set_language(self, language: str) -> None:
-        if language in STRINGS:
-            self.language = language
+        if language in {*STRINGS, "auto"}:
+            self.preference = language
+            self.language = language if language in STRINGS else detect_ui_language()
 
     def __call__(self, key: str, **values: object) -> str:
         template = STRINGS[self.language].get(key, STRINGS["en"].get(key, key))

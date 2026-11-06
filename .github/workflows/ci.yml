@@ -47,3 +47,6 @@ jobs:
       - name: Exercise on-demand model management on a virtual display
         if: runner.os == 'Linux'
         run: xvfb-run -a -s "-screen 0 1920x1200x24" python scripts/qa_model_preparation.py
+      - name: Exercise guided setup and explained settings on a virtual display
+        if: runner.os == 'Linux'
+        run: xvfb-run -a -s "-screen 0 1920x1200x24" python scripts/qa_guided_setup.py

@@ -8,9 +8,10 @@ import customtkinter as ctk
 
 from src.storage import available_bytes, catalogue_budget, directory_usage, format_bytes, storage_locations
 from src.tooltip import ToolTip
+from src.ui_lifecycle import ManagedToplevel
 
 
-class StorageDialog(ctk.CTkToplevel):
+class StorageDialog(ManagedToplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.app, self.t = parent, parent.t

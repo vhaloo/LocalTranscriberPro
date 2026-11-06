@@ -15,6 +15,16 @@ from src.models import ALIGNER_REPOSITORY, MODEL_BY_ID, MODEL_CATALOG, get_model
 from src.storage import available_bytes, directory_usage, format_bytes
 
 
+def _is_link(path):
+    """Also recognize Windows junctions on Python 3.11, before is_junction()."""
+    try:
+        return (path.is_symlink() or getattr(path, "is_junction", lambda: False)()
+                or bool(getattr(path.lstat(), "st_file_attributes", 0) & 0x400))
+    except OSError:
+        # An unreadable or concurrently removed item is not a deletion target.
+        return True
+
+
 class ModelStore:
     def __init__(self, root, cache_roots=(), *, prefer_mlx=False, omnilingual_root=None):
         self.root = Path(root)
@@ -50,7 +60,7 @@ class ModelStore:
     def entries(self, *, measure=False):
         result, seen = [], set()
         for path, model_id, shared in self._named_paths():
-            if not path.exists() or path.is_symlink() or getattr(path, "is_junction", lambda: False)():
+            if not path.exists() or _is_link(path):
                 continue
             resolved = path.resolve()
             if resolved in seen:
@@ -100,7 +110,7 @@ class ModelStore:
 
     def delete_path(self, path):
         candidate = Path(path).expanduser().absolute()
-        if candidate.is_symlink() or getattr(candidate, "is_junction", lambda: False)():
+        if _is_link(candidate):
             return False
         allowed = {entry["path"] for entry in self.entries()}
         resolved = candidate.resolve()
@@ -111,7 +121,7 @@ class ModelStore:
             entry = Path(name).absolute()
             if entry != resolved and resolved not in entry.parents:
                 raise error
-            if entry.is_symlink() or getattr(entry, "is_junction", lambda: False)():
+            if _is_link(entry):
                 raise error
             attributes = getattr(entry.lstat(), "st_file_attributes", 0)
             if not isinstance(error, PermissionError) or not attributes & 1:
@@ -127,10 +137,10 @@ class ModelStore:
             pending = [resolved]
             while pending:
                 for child in pending.pop().iterdir():
-                    if getattr(child, "is_junction", lambda: False)():
-                        return False
                     if child.is_symlink():
                         continue
+                    if _is_link(child):
+                        return False
                     if child.is_dir():
                         pending.append(child)
             if sys.version_info >= (3, 12):

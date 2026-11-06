@@ -13,6 +13,7 @@ from src.speech_output import CATALOG, LocalSpeechOutput
 from src.system_voices import installed_voices, speak_system
 from src.tooltip import ToolTip
 from src.translation_languages import language_label, normalize_language
+from src.ui_lifecycle import ManagedToplevel
 
 
 class SpeechOutputMixin:
@@ -24,18 +25,25 @@ class SpeechOutputMixin:
             self._pending_speech_operation = None
             self._speech_status = ""
             self.system_voices = []
-            self.voice_choice = "auto"
+            self.voice_choice = self.settings.get("voice_choice", "auto")
             self.playback_pause_owned = False
             self.voice_offered = set()
             self.last_audio = None
-            self.show_confidence_var = ctk.BooleanVar(value=self.settings.get("show_confidence", True))
-            self.overlap_var = ctk.BooleanVar(value=self.settings.get("overlap_separation", False))
-            self.slow_voice_var = ctk.BooleanVar(value=False)
+            if not hasattr(self, "show_confidence_var"):
+                self.show_confidence_var = ctk.BooleanVar(value=self.settings.get("show_confidence", True))
+            if not hasattr(self, "overlap_var"):
+                self.overlap_var = ctk.BooleanVar(value=self.settings.get("overlap_separation", False))
+            self.slow_voice_var = ctk.BooleanVar(value=self.settings.get("speech_slow", False))
             self.speech_click_var = ctk.BooleanVar(value=self.settings.get(self._click_speech_setting()))
             def detect():
                 self.system_voices = installed_voices()
             threading.Thread(target=detect, daemon=True, name="InstalledVoices").start()
         workspace = getattr(self, "workspace_layout", False)
+        if workspace:
+            from src.settings_ui import build_voice_options
+
+            build_voice_options(self, parent)
+            return
         row = ctk.CTkFrame(parent, fg_color="transparent")
         row.grid(row=0 if workspace else 3, column=0, columnspan=2, sticky="ew", pady=(5, 0))
         for key, command, width, tip in (("speech_read", self.read_transcript_lines, 155, "tip_speech_read"),
@@ -135,8 +143,9 @@ class SpeechOutputMixin:
                 break
 
     def open_voice_bank(self):
-        dialog = ctk.CTkToplevel(self)
+        dialog = ManagedToplevel(self)
         dialog.title(self.t("speech_bank"))
+        dialog.t = self.t
         dialog.geometry("720x350")
         dialog.transient(self)
         dialog.configure(fg_color="#08101F")
@@ -150,12 +159,16 @@ class SpeechOutputMixin:
         picker = ctk.CTkOptionMenu(dialog, values=list(choices), width=650, dynamic_resizing=False)
         picker.set(next((label for label, value in choices.items() if value == self.voice_choice), self.t("speech_auto")))
         picker.pack(padx=25, pady=10)
+        ToolTip(picker, self.t("speech_bank_help"))
         def choose():
             self.voice_choice = choices[picker.get()]
+            self.settings.set("voice_choice", self.voice_choice, save=True)
             dialog.destroy()
             if self.voice_choice.startswith("local:") and not self.speech_output.ready(self.voice_choice[6:]):
                 self.prepare_voice(self.voice_choice[6:])
-        ctk.CTkButton(dialog, text=self.t("save"), command=choose).pack(pady=20)
+        save = ctk.CTkButton(dialog, text=self.t("save"), command=choose)
+        save.pack(pady=20)
+        ToolTip(save, self.t("speech_bank_help"))
 
     def prepare_voice(self, language):
         if self.speech_thread and self.speech_thread.is_alive():

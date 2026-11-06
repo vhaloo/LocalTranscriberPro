@@ -63,6 +63,8 @@ class ConversationMixin(WorkbenchMixin, SpeechOutputMixin):
         self._commit_editor_changes()
         self.conversation_font_size = bounded_int(self.conversation_font_size + delta, 22, 14, 48)
         self.font_size_label.configure(text=str(self.conversation_font_size))
+        if hasattr(self, "transcript_font_combo"):
+            self.transcript_font_combo.set(str(self.conversation_font_size))
         self.persist_settings()
         self.render_transcript()
 

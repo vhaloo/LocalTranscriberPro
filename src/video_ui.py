@@ -11,11 +11,12 @@ from yt_dlp.version import __version__ as bundled_version
 
 from src.jobs import JobCancelled
 from src.tooltip import ToolTip
+from src.ui_lifecycle import ManagedToplevel
 from src.video_engine import engine_directory, find_engine_update, install_engine, prepared_engine
 from src.youtube_utils import VideoDownloadError, bundled_ffmpeg, javascript_runtimes, validate_cookie_file
 
 
-class VideoOptionsDialog(ctk.CTkToplevel):
+class VideoOptionsDialog(ManagedToplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.app, self.t = parent, parent.t
