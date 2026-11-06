@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.7.0 — 2026-11-06
+
+- Add a cancellable four-step setup wizard with reviewed application, existing-setting preservation and an explicit microphone level-only test. No capture files, inference or downloads during setup.
+- Simplify the task-first sidebar, add direct accuracy/speed/coverage selection and spoken-language controls, and make session tools contextual and expandable.
+- Reorganize all preferences into four purpose-based pages with inline explanations, visible help buttons and hover/focus/F1 help; keep fine processor/tuning controls available.
+- Follow system display language for new profiles, with French/English support, explicit English fallback and remembered manual choice. Preserve existing explicit preferences and active transcript/audience state when changing UI language.
+- Keep manual models, languages and decoding settings across presentation changes and same-task selection. Persist slow reading/voice preferences and allow translation preferences to be saved without a download.
+- Cancel widget-owned pending callbacks when rebuilding or closing dialogs, preserving callbacks owned by surviving windows. Strengthen model-deletion reparse guards on older Windows Python runtimes.
+- Move native/source/container macOS workflows to macOS 15 after the hosted macOS 14 runner retirement.
+- Add pure policy tests, real Tk wizard/settings regressions and Linux virtual-display coverage; refresh bilingual guides and seven genuine Windows screenshots. Retain all prior conversation, voice, media, privacy, model and signed-update functions.
+
 ## 3.6.0 — 2026-11-05
 
 - Preview one hardware-selected checkpoint at startup; download/load only on first use or explicit preparation. Task/model navigation no longer launches queued downloads.

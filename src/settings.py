@@ -46,8 +46,8 @@ def bounded_int(value: Any, default: int, minimum: int, maximum: int) -> int:
 
 
 DEFAULTS: dict[str, Any] = {
-    "schema_version": 9,
-    "ui_language": detect_ui_language(),
+    "schema_version": 10,
+    "ui_language": "auto",
     "ui_mode": "simple",
     "simple_quality": "best",
     "microphone": "auto",
@@ -86,12 +86,17 @@ DEFAULTS: dict[str, Any] = {
     "translation_cache": "",
     "translation_context": False,
     "translation_glossary": "",
+    "guided_setup_done": False,
+    "tools_expanded": False,
+    "voice_choice": "auto",
+    "speech_slow": False,
 }
 
 
 class SettingsStore:
     def __init__(self, path: Path | None = None):
         self.path = path or Path(user_config_dir("LocalTranscriberPro", "Vhaloo")) / "settings.json"
+        self.first_run = not self.path.exists()
         self._lock = threading.RLock()
         self.data = copy.deepcopy(DEFAULTS)
         self.load()
@@ -107,11 +112,13 @@ class SettingsStore:
                     self.data["model"] = AUTO_MODEL_ID
                 if "translation_target" not in loaded and loaded.get("translate") is True:
                     self.data["translation_target"] = "en"
+                if loaded.get("preset") == "universal" and "chunk_seconds" not in loaded:
+                    self.data["chunk_seconds"] = 12
                 if self.data.get("window_geometry") == "1180x860":
                     self.data["window_geometry"] = "1220x940"
                 self.data["schema_version"] = DEFAULTS["schema_version"]
                 for key, choices in {
-                    "ui_language": {"en", "fr"}, "ui_mode": {"simple", "advanced"},
+                    "ui_language": {"auto", "en", "fr"}, "ui_mode": {"simple", "advanced"},
                     "simple_quality": {"best", "fast"}, "device": {"auto", "cpu", "cpu-virtual", "cuda", "metal"},
                     "transcript_layout": {"blocks", "lines"},
                     "model": {AUTO_MODEL_ID, AUTO_FAST_MODEL_ID, AUTO_MULTILINGUAL_MODEL_ID, *MODEL_BY_ID},
@@ -140,6 +147,10 @@ class SettingsStore:
                     if not isinstance(self.data.get(key), str):
                         self.data[key] = ""
                     self.data[key] = self.data[key][:6000]
+                voice = self.data.get("voice_choice")
+                if not isinstance(voice, str) or len(voice) > 2048 or not (
+                        voice == "auto" or voice.startswith(("local:", "system:"))):
+                    self.data["voice_choice"] = "auto"
                 for key in ("output_folder", "microphone", "spoken_language"):
                     if not isinstance(self.data.get(key), str) or not self.data[key].strip():
                         self.data[key] = DEFAULTS[key]

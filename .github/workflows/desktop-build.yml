@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJSON((inputs.platform == 'windows' || inputs.platform == 'windows-cpu') && '["windows-latest"]' || inputs.platform == 'macos' && '["macos-14"]' || inputs.platform == 'linux' && '["ubuntu-24.04"]' || '["windows-latest","macos-14","ubuntu-24.04"]') }}
+        os: ${{ fromJSON((inputs.platform == 'windows' || inputs.platform == 'windows-cpu') && '["windows-latest"]' || inputs.platform == 'macos' && '["macos-15"]' || inputs.platform == 'linux' && '["ubuntu-24.04"]' || '["windows-latest","macos-15","ubuntu-24.04"]') }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4

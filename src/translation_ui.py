@@ -9,6 +9,7 @@ from src.click_speech import insert_speech_line, speech_language
 from src.confidence import confidence_caption
 from src.tooltip import ToolTip
 from src.translation_languages import language_choices, language_label
+from src.ui_lifecycle import ManagedToplevel
 from src.utils import format_timestamp
 
 BACKGROUND, PANEL, MUTED = "#08101F", "#16233D", "#9AA8BE"
@@ -19,7 +20,7 @@ def search_key(value: str) -> str:
     return "".join(char for char in unicodedata.normalize("NFKD", value.casefold()) if not unicodedata.combining(char))
 
 
-class LanguagePickerDialog(ctk.CTkToplevel):
+class LanguagePickerDialog(ManagedToplevel):
     def __init__(self, parent, current, callback, optional=None, speech_only=False):
         super().__init__(parent)
         self.t, self.callback = parent.t, callback
@@ -58,7 +59,7 @@ class LanguagePickerDialog(ctk.CTkToplevel):
         self.callback(code)
 
 
-class TranslationHelpDialog(ctk.CTkToplevel):
+class TranslationHelpDialog(ManagedToplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title(parent.t("translation_help_title"))

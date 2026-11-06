@@ -1,30 +1,34 @@
 {
-  "version": "3.6.0",
+  "version": "3.7.0",
   "images": [
     {
-      "file": "local-transcriber-pro-3.6.0-universal.jpg",
-      "sha256": "8f47e56fd0bcf0568a90a931a45e09d0faab6d1098715242d86153b0c3d4658d"
+      "file": "local-transcriber-pro-3.7.0-universal.jpg",
+      "sha256": "3ea17096dc9c19801798959736d47a192211ed95036c0a3d5af38dc7d0974932"
     },
     {
-      "file": "local-transcriber-pro-3.6.0-models.jpg",
-      "sha256": "b7f5b1dd46de7931be0191247171ee70ae6f000ac7232a75b7116e9a3dc43abb"
+      "file": "local-transcriber-pro-3.7.0-wizard.jpg",
+      "sha256": "9557bc601e0a9102f6d160c92fc8124c15a82c36630c8e2e462f129019eb972e"
     },
     {
-      "file": "local-transcriber-pro-3.6.0-memory.jpg",
-      "sha256": "92e411dd842dae5caeee3328cf0c4ad62af7a6c29126e247d54dab8fbc3e88b4"
+      "file": "local-transcriber-pro-3.7.0-settings.jpg",
+      "sha256": "9a93e88f46e6deb3982725b64fafed97707b33f27cb6bfc3b4609abe8f95dabd"
     },
     {
-      "file": "local-transcriber-pro-3.6.0-files.jpg",
-      "sha256": "89f91efefa207fd201308a58687da7364a83ce14661e32ef5136f8edb0075a4d"
+      "file": "local-transcriber-pro-3.7.0-files.jpg",
+      "sha256": "d323cbbe476a1e4adde1e2f30af6f54250ee346122128533474b1c81aa30da67"
     },
     {
-      "file": "local-transcriber-pro-3.6.0-settings.jpg",
-      "sha256": "3c5f44ca620a4f2282ae06c5d1eb6a3831aa7a8cfe317b6e2bcbd2b4cb7b7332"
+      "file": "local-transcriber-pro-3.7.0-models.jpg",
+      "sha256": "7c63183b9312f717a4407f4d650a361cf45560437c8e06e6fe4eb871c6c0b78e"
     },
     {
-      "file": "local-transcriber-pro-3.6.0-audience.jpg",
-      "sha256": "25f088dedc79e38497ac3a9bdc8f8504537a99c13d12e11e4356c12bf0f5bfa6"
+      "file": "local-transcriber-pro-3.7.0-memory.jpg",
+      "sha256": "f3b7b2dabdb5d98d0ee964423ae35ca454188d04a4b6fd12fb02e4368a7e9f81"
+    },
+    {
+      "file": "local-transcriber-pro-3.7.0-audience.jpg",
+      "sha256": "6e4639228d2030d4ba1c87a2eda9478cb5c3d425051fa46a20afc66f07b2fa5b"
     }
   ],
-  "demonstration": "Actual Windows 3.6.0 interface, isolated illustrative conversation and hardware profiles. The memory catalogue simulates 4 GB physical RAM; cached weights shown are local model files, not private data. Screenshots do not claim a hardware or language-quality benchmark."
+  "demonstration": "Actual Windows 3.7.0 interface, isolated illustrative conversation and hardware profiles. The memory catalogue simulates 4 GB physical RAM. No private conversation or hardware/language benchmark is shown."
 }
