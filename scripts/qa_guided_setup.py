@@ -84,6 +84,7 @@ def main():
             checks.append("presentation-switch-keeps-model-processor-and-tuning")
             app.open_workspace_settings()
             help_count = 0
+            visible_toggles = set()
             for key in app.settings_pages:
                 app.settings_tabs.set(app.t(key))
                 pump()
@@ -91,7 +92,14 @@ def main():
                           (ctk.CTkSwitch, ctk.CTkCheckBox, ctk.CTkButton, ctk.CTkComboBox, ctk.CTkEntry, ctk.CTkOptionMenu))]
                 missing = [str(widget) for widget in fields if not getattr(widget, "_ltp_tooltip", None)]
                 assert not missing, (key, missing)
+                visible_toggles.update(str(widget.cget("variable")) for widget in fields
+                                      if isinstance(widget, (ctk.CTkSwitch, ctk.CTkCheckBox)))
                 help_count += len(fields)
+            retained = ("speaker_var", "vad_var", "cleanup_var", "overlap_var", "translate_var", "show_timestamps_var",
+                        "show_duration_var", "show_confidence_var", "slow_voice_var", "speech_click_var", "keep_audio_var",
+                        "open_result_var", "smart_subtitles_var", "update_var", "auto_update_var")
+            assert all(str(getattr(app, name)) in visible_toggles for name in retained), retained
+            checks.append("every-retained-settings-toggle-is-accessible-in-settings")
             app.close_workspace_settings()
             checks.append("all-core-settings-controls-have-contextual-help")
             app.offline_prepare()
@@ -109,12 +117,10 @@ def main():
             translation.destroy()
             pump()
             checks.append("translation-preferences-save-without-loading-or-downloading")
-            app.setup_button._ltp_tooltip.help_key()
-            pump()
-            first = ToolTip.active
-            assert first and first.tooltip_window.winfo_exists()
+            first = app.setup_button._ltp_tooltip
+            first.help_key()
+            assert ToolTip.active is first and first.tooltip_window.winfo_exists()
             app.quality_control._ltp_tooltip.help_key()
-            pump()
             assert ToolTip.active is app.quality_control._ltp_tooltip and first.tooltip_window is None
             assert ToolTip.active.escape() == "break" and ToolTip.active is None
             checks.append("context-help-single-popup-and-keyboard-dismissal")
