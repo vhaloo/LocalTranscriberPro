@@ -23,4 +23,6 @@ The signed candidate installed once through the updater in the existing installa
 
 The update preserved 84 existing sessions, 279 output files, settings, recovery and shortcuts. SQLite integrity, logical records and timestamps were compared after relaunch.
 
+The same signed installer also passed installation into the default per-user Windows folder, %LOCALAPPDATA%\Programs\Local Transcriber Pro. The executable hash, Windows registration and both shortcuts were verified at that destination.
+
 macOS and Linux remain experimental for physical installation, microphones and GPU/display use. [Previous 3.7.0 validation](https://github.com/vhaloo/LocalTranscriberPro/blob/v3.7.0/docs/VALIDATION_3.7.md)
