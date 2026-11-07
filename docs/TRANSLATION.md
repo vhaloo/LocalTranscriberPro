@@ -1,4 +1,4 @@
-# Traduction et lecture locales — 3.7.0
+# Traduction et lecture locales — 3.7.1
 
 ## Interface 3.7 / Workspace
 
@@ -137,7 +137,7 @@ Le bouton de mise à jour de l'en-tête indique une nouvelle version, son télé
 **English:** explicit CPU paging retains your requested recognizer/translator with cancellable worker isolation, without changing OS settings. Default accuracy can also use isolated CPU paging when physical RAM is insufficient; Speed keeps physical-memory admission. Quiet startup checks use a header badge; Windows signed updates may install after 60 idle seconds with active work and private text protected. Both preferences are in Settings → Recognition. Mac/Linux retain manual experimental replacement.
 
 
-## Préparation à la demande — 3.7.0
+## Préparation à la demande — 3.7.1
 
 Le démarrage et les changements de mode ne téléchargent aucun modèle. Le profil retenu et le processeur prévu apparaissent dans le panneau de gauche. **Préparer ce modèle** ou le premier traitement télécharge uniquement le modèle de reconnaissance retenu, puis le moteur de traduction et les composants nécessaires aux fonctions activées. Les voix françaises et anglaises sont incluses ; les autres restent proposées au cas par cas. Les modèles déjà préparés sont réutilisés.
 

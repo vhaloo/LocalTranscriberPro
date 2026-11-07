@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.7.1 — 2026-11-07
+
+- Keep current tuning when a selected workspace or profile is clicked again.
+- Show translation destinations on demand and summarize the selected microphone, model and languages in two columns.
+- Put exact language codes first, support Enter and Escape in the picker, and restore the setup dialog after closing it.
+- Refresh eight English screenshots and validate the gallery and all five download links in CI.
+
 ## 3.7.0 — 2026-11-06
 
 - Add a cancellable four-step setup wizard with reviewed application, existing-setting preservation and an explicit microphone level-only test. No capture files, inference or downloads during setup.

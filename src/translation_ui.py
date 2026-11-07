@@ -21,13 +21,17 @@ def search_key(value: str) -> str:
 
 
 class LanguagePickerDialog(ManagedToplevel):
+    RESULT_LIMIT = 80
+
     def __init__(self, parent, current, callback, optional=None, speech_only=False):
         super().__init__(parent)
         self.t, self.callback = parent.t, callback
         self.title(self.t("translation_choose_language"))
         self.geometry("620x650")
         self.transient(parent)
+        self.previous_grab = self.grab_current()
         self.grab_set()
+        self.bind("<Escape>", lambda _event: self.destroy() or "break")
         self.configure(fg_color=BACKGROUND)
         self.values = language_choices(self.t.language, speech_only)
         if optional:
@@ -36,6 +40,7 @@ class LanguagePickerDialog(ManagedToplevel):
         self.search = ctk.CTkEntry(self, placeholder_text=self.t("translation_search"), height=42)
         self.search.pack(fill="x", padx=22, pady=(22, 8))
         self.search.bind("<KeyRelease>", lambda _event: self.refresh())
+        self.search.bind("<Return>", self.accept_search)
         self.count = ctk.CTkLabel(self, text="", text_color=MUTED)
         self.count.pack(anchor="w", padx=24)
         self.results = ctk.CTkScrollableFrame(self, fg_color=PANEL)
@@ -43,20 +48,45 @@ class LanguagePickerDialog(ManagedToplevel):
         self.refresh()
         self.after(100, self.search.focus_set)
 
+    def matching_languages(self):
+        needle = search_key(self.search.get().strip())
+        matches = [(code, label) for code, label in self.values if needle in search_key(label) or needle == code]
+        if needle:
+            matches.sort(key=lambda row: row[0] != needle)
+        return needle, matches
+
     def refresh(self):
         for widget in self.results.winfo_children():
             widget.destroy()
-        needle = search_key(self.search.get())
-        matches = [(code, label) for code, label in self.values if needle in search_key(label)]
-        self.count.configure(text=self.t("translation_matches", count=len(matches)))
-        for code, label in matches[:80]:
+        _, matches = self.matching_languages()
+        if not matches:
+            summary = self.t("translation_no_matches")
+        elif len(matches) > self.RESULT_LIMIT:
+            summary = self.t("translation_matches", count=len(matches))
+        else:
+            summary = self.t("translation_matches_shown", count=len(matches))
+        self.count.configure(text=summary)
+        self.results._parent_canvas.yview_moveto(0)
+        for code, label in matches[:self.RESULT_LIMIT]:
             ctk.CTkButton(self.results, text=("✓ " if code == self.current else "") + label,
                           anchor="w", height=36, fg_color="#14372F" if code == self.current else "transparent",
                           hover_color="#28405C", command=lambda value=code: self.choose(value)).pack(fill="x", pady=2)
 
+    def accept_search(self, _event=None):
+        needle, matches = self.matching_languages()
+        if needle and matches and (len(matches) == 1 or matches[0][0] == needle):
+            self.choose(matches[0][0])
+        return "break"
+
     def choose(self, code):
         self.destroy()
         self.callback(code)
+
+    def destroy(self):
+        previous = self.previous_grab if self.grab_current() is self else None
+        super().destroy()
+        if previous is not None and previous.winfo_viewable():
+            previous.grab_set()
 
 
 class TranslationHelpDialog(ManagedToplevel):
