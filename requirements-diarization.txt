@@ -3,4 +3,4 @@
 torch>=2.7,<2.12
 torchaudio>=2.7,<2.12
 speechbrain>=1.0.3,<2
-scikit-learn>=1.6,<2
+scikit-learn>=1.9.0,<2
