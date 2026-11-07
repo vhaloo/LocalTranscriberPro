@@ -9,6 +9,7 @@ import customtkinter as ctk
 from src.audio import AudioRecorder
 from src.guided_setup import PROFILES, TASKS, SetupAnswers, setup_plan
 from src.i18n import Translator
+from src.models import model_label
 from src.tooltip import ToolTip
 from src.translation_languages import language_label
 from src.translation_ui import LanguagePickerDialog
@@ -87,6 +88,8 @@ class SetupWizard(ManagedToplevel):
             self.variables[field] = ctk.StringVar(value=getattr(self.answers, field))
         variable = self.variables[field]
         def changed():
+            if getattr(self.answers, field) == value:
+                return
             setattr(self.answers, field, value)
             if callback:
                 callback(value)
@@ -98,11 +101,16 @@ class SetupWizard(ManagedToplevel):
         ToolTip(button, help_text, title=label)
         return button
 
-    def checkbox(self, host, field, label, help_text, row):
+    def checkbox(self, host, field, label, help_text, row, callback=None):
         variable = ctk.BooleanVar(value=getattr(self.answers, field))
         self.variables[field] = variable
+        def changed():
+            value = bool(variable.get())
+            setattr(self.answers, field, value)
+            if callback:
+                callback(value)
         button = ctk.CTkCheckBox(host, text=label, variable=variable, font=("Segoe UI", 13),
-                                command=lambda: setattr(self.answers, field, bool(variable.get())))
+                                command=changed)
         button.grid(row=row, column=0, sticky="w", pady=(6, 2))
         ctk.CTkLabel(host, text=help_text, text_color=MUTED, wraplength=550, justify="left", anchor="w",
                      font=("Segoe UI", 12)).grid(row=row+1, column=0, sticky="ew", padx=(28, 0), pady=(0, 7))
@@ -117,7 +125,10 @@ class SetupWizard(ManagedToplevel):
             child.destroy()
         names = ("use", "languages", "preferences", "review")
         self.progress.configure(text=self.t("setup_progress", step=self.step+1, total=4))
-        self.heading.configure(text=self.t("setup_step_"+names[self.step]))
+        heading = "setup_step_" + names[self.step]
+        if self.step == 1 and self.answers.preset in {"files", "link"}:
+            heading = "setup_step_languages_only"
+        self.heading.configure(text=self.t(heading))
         self.intro.configure(text=self.t("setup_subtitle"))
         self.back_button.configure(text=self.t("setup_back"), state="normal" if self.step else "disabled")
         self.cancel_button.configure(text=self.t("setup_cancel"))
@@ -139,7 +150,7 @@ class SetupWizard(ManagedToplevel):
         picker.set(next(label for label, value in values.items() if value == self.answers.ui_language))
         picker.grid(row=0, column=0, sticky="ew")
         ToolTip(picker, self.t("ui_language_help"))
-        uses = self.card(1, self.t("setup_step_use"), self.t("setup_use_help"))
+        uses = self.card(1, self.t("setup_use_section"), self.t("setup_use_help"))
         for index, task in enumerate(TASKS):
             self.radio(uses, "preset", task, self.t("workspace_task_"+task), self.t("task_"+task+"_help"), index*2,
                        callback=self.use_changed)
@@ -158,24 +169,35 @@ class SetupWizard(ManagedToplevel):
         def chosen(code):
             setattr(self.answers, field, code)
             self.render_step()
-            self.grab_set()
         button = ctk.CTkButton(host, text=text+" ▾", fg_color=ALT, height=35,
                               command=lambda: LanguagePickerDialog(self, value, chosen, optional, speech_only))
         button.grid(row=row+1, column=0, sticky="ew")
         ToolTip(button, self.t(help_key), title=self.t(label))
 
     def show_languages(self):
-        host = self.card(0, self.t("setup_step_languages"), self.t("setup_languages_help"))
-        if self.answers.preset != "universal":
-            self.language_button(host, "spoken_language", "spoken_language", "source_language_help", 0,
-                                 optional=("auto", self.t("language_auto")), speech_only=True)
-            self.checkbox(host, "translate", self.t("setup_translate"), self.t("tip_translate"), 2)
-        self.language_button(host, "target", "translation_target", "tip_translation_target", 4)
+        host = self.card(0, self.t("setup_language_section"), self.t("setup_languages_help"))
         if self.answers.preset == "universal":
+            self.language_button(host, "target", "translation_target", "tip_translation_target", 4)
             self.language_button(host, "partner", "translation_partner", "tip_conversation_partner", 6,
                                  optional=("auto", self.t("translation_auto_partner")))
             self.language_button(host, "third", "translation_third", "tip_translation_third", 8,
                                  optional=("none", self.t("translation_no_third")))
+        else:
+            self.language_button(host, "spoken_language", "spoken_language", "source_language_help", 0,
+                                 optional=("auto", self.t("language_auto")), speech_only=True)
+            target = ctk.CTkFrame(host, fg_color="transparent")
+            target.grid_columnconfigure(0, weight=1)
+            self.language_button(target, "target", "translation_target", "tip_translation_target", 0)
+            target.grid(row=4, column=0, sticky="ew")
+
+            def show_target(enabled):
+                if enabled:
+                    target.grid()
+                else:
+                    target.grid_remove()
+
+            self.checkbox(host, "translate", self.t("setup_translate"), self.t("tip_translate"), 2, show_target)
+            show_target(self.answers.translate)
         if self.answers.preset in {"universal", "conference", "dictation"}:
             mic = self.card(1, self.t("microphone"), self.t("tip_microphone"))
             choices = {self.t("default_microphone"): "auto"}
@@ -186,7 +208,8 @@ class SetupWizard(ManagedToplevel):
                 self.mic_status.configure(text=self.t("setup_mic_idle"))
             picker = ctk.CTkComboBox(mic, values=list(choices), state="readonly", height=35,
                                     command=microphone_changed)
-            picker.set(next((label for label, value in choices.items() if value == self.answers.microphone), next(iter(choices))))
+            picker.set(next((label for label, value in choices.items() if value == self.answers.microphone),
+                            self.microphone_label()))
             picker.grid(row=0, column=0, sticky="ew")
             ToolTip(picker, self.t("tip_microphone"))
             self.mic_test_button = ctk.CTkButton(mic, text=self.t("setup_test_mic"), command=self.toggle_microphone_test, fg_color=ALT)
@@ -199,6 +222,14 @@ class SetupWizard(ManagedToplevel):
             self.mic_status = ctk.CTkLabel(mic, text=self.t("setup_test_mic_help"), text_color=MUTED,
                                           wraplength=560, justify="left", anchor="w")
             self.mic_status.grid(row=3, column=0, sticky="ew")
+
+    def microphone_label(self):
+        name = self.answers.microphone
+        if name == "auto":
+            return self.t("default_microphone")
+        if any(label.split(":", 1)[-1].strip() == name for label in self.microphones):
+            return name
+        return self.t("setup_mic_fallback", name=name)
 
     def show_preferences(self):
         host = self.card(0, self.t("profile_label"), self.t("setup_preferences_help"))
@@ -228,27 +259,43 @@ class SetupWizard(ManagedToplevel):
         plan = setup_plan(self.answers)
         model = plan.get("model", self.app.selected_model_id)
         device = plan.get("device", self.app.selected_device)
-        route = self.app.hardware.selection_compatibility(model, device, self.app.engine.cached_model_ids())
-        host = self.card(0, self.t("setup_step_review"), self.t("setup_review_help"))
-        rows = [(self.t("task_title"), self.t("workspace_task_"+self.answers.preset)),
-                (self.t("ui_language_setting"), self.t("ui_language_auto") if self.answers.ui_language == "auto" else self.answers.ui_language.upper()),
-                (self.t("model"), model+" → "+route.model_id if model != route.model_id else model),
-                (self.t("device"), self.t("device_cpu_virtual") if route.reason_code == "cpu_virtual" else (route.device or "cpu").upper()),
+        language = None if plan["spoken_language"] == "auto" else plan["spoken_language"]
+        route = self.app.hardware.selection_compatibility(model, device, self.app.engine.cached_model_ids(), language)
+        model_name = model_label(model, self.t.language)
+        if route.model_id != model:
+            model_name += " → " + model_label(route.model_id, self.t.language)
+        device_name = (self.t("device_cpu_virtual") if route.reason_code == "cpu_virtual" else
+                       self.t("device_cuda") if route.device == "cuda" else (route.device or "cpu").upper())
+        if not route.supported:
+            device_name = self.t("setup_route_unavailable")
+        host = self.card(0, self.t("setup_review_section"), self.t("setup_review_help"))
+        rows = [(self.t("setup_use_section"), self.t("workspace_task_"+self.answers.preset)),
+                (self.t("ui_language_setting"), {"auto": self.t("ui_language_auto"), "fr": "Français", "en": "English"}[self.answers.ui_language]),
+                (self.t("model"), model_name),
+                (self.t("device"), device_name),
                 (self.t("spoken_language"), self.t("language_auto") if plan["spoken_language"] == "auto" else language_label(plan["spoken_language"], self.t.language)),
                 (self.t("setup_large_text"), str(plan["conversation_font_size"])),
                 (self.t("chunk"), str(plan["chunk_seconds"])), (self.t("beam"), str(plan["beam_size"]))]
         if plan["translate"]:
             rows.append((self.t("translation_target"), language_label(plan["translation_target"], self.t.language)))
+        else:
+            rows.append((self.t("setup_translate"), self.t("setup_disabled")))
+        if self.answers.preset in {"universal", "conference", "dictation"}:
+            rows.append((self.t("microphone"), self.microphone_label()))
         if self.answers.preset == "universal":
             rows.extend([(self.t("translation_partner"), self.t("translation_auto_partner") if self.answers.partner == "auto" else language_label(self.answers.partner, self.t.language)),
-                         (self.t("translation_third"), self.t("translation_no_third") if self.answers.third == "none" else language_label(self.answers.third, self.t.language))])
+                         (self.t("setup_review_third"), self.t("translation_no_third") if self.answers.third == "none" else language_label(self.answers.third, self.t.language))])
         rows.extend([(self.t("keep_audio"), self.t("setup_enabled" if self.answers.keep_audio else "setup_disabled")),
                      (self.t("speaker_detection"), self.t("setup_enabled" if plan["speaker_detection"] else "setup_disabled")),
                      (self.t("speech_click"), self.t("setup_enabled" if self.answers.click_speech else "setup_disabled")),
                      (self.t("advanced_show"), self.t("setup_enabled" if self.answers.advanced else "setup_disabled"))])
+        host.grid_columnconfigure(0, weight=0)
+        host.grid_columnconfigure(1, weight=1)
         for row, (name, value) in enumerate(rows):
-            ctk.CTkLabel(host, text=self.t("setup_review_line", name=name, value=value), wraplength=570, justify="left",
-                         anchor="w", font=("Segoe UI", 13)).grid(row=row, column=0, sticky="ew", pady=4)
+            ctk.CTkLabel(host, text=name, height=22, wraplength=225, justify="left", anchor="w",
+                         text_color=MUTED, font=("Segoe UI", 12)).grid(row=row, column=0, sticky="nw", padx=(0, 18), pady=2)
+            ctk.CTkLabel(host, text=value, height=22, wraplength=345, justify="left", anchor="w",
+                         font=("Segoe UI", 13)).grid(row=row, column=1, sticky="nw", pady=2)
         self.card(1, self.t("privacy_controls"), self.t("setup_review_privacy"))
 
     def navigate(self, direction):

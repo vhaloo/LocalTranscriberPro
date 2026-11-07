@@ -23,8 +23,10 @@ def check(root=ROOT):
     readme = (root / 'README.md').read_text('utf-8')
     if not readme.startswith('# Local Transcriber Pro ' + version + '\n'):
         errors.append('README.md: stale title')
-    if f'releases/download/v{version}/LocalTranscriberPro-{version}-Windows-x64-Setup.exe' not in readme:
-        errors.append('README.md: stale Windows download')
+    for suffix in ('Windows-x64-Setup.exe', 'Windows-x64-CPU-Setup.exe', 'macOS-arm64-experimental.dmg',
+                   'Linux-x86_64-experimental.AppImage', 'Linux-x86_64-experimental.tar.gz'):
+        if f'releases/download/v{version}/LocalTranscriberPro-{version}-{suffix}' not in readme:
+            errors.append('README.md: missing current download for ' + suffix)
     for download_version in re.findall(r'releases/download/v([^/\s)]+)/', readme):
         if download_version != version:
             errors.append('README.md: stale platform download')
@@ -38,8 +40,14 @@ def check(root=ROOT):
         screenshots = json.loads((root / 'docs/images/current-release.json').read_text('utf-8'))
         if screenshots['version'] != version:
             errors.append('Screenshots belong to another release')
+        if screenshots.get('ui_language') != 'en':
+            errors.append('The current screenshot gallery must use the English interface')
         if not screenshots['images']:
             errors.append('No current screenshots')
+        listed = [entry['file'] for entry in screenshots['images']]
+        embedded = re.findall(r'!\[[^\]\n]*\]\(docs/images/([^\s)]+)\)', readme)
+        if sorted(embedded) != sorted(set(listed)) or len(listed) != len(set(listed)):
+            errors.append('README.md: screenshot gallery must match the manifest exactly')
         for entry in screenshots['images']:
             path = (root / 'docs/images' / entry['file']).resolve()
             if path.parent != (root / 'docs/images').resolve():
@@ -50,8 +58,6 @@ def check(root=ROOT):
                 errors.append('Invalid screenshot image: ' + entry['file'])
             if hashlib.sha256(data).hexdigest() != entry['sha256']:
                 errors.append('Screenshot checksum changed: ' + entry['file'])
-            if entry['file'] not in readme:
-                errors.append('Screenshot absent from README: ' + entry['file'])
     except (OSError, ValueError, KeyError, TypeError):
         errors.append('Current screenshot manifest missing or invalid')
     return version, errors

@@ -1,34 +1,39 @@
 {
-  "version": "3.7.0",
+  "version": "3.7.1",
+  "ui_language": "en",
   "images": [
     {
-      "file": "local-transcriber-pro-3.7.0-universal.jpg",
-      "sha256": "3ea17096dc9c19801798959736d47a192211ed95036c0a3d5af38dc7d0974932"
+      "file": "local-transcriber-pro-3.7.1-universal.jpg",
+      "sha256": "e2d8213163f123095295c627e8fbf6f9487f526489358fd78bfebf44b3c6b7b1"
     },
     {
-      "file": "local-transcriber-pro-3.7.0-wizard.jpg",
-      "sha256": "9557bc601e0a9102f6d160c92fc8124c15a82c36630c8e2e462f129019eb972e"
+      "file": "local-transcriber-pro-3.7.1-wizard.jpg",
+      "sha256": "83b0b96ce4a8db3ad404a016de74d3bd627ec5c17a59fe6d17e36d36b67230ac"
     },
     {
-      "file": "local-transcriber-pro-3.7.0-settings.jpg",
-      "sha256": "9a93e88f46e6deb3982725b64fafed97707b33f27cb6bfc3b4609abe8f95dabd"
+      "file": "local-transcriber-pro-3.7.1-setup-review.jpg",
+      "sha256": "2959996468cce7b931f6c8ca1e3cc1b709c6253a8fc91ae53e0cecf6aadadfb4"
     },
     {
-      "file": "local-transcriber-pro-3.7.0-files.jpg",
-      "sha256": "d323cbbe476a1e4adde1e2f30af6f54250ee346122128533474b1c81aa30da67"
+      "file": "local-transcriber-pro-3.7.1-settings.jpg",
+      "sha256": "b5954d6b681cf4670225c5235303d7b2c49a82c688aaf4be6d1e154019b1ef16"
     },
     {
-      "file": "local-transcriber-pro-3.7.0-models.jpg",
-      "sha256": "7c63183b9312f717a4407f4d650a361cf45560437c8e06e6fe4eb871c6c0b78e"
+      "file": "local-transcriber-pro-3.7.1-files.jpg",
+      "sha256": "f1f1736c00b8d5a56984266f111546519e2653e931081e5fbce76a3e1c34c49d"
     },
     {
-      "file": "local-transcriber-pro-3.7.0-memory.jpg",
-      "sha256": "f3b7b2dabdb5d98d0ee964423ae35ca454188d04a4b6fd12fb02e4368a7e9f81"
+      "file": "local-transcriber-pro-3.7.1-models.jpg",
+      "sha256": "5ddad4f1e2ca6c2599dbfa094b0b62d4c16f66f8b85b2c11c95079e946bd04ac"
     },
     {
-      "file": "local-transcriber-pro-3.7.0-audience.jpg",
-      "sha256": "6e4639228d2030d4ba1c87a2eda9478cb5c3d425051fa46a20afc66f07b2fa5b"
+      "file": "local-transcriber-pro-3.7.1-memory.jpg",
+      "sha256": "ed072fc0c97f07f48b5185e50c1acf7fd59e65c9e95e26e725222cfa3e463b6c"
+    },
+    {
+      "file": "local-transcriber-pro-3.7.1-audience.jpg",
+      "sha256": "47ea0401445dccd0210638217b439b343ebd2fd6310e9a7c2553c360ffb2b495"
     }
   ],
-  "demonstration": "Actual Windows 3.7.0 interface, isolated illustrative conversation and hardware profiles. The memory catalogue simulates 4 GB physical RAM. No private conversation or hardware/language benchmark is shown."
+  "demonstration": "Actual Windows interface in English with illustrative conversations and hardware profiles. The memory catalogue simulates 4 GB of physical RAM."
 }

@@ -1,4 +1,4 @@
-# Démarrer simplement / Getting started — 3.7.0
+# Démarrer simplement / Getting started — 3.7.1
 
 ## M’aider à choisir
 
@@ -10,6 +10,8 @@ Le bouton en haut de la barre latérale ouvre un assistant réutilisable. Il est
 4. **Vérifier puis appliquer.** Le récapitulatif montre le modèle prévu, son traitement et les options retenues. Retour permet de corriger ; Annuler conserve les préférences précédentes. Appliquer mémorise les choix et conserve la conversation affichée. Le téléchargement du modèle attend le premier usage ou **Préparer ce modèle**.
 
 L’assistant reste disponible plus tard. Terminez la capture, les calculs et la lecture vocale avant de modifier une configuration complète. Les langues de conversation peuvent toujours être ajustées dans leurs sélecteurs pendant une conversation, entre deux fragments.
+
+Dans l’assistant, la destination de traduction apparaît lorsque vous activez la traduction. Le récapitulatif indique le micro prévu. Dans le sélecteur, **Entrée** confirme un code exact ou un résultat unique. **Échap** revient à l’assistant.
 
 ## Les réglages au bon endroit
 
@@ -31,6 +33,8 @@ Le catalogue laisse les modèles absents visibles. **Télécharger** ne prépare
 La taille d’installation, les emplacements réels et l’usage du disque figurent dans **Stockage et dossiers** et dans le [README](../README.md). Les modèles volumineux restent séparés du logiciel et survivent à ses mises à jour.
 
 ## English quick start
+
+A translation destination appears when you enable translation. The review lists the chosen microphone and model. In language search, **Enter** accepts an exact code or a single result. **Escape** returns to setup.
 
 **Help me choose** asks four short sets of questions: use/interface, speech and conversation languages/microphone, priorities/readability, then a review. Back/Cancel preserve the previous preferences; Apply saves only the reviewed choices and retains the displayed conversation. Setup does not run inference, save audio or download weights. Its explicit 12-second microphone level test releases the input on navigation or closure.
 
