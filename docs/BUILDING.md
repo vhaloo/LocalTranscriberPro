@@ -43,7 +43,7 @@ The experimental 3.2.0 packages target x86-64 and are built on Ubuntu 24.04 with
 ## Release procedure
 
 1. Update the code/project/installer/macOS versions, README download/title, changelog, current validation and conversation guides. After changing language/model/voice catalogues, refresh the sourced documentation snapshots as needed and run `python scripts/generate_language_readme.py` to update every embedded README list. Keep unmeasured reliability explicitly labelled.
-2. Capture the real updated interface with illustrative data, save the screenshot under `docs/images`, and update `current-release.json` with version and SHA-256. Do not publish private transcripts.
+2. Capture the real English interface with demonstration data. Save the images under `docs/images`, list each in the README and record `ui_language: en`, the version and SHA-256 in `current-release.json`.
 3. Run `scripts/check_release_docs.py`, `scripts/generate_language_readme.py --check`, Ruff and tests. CI rejects stale versions, download links, language inventories, documentation or screenshot metadata.
 4. Build the native package, run `scripts/verify_frozen_source.py` and `scripts/validate_frozen.py`, then test installation/upgrade/relaunch and data preservation on the target OS. Keep reports and a rollback checkpoint.
 5. Create an annotated `v3.x.y` tag. The desktop workflow builds native packages and tests frozen CPU ASR plus bundled voices; it creates a **draft** release with checksums. It preserves an existing verified release rather than overwriting its assets.
@@ -76,7 +76,7 @@ The updater requires the exact asset name `LocalTranscriberPro-X.Y.Z-Windows-x64
 After native checks, `experimental-package-check.yml` can inspect Mac/Linux containers and attach all five exact package artifacts to an existing empty draft, using their completed run IDs. It verifies sizes and hashes before and after upload and will not replace a conflicting asset or publish the draft. Download the resulting exact packages, verify them against `SHA256SUMS.txt`, then run:
 
 ```text
-python scripts/sign_release.py VERIFIED_PACKAGE_FOLDER --key PRIVATE_KEY_PATH --version 3.7.0
+python scripts/sign_release.py VERIFIED_PACKAGE_FOLDER --key PRIVATE_KEY_PATH --version 3.7.1
 ```
 
 The raw 32-byte Ed25519 private key must remain outside Git, logs, artifacts and packaged files. The verifier's public key must match that key before building. Upload only the resulting public manifest and signature, with the matching checksum manifest. Do not regenerate a key during a retry. Check all published asset bytes against the signed manifest after publication. Independent update signatures do not supply Authenticode or Apple notarization; those need separately provisioned certificates.

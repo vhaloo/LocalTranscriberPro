@@ -1,3 +1,4 @@
+import json
 import shutil
 
 import pytest
@@ -32,9 +33,17 @@ def test_stale_release_is_blocked(tmp_path, name):
 
 
 def test_changed_screenshot_is_blocked(tmp_path):
-    import json
     root = fixture_repo(tmp_path)
     manifest = json.loads((root / 'docs/images/current-release.json').read_text('utf-8'))
     path = root / 'docs/images' / manifest['images'][0]['file']
     path.write_bytes(path.read_bytes() + b'changed')
     assert any('checksum' in error for error in check(root)[1])
+
+
+def test_non_english_screenshot_gallery_is_blocked(tmp_path):
+    root = fixture_repo(tmp_path)
+    path = root / 'docs/images/current-release.json'
+    manifest = json.loads(path.read_text('utf-8'))
+    manifest['ui_language'] = 'fr'
+    path.write_text(json.dumps(manifest), encoding='utf-8')
+    assert any('English interface' in error for error in check(root)[1])

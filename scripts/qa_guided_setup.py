@@ -23,6 +23,7 @@ from src.settings import SettingsStore  # noqa: E402
 from src.speech_output import LocalSpeechOutput  # noqa: E402
 from src.tooltip import ToolTip  # noqa: E402
 from src.transcriber import TranscriberEngine  # noqa: E402
+from src.translation_ui import LanguagePickerDialog  # noqa: E402
 
 
 class QuietApp(TranscriberApp):
@@ -42,7 +43,8 @@ def main():
     settings = SettingsStore(folder / "settings.json")
     settings.update(dict(ui_language="fr", ui_mode="advanced", preset="files", model="small", device="cpu-virtual",
         beam_size=3, chunk_seconds=45, check_updates=False, output_folder=str(folder / "outputs"),
-        conversation_partner="auto", translation_target="fr", window_geometry="1320x990"), save=True)
+        conversation_partner="auto", translation_target="fr", translate=False, spoken_language="auto",
+        microphone="auto", window_geometry="1320x990"), save=True)
     hardware = HardwareProfile("Windows", "11", "AMD64", "Validation CPU", 8, 32, available_ram_gb=16)
     hardware.refresh_resources = lambda: None
     calls, errors, checks = [], [], []
@@ -128,6 +130,42 @@ def main():
             snapshot = settings.path.read_bytes()
             wizard = app.open_guided_setup()
             pump()
+            current_task = next(widget for widget in walk(wizard.body) if isinstance(widget, ctk.CTkRadioButton)
+                                and widget.cget("value") == "files")
+            assert wizard.answers.chunk_seconds == 45
+            current_task.invoke()
+            assert wizard.answers.chunk_seconds == 45
+            wizard.navigate(1)
+            pump()
+            translate = next(widget for widget in walk(wizard.body) if isinstance(widget, ctk.CTkCheckBox))
+            target = next(widget for widget in walk(wizard.body) if isinstance(widget, ctk.CTkLabel)
+                          and widget.cget("text") == wizard.t("translation_target"))
+            assert not target.winfo_ismapped()
+            translate.toggle()
+            pump()
+            assert target.winfo_ismapped()
+            translate.toggle()
+            pump()
+            assert not target.winfo_ismapped()
+            checks.append("reselecting-a-task-keeps-tuning-and-translation-controls-follow-the-toggle")
+            spoken = next(widget for widget in walk(wizard.body) if isinstance(widget, ctk.CTkButton)
+                          and widget.cget("text") == wizard.t("language_auto") + " ▾")
+            spoken.invoke()
+            pump()
+            picker = wizard.grab_current()
+            assert isinstance(picker, LanguagePickerDialog)
+            picker.destroy()
+            assert wizard.grab_current() is wizard
+            spoken.invoke()
+            pump()
+            picker = wizard.grab_current()
+            picker.search.insert(0, "  es  ")
+            picker.refresh()
+            assert picker.matching_languages()[1][0][0] == "es"
+            picker.accept_search()
+            assert wizard.grab_current() is wizard and wizard.answers.spoken_language == "es"
+            checks.append("language-picker-selects-exact-code-and-restores-wizard-modality")
+            wizard.navigate(-1)
             wizard.answers.preset = "universal"
             wizard.answers.partner, wizard.answers.target, wizard.answers.third = "ar", "fr", "en"
             wizard.navigate(1)
@@ -140,8 +178,12 @@ def main():
             pump()
             assert wizard.microphone_test is None
             wizard.answers.profile = "fast"
+            wizard.answers.microphone = "2nd simulated microphone"
             wizard.navigate(1)
             pump()
+            assert any(isinstance(widget, ctk.CTkLabel) and wizard.microphone_label() in widget.cget("text")
+                       for widget in walk(wizard.body))
+            checks.append("review-shows-selected-microphone-and-its-availability")
             wizard.navigate(-1)
             assert wizard.answers.profile == "fast" and wizard.answers.partner == "ar"
             wizard.destroy()

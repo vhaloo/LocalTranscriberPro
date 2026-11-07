@@ -1,4 +1,8 @@
-# Validation 3.7.0 — 2026-11-06
+# Validation 3.7.1
+
+The English gallery contains eight real Windows captures from an isolated demonstration profile. The 3.7.1 checks cover setup option retention, the conditional translation selector, microphone review and keyboard language selection.
+
+## 3.7.0 historical evidence
 
 ## Scope
 
