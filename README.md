@@ -143,11 +143,13 @@ These are conservative Windows package/catalogue estimates; Mac/Linux packages a
 | Files / Fichiers | Windows | macOS | Linux |
 |---|---|---|---|
 | Application | `%LOCALAPPDATA%\Programs\Local Transcriber Pro` | `/Applications/Local Transcriber Pro.app`, or chosen folder | AppImage location or extracted portable folder |
-| Settings / Réglages | `%LOCALAPPDATA%\Vhaloo\LocalTranscriberPro\settings.json` | `~/Library/Application Support/LocalTranscriberPro/settings.json` | `$XDG_CONFIG_HOME/LocalTranscriberPro/settings.json` (default `~/.config/...`) |
-| History + recovery / Historique + récupération | `%LOCALAPPDATA%\Vhaloo\LocalTranscriberPro` | `~/Library/Application Support/LocalTranscriberPro` | `$XDG_DATA_HOME/LocalTranscriberPro` (default `~/.local/share/...`) |
-| Models + caches / Modèles + caches | `%LOCALAPPDATA%\Vhaloo\LocalTranscriberPro\Cache` | `~/Library/Caches/LocalTranscriberPro` | `$XDG_CACHE_HOME/LocalTranscriberPro` (default `~/.cache/...`) |
-| Logs / Journaux | `%LOCALAPPDATA%\Vhaloo\LocalTranscriberPro\Logs` | `~/Library/Logs/LocalTranscriberPro` | `$XDG_STATE_HOME/LocalTranscriberPro/log` (default `~/.local/state/...`) |
+| Settings / Réglages | `%LOCALAPPDATA%\<publisher>\LocalTranscriberPro\settings.json` | `~/Library/Application Support/LocalTranscriberPro/settings.json` | `$XDG_CONFIG_HOME/LocalTranscriberPro/settings.json` (default `~/.config/...`) |
+| History + recovery / Historique + récupération | `%LOCALAPPDATA%\<publisher>\LocalTranscriberPro` | `~/Library/Application Support/LocalTranscriberPro` | `$XDG_DATA_HOME/LocalTranscriberPro` (default `~/.local/share/...`) |
+| Models + caches / Modèles + caches | `%LOCALAPPDATA%\<publisher>\LocalTranscriberPro\Cache` | `~/Library/Caches/LocalTranscriberPro` | `$XDG_CACHE_HOME/LocalTranscriberPro` (default `~/.cache/...`) |
+| Logs / Journaux | `%LOCALAPPDATA%\<publisher>\LocalTranscriberPro\Logs` | `~/Library/Logs/LocalTranscriberPro` | `$XDG_STATE_HOME/LocalTranscriberPro/log` (default `~/.local/state/...`) |
 | Transcripts, exports + saved audio | Your chosen output folder; default OS Documents/Transcriptions | Same | Same, following the OS Documents location |
+
+On Windows, open **Storage and folders** for the exact paths on your device. The `<publisher>` directory is created by the application inside `%LOCALAPPDATA%`.
 
 The history folder contains `history.sqlite3` and `unsaved_session.json`. Cache subfolders are `models`, `omnilingual`, `translation`, `voices`, `separation`, `speechbrain`, `online-audio`, `video-engine` and `updates`. Bundled French/English voices live in the application; on-demand voices live in the cache. Temporary online audio is removed after import/transcription or cancellation. Existing exports, models, settings and history survive application upgrades. Use the actual paths in **Storage and folders**, including when XDG variables or output locations were customized.
 
