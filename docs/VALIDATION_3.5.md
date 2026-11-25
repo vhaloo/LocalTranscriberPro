@@ -43,7 +43,7 @@ GitHub asset digests, SHA256SUMS and independently verified Ed25519 manifest ent
 
 ## Local installation, automatic handoff and user data
 
-The signed full installer upgrades **`E:\LocalTranscriberPro\Application`** to **3.5.0**, with preflight success and installer exit code zero. The actual installed executable matches the CI-installed executable byte for byte; all **60 application modules and 5 catalogues** match the source. Full-runtime files total approximately 5.34 decimal GB before model caches. Both official shortcuts point to this executable.
+The signed full installer upgrades the existing custom installation folder to **3.5.0**, with preflight success and installer exit code zero. The actual installed executable matches the CI-installed executable byte for byte; all **60 application modules and 5 catalogues** match the source. Full-runtime files total approximately 5.34 decimal GB before model caches. Both official shortcuts point to this executable.
 
 **Ten actual installed-runtime checks pass:** Tiny CPU, French voice, English voice, controlled HTTP import, isolated Tiny CPU paging, Tiny CUDA, legacy French-to-English CUDA translation, automatic full Whisper large-v3, isolated full large-v3 CPU paging and isolated Tiny + MADLAD French translation. Requested models/devices and completed progress are asserted; silent substitutions are rejected.
 
