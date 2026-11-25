@@ -71,7 +71,7 @@ The updater requires the exact asset name `LocalTranscriberPro-X.Y.Z-Windows-x64
 
 ## Separate CPU packages and release signing — 3.3
 
-`desktop-build.yml` supports `windows`, `windows-cpu`, `macos`, `linux` and `all`. The CPU job uses CPU PyTorch wheels and sets `LTP_CPU_ONLY=1` before PyInstaller; the spec writes the matching runtime marker, and Inno's `CPUOnly` definition creates the distinct installer filename. The full Windows package retains CUDA. For a local build on another disk, `scripts/build_windows.ps1 -OutputRoot E:\LocalTranscriberPro-build` keeps large build/dist output off the system drive.
+`desktop-build.yml` supports `windows`, `windows-cpu`, `macos`, `linux` and `all`. The CPU job uses CPU PyTorch wheels and sets `LTP_CPU_ONLY=1` before PyInstaller; the spec writes the matching runtime marker, and Inno's `CPUOnly` definition creates the distinct installer filename. The full Windows package retains CUDA. Use `scripts/build_windows.ps1 -OutputRoot <build-folder>` to choose where the build and distribution files are created.
 
 After native checks, `experimental-package-check.yml` can inspect Mac/Linux containers and attach all five exact package artifacts to an existing empty draft, using their completed run IDs. It verifies sizes and hashes before and after upload and will not replace a conflicting asset or publish the draft. Download the resulting exact packages, verify them against `SHA256SUMS.txt`, then run:
 
