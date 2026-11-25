@@ -39,7 +39,7 @@ SHA-256 values agree between downloaded artifacts, GitHub asset digests and the 
 
 ## Local Windows upgrade and user data
 
-The full verified installer upgrades **`E:\LocalTranscriberPro\Application`** to **3.4.0**, with exit code zero. Its native wizard/hardware preflight succeeds before copying. The installed full-runtime marker retains CUDA support. Runtime files total approximately 5.34 decimal GB before model caches. Both official Desktop/Start-menu shortcuts point to this executable.
+The full verified installer upgrades the existing custom installation folder to **3.4.0**, with exit code zero. Its native wizard/hardware preflight succeeds before copying. The installed full-runtime marker retains CUDA support. Runtime files total approximately 5.34 decimal GB before model caches. Both official Desktop/Start-menu shortcuts point to this executable.
 
 **Seven actual installed-runtime checks pass:** Tiny CPU, French voice, English voice, controlled HTTP import, Tiny CUDA, legacy French-to-English CUDA translation, and auto-best full large-v3 on CPU. Requested engines/models are checked explicitly; silent substitutions are rejected. The large-v3 check reports 12.891 seconds for the public 11-second sample, with no model fallback.
 
